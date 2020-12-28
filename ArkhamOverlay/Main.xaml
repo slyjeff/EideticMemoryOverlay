@@ -1,0 +1,96 @@
+﻿<Window x:Class="ArkhamOverlay.Main"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:arkhamoverlay="clr-namespace:ArkhamOverlay" 
+        d:DataContext="{d:DesignInstance Type=arkhamoverlay:AppData}"
+        mc:Ignorable="d"
+        Title="Arkham Overlay"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        Left="10"
+        Top="10"
+        Loaded="InitializeApp"
+        Unloaded="CloseApp">
+    <StackPanel Margin="10" Orientation="Vertical">
+        <StackPanel.Resources>
+            <Style TargetType="{x:Type TextBlock}">
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+            </Style>
+
+            <Style TargetType="{x:Type TextBox}">
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Width" Value="80" />
+            </Style>
+
+            <Style TargetType="{x:Type Button}">
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Padding" Value="10, 3, 10, 5" />
+            </Style>
+        </StackPanel.Resources>
+
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Game Name:" />
+            <TextBox Margin ="10, 0, 0, 0" Text="{Binding Game.Name, Mode=TwoWay}" Width="200" />
+            <Button Margin="10, 0, 0, 0" Click="SaveGame">Save</Button>
+            <Button Margin="10, 0, 0, 0" Click="LoadGame">Load</Button>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+            <TextBlock Text="Overlay Width/Height:" />
+            <TextBox Margin ="10, 0, 4, 0" Text="{Binding Configuration.OverlayWidth, Mode=TwoWay}" Width="40" />
+            <TextBlock Text="x" />
+            <TextBox Margin ="4, 0, 0, 0" Text="{Binding Configuration.OverlayHeight, Mode=TwoWay}" Width="40" />
+            <TextBlock Margin ="10, 0, 0, 0" Text="Card Height:" />
+            <TextBox Margin ="10, 0, 0, 0" Text="{Binding Configuration.CardHeight, Mode=TwoWay}" Width="30" />
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding Game.Players}" Margin="0, 10, 0, 0">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical" Margin="0, 0, 10 ,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Arkham Deck ID:" />
+                            <TextBox Margin="10, 0, 0, 0" MaxLength="10" Text="{Binding DeckId, Mode=TwoWay}" />
+                            <Button FontSize="14" Padding="2, -3, 2, 0" Click="Refresh">⟲</Button>
+                        </StackPanel>
+
+                        <Border BorderThickness="1" Background="Transparent" CornerRadius="10" Margin="0,5,0,0" >
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="BorderBrush" Value="DarkGray" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Image Width="217" 
+                               Source="{Binding InvestigatorImage}"
+                               MouseUp="PlayerSelected">
+                                <Image.Clip>
+                                    <RectangleGeometry RadiusX="10"
+                                           RadiusY="10"
+                                           Rect="0,0,218,156"/>
+                                </Image.Clip>
+                            </Image>
+                        </Border>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 0">
+            <Button Margin="10, 0, 0, 0" Click="ShowOverlay">Show Overlay</Button>
+        </StackPanel>
+    </StackPanel>
+</Window>

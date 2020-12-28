@@ -1,0 +1,29 @@
+﻿<Window x:Class="ArkhamOverlay.Overlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:arkhamoverlay="clr-namespace:ArkhamOverlay"
+        d:DataContext="{d:DesignInstance Type=arkhamoverlay:OverlayData}"
+        mc:Ignorable="d"
+        Title="Arkham Overlay" 
+        Left = "10"
+        Width="{Binding Configuration.OverlayWidth}" 
+        MinWidth="{Binding Configuration.OverlayWidth}" 
+        MaxWidth="{Binding Configuration.OverlayWidth}" 
+        Height="{Binding Configuration.OverlayHeight}" 
+        MaxHeight="{Binding Configuration.OverlayHeight}" 
+        MinHeight="{Binding Configuration.OverlayHeight}" 
+        Background="#00B164">
+    <Grid>
+        <DockPanel>
+            
+        </DockPanel>
+        <Image Height="{Binding Configuration.CardHeight}" Name="Card">
+                <Image.Clip>
+                <RectangleGeometry RadiusX="{Binding Configuration.CardRadius}"
+                                           RadiusY="{Binding Configuration.CardRadius}"
+                                           Rect="{Binding Configuration.CardClipRect}"/>
+                </Image.Clip>
+            </Image>
+    </Grid>
+</Window>
