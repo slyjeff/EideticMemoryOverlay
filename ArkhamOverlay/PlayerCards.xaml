@@ -6,7 +6,7 @@
         xmlns:arkhamoverlay="clr-namespace:ArkhamOverlay" 
         d:DataContext="{d:DesignInstance Type=arkhamoverlay:Player}"
         mc:Ignorable="d"
-        Title="{Binding DeckId}"
+        Title="{Binding Investigator}"
         SizeToContent="Height">
     <Window.Resources>
         <Style x:Key="CardButton" TargetType="Button">

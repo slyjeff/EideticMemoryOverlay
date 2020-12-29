@@ -44,8 +44,13 @@ namespace ArkhamOverlay {
                 OnPropertyChanged("CardHeight");
                 OnPropertyChanged("CardClipRect");
                 OnPropertyChanged("CardRadius");
+                OnPropertyChanged("CardWidth");
                 OverlayConfigurationChanged?.Invoke();
             } 
+        }
+
+        public double CardWidth {
+            get => _cardHeight * .716;
         }
         
         [JsonIgnore]

@@ -12,19 +12,26 @@ namespace ArkhamOverlay.Services {
             if (string.IsNullOrEmpty(player.DeckId)) {
                 return;
             }
-            string url = @"https://arkhamdb.com/api/public/deck/" + player.DeckId;
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.AutomaticDecompression = DecompressionMethods.GZip;
+            try {
+                string url = @"https://arkhamdb.com/api/public/deck/" + player.DeckId;
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream)) {
-                var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
-                player.InvestigatorImage = new BitmapImage(new Uri("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png", UriKind.Absolute));
-                player.CardIds = from cardId in arkhamDbDeck.Slots.Keys select cardId;
-                player.OnPlayerChanged();
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.AutomaticDecompression = DecompressionMethods.GZip;
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (Stream stream = response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream)) {
+                    var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
+                    player.Investigator = arkhamDbDeck.Investigator_Name;
+                    player.InvestigatorImage = new BitmapImage(new Uri("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png", UriKind.Absolute));
+                    player.CardIds = from cardId in arkhamDbDeck.Slots.Keys select cardId;
+                    player.OnPlayerChanged();
+                }
+            } catch {
+                return;
             }
+            return;
         }
 
         internal void LoadAllPlayers(Game game) {

@@ -1,13 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace ArkhamOverlay {
     public class OverlayData {
+        public OverlayData() {
+            Cards = new ObservableCollection<OverlayCard>();
+        }
+
         public Configuration Configuration { get; set; }
 
-        public IList<OverlayCard> Cards { get; set; }
+        public ObservableCollection<OverlayCard> Cards { get; set; }
     }
 
     public class OverlayCard : INotifyPropertyChanged {
@@ -19,8 +25,13 @@ namespace ArkhamOverlay {
                 card = value;
                 CardImage = new BitmapImage(new Uri("https://arkhamdb.com/" + card.ImageSource, UriKind.Absolute));
                 OnPropertyChanged("CardImage");
+
+                Visibility = Visibility.Visible;
+                OnPropertyChanged("Visibility");
             }
         }
+
+        public Visibility Visibility { get; set; }
 
         public BitmapImage CardImage { get; set; }
 

@@ -35,7 +35,7 @@ namespace ArkhamOverlay {
                 } catch {
                     // if there's an error, we don't care- just use the default configuration
                 }
-            } 
+            }
 
             AppData.Configuration.OverlayConfigurationChanged += () => {
                 File.WriteAllText("Config.json", JsonConvert.SerializeObject(AppData.Configuration));
@@ -48,7 +48,7 @@ namespace ArkhamOverlay {
                 } catch {
                     // if there's an error, we don't care- just use the default game
                 }
-            } 
+            }
 
             while (game.Players.Count < 4) {
                 game.Players.Add(new Player());
@@ -83,7 +83,7 @@ namespace ArkhamOverlay {
                 InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
             };
 
-            if (dialog.ShowDialog() == true) { 
+            if (dialog.ShowDialog() == true) {
                 var game = JsonConvert.DeserializeObject<Game>(File.ReadAllText(dialog.FileName));
                 SetGame(game);
             }
@@ -121,13 +121,24 @@ namespace ArkhamOverlay {
                 _arkhamDbService.LoadPlayerCards(player);
             };
             worker.RunWorkerAsync();
-
         }
 
         private void MainWindowActivated(object sender, EventArgs e) {
             foreach (var playerCards in _playerCardsList) {
                 playerCards.Show();
             }
+        }
+
+        private void PlayerSelected(object sender, RoutedEventArgs e) {
+            if (!(sender is Button button)) {
+                return;
+            }
+
+            if (!(button.DataContext is Player player)) {
+                return;
+            }
+
+            PlayerSelected(player);
         }
 
         private void PlayerSelected(object sender, MouseButtonEventArgs e) {
@@ -138,6 +149,11 @@ namespace ArkhamOverlay {
             if (!(image.DataContext is Player player)) {
                 return;
             }
+
+            PlayerSelected(player);
+        }
+
+        private void PlayerSelected(Player player) {
 
             var left = Left + Width + 10;
             var width = (double)786;
@@ -221,6 +237,15 @@ namespace ArkhamOverlay {
             }
 
             _overlay.Show();
+            ClearCardsButton.Visibility = Visibility.Visible;
+        }
+
+        public void ClearCards(object sender, RoutedEventArgs e) {
+            if (_overlay == null) {
+                return;
+            }
+
+            _overlay.ClearCards();
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -33,6 +35,8 @@ namespace ArkhamOverlay {
         public Player() {
             Cards = new List<Card>();
         }
+        
+        public string Investigator { get; set; }
 
         public string DeckId { get; set; }
 
@@ -48,6 +52,9 @@ namespace ArkhamOverlay {
         [JsonIgnore]
         public bool Loading { get; internal set; }
 
+        [JsonIgnore]
+        public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(Investigator) ? Visibility.Hidden: Visibility.Visible; } }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public void OnPropertyChanged(string propertyName) {
@@ -60,6 +67,7 @@ namespace ArkhamOverlay {
 
         public void OnPlayerChanged() {
             OnPropertyChanged("InvestigatorImage");
+            OnPropertyChanged("LoadedVisiblity");
         }
 
         public void OnPlayerCardsChanged() {
@@ -72,6 +80,7 @@ namespace ArkhamOverlay {
         public string Name { get; set; }
         public string Faction { get; set; }
         public string ImageSource { get; set; }
+        
         public Brush Background {
             get {
                 if (Faction == "Guardian") {

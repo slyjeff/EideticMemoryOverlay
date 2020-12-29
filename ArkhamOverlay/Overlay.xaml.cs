@@ -1,25 +1,27 @@
-﻿using System;
+﻿using System.Linq;
 using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace ArkhamOverlay {
     public partial class Overlay : Window {
-        private Card _card;
-
         public Overlay() {
             InitializeComponent();
         }
 
         internal void ToggleCard(Card card) {
-            if (_card == card) {
-                Card.Source = null;
-                _card = null;
-                return;
+            var overlayData = DataContext as OverlayData;
+
+            var existingCard = overlayData.Cards.FirstOrDefault(x => x.Card == card);
+            if (existingCard == null) {
+                overlayData.Cards.Add(new OverlayCard { Card = card });
+            } else {
+                overlayData.Cards.Remove(existingCard);
             }
+        }
 
-            _card = card;
+        internal void ClearCards() {
+            var overlayData = DataContext as OverlayData;
 
-            Card.Source = new BitmapImage(new Uri("https://arkhamdb.com/" + card.ImageSource, UriKind.Absolute));
+            overlayData.Cards.Clear();
         }
     }
 }
