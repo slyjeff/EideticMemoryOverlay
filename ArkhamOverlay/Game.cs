@@ -27,13 +27,29 @@ namespace ArkhamOverlay {
         }
 
         public void OnPlayersChanged() {
-            OnPropertyChanged("Players");
+            OnPropertyChanged(nameof(Players));
         }
     }
 
-    public class Player : INotifyPropertyChanged {
+    public interface IPlayer {
+        string Investigator { get; }
+
+        string DeckId { get; }
+
+        BitmapImage InvestigatorImage { get; }
+
+        List<IPlayerButton> PlayerButtons { get; }
+
+        IEnumerable<string> CardIds { get; }
+
+        bool Loading { get; }
+
+        Visibility LoadedVisiblity { get; }
+    }
+
+    public class Player : IPlayer, INotifyPropertyChanged {
         public Player() {
-            PlayerButtons = new List<PlayerButton>();
+            PlayerButtons = new List<IPlayerButton>();
         }
 
         public string Investigator { get; set; }
@@ -44,7 +60,7 @@ namespace ArkhamOverlay {
         public BitmapImage InvestigatorImage { get; set; }
 
         [JsonIgnore]
-        public List<PlayerButton> PlayerButtons { get; set; }
+        public List<IPlayerButton> PlayerButtons { get; set; }
 
         [JsonIgnore]
         public IEnumerable<string> CardIds { get; set; }
@@ -75,17 +91,17 @@ namespace ArkhamOverlay {
         }
     }
 
-    public abstract class PlayerButton {
-        public abstract Brush Background { get; }
+    public interface IPlayerButton {
+        Brush Background { get; }
     }
 
-    public class Card : PlayerButton {
+    public class Card : IPlayerButton {
         public string Id { get; set; }
         public string Name { get; set; }
         public string Faction { get; set; }
         public string ImageSource { get; set; }
 
-        public override Brush Background {
+        public Brush Background {
             get {
                 if (Faction == "Guardian") {
                     return new SolidColorBrush(Colors.DarkBlue);
@@ -112,8 +128,8 @@ namespace ArkhamOverlay {
         }
     }
 
-    public class ClearButton : PlayerButton {
-        public override Brush Background {
+    public class ClearButton : IPlayerButton {
+        public Brush Background {
             get {
                 return new SolidColorBrush(Colors.Black);
             }

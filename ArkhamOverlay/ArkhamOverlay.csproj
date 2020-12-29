@@ -82,6 +82,7 @@
     <Compile Include="ArkhamDbCard.cs" />
     <Compile Include="ArkhamDbDeck.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="Design\Player.cs" />
     <Compile Include="Main.xaml.cs">
       <DependentUpon>Main.xaml</DependentUpon>
     </Compile>
