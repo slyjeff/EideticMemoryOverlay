@@ -1,6 +1,6 @@
 ﻿namespace ArkhamOverlay.Services {
     public class ArkhamDbCard {
-        public string Id { get; set; }
+        public string Code { get; set; }
         public string Name { get; set; }
         public string Faction_Name { get; set; }
         public string ImageSrc { get; set; }

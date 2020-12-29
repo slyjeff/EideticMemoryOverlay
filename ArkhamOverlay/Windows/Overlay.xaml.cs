@@ -14,7 +14,14 @@ namespace ArkhamOverlay {
 
             var existingCard = cards.FirstOrDefault(x => x.Card == card);
             if (existingCard == null) {
-                cards.Add(new OverlayCard(overlayData.Configuration) { Card = card } );
+                var newCard = new OverlayCard(overlayData.Configuration) { Card = card };
+                var cardToReplace = cards.FirstOrDefault(x => x.Card.Code == card.Code);
+                if (cardToReplace == null) {
+                    cards.Add(newCard);
+                } else {
+                    cards[cards.IndexOf(cardToReplace)] = newCard;
+
+                }
             } else {
                 cards.Remove(existingCard);
             }

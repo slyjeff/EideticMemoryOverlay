@@ -7,7 +7,7 @@ namespace ArkhamOverlay.Data {
         }
 
         public Card(ArkhamDbCard arkhamDbCard, bool cardBack = false) {
-            Id = arkhamDbCard.Id;
+            Code = arkhamDbCard.Code;
             Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")";
             Faction = arkhamDbCard.Faction_Name;
             TypeCode = arkhamDbCard.Type_Code;
@@ -18,7 +18,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public string Id { get; set; }
+        public string Code { get; set; }
         public string Name { get; set; }
         public string Faction { get; set; }
         public string ImageSource { get; set; }
@@ -45,6 +45,22 @@ namespace ArkhamOverlay.Data {
 
                 if (Faction == "Mystic") {
                     return new SolidColorBrush(Colors.Indigo);
+                }
+
+                if (TypeCode == "agenda") {
+                    return new SolidColorBrush(Colors.Chocolate);
+                }
+
+                if (TypeCode == "act") {
+                    return new SolidColorBrush(Colors.BurlyWood);
+                }
+
+                if (TypeCode == "enemy") {
+                    return new SolidColorBrush(Colors.SlateBlue);
+                }
+
+                if (TypeCode == "treachery") {
+                    return new SolidColorBrush(Colors.SlateGray);
                 }
 
                 return new SolidColorBrush(Colors.DarkGray);
