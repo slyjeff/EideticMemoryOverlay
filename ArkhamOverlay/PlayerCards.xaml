@@ -19,14 +19,19 @@
     </Window.Resources>
 
     <Grid>
-        <ItemsControl ItemsSource="{Binding Cards}" BorderThickness="0">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
+        <ItemsControl ItemsSource="{Binding PlayerButtons}" BorderThickness="0">
+            <ItemsControl.Resources>
+                <DataTemplate DataType="{x:Type arkhamoverlay:ClearButton}">
+                    <Button Style="{StaticResource CardButton}" Background="{Binding Background}" Click="ClearCards">
+                        <TextBlock Text="Clear Cards" TextWrapping="Wrap" TextAlignment="Center" />
+                    </Button>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type arkhamoverlay:Card}">
                     <Button Style="{StaticResource CardButton}" Background="{Binding Background}" Click="CardSelected">
                         <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center" />
                     </Button>
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
+            </ItemsControl.Resources>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel></WrapPanel>

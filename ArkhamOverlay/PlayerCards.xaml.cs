@@ -34,5 +34,14 @@ namespace ArkhamOverlay {
 
             Overlay.ToggleCard(card);
         }
+
+        public void ClearCards(object sender, RoutedEventArgs e) {
+            if (Overlay == null) {
+                return;
+            }
+
+            Overlay.ClearCards();
+        }
+
     }
 }
