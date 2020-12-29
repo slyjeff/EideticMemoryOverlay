@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using ArkhamOverlay.Data;
+using System.Linq;
 using System.Windows;
 
 namespace ArkhamOverlay {
@@ -9,19 +10,21 @@ namespace ArkhamOverlay {
 
         internal void ToggleCard(Card card) {
             var overlayData = DataContext as OverlayData;
+            var cards = card.IsPlayerCard ? overlayData.PlayerCards : overlayData.EncounterCards;
 
-            var existingCard = overlayData.Cards.FirstOrDefault(x => x.Card == card);
+            var existingCard = cards.FirstOrDefault(x => x.Card == card);
             if (existingCard == null) {
-                overlayData.Cards.Add(new OverlayCard { Card = card });
+                cards.Add(new OverlayCard(overlayData.Configuration) { Card = card } );
             } else {
-                overlayData.Cards.Remove(existingCard);
+                cards.Remove(existingCard);
             }
         }
 
         internal void ClearCards() {
             var overlayData = DataContext as OverlayData;
 
-            overlayData.Cards.Clear();
+            overlayData.EncounterCards.Clear();
+            overlayData.PlayerCards.Clear();
         }
     }
 }

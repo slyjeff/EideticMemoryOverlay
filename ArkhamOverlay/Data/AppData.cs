@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace ArkhamOverlay {
+namespace ArkhamOverlay.Data {
     public class AppData : INotifyPropertyChanged {
         public Game Game { get; set; }
 

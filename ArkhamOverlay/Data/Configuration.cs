@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 
-namespace ArkhamOverlay {
+namespace ArkhamOverlay.Data {
 
     public delegate void OverlayConfigurationChange();
 

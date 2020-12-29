@@ -1,4 +1,4 @@
-﻿namespace ArkhamOverlay {
+﻿namespace ArkhamOverlay.Services {
     class ArkhamDbPack {
         public string Code { get; set; }
         public string Name { get; set; }

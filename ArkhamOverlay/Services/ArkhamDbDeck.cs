@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ArkhamOverlay {
+namespace ArkhamOverlay.Services {
     public class ArkhamDbDeck {
         public string Id { get; set; }
 

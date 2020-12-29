@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ArkhamOverlay.Data;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,9 +23,9 @@ namespace ArkhamOverlay.Services {
                 using (Stream stream = response.GetResponseStream())
                 using (StreamReader reader = new StreamReader(stream)) {
                     var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
-                    player.Investigator = arkhamDbDeck.Investigator_Name;
                     player.InvestigatorImage = new BitmapImage(new Uri("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png", UriKind.Absolute));
                     player.CardIds = from cardId in arkhamDbDeck.Slots.Keys select cardId;
+                    player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
                     player.OnPlayerChanged();
                 }
             } catch {
@@ -44,7 +45,7 @@ namespace ArkhamOverlay.Services {
                 return;
             }
 
-            player.Loading = true;
+            player.SelectableCards.Loading = true;
             try {
                 var cards = new List<Card>();
                 foreach (var cardId in player.CardIds) {
@@ -55,22 +56,13 @@ namespace ArkhamOverlay.Services {
                     using (Stream cardStream = cardRsponse.GetResponseStream())
                     using (StreamReader cardReader = new StreamReader(cardStream)) {
                         var arkhamDbCard = JsonConvert.DeserializeObject<ArkhamDbCard>(cardReader.ReadToEnd());
-                        cards.Add(new Card {
-                            Id = cardId,
-                            Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")",
-                            Faction = arkhamDbCard.Faction_Name,
-                            ImageSource = arkhamDbCard.Imagesrc
-                        });
-
+                        cards.Add(new Card(arkhamDbCard));
                     }
                 }
-                var playerButtons = new List<IPlayerButton> { new ClearButton() };
-                playerButtons.AddRange(cards.OrderBy(x => x.Name.Replace("\"", "")));
-                player.PlayerButtons = playerButtons;
-                player.OnPlayerCardsChanged();
+                player.SelectableCards.Load(cards.OrderBy(x => x.Name.Replace("\"", "")));
             }
             finally {
-                player.Loading = false;
+                player.SelectableCards.Loading = false;
             }
         }
 
@@ -96,7 +88,7 @@ namespace ArkhamOverlay.Services {
         }
 
         internal bool AddPackToConfiguration(Configuration configuration, ArkhamDbPack arkhamDbPack) {
-            var cards = GetCardsInPack(arkhamDbPack);
+            var cards = GetCardsInPack(arkhamDbPack.Code);
             var encounterSets = new List<EncounterSet>();
             foreach (var card in cards) {
                 if (string.IsNullOrEmpty(card.Encounter_Code) || encounterSets.Any(x => x.Code == card.Encounter_Code)) {
@@ -123,8 +115,88 @@ namespace ArkhamOverlay.Services {
             return true;
         }
 
-        internal IList<ArkhamDbCard> GetCardsInPack(ArkhamDbPack pack) {
-            var cardsInPackUrl = @"https://arkhamdb.com/api/public/cards/" + pack.Code;
+        internal void LoadEncounterCards(AppData appData) {
+            try {
+                appData.Game.ScenarioCards.Loading = true;
+                appData.Game.LocationCards.Loading = true;
+                appData.Game.EncounterDeckCards.Loading = true;
+
+                var packsToLoad = new List<Pack>();
+                foreach (var pack in appData.Configuration.Packs) {
+                    foreach (var encounterSet in pack.EncounterSets) {
+                        if (appData.Game.IsEncounterSetSelected(encounterSet.Code)) {
+                            packsToLoad.Add(pack);
+                            break;
+                        }
+                    }
+                }
+
+                var scenarioCards = new List<Card>();
+                var agendas = new List<Card>();
+                var acts = new List<Card>();
+                var locations = new List<Card>();
+                var treacheries = new List<Card>();
+                var enemies = new List<Card>();
+
+
+                foreach (var pack in packsToLoad) {
+                    var arkhamDbCards = GetCardsInPack(pack.Code);
+                    var cards = new List<Card>();
+
+                    foreach (var arkhamDbCard in arkhamDbCards) {
+                        if (!appData.Game.IsEncounterSetSelected(arkhamDbCard.Encounter_Code)) {
+                            continue;
+                        }
+
+                        cards.Add(new Card(arkhamDbCard));
+                        if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) {
+                            cards.Add(new Card(arkhamDbCard, true));
+                        }
+                    }
+
+                    foreach (var card in cards) {
+                        switch (card.TypeCode) {
+                            case "scenario": 
+                                scenarioCards.Add(card);
+                                break;
+                            case "agenda":
+                                agendas.Add(card);
+                                break;
+                            case "act":
+                                acts.Add(card);
+                                break;
+                            case "location":
+                                locations.Add(card);
+                                break;
+                            case "treachery":
+                                treacheries.Add(card);
+                                break;
+                            case "enemy":
+                                enemies.Add(card);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                scenarioCards.AddRange(agendas);
+                scenarioCards.AddRange(acts);
+                appData.Game.ScenarioCards.Load(scenarioCards);
+
+                appData.Game.LocationCards.Load(locations);
+
+                treacheries.AddRange(enemies);
+                appData.Game.EncounterDeckCards.Load(treacheries);
+            } finally {
+                appData.Game.ScenarioCards.Loading = false;
+                appData.Game.LocationCards.Loading = false;
+                appData.Game.EncounterDeckCards.Loading = false;
+            }
+        }
+
+        internal IList<ArkhamDbCard> GetCardsInPack(string packCode) {
+            var cardsInPackUrl = @"https://arkhamdb.com/api/public/cards/" + packCode;
             HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(cardsInPackUrl);
 
             using (HttpWebResponse cardRsponse = (HttpWebResponse)cardRequest.GetResponse())

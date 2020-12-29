@@ -1,13 +1,13 @@
-﻿<Window x:Class="ArkhamOverlay.PlayerCards"
+﻿<Window x:Class="ArkhamOverlay.SelectCards"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-        xmlns:arkhamoverlay="clr-namespace:ArkhamOverlay" 
+        xmlns:arkhamoverlayData="clr-namespace:ArkhamOverlay.Data" 
         xmlns:design="clr-namespace:ArkhamOverlay.Design" 
-        d:DataContext="{d:DesignInstance {x:Type design:Player}, IsDesignTimeCreatable=True}"
+        d:DataContext="{d:DesignInstance {x:Type design:SelectableCards}, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
-        Title="{Binding Investigator}"
+        Title="{Binding Name}"
         SizeToContent="Height">
     <Window.Resources>
         <Style x:Key="CardButton" TargetType="Button">
@@ -20,14 +20,14 @@
     </Window.Resources>
 
     <Grid>
-        <ItemsControl ItemsSource="{Binding PlayerButtons}" BorderThickness="0">
+        <ItemsControl ItemsSource="{Binding CardButtons}" BorderThickness="0">
             <ItemsControl.Resources>
-                <DataTemplate DataType="{x:Type arkhamoverlay:ClearButton}">
+                <DataTemplate DataType="{x:Type arkhamoverlayData:ClearButton}">
                     <Button Style="{StaticResource CardButton}" Background="{Binding Background}" Click="ClearCards">
                         <TextBlock Text="Clear Cards" TextWrapping="Wrap" TextAlignment="Center" />
                     </Button>
                 </DataTemplate>
-                <DataTemplate DataType="{x:Type arkhamoverlay:Card}">
+                <DataTemplate DataType="{x:Type arkhamoverlayData:Card}">
                     <Button Style="{StaticResource CardButton}" Background="{Binding Background}" Click="CardSelected">
                         <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center" />
                     </Button>

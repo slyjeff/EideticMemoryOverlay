@@ -10,12 +10,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Threading;
 using System.Linq;
+using ArkhamOverlay.Data;
 
 namespace ArkhamOverlay {
     public partial class Main : Window {
         private Overlay _overlay;
         private readonly ArkhamDbService _arkhamDbService = new ArkhamDbService();
-        private readonly IList<PlayerCards> _playerCardsList = new List<PlayerCards>();
+        private readonly IList<SelectCards> _selectCardsList = new List<SelectCards>();
 
         public Main() {
             InitializeComponent();
@@ -33,7 +34,6 @@ namespace ArkhamOverlay {
                 OverlayHeight = 720,
                 CardHeight = 300
             };
-
 
             if (File.Exists("Config.json")) {
                 try {
@@ -83,8 +83,8 @@ namespace ArkhamOverlay {
         }
 
         private void ClearPlayerCardsList() {
-            while (_playerCardsList.Count > 0) {
-                _playerCardsList.First().Close();
+            while (_selectCardsList.Count > 0) {
+                _selectCardsList.First().Close();
             }
         }
 
@@ -114,7 +114,7 @@ namespace ArkhamOverlay {
 
             AppData.Game = game;
             AppData.OnGameChanged();
-            EncounterCardOptions.Visibility = AppData.Game.EncounterSets.Any() ? Visibility.Visible : Visibility.Collapsed;
+            LoadEncounterCards();
 
             var worker = new BackgroundWorker();
             worker.DoWork += (x, y) => {
@@ -130,16 +130,31 @@ namespace ArkhamOverlay {
             chooseEncounters.SetAppData(AppData);
             chooseEncounters.ShowDialog();
 
+            LoadEncounterCards();
+        }
+
+        private void LoadEncounterCards() {
             EncounterCardOptions.Visibility = AppData.Game.EncounterSets.Any() ? Visibility.Visible : Visibility.Collapsed;
+
+            var appData = AppData;
+            var worker = new BackgroundWorker();
+            worker.DoWork += (x, y) => {
+                _arkhamDbService.LoadEncounterCards(appData);
+            };
+            worker.RunWorkerAsync();
         }
 
         public void ShowOtherEncounters(object sender, RoutedEventArgs e) {
+            ShowSelectCardsWindow(AppData.Game.ScenarioCards);
+
         }
 
         public void ShowLocations(object sender, RoutedEventArgs e) {
+            ShowSelectCardsWindow(AppData.Game.LocationCards);
         }
 
         public void ShowEncounterDeck(object sender, RoutedEventArgs e) {
+            ShowSelectCardsWindow(AppData.Game.EncounterDeckCards);
         }
 
         public void Refresh(object sender, RoutedEventArgs e) {
@@ -160,8 +175,8 @@ namespace ArkhamOverlay {
         }
 
         private void MainWindowActivated(object sender, EventArgs e) {
-            foreach (var playerCards in _playerCardsList) {
-                playerCards.Show();
+            foreach (var selectCards in _selectCardsList) {
+                selectCards.Show();
             }
         }
 
@@ -174,7 +189,7 @@ namespace ArkhamOverlay {
                 return;
             }
 
-            PlayerSelected(player);
+            ShowSelectCardsWindow(player.SelectableCards);
         }
 
         private void PlayerSelected(object sender, MouseButtonEventArgs e) {
@@ -186,64 +201,63 @@ namespace ArkhamOverlay {
                 return;
             }
 
-            PlayerSelected(player);
+            ShowSelectCardsWindow(player.SelectableCards);
         }
 
-        private void PlayerSelected(Player player) {
-
+        private void ShowSelectCardsWindow(SelectableCards selectableCard) {
             var left = Left + Width + 10;
             var width = (double)786;
             var top = Top;
-            PlayerCards playerCards = null;
-            foreach (var playerCardsInList in _playerCardsList) {
-                if (playerCardsInList.Player == player) {
-                    playerCards = playerCardsInList;
-                    playerCards.Activate();
+            SelectCards selectCardsWindow = null;
+            foreach (var selectCardsWindowInList in _selectCardsList) {
+                if (selectCardsWindowInList.SelectableCards == selectableCard) {
+                    selectCardsWindow = selectCardsWindowInList;
+                    selectCardsWindow.Activate();
                     break;
                 } else {
-                    if (playerCardsInList.Top + playerCardsInList.Height > top) {
-                        top = playerCardsInList.Top + playerCardsInList.Height + 10;
-                        width = playerCardsInList.Width;
-                        left = playerCardsInList.Left;
+                    if (selectCardsWindowInList.Top + selectCardsWindowInList.Height > top) {
+                        top = selectCardsWindowInList.Top + selectCardsWindowInList.Height + 10;
+                        width = selectCardsWindowInList.Width;
+                        left = selectCardsWindowInList.Left;
                     }
                 }
             }
 
-            if (playerCards == null) {
-                playerCards = new PlayerCards {
-                    Player = player,
+            if (selectCardsWindow == null) {
+                selectCardsWindow = new SelectCards {
+                    SelectableCards = selectableCard,
                     Overlay = _overlay,
                     Left = left,
                     Top = top,
                     Width = width
                 };
 
-                playerCards.Closed += (x, y) => {
-                    _playerCardsList.Remove(playerCards);
+                selectCardsWindow.Closed += (x, y) => {
+                    _selectCardsList.Remove(selectCardsWindow);
                 };
 
-                _playerCardsList.Add(playerCards);
+                _selectCardsList.Add(selectCardsWindow);
             }
 
-            if (!playerCards.Player.Loading) {
-                playerCards.Show();
+            if (!selectCardsWindow.SelectableCards.Loading) {
+                selectCardsWindow.Show();
             } else {
-                ShowPlayerCardsWhenFinishedLoading(playerCards);
+                ShowSelectCardsWindowWhenFinishedLoading(selectCardsWindow);
             }
         }
 
-        private void ShowPlayerCardsWhenFinishedLoading(PlayerCards playerCards) {
+        private void ShowSelectCardsWindowWhenFinishedLoading(SelectCards selectCardsWindow) {
             var timer = new DispatcherTimer {
                 Interval = new TimeSpan(500)
             };
 
             timer.Tick += (x, y) => {
-                if (playerCards.Player.Loading) {
+                if (selectCardsWindow.SelectableCards.Loading) {
                     return;
                 }
 
                 timer.Stop();
-                playerCards.Show();
+                selectCardsWindow.Show();
             };
 
             timer.Start();
@@ -268,7 +282,7 @@ namespace ArkhamOverlay {
                 _overlay = null;
             };
 
-            foreach (var playerCards in _playerCardsList) {
+            foreach (var playerCards in _selectCardsList) {
                 playerCards.Overlay = _overlay;
             }
 

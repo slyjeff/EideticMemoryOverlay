@@ -1,20 +1,16 @@
-﻿using System.Windows;
+﻿using ArkhamOverlay.Data;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace ArkhamOverlay {
-    public partial class PlayerCards : Window {
-        public PlayerCards() {
+    public partial class SelectCards : Window {
+        public SelectCards() {
             InitializeComponent();
         }
 
-        public Player Player {
-            set {
-                DataContext = value;
-            }
-
-            get {
-                return DataContext as Player;
-            }
+        public ISelectableCards SelectableCards {
+            set { DataContext = value; }
+            get { return DataContext as ISelectableCards; }
         }
 
         public Overlay Overlay { get; set; }
@@ -42,6 +38,5 @@ namespace ArkhamOverlay {
 
             Overlay.ClearCards();
         }
-
     }
 }
