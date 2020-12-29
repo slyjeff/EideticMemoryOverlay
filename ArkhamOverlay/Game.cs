@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
@@ -10,11 +9,16 @@ namespace ArkhamOverlay {
     public class Game : INotifyPropertyChanged {
         public Game() {
             Players = new List<Player>();
+            EncounterSets = new List<EncounterSet>();
         }
 
         public string Name { get; set; }
 
-        public List<Player> Players { get; set; }
+        public string Scenario { get; set; }
+
+        public IList<EncounterSet> EncounterSets { get; set; }
+
+        public IList<Player> Players { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -27,7 +31,10 @@ namespace ArkhamOverlay {
         }
 
         public void OnPlayersChanged() {
-            OnPropertyChanged("Players");
+            OnPropertyChanged(nameof(Players));
+        }
+        public void OnEncounterSetsChanged() {
+            OnPropertyChanged(nameof(EncounterSets));
         }
     }
 

@@ -23,24 +23,42 @@ namespace ArkhamOverlay {
         }
 
         public void InitializeApp(object sender, RoutedEventArgs e) {
-            AppData.Configuration = new Configuration {
+            LoadConfiguration();
+            LoadLastSavedGame();
+        }
+
+        private void LoadConfiguration() {
+            var configuration = new Configuration {
                 OverlayWidth = 1228,
                 OverlayHeight = 720,
                 CardHeight = 300
             };
 
+
             if (File.Exists("Config.json")) {
                 try {
-                    AppData.Configuration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText("Config.json"));
+                    configuration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText("Config.json"));
                 } catch {
                     // if there's an error, we don't care- just use the default configuration
                 }
             }
 
-            AppData.Configuration.OverlayConfigurationChanged += () => {
+            configuration.OverlayConfigurationChanged += () => {
                 File.WriteAllText("Config.json", JsonConvert.SerializeObject(AppData.Configuration));
             };
 
+            var worker = new BackgroundWorker();
+            worker.DoWork += (x, y) => {
+                if (_arkhamDbService.FindMissingEncounterSets(configuration)) {
+                    File.WriteAllText("Config.json", JsonConvert.SerializeObject(configuration));
+                }
+            };
+            worker.RunWorkerAsync();
+
+            AppData.Configuration = configuration;
+        }
+
+        private void LoadLastSavedGame() {
             var game = new Game();
             if (File.Exists("LastSaved.json")) {
                 try {
@@ -96,6 +114,7 @@ namespace ArkhamOverlay {
 
             AppData.Game = game;
             AppData.OnGameChanged();
+            EncounterCardOptions.Visibility = AppData.Game.EncounterSets.Any() ? Visibility.Visible : Visibility.Collapsed;
 
             var worker = new BackgroundWorker();
             worker.DoWork += (x, y) => {
@@ -104,6 +123,23 @@ namespace ArkhamOverlay {
                 }
             };
             worker.RunWorkerAsync();
+        }
+
+        public void SetEncounterSet(object sender, RoutedEventArgs e) {
+            var chooseEncounters = new ChooseEncounters();
+            chooseEncounters.SetAppData(AppData);
+            chooseEncounters.ShowDialog();
+
+            EncounterCardOptions.Visibility = AppData.Game.EncounterSets.Any() ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public void ShowOtherEncounters(object sender, RoutedEventArgs e) {
+        }
+
+        public void ShowLocations(object sender, RoutedEventArgs e) {
+        }
+
+        public void ShowEncounterDeck(object sender, RoutedEventArgs e) {
         }
 
         public void Refresh(object sender, RoutedEventArgs e) {

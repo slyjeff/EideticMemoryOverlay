@@ -17,7 +17,6 @@ namespace ArkhamOverlay.Services {
                 string url = @"https://arkhamdb.com/api/public/deck/" + player.DeckId;
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.AutomaticDecompression = DecompressionMethods.GZip;
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 using (Stream stream = response.GetResponseStream())
@@ -51,7 +50,6 @@ namespace ArkhamOverlay.Services {
                 foreach (var cardId in player.CardIds) {
                     var baseCardUrl = @"https://arkhamdb.com/api/public/card/";
                     HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(baseCardUrl + cardId);
-                    cardRequest.AutomaticDecompression = DecompressionMethods.GZip;
 
                     using (HttpWebResponse cardRsponse = (HttpWebResponse)cardRequest.GetResponse())
                     using (Stream cardStream = cardRsponse.GetResponseStream())
@@ -70,6 +68,66 @@ namespace ArkhamOverlay.Services {
                 player.OnPlayerCardsChanged();
             } finally {
                 player.Loading = false;
+            }
+        }
+
+        internal bool FindMissingEncounterSets(Configuration configuration) {
+            var packsUrl = @"https://arkhamdb.com/api/public/packs/";
+            HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(packsUrl);
+
+            var setsAdded = false;
+
+            using (HttpWebResponse cardRsponse = (HttpWebResponse)cardRequest.GetResponse())
+            using (Stream cardStream = cardRsponse.GetResponseStream())
+            using (StreamReader cardReader = new StreamReader(cardStream)) {
+                var packs = JsonConvert.DeserializeObject<List<ArkhamDbPack>>(cardReader.ReadToEnd());
+                foreach (var pack in packs) {
+                    if (!configuration.Packs.Any(x => x.Code == pack.Code)) {
+                        if (AddPackToConfiguration(configuration, pack)) {
+                            setsAdded = true;
+                        }
+                    }
+                }
+            }
+            return setsAdded;
+        }
+
+        internal bool AddPackToConfiguration(Configuration configuration, ArkhamDbPack arkhamDbPack) {
+            var cards = GetCardsInPack(arkhamDbPack);
+            var encounterSets = new List<EncounterSet>();
+            foreach (var card in cards) {
+                if (string.IsNullOrEmpty(card.Encounter_Code) || encounterSets.Any(x => x.Code == card.Encounter_Code)) {
+                    continue;
+                }
+
+                encounterSets.Add(new EncounterSet { Code = card.Encounter_Code, Name = card.Encounter_Name });
+            }
+
+            if (!encounterSets.Any()) {
+                return false;
+            }
+
+            var newPack = new Pack { 
+                Code = arkhamDbPack.Code, 
+                Name = arkhamDbPack.Name,
+                CyclePosition = arkhamDbPack.Cycle_Position,
+                Position = arkhamDbPack.Position,
+                EncounterSets = encounterSets
+            };
+
+            configuration.Packs.Add(newPack);
+
+            return true;
+        }
+
+        internal IList<ArkhamDbCard> GetCardsInPack(ArkhamDbPack pack) {
+            var cardsInPackUrl = @"https://arkhamdb.com/api/public/cards/" + pack.Code;
+            HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(cardsInPackUrl);
+
+            using (HttpWebResponse cardRsponse = (HttpWebResponse)cardRequest.GetResponse())
+            using (Stream cardStream = cardRsponse.GetResponseStream())
+            using (StreamReader cardReader = new StreamReader(cardStream)) {
+                return JsonConvert.DeserializeObject<IList<ArkhamDbCard>>(cardReader.ReadToEnd());
             }
         }
     }

@@ -79,14 +79,22 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppData.cs" />
+    <Compile Include="ArkhamDbPack.cs" />
     <Compile Include="ArkhamDbCard.cs" />
     <Compile Include="ArkhamDbDeck.cs" />
+    <Compile Include="ChooseEncounters.xaml.cs">
+      <DependentUpon>ChooseEncounters.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Configuration.cs" />
     <Compile Include="Main.xaml.cs">
       <DependentUpon>Main.xaml</DependentUpon>
     </Compile>
     <Compile Include="OverlayData.cs" />
     <Compile Include="Services\ArkhamDbService.cs" />
+    <Page Include="ChooseEncounters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="PlayerCards.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

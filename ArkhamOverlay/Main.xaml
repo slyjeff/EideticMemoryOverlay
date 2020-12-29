@@ -6,7 +6,7 @@
         xmlns:arkhamoverlay="clr-namespace:ArkhamOverlay" 
         d:DataContext="{d:DesignInstance Type=arkhamoverlay:AppData}"
         mc:Ignorable="d"
-        Title="Arkham Overlay"
+        Title="Arkham Overlay Configuration"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
         Left="10"
@@ -34,19 +34,40 @@
         </StackPanel.Resources>
 
         <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Game Name:" />
+            <TextBlock Text="Game Name:" Width="70" />
             <TextBox Margin ="10, 0, 0, 0" Text="{Binding Game.Name, Mode=TwoWay}" Width="200" />
             <Button Margin="10, 0, 0, 0" Click="SaveGame">Save</Button>
             <Button Margin="10, 0, 0, 0" Click="LoadGame">Load</Button>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
-            <TextBlock Text="Overlay Width/Height:" />
-            <TextBox Margin ="10, 0, 4, 0" Text="{Binding Configuration.OverlayWidth, Mode=TwoWay}" Width="40" />
-            <TextBlock Text="x" />
-            <TextBox Margin ="4, 0, 0, 0" Text="{Binding Configuration.OverlayHeight, Mode=TwoWay}" Width="40" />
-            <TextBlock Margin ="10, 0, 0, 0" Text="Card Height:" />
-            <TextBox Margin ="10, 0, 0, 0" Text="{Binding Configuration.CardHeight, Mode=TwoWay}" Width="30" />
+            <TextBlock Text="Scenario:" Width="70"/>
+            <TextBox Margin ="10, 0, 0, 0" Text="{Binding Game.Scenario, Mode=TwoWay}" Width="200" />
+            <Button Margin="10, 0, 0, 0" Click="SetEncounterSet">Set Encounter Sets</Button>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" 
+                    Margin="0, 10, 0, 0"
+                    x:Name="EncounterCardOptions" 
+                    Visibility="Collapsed">
+            <ItemsControl ItemsSource="{Binding Game.EncounterSets}" Margin="0, 0, 10, 0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <StackPanel Orientation="Vertical">
+                <Button Margin="0, 0, 0, 0" Width="200" Click="ShowOtherEncounters">Act/Agenda/Scenario Reference</Button>
+                <Button Margin="0, 10, 0, 0" Width="200" Click="ShowLocations">Locations</Button>
+                <Button Margin="0, 10, 0, 0" Width="200" Click="ShowEncounterDeck">Encounter Deck</Button>
+            </StackPanel>
         </StackPanel>
 
         <ItemsControl ItemsSource="{Binding Game.Players}" Margin="0, 10, 0, 0">
@@ -91,8 +112,17 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 0">
-            <Button Margin="10, 0, 0, 0" Click="ShowOverlay">Show Overlay</Button>
+        <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+            <TextBlock Text="Overlay Width/Height:" />
+            <TextBox Margin ="10, 0, 4, 0" Text="{Binding Configuration.OverlayWidth, Mode=TwoWay}" Width="40" />
+            <TextBlock Text="x" />
+            <TextBox Margin ="4, 0, 0, 0" Text="{Binding Configuration.OverlayHeight, Mode=TwoWay}" Width="40" />
+            <TextBlock Margin ="10, 0, 0, 0" Text="Card Height:" />
+            <TextBox Margin ="10, 0, 0, 0" Text="{Binding Configuration.CardHeight, Mode=TwoWay}" Width="30" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+            <Button Click="ShowOverlay">Show Overlay</Button>
             <Button Margin="10, 0, 0, 0" x:Name="ClearCardsButton" Click="ClearCards" Visibility="Collapsed">Clear Cards</Button>
         </StackPanel>
     </StackPanel>
