@@ -33,9 +33,9 @@ namespace ArkhamOverlay {
 
     public class Player : INotifyPropertyChanged {
         public Player() {
-            Cards = new List<Card>();
+            PlayerButtons = new List<PlayerButton>();
         }
-        
+
         public string Investigator { get; set; }
 
         public string DeckId { get; set; }
@@ -44,7 +44,7 @@ namespace ArkhamOverlay {
         public BitmapImage InvestigatorImage { get; set; }
 
         [JsonIgnore]
-        public IList<Card> Cards { get; set; }
+        public List<PlayerButton> PlayerButtons { get; set; }
 
         [JsonIgnore]
         public IEnumerable<string> CardIds { get; set; }
@@ -53,7 +53,7 @@ namespace ArkhamOverlay {
         public bool Loading { get; internal set; }
 
         [JsonIgnore]
-        public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(Investigator) ? Visibility.Hidden: Visibility.Visible; } }
+        public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(Investigator) ? Visibility.Hidden : Visibility.Visible; } }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -66,22 +66,26 @@ namespace ArkhamOverlay {
         }
 
         public void OnPlayerChanged() {
-            OnPropertyChanged("InvestigatorImage");
-            OnPropertyChanged("LoadedVisiblity");
+            OnPropertyChanged(nameof(InvestigatorImage));
+            OnPropertyChanged(nameof(LoadedVisiblity));
         }
 
         public void OnPlayerCardsChanged() {
-            OnPropertyChanged("Cards");
+            OnPropertyChanged(nameof(PlayerButtons));
         }
     }
 
-    public class Card {
+    public abstract class PlayerButton {
+        public abstract Brush Background { get; }
+    }
+
+    public class Card : PlayerButton {
         public string Id { get; set; }
         public string Name { get; set; }
         public string Faction { get; set; }
         public string ImageSource { get; set; }
-        
-        public Brush Background {
+
+        public override Brush Background {
             get {
                 if (Faction == "Guardian") {
                     return new SolidColorBrush(Colors.DarkBlue);
@@ -104,6 +108,14 @@ namespace ArkhamOverlay {
                 }
 
                 return new SolidColorBrush(Colors.DarkGray);
+            }
+        }
+    }
+
+    public class ClearButton : PlayerButton {
+        public override Brush Background {
+            get {
+                return new SolidColorBrush(Colors.Black);
             }
         }
     }
