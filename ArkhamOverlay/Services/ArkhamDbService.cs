@@ -66,7 +66,7 @@ namespace ArkhamOverlay.Services {
 
                     }
                 }
-                var playerButtons = new List<PlayerButton> { new ClearButton() };
+                var playerButtons = new List<IPlayerButton> { new ClearButton() };
                 playerButtons.AddRange(cards.OrderBy(x => x.Name.Replace("\"", "")));
                 player.PlayerButtons = playerButtons;
                 player.OnPlayerCardsChanged();
