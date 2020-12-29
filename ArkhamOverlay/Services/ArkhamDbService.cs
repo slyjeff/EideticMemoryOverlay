@@ -64,9 +64,12 @@ namespace ArkhamOverlay.Services {
 
                     }
                 }
-                player.Cards = cards.OrderBy(x => x.Name.Replace("\"", "")).ToList();
+                var playerButtons = new List<IPlayerButton> { new ClearButton() };
+                playerButtons.AddRange(cards.OrderBy(x => x.Name.Replace("\"", "")));
+                player.PlayerButtons = playerButtons;
                 player.OnPlayerCardsChanged();
-            } finally {
+            }
+            finally {
                 player.Loading = false;
             }
         }

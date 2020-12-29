@@ -38,11 +38,27 @@ namespace ArkhamOverlay {
         }
     }
 
-    public class Player : INotifyPropertyChanged {
+    public interface IPlayer {
+        string Investigator { get; }
+
+        string DeckId { get; }
+
+        BitmapImage InvestigatorImage { get; }
+
+        List<IPlayerButton> PlayerButtons { get; }
+
+        IEnumerable<string> CardIds { get; }
+
+        bool Loading { get; }
+
+        Visibility LoadedVisiblity { get; }
+    }
+
+    public class Player : IPlayer, INotifyPropertyChanged {
         public Player() {
-            Cards = new List<Card>();
+            PlayerButtons = new List<IPlayerButton>();
         }
-        
+
         public string Investigator { get; set; }
 
         public string DeckId { get; set; }
@@ -51,7 +67,7 @@ namespace ArkhamOverlay {
         public BitmapImage InvestigatorImage { get; set; }
 
         [JsonIgnore]
-        public IList<Card> Cards { get; set; }
+        public List<IPlayerButton> PlayerButtons { get; set; }
 
         [JsonIgnore]
         public IEnumerable<string> CardIds { get; set; }
@@ -60,7 +76,7 @@ namespace ArkhamOverlay {
         public bool Loading { get; internal set; }
 
         [JsonIgnore]
-        public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(Investigator) ? Visibility.Hidden: Visibility.Visible; } }
+        public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(Investigator) ? Visibility.Hidden : Visibility.Visible; } }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -73,21 +89,25 @@ namespace ArkhamOverlay {
         }
 
         public void OnPlayerChanged() {
-            OnPropertyChanged("InvestigatorImage");
-            OnPropertyChanged("LoadedVisiblity");
+            OnPropertyChanged(nameof(InvestigatorImage));
+            OnPropertyChanged(nameof(LoadedVisiblity));
         }
 
         public void OnPlayerCardsChanged() {
-            OnPropertyChanged("Cards");
+            OnPropertyChanged(nameof(PlayerButtons));
         }
     }
 
-    public class Card {
+    public interface IPlayerButton {
+        Brush Background { get; }
+    }
+
+    public class Card : IPlayerButton {
         public string Id { get; set; }
         public string Name { get; set; }
         public string Faction { get; set; }
         public string ImageSource { get; set; }
-        
+
         public Brush Background {
             get {
                 if (Faction == "Guardian") {
@@ -111,6 +131,14 @@ namespace ArkhamOverlay {
                 }
 
                 return new SolidColorBrush(Colors.DarkGray);
+            }
+        }
+    }
+
+    public class ClearButton : IPlayerButton {
+        public Brush Background {
+            get {
+                return new SolidColorBrush(Colors.Black);
             }
         }
     }
