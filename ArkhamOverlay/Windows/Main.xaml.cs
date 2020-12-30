@@ -295,7 +295,7 @@ namespace ArkhamOverlay {
                 return;
             }
 
-            _overlay.ClearCards();
+            _overlay.ClearAllCards();
         }
     }
 }

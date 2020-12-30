@@ -25,6 +25,7 @@ namespace ArkhamOverlay.Services {
                     var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
                     player.InvestigatorImage = new BitmapImage(new Uri("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png", UriKind.Absolute));
                     player.CardIds = from cardId in arkhamDbDeck.Slots.Keys select cardId;
+                    player.SelectableCards.OwnerId = player.DeckId;
                     player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
                     player.OnPlayerChanged();
                 }
@@ -56,7 +57,7 @@ namespace ArkhamOverlay.Services {
                     using (Stream cardStream = cardRsponse.GetResponseStream())
                     using (StreamReader cardReader = new StreamReader(cardStream)) {
                         var arkhamDbCard = JsonConvert.DeserializeObject<ArkhamDbCard>(cardReader.ReadToEnd());
-                        cards.Add(new Card(arkhamDbCard));
+                        cards.Add(new Card(arkhamDbCard, ownerId: player.DeckId));
                     }
                 }
                 player.SelectableCards.Load(cards.OrderBy(x => x.Name.Replace("\"", "")));
@@ -155,23 +156,23 @@ namespace ArkhamOverlay.Services {
                     }
 
                     foreach (var card in cards) {
-                        switch (card.TypeCode) {
-                            case "scenario": 
+                        switch (card.Type) {
+                            case CardType.Scenario: 
                                 scenarioCards.Add(card);
                                 break;
-                            case "agenda":
+                            case CardType.Agenda:
                                 agendas.Add(card);
                                 break;
-                            case "act":
+                            case CardType.Act:
                                 acts.Add(card);
                                 break;
-                            case "location":
+                            case CardType.Location:
                                 locations.Add(card);
                                 break;
-                            case "treachery":
+                            case CardType.Treachery:
                                 treacheries.Add(card);
                                 break;
-                            case "enemy":
+                            case CardType.Enemy:
                                 enemies.Add(card);
                                 break;
                             default:
