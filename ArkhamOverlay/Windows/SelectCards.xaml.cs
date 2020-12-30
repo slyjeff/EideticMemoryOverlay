@@ -36,7 +36,7 @@ namespace ArkhamOverlay {
                 return;
             }
 
-            Overlay.ClearCards();
+            Overlay.ClearCards(SelectableCards.Type, SelectableCards.OwnerId);
         }
     }
 }

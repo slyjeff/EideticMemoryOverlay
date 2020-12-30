@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -15,6 +16,42 @@ namespace ArkhamOverlay.Data {
 
         public ObservableCollection<OverlayCard> EncounterCards { get; set; }
         public ObservableCollection<OverlayCard> PlayerCards { get; set; }
+
+        public void ClearPlayerCards(string id) {
+            if(string.IsNullOrEmpty(id)) {
+                return;
+            }
+
+            foreach (var card in PlayerCards.ToList()) {
+                if(card.Card.OwnerId == id) {
+                    PlayerCards.Remove(card);
+                }
+            }
+        }
+
+        public void ClearScenarioCards() {
+            foreach (var card in EncounterCards.ToList()) {
+                if (card.Card.Type == CardType.Scenario || card.Card.Type == CardType.Agenda || card.Card.Type == CardType.Act) {
+                    EncounterCards.Remove(card);
+                }
+            }
+        }
+
+        public void ClearEncounterCards() {
+            foreach (var card in EncounterCards.ToList()) {
+                if (card.Card.Type == CardType.Enemy || card.Card.Type == CardType.Treachery) {
+                    EncounterCards.Remove(card);
+                }
+            }
+        }
+
+        public void ClearLocationCards() {
+            foreach (var card in EncounterCards.ToList()) {
+                if (card.Card.Type == CardType.Location) {
+                    EncounterCards.Remove(card);
+                }
+            }
+        }
     }
 
     public class OverlayCard : INotifyPropertyChanged {

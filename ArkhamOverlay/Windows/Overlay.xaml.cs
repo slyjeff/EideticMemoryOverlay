@@ -27,11 +27,26 @@ namespace ArkhamOverlay {
             }
         }
 
-        internal void ClearCards() {
+        internal void ClearAllCards() {
             var overlayData = DataContext as OverlayData;
 
             overlayData.EncounterCards.Clear();
             overlayData.PlayerCards.Clear();
+        }
+
+        internal void ClearCards(SelectableType type, string id = null) {
+            var overlayData = DataContext as OverlayData;
+
+            if(type == SelectableType.Player && !string.IsNullOrEmpty(id)) {
+                overlayData.ClearPlayerCards(id);
+            } else if (type == SelectableType.Encounter) {
+                overlayData.ClearEncounterCards();
+            } else if (type == SelectableType.Location) {
+                overlayData.ClearLocationCards();
+            } else if (type == SelectableType.Scenario) {
+                overlayData.ClearScenarioCards();
+            }
+
         }
     }
 }

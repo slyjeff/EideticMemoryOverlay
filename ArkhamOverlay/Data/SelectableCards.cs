@@ -3,6 +3,10 @@ using System.ComponentModel;
 
 namespace ArkhamOverlay.Data {
     public interface ISelectableCards {
+        string OwnerId { get; }
+
+        SelectableType Type { get; }
+
         string Name { get; }
 
         List<ICardButton> CardButtons { get; }
@@ -11,11 +15,40 @@ namespace ArkhamOverlay.Data {
     }
 
     public class SelectableCards : ISelectableCards, INotifyPropertyChanged {
-        public SelectableCards() {
+        private string _playerName = string.Empty;
+
+        public SelectableCards(SelectableType type) {
+            Type = type;
             CardButtons = new List<ICardButton>();
         }
 
-        public string Name { get; set; }
+        public string OwnerId { get; set; }
+
+        public SelectableType Type { get; }
+
+        public string Name { 
+            get {
+                switch(Type) {
+                    case SelectableType.Scenario:
+                        return "Act/Agenda/Scenario Reference";
+                    case SelectableType.Location:
+                        return "Location";
+                    case SelectableType.Encounter:
+                        return "Encounter Deck";
+                    case SelectableType.Player:
+                        return _playerName;
+                    default:
+                        return "Unknown";
+                }
+            }
+            set {
+                if (Type == SelectableType.Player) {
+                    _playerName = value;
+                }
+            }
+        }
+
+
 
         public List<ICardButton> CardButtons { get; set; }
 
