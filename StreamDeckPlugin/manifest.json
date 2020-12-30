@@ -1,0 +1,32 @@
+﻿{
+    "Name": "Counter",
+    "Version": "1.0.0",
+    "Author": "Jeff Sylvester",
+    "Actions": [
+        {
+            "Name": "display card",
+            "UUID": "arkhamoverlay.displaycard",
+            "Tooltip": "Display a Card from the configured collection",
+            "States": [
+                {
+                    "FontSize": "12",
+                    "Image": "Icons/Guardian",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        }
+    ],
+    "Category": "Arkham Overlay",
+    "CodePath": "ArkahmOverlayPlugin.exe",
+    "Description": "Plugin for Arkham Overlay for Displaying Cards",
+    "SDKVersion": 2,
+    "Software": {
+        "MinimumVersion": "4.1"
+    },
+    "OS": [
+        {
+            "MinimumVersion": "10",
+            "Platform": "windows"
+        }
+    ]
+}
