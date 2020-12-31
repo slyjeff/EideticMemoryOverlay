@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 namespace ArkhamOverlay.Data {
     public class Player : INotifyPropertyChanged {
         public Player() {
-            SelectableCards = new SelectableCards();
+            SelectableCards = new SelectableCards(SelectableType.Player);
         }
 
         public string DeckId { get; set; }

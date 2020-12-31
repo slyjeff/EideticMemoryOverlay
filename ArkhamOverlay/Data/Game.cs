@@ -9,9 +9,9 @@ namespace ArkhamOverlay.Data {
         public Game() {
             Players = new List<Player>();
             EncounterSets = new List<EncounterSet>();
-            ScenarioCards = new SelectableCards { Name = "Act/Agenda/Scenario Reference" };
-            LocationCards = new SelectableCards { Name = "Location" };
-            EncounterDeckCards = new SelectableCards { Name = "Encounter Deck" }; ;
+            ScenarioCards = new SelectableCards(SelectableType.Scenario);
+            LocationCards = new SelectableCards(SelectableType.Location);
+            EncounterDeckCards = new SelectableCards(SelectableType.Encounter);
         }
 
         public string Name { get; set; }

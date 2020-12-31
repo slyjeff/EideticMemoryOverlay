@@ -84,6 +84,7 @@
     <Compile Include="Data\ICardButton.cs" />
     <Compile Include="Data\SelectableCards.cs" />
     <Compile Include="Data\Player.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="Services\ArkhamDbPack.cs" />
     <Compile Include="Services\ArkhamDbCard.cs" />
     <Compile Include="Services\ArkhamDbDeck.cs" />
