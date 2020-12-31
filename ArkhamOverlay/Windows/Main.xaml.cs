@@ -19,7 +19,6 @@ namespace ArkhamOverlay {
         private readonly SocketService _socketService;
         private readonly IList<SelectCards> _selectCardsList = new List<SelectCards>();
 
-
         public Main() {
             InitializeComponent();
 

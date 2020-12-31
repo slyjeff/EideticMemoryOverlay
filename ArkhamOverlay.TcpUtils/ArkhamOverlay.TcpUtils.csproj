@@ -52,6 +52,7 @@
     <Compile Include="Requests\Request.cs" />
     <Compile Include="Responses\CardInfoResponse.cs" />
     <Compile Include="Responses\Response.cs" />
+    <Compile Include="SendSocketService.cs" />
     <Compile Include="TcpInfo.cs" />
   </ItemGroup>
   <ItemGroup>
