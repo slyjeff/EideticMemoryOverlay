@@ -20,5 +20,12 @@
             SetSettingsAsync(card);
             return SetTitleAsync(card.Name);
         }
+
+        protected override Task OnDidReceiveSettings(ActionEventArgs<ActionPayload> args, Card settings) {
+            if (args != null) {
+
+            }
+            return base.OnDidReceiveSettings(args, settings);
+        }
     }
 }
