@@ -13,7 +13,7 @@ namespace ArkhamOverlay.Data {
         public string DeckId { get; set; }
 
         [JsonIgnore]
-        public SelectableCards SelectableCards { get; set; }
+        public SelectableCards SelectableCards { get; }
 
         [JsonIgnore]
         public BitmapImage InvestigatorImage { get; set; }

@@ -13,30 +13,16 @@ namespace ArkhamOverlay {
             get { return DataContext as ISelectableCards; }
         }
 
-        public Overlay Overlay { get; set; }
-
         public void CardSelected(object sender, RoutedEventArgs e) {
             if (!(sender is Button button)) {
                 return;
             }
 
-            if (!(button.DataContext is Card card)) {
+            if (!(button.DataContext is ICardButton card)) {
                 return;
             }
 
-            if (Overlay == null) {
-                return;
-            }
-
-            Overlay.ToggleCard(card);
-        }
-
-        public void ClearCards(object sender, RoutedEventArgs e) {
-            if (Overlay == null) {
-                return;
-            }
-
-            Overlay.ClearCards(SelectableCards.Type, SelectableCards.OwnerId);
+            card.Click();
         }
     }
 }

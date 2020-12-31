@@ -4,49 +4,78 @@ using System.Windows;
 
 namespace ArkhamOverlay {
     public partial class Overlay : Window {
+        private OverlayData _overlayData;
+
         public Overlay() {
             InitializeComponent();
         }
 
+        public void SetAppData(AppData appData) {
+            _overlayData = new OverlayData {
+                AppData = appData
+            };
+
+            var game = appData.Game;
+            game.ScenarioCards.CardToggled += ToggleCard;
+            game.ScenarioCards.ClearCards += ClearCards;
+
+            game.LocationCards.CardToggled += ToggleCard;
+            game.LocationCards.ClearCards += ClearCards;
+
+            game.EncounterDeckCards.CardToggled += ToggleCard;
+            game.EncounterDeckCards.ClearCards += ClearCards;
+
+            foreach (var player in game.Players) {
+                player.SelectableCards.CardToggled += ToggleCard;
+                player.SelectableCards.ClearCards += ClearCards;
+            }
+
+            DataContext = _overlayData;
+        }
+
         internal void ToggleCard(Card card) {
-            var overlayData = DataContext as OverlayData;
-            var cards = card.IsPlayerCard ? overlayData.PlayerCards : overlayData.EncounterCards;
+            var overlayCards = card.IsPlayerCard ? _overlayData.PlayerCards : _overlayData.EncounterCards;
 
-            var existingCard = cards.FirstOrDefault(x => x.Card == card);
-            if (existingCard == null) {
-                var newCard = new OverlayCard(overlayData.Configuration) { Card = card };
-                var cardToReplace = cards.FirstOrDefault(x => x.Card.Code == card.Code);
-                if (cardToReplace == null) {
-                    cards.Add(newCard);
+            var existingOverlayCard = overlayCards.FirstOrDefault(x => x.Card == card);
+            if (existingOverlayCard == null) {
+                var newOverlayCard = new OverlayCard(_overlayData.Configuration) { Card = card };
+                card.IsVisible = true;
+
+                var overlayCardToReplace = overlayCards.FirstOrDefault(x => x.Card.Code == card.Code);
+                if (overlayCardToReplace == null) {
+                    overlayCards.Add(newOverlayCard);
                 } else {
-                    cards[cards.IndexOf(cardToReplace)] = newCard;
-
+                    overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newOverlayCard;
+                    overlayCardToReplace.Card.IsVisible = false;
                 }
             } else {
-                cards.Remove(existingCard);
+                overlayCards.Remove(existingOverlayCard);
+                existingOverlayCard.Card.IsVisible = false;
             }
         }
 
         internal void ClearAllCards() {
-            var overlayData = DataContext as OverlayData;
+            foreach (var overlayCard in _overlayData.EncounterCards) {
+                overlayCard.Card.IsVisible = false;
+            }
+            _overlayData.EncounterCards.Clear();
 
-            overlayData.EncounterCards.Clear();
-            overlayData.PlayerCards.Clear();
+            foreach (var overlayCard in _overlayData.PlayerCards) {
+                overlayCard.Card.IsVisible = false;
+            }
+            _overlayData.PlayerCards.Clear();
         }
 
         internal void ClearCards(SelectableType type, string id = null) {
-            var overlayData = DataContext as OverlayData;
-
             if(type == SelectableType.Player && !string.IsNullOrEmpty(id)) {
-                overlayData.ClearPlayerCards(id);
+                _overlayData.ClearPlayerCards(id);
             } else if (type == SelectableType.Encounter) {
-                overlayData.ClearEncounterCards();
+                _overlayData.ClearEncounterCards();
             } else if (type == SelectableType.Location) {
-                overlayData.ClearLocationCards();
+                _overlayData.ClearLocationCards();
             } else if (type == SelectableType.Scenario) {
-                overlayData.ClearScenarioCards();
+                _overlayData.ClearScenarioCards();
             }
-
         }
     }
 }

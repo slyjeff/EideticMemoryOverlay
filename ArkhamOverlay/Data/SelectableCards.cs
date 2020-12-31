@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace ArkhamOverlay.Data {
@@ -48,8 +49,6 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-
-
         public List<ICardButton> CardButtons { get; set; }
 
         public bool Loading { get; internal set; }
@@ -68,8 +67,22 @@ namespace ArkhamOverlay.Data {
             OnPropertyChanged(nameof(CardButtons));
         }
 
+        public event Action<Card> CardToggled;
+        public event Action<SelectableType, string> ClearCards;
+
         internal void Load(IEnumerable<Card> cards) {
-            var playerButtons = new List<ICardButton> { new ClearButton() };
+            foreach (var card in cards) {
+                card.Clicked += () => {
+                    CardToggled?.Invoke(card);
+                };
+            }
+
+            var clearButton = new ClearButton();
+            clearButton.Clicked += () => {
+                ClearCards(Type, OwnerId);
+            };
+
+            var playerButtons = new List<ICardButton> { clearButton };
             playerButtons.AddRange(cards);
             CardButtons = playerButtons;
             OnCardButtonsChanged();

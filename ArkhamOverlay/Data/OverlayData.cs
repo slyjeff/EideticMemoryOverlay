@@ -12,27 +12,36 @@ namespace ArkhamOverlay.Data {
             PlayerCards = new ObservableCollection<OverlayCard>();
         }
 
-        public Configuration Configuration { get; set; }
+        public AppData AppData { get; set; }
+        public Configuration Configuration { get { return AppData.Configuration; } }
 
         public ObservableCollection<OverlayCard> EncounterCards { get; set; }
         public ObservableCollection<OverlayCard> PlayerCards { get; set; }
 
-        public void ClearPlayerCards(string id) {
-            if(string.IsNullOrEmpty(id)) {
+        public void ClearPlayerCards(string ownerId) {
+            if(string.IsNullOrEmpty(ownerId)) {
                 return;
             }
 
-            foreach (var card in PlayerCards.ToList()) {
-                if(card.Card.OwnerId == id) {
-                    PlayerCards.Remove(card);
+            foreach (var player in AppData.Game.Players) {
+                if (player.DeckId != ownerId) {
+                    continue;
+                }
+
+                foreach (var overlayCard in PlayerCards.ToList()) {
+                    if (player.SelectableCards.CardButtons.Contains(overlayCard.Card)) {
+                        PlayerCards.Remove(overlayCard);
+                        overlayCard.Card.IsVisible = false;
+                    }
                 }
             }
         }
 
         public void ClearScenarioCards() {
-            foreach (var card in EncounterCards.ToList()) {
-                if (card.Card.Type == CardType.Scenario || card.Card.Type == CardType.Agenda || card.Card.Type == CardType.Act) {
-                    EncounterCards.Remove(card);
+            foreach (var overlayCard in EncounterCards.ToList()) {
+                if (overlayCard.Card.Type == CardType.Scenario || overlayCard.Card.Type == CardType.Agenda || overlayCard.Card.Type == CardType.Act) {
+                    EncounterCards.Remove(overlayCard);
+                    overlayCard.Card.IsVisible = false;
                 }
             }
         }

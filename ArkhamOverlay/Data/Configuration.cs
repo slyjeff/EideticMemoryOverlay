@@ -6,7 +6,6 @@ using System.Linq;
 using System.Windows;
 
 namespace ArkhamOverlay.Data {
-
     public delegate void OverlayConfigurationChange();
 
     public class Configuration : INotifyPropertyChanged {
