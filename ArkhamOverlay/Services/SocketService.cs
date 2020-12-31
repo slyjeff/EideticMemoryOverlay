@@ -26,13 +26,14 @@ namespace ArkhamOverlay.Services {
     internal class TcpRequest {
         public TcpRequest(string request, Socket socket) {
             var endOfCode = request.IndexOf(":") - 1;
-            var startOfBody = endOfCode + 1;
-            var endOfBody = request.IndexOf("<EOF>") - 2;
-            var bodyLength = endOfBody - startOfBody;
+            var startOfBody = endOfCode + 2;
+            var endOfBody = request.IndexOf("<EOF>") - 1;
+            var bodyLength = endOfBody - startOfBody + 1;
 
             var code = request.Substring(0, endOfCode + 1);
             RequestType = code.AsAoTcpRequest();
             Body = request.Substring(startOfBody, bodyLength);
+            Socket = socket;
         }
 
         public AoTcpRequest RequestType { get; }
@@ -129,10 +130,44 @@ namespace ArkhamOverlay.Services {
 
             var card = (cardIndex < cards.Count) ? cards[cardIndex] as Card : null;
             var getCardInfoReponse = (card == null)
-                ? new GetCardInfoReponse { CardType = "None", Name = "" }
-                : new GetCardInfoReponse { CardType = card.Faction, Name = card.Name };
+                ? new GetCardInfoReponse { CardType = TcpUtils.CardType.Unknown, Name = "" }
+                : new GetCardInfoReponse { CardType = GetCardType(card), Name = card.Name };
 
             Send(request.Socket, getCardInfoReponse.ToString());
+        }
+
+        private static TcpUtils.CardType GetCardType(Card card) {
+            switch (card.Type) {
+                case CardType.Scenario:
+                    return TcpUtils.CardType.Scenario;
+                case CardType.Agenda:
+                    return TcpUtils.CardType.Agenda;
+                case CardType.Act:
+                    return TcpUtils.CardType.Act;
+                case CardType.Location:
+                    return TcpUtils.CardType.Location;
+                case CardType.Enemy:
+                    return TcpUtils.CardType.Enemy;
+                case CardType.Treachery:
+                    return TcpUtils.CardType.Treachery;
+                case CardType.Player:
+                    switch (card.Faction) {
+                        case Faction.Guardian:
+                            return TcpUtils.CardType.Guardian;
+                        case Faction.Seeker:
+                            return TcpUtils.CardType.Seeker;
+                        case Faction.Rogue:
+                            return TcpUtils.CardType.Rogue;
+                        case Faction.Survivor:
+                            return TcpUtils.CardType.Survivor;
+                        case Faction.Mystic:
+                            return TcpUtils.CardType.Mystic;
+                        default:
+                            return TcpUtils.CardType.Unknown;
+                    }
+                default:
+                    return TcpUtils.CardType.Unknown;
+            }
         }
 
         private static void Send(Socket socket, string data) {

@@ -9,7 +9,7 @@
             "Tooltip": "Display a Card from the configured collection",
             "States": [
                 {
-                    "FontSize": "12",
+                    "FontSize": "9",
                     "Image": "Icons/Guardian",
                     "TitleAlignment": "middle"
                 }

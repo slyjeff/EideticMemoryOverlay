@@ -128,5 +128,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ArkhamOverlay.TcpUtils\ArkhamOverlay.TcpUtils.csproj">
+      <Project>{434089c6-fa67-438d-8704-dab3e626eb10}</Project>
+      <Name>ArkhamOverlay.TcpUtils</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
