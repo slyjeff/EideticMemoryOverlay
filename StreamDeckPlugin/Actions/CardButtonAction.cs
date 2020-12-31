@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System;
+using System.Drawing;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
@@ -6,11 +9,12 @@ using ArkhamOverlay.TcpUtils.Responses;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
+using StreamDeckPlugin.Utils;
 
 namespace ArkhamOverlaySdPlugin.Actions {
-    [StreamDeckAction("Display Card", "arkhamoverlay.displaycard")]
-    public class DisplayCardAction : StreamDeckAction<Card> {
-        private int GetCardIndex(Coordinates coordinates) {
+    [StreamDeckAction("Card Button", "arkhamoverlay.cardbutton")]
+    public class CardButtonAction : StreamDeckAction<Card> {
+        private int GetCardButtonIndex(Coordinates coordinates) {
             //assume 8 cards per row, as this app only makes since on the large streamdeck
             //subtract one for the "Return" location, since this will be in a folder
             return (coordinates.Row * 8 + coordinates.Column - 1);
@@ -37,23 +41,25 @@ namespace ArkhamOverlaySdPlugin.Actions {
         }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
-            var cardIndex = GetCardIndex(args.Payload.Coordinates);
+            var cardIndex = GetCardButtonIndex(args.Payload.Coordinates);
             try {
                 var request = new GetCardInfoRequest { Deck = "Player1", Index = cardIndex };
                 var response = SendSocketService.SendRequest<CardInfoReponse>(request);
 
+                SetImageAsync(response.CardButtonType.AsImage());
                 return SetTitleAsync(WrapTitle(response.Name));
-            } catch {
+            } catch (Exception e) {
                 return SetTitleAsync("");
             }
         }
 
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            var cardIndex = GetCardIndex(args.Payload.Coordinates);
+            var cardIndex = GetCardButtonIndex(args.Payload.Coordinates);
             try {
                 var request = new ClickCardButtonRequest { Deck = "Player1", Index = cardIndex };
                 var response = SendSocketService.SendRequest<CardInfoReponse>(request);
 
+                SetImageAsync(response.CardButtonType.AsImage());
                 return SetTitleAsync(WrapTitle(response.Name));
             } catch {
                 return SetTitleAsync("");

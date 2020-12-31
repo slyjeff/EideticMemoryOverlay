@@ -4,9 +4,9 @@
     "Author": "Jeff Sylvester",
     "Actions": [
         {
-            "Name": "display card",
-            "UUID": "arkhamoverlay.displaycard",
-            "Tooltip": "Display a Card from the configured collection",
+            "Name": "Card Button",
+            "UUID": "arkhamoverlay.cardbutton",
+            "Tooltip": "Take the contextual action based on grid location and deck",
             "States": [
                 {
                     "FontSize": "9",
