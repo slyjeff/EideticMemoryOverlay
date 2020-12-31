@@ -9,12 +9,11 @@ namespace ArkhamOverlay.Data {
         public Card() {
         }
 
-        public Card(ArkhamDbCard arkhamDbCard, bool cardBack = false, string ownerId = null) {
-            //OwnerId = ownerId;
+        public Card(ArkhamDbCard arkhamDbCard, bool isPlayerCard, bool cardBack = false) {
             Code = arkhamDbCard.Code;
             Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")";
             Faction = GetFaction(arkhamDbCard.Faction_Name);
-            Type = GetCardType(arkhamDbCard.Type_Code);
+            Type = isPlayerCard ? CardType.Player : GetCardType(arkhamDbCard.Type_Code);
             ImageSource = cardBack ? arkhamDbCard.BackImageSrc : arkhamDbCard.ImageSrc;
 
             if (cardBack) {
@@ -66,18 +65,20 @@ namespace ArkhamOverlay.Data {
 
         public bool IsPlayerCard => Type == CardType.Player;
 
-        public event Action Clicked;
+        public SelectableCards SelectableCards { get; set; }
+        public Card FlipSideCard { get; set; }
 
         public void Click() {
-            Clicked?.Invoke();
+            if (SelectableCards == null) {
+                return;
+            }
+
+            SelectableCards.ToggleCard(this);
+            IsVisible = !IsVisible;
         }
 
         private CardType GetCardType(string typeCode) {
-            if(string.Equals(typeCode, "asset", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(typeCode, "event", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(typeCode, "skill", StringComparison.OrdinalIgnoreCase)) {
-                return CardType.Player;
-            } else if (Enum.TryParse(typeCode, ignoreCase: true, out CardType type)) {
+            if(Enum.TryParse(typeCode, ignoreCase: true, out CardType type)) {
                 return type;
             } else {
                 return CardType.Other;

@@ -17,50 +17,6 @@ namespace ArkhamOverlay.Data {
 
         public ObservableCollection<OverlayCard> EncounterCards { get; set; }
         public ObservableCollection<OverlayCard> PlayerCards { get; set; }
-
-        public void ClearPlayerCards(string ownerId) {
-            if(string.IsNullOrEmpty(ownerId)) {
-                return;
-            }
-
-            foreach (var player in AppData.Game.Players) {
-                if (player.DeckId != ownerId) {
-                    continue;
-                }
-
-                foreach (var overlayCard in PlayerCards.ToList()) {
-                    if (player.SelectableCards.CardButtons.Contains(overlayCard.Card)) {
-                        PlayerCards.Remove(overlayCard);
-                        overlayCard.Card.IsVisible = false;
-                    }
-                }
-            }
-        }
-
-        public void ClearScenarioCards() {
-            foreach (var overlayCard in EncounterCards.ToList()) {
-                if (overlayCard.Card.Type == CardType.Scenario || overlayCard.Card.Type == CardType.Agenda || overlayCard.Card.Type == CardType.Act) {
-                    EncounterCards.Remove(overlayCard);
-                    overlayCard.Card.IsVisible = false;
-                }
-            }
-        }
-
-        public void ClearEncounterCards() {
-            foreach (var card in EncounterCards.ToList()) {
-                if (card.Card.Type == CardType.Enemy || card.Card.Type == CardType.Treachery) {
-                    EncounterCards.Remove(card);
-                }
-            }
-        }
-
-        public void ClearLocationCards() {
-            foreach (var card in EncounterCards.ToList()) {
-                if (card.Card.Type == CardType.Location) {
-                    EncounterCards.Remove(card);
-                }
-            }
-        }
     }
 
     public class OverlayCard : INotifyPropertyChanged {

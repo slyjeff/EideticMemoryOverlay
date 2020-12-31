@@ -15,10 +15,14 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public event Action Clicked;
+        public SelectableCards SelectableCards { get; internal set; }
 
         public void Click() {
-            Clicked?.Invoke();
+            if (SelectableCards == null) {
+                return;
+            }
+
+            SelectableCards.ClearSelections();
         }
     }
 
