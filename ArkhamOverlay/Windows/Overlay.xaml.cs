@@ -4,49 +4,58 @@ using System.Windows;
 
 namespace ArkhamOverlay {
     public partial class Overlay : Window {
+        private OverlayData _overlayData;
+
         public Overlay() {
             InitializeComponent();
         }
 
-        internal void ToggleCard(Card card) {
-            var overlayData = DataContext as OverlayData;
-            var cards = card.IsPlayerCard ? overlayData.PlayerCards : overlayData.EncounterCards;
+        public void SetAppData(AppData appData) {
+            _overlayData = new OverlayData {
+                AppData = appData
+            };
 
-            var existingCard = cards.FirstOrDefault(x => x.Card == card);
-            if (existingCard == null) {
-                var newCard = new OverlayCard(overlayData.Configuration) { Card = card };
-                var cardToReplace = cards.FirstOrDefault(x => x.Card.Code == card.Code);
-                if (cardToReplace == null) {
-                    cards.Add(newCard);
+            var game = appData.Game;
+            InitializeSelectableCards(game.ScenarioCards);
+            InitializeSelectableCards(game.LocationCards);
+            InitializeSelectableCards(game.EncounterDeckCards);
+            foreach (var player in game.Players) {
+                InitializeSelectableCards(player.SelectableCards);
+            }
+
+            DataContext = _overlayData;
+        }
+
+        private void InitializeSelectableCards(SelectableCards selectableCards) {
+            foreach (var cardButtons in selectableCards.CardButtons) {
+                if (!(cardButtons is Card card)) {
+                    continue;
+                }
+
+                if (card.IsVisible) {
+                    ToggleCard(card, null);
+                }
+            }
+
+            selectableCards.CardToggled += ToggleCard;
+        }
+
+        internal void ToggleCard(Card card, Card cardToReplace) {
+            var overlayCards = card.IsPlayerCard ? _overlayData.PlayerCards : _overlayData.EncounterCards;
+
+            var existingOverlayCard = overlayCards.FirstOrDefault(x => x.Card == card);
+            if (existingOverlayCard == null) {
+                var newOverlayCard = new OverlayCard(_overlayData.Configuration) { Card = card };
+
+                var overlayCardToReplace = cardToReplace != null ? overlayCards.FirstOrDefault(x => x.Card.Code == cardToReplace.Code) : null;
+                if (overlayCardToReplace == null) {
+                    overlayCards.Add(newOverlayCard);
                 } else {
-                    cards[cards.IndexOf(cardToReplace)] = newCard;
-
+                    overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newOverlayCard;
                 }
             } else {
-                cards.Remove(existingCard);
+                overlayCards.Remove(existingOverlayCard);
             }
-        }
-
-        internal void ClearAllCards() {
-            var overlayData = DataContext as OverlayData;
-
-            overlayData.EncounterCards.Clear();
-            overlayData.PlayerCards.Clear();
-        }
-
-        internal void ClearCards(SelectableType type, string id = null) {
-            var overlayData = DataContext as OverlayData;
-
-            if(type == SelectableType.Player && !string.IsNullOrEmpty(id)) {
-                overlayData.ClearPlayerCards(id);
-            } else if (type == SelectableType.Encounter) {
-                overlayData.ClearEncounterCards();
-            } else if (type == SelectableType.Location) {
-                overlayData.ClearLocationCards();
-            } else if (type == SelectableType.Scenario) {
-                overlayData.ClearScenarioCards();
-            }
-
         }
     }
 }

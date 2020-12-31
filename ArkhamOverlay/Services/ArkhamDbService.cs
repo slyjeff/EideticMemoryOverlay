@@ -25,7 +25,6 @@ namespace ArkhamOverlay.Services {
                     var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
                     player.InvestigatorImage = new BitmapImage(new Uri("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png", UriKind.Absolute));
                     player.CardIds = from cardId in arkhamDbDeck.Slots.Keys select cardId;
-                    player.SelectableCards.OwnerId = player.DeckId;
                     player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
                     player.OnPlayerChanged();
                 }
@@ -57,7 +56,7 @@ namespace ArkhamOverlay.Services {
                     using (Stream cardStream = cardRsponse.GetResponseStream())
                     using (StreamReader cardReader = new StreamReader(cardStream)) {
                         var arkhamDbCard = JsonConvert.DeserializeObject<ArkhamDbCard>(cardReader.ReadToEnd());
-                        cards.Add(new Card(arkhamDbCard, ownerId: player.DeckId));
+                        cards.Add(new Card(arkhamDbCard, true));
                     }
                 }
                 player.SelectableCards.Load(cards.OrderBy(x => x.Name.Replace("\"", "")));
@@ -149,9 +148,13 @@ namespace ArkhamOverlay.Services {
                             continue;
                         }
 
-                        cards.Add(new Card(arkhamDbCard));
+                        var newCard = new Card(arkhamDbCard, false);
+                        cards.Add(newCard);
                         if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) {
-                            cards.Add(new Card(arkhamDbCard, true));
+                            var newCardBack = new Card(arkhamDbCard, false, true);
+                            newCard.FlipSideCard = newCardBack;
+                            newCardBack.FlipSideCard = newCard;
+                            cards.Add(newCardBack);
                         }
                     }
 

@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace ArkhamOverlay.Data {
     public interface ISelectableCards {
-        string OwnerId { get; }
-
         SelectableType Type { get; }
 
         string Name { get; }
@@ -21,8 +20,6 @@ namespace ArkhamOverlay.Data {
             Type = type;
             CardButtons = new List<ICardButton>();
         }
-
-        public string OwnerId { get; set; }
 
         public SelectableType Type { get; }
 
@@ -48,8 +45,6 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-
-
         public List<ICardButton> CardButtons { get; set; }
 
         public bool Loading { get; internal set; }
@@ -68,11 +63,43 @@ namespace ArkhamOverlay.Data {
             OnPropertyChanged(nameof(CardButtons));
         }
 
+        public event Action<Card, Card> CardToggled;
+
+        public void ToggleCard(Card card) {
+            if (card.IsVisible) {
+                CardToggled?.Invoke(card, null);
+                return;
+            }
+
+            CardToggled?.Invoke(card, card.FlipSideCard);
+            if (card.FlipSideCard != null) {
+                card.FlipSideCard.IsVisible = false;
+            }
+        }
+
         internal void Load(IEnumerable<Card> cards) {
-            var playerButtons = new List<ICardButton> { new ClearButton() };
+            foreach (var card in cards) {
+                card.SelectableCards = this;
+            }
+
+            var clearButton = new ClearButton { SelectableCards = this };
+
+            var playerButtons = new List<ICardButton> { clearButton };
             playerButtons.AddRange(cards);
             CardButtons = playerButtons;
             OnCardButtonsChanged();
+        }
+
+        internal void ClearSelections() {
+            foreach (var cardButtons in CardButtons) {
+                if (!(cardButtons is Card card)) {
+                    continue;
+                }
+
+                if (card.IsVisible) {
+                    card.Click();
+                }
+            }
         }
     }
 }

@@ -237,7 +237,6 @@ namespace ArkhamOverlay {
             if (selectCardsWindow == null) {
                 selectCardsWindow = new SelectCards {
                     SelectableCards = selectableCard,
-                    Overlay = _overlay,
                     Left = left,
                     Top = top,
                     Width = width
@@ -280,33 +279,29 @@ namespace ArkhamOverlay {
                 return;
             }
 
-            var overlayData = new OverlayData {
-                Configuration = AppData.Configuration
-            };
 
             _overlay = new Overlay {
                 Top = Top + Height + 10,
-                DataContext = overlayData
             };
+            _overlay.SetAppData(AppData);
 
             _overlay.Closed += (x, y) => {
                 _overlay = null;
             };
-
-            foreach (var playerCards in _selectCardsList) {
-                playerCards.Overlay = _overlay;
-            }
 
             _overlay.Show();
             ClearCardsButton.Visibility = Visibility.Visible;
         }
 
         public void ClearCards(object sender, RoutedEventArgs e) {
-            if (_overlay == null) {
-                return;
-            }
+            var game = AppData.Game;
 
-            _overlay.ClearAllCards();
+            game.ScenarioCards.ClearSelections();
+            game.LocationCards.ClearSelections();
+            game.EncounterDeckCards.ClearSelections();
+            foreach (var player in game.Players) {
+                player.SelectableCards.ClearSelections(); ;
+            }
         }
     }
 }

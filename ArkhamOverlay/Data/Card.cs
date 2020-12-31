@@ -3,16 +3,17 @@ using System;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.Data {
+    public delegate void CardToggledEvent(ICardButton card);
+
     public class Card : ICardButton {
         public Card() {
         }
 
-        public Card(ArkhamDbCard arkhamDbCard, bool cardBack = false, string ownerId = null) {
-            OwnerId = ownerId;
+        public Card(ArkhamDbCard arkhamDbCard, bool isPlayerCard, bool cardBack = false) {
             Code = arkhamDbCard.Code;
             Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")";
             Faction = GetFaction(arkhamDbCard.Faction_Name);
-            Type = GetCardType(arkhamDbCard.Type_Code);
+            Type = isPlayerCard ? CardType.Player : GetCardType(arkhamDbCard.Type_Code);
             ImageSource = cardBack ? arkhamDbCard.BackImageSrc : arkhamDbCard.ImageSrc;
 
             if (cardBack) {
@@ -20,13 +21,13 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public string OwnerId { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
         public Faction Faction { get; set; }
         public string ImageSource { get; set; }
         public string BackImageSource { get; set; }
         public CardType Type { get; set; }
+        public bool IsVisible { get; set;}
 
         public Brush Background {
             get {
@@ -64,13 +65,20 @@ namespace ArkhamOverlay.Data {
 
         public bool IsPlayerCard => Type == CardType.Player;
 
+        public SelectableCards SelectableCards { get; set; }
+        public Card FlipSideCard { get; set; }
+
+        public void Click() {
+            if (SelectableCards == null) {
+                return;
+            }
+
+            SelectableCards.ToggleCard(this);
+            IsVisible = !IsVisible;
+        }
+
         private CardType GetCardType(string typeCode) {
-            if(OwnerId != null
-                || string.Equals(typeCode, "asset", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(typeCode, "event", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(typeCode, "skill", StringComparison.OrdinalIgnoreCase)) {
-                return CardType.Player;
-            } else if (Enum.TryParse(typeCode, ignoreCase: true, out CardType type)) {
+            if(Enum.TryParse(typeCode, ignoreCase: true, out CardType type)) {
                 return type;
             } else {
                 return CardType.Other;
