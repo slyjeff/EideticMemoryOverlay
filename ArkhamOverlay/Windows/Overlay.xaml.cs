@@ -1,6 +1,8 @@
 ﻿using ArkhamOverlay.Data;
+using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace ArkhamOverlay {
     public partial class Overlay : Window {
@@ -37,7 +39,17 @@ namespace ArkhamOverlay {
                 }
             }
 
-            selectableCards.CardToggled += ToggleCard;
+            selectableCards.CardToggled += ToggleCardHandler;
+        }
+
+        internal void ToggleCardHandler(Card card, Card cardToReplace) {
+            if (Application.Current.Dispatcher.CheckAccess()) {
+                ToggleCard(card, cardToReplace);
+            } else {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                    ToggleCard(card, cardToReplace);
+                }));
+            }
         }
 
         internal void ToggleCard(Card card, Card cardToReplace) {

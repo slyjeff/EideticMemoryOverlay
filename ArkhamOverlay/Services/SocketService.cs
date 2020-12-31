@@ -20,7 +20,7 @@ namespace ArkhamOverlay.Services {
 
         public Socket Socket = null;
 
-        public SocketService Service;
+        public RequestHandler RequestHandler;
     }
 
     internal class TcpRequest {
@@ -43,12 +43,13 @@ namespace ArkhamOverlay.Services {
 
     public class SocketService {
         private readonly AppData _appData;
+        private readonly RequestHandler _requestHandler;
 
         public SocketService(AppData appData) {
             _appData = appData;
+            _requestHandler = new RequestHandler(appData);
         }
 
-        // Thread signal.  
         public static ManualResetEvent allDone = new ManualResetEvent(false);
 
         public void StartListening() {
@@ -83,14 +84,12 @@ namespace ArkhamOverlay.Services {
         public void AcceptCallback(IAsyncResult ar) {
             allDone.Set();
 
-            // Get the socket that handles the client request.  
             var listener = (Socket)ar.AsyncState;
             var handler = listener.EndAccept(ar);
 
-            // Create the state object.  
             var state = new StateObject {
                 Socket = handler,
-                Service = this
+                RequestHandler = _requestHandler
             };
             handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
         }
@@ -98,9 +97,8 @@ namespace ArkhamOverlay.Services {
         public static void ReadCallback(IAsyncResult ar) {
             var state = (StateObject)ar.AsyncState;
             var socket = state.Socket;
-            var service = state.Service;
+            var requestHandler = state.RequestHandler;
 
-            // Read data from the client socket.
             int bytesRead = socket.EndReceive(ar);
             if (bytesRead > 0) {
                 // There  might be more data, so store the data received so far.  
@@ -108,86 +106,10 @@ namespace ArkhamOverlay.Services {
 
                 var payload = state.Data.ToString();
                 if (payload.IndexOf("<EOF>") > -1) {
-                    service.HandleRequest(new TcpRequest(payload, socket));
+                    requestHandler.HandleRequest(new TcpRequest(payload, socket));
                 } else {
                     socket.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
-            }
-        }
-
-        private void HandleRequest(TcpRequest request) {
-            Console.WriteLine("Handling Rquest: " + request.RequestType.AsString());
-            if (request.RequestType == AoTcpRequest.GetCardInfo) {
-                HandleGetCardInfo(request);
-            }
-        }
-
-        private void HandleGetCardInfo(TcpRequest request) {
-            var getCardInfoRequest = JsonConvert.DeserializeObject<GetCardInfoRequest>(request.Body);
-            var cardIndex = getCardInfoRequest.Index + 1;
-
-            var cards = _appData.Game.Players[0].SelectableCards.CardButtons;
-
-            var card = (cardIndex < cards.Count) ? cards[cardIndex] as Card : null;
-            var getCardInfoReponse = (card == null)
-                ? new GetCardInfoReponse { CardType = TcpUtils.CardType.Unknown, Name = "" }
-                : new GetCardInfoReponse { CardType = GetCardType(card), Name = card.Name };
-
-            Send(request.Socket, getCardInfoReponse.ToString());
-        }
-
-        private static TcpUtils.CardType GetCardType(Card card) {
-            switch (card.Type) {
-                case CardType.Scenario:
-                    return TcpUtils.CardType.Scenario;
-                case CardType.Agenda:
-                    return TcpUtils.CardType.Agenda;
-                case CardType.Act:
-                    return TcpUtils.CardType.Act;
-                case CardType.Location:
-                    return TcpUtils.CardType.Location;
-                case CardType.Enemy:
-                    return TcpUtils.CardType.Enemy;
-                case CardType.Treachery:
-                    return TcpUtils.CardType.Treachery;
-                case CardType.Player:
-                    switch (card.Faction) {
-                        case Faction.Guardian:
-                            return TcpUtils.CardType.Guardian;
-                        case Faction.Seeker:
-                            return TcpUtils.CardType.Seeker;
-                        case Faction.Rogue:
-                            return TcpUtils.CardType.Rogue;
-                        case Faction.Survivor:
-                            return TcpUtils.CardType.Survivor;
-                        case Faction.Mystic:
-                            return TcpUtils.CardType.Mystic;
-                        default:
-                            return TcpUtils.CardType.Unknown;
-                    }
-                default:
-                    return TcpUtils.CardType.Unknown;
-            }
-        }
-
-        private static void Send(Socket socket, string data) {
-            var byteData = Encoding.ASCII.GetBytes(data);
-
-            // Begin sending the data to the remote device.  
-            socket.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), socket);
-        }
-
-        private static void SendCallback(IAsyncResult ar) {
-            try {
-                var socket = (Socket)ar.AsyncState;
-
-                var bytesSent = socket.EndSend(ar);
-                Console.WriteLine("Sent {0} bytes to client.", bytesSent);
-
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
-            } catch (Exception e) {
-                Console.WriteLine(e.ToString());
             }
         }
     }

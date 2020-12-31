@@ -88,6 +88,7 @@
     <Compile Include="Services\ArkhamDbPack.cs" />
     <Compile Include="Services\ArkhamDbCard.cs" />
     <Compile Include="Services\ArkhamDbDeck.cs" />
+    <Compile Include="Services\RequestHandler.cs" />
     <Compile Include="Services\SocketService.cs" />
     <Compile Include="Windows\ChooseEncounters.xaml.cs">
       <DependentUpon>ChooseEncounters.xaml</DependentUpon>

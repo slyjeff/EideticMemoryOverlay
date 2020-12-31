@@ -1,13 +1,13 @@
 ﻿namespace ArkhamOverlay.TcpUtils {
-    public enum AoTcpRequest { Unknown, GetCardInfo, ToggleCard, ClearAll };
+    public enum AoTcpRequest { Unknown, GetCardInfo, ClickCardButton, ClearAll };
 
     public static class AoTcpRequestExtensions {
         public static string AsString(this AoTcpRequest request) {
             switch (request) {
                 case AoTcpRequest.GetCardInfo:
                     return "Info";
-                case AoTcpRequest.ToggleCard:
-                    return "Toggle";
+                case AoTcpRequest.ClickCardButton:
+                    return "ClickCardButton";
                 case AoTcpRequest.ClearAll:
                     return "ClearAll";
                 default:
@@ -19,8 +19,8 @@
             switch (request) {
                 case "Info":
                     return AoTcpRequest.GetCardInfo;
-                case "Toggle":
-                    return AoTcpRequest.ToggleCard;
+                case "ClickCardButton":
+                    return AoTcpRequest.ClickCardButton;
                 case "ClearAll":
                     return AoTcpRequest.ClearAll;
                 default:
