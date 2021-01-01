@@ -18,29 +18,41 @@ namespace ArkhamOverlaySdPlugin.Actions {
 
     [StreamDeckAction("Card Button", "arkhamoverlay.cardbutton")]
     public class CardButtonAction : StreamDeckAction<CardButtonSettings> {
-        protected override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
-            var deck = args.Payload["deck"].Value<string>();
-            var settings = new CardButtonSettings {
-                Deck = deck
-            };
+        public static IList<CardButtonAction> ListOf = new List<CardButtonAction>();
 
-            SetSettingsAsync(settings);
+        private Coordinates _coordinates = new Coordinates();
+        private CardButtonSettings _settings = new CardButtonSettings();
+        private string _deviceId;
 
-            var coordinates = new Coordinates {
-                Column = args.Payload["coordinates"]["column"].Value<int>(),
-                Row = args.Payload["coordinates"]["row"].Value<int>()
-            };
-            GetButtonInfo(settings, coordinates);
+        public int Page { get; set; }
+        public bool IsVisible { get; private set; }
 
-            return Task.CompletedTask;
+        public CardButtonAction() {
+            ListOf.Add(this);
         }
 
-        protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
-            var settings = args.Payload.GetSettings<CardButtonSettings>();
-            GetButtonInfo(settings, args.Payload.Coordinates);
+        protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
+            _settings.Deck = args.Payload["deck"].Value<string>();
             
+            await SetSettingsAsync(_settings);
+
+            await GetButtonInfo();
+        }
+
+        protected async override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
+            _coordinates = args.Payload.Coordinates;
+            _deviceId = args.Device;
+            _settings = args.Payload.GetSettings<CardButtonSettings>();
+            Page = 0;
+            IsVisible = true;
+            await GetButtonInfo();
+        }
+
+        protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
+            IsVisible = false;
             return Task.CompletedTask;
         }
+
 
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
             var settings = args.Payload.GetSettings<CardButtonSettings>();
@@ -56,10 +68,10 @@ namespace ArkhamOverlaySdPlugin.Actions {
             }
         }
 
-        private void GetButtonInfo(CardButtonSettings settings, Coordinates coordinates) {
-            var cardIndex = GetCardButtonIndex(coordinates);
+        public async Task GetButtonInfo() {
+            var cardIndex = GetCardButtonIndex(_coordinates);
             try {
-                var request = new GetCardInfoRequest { Deck = settings.Deck.AsDeck(), Index = cardIndex };
+                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = cardIndex };
                 var response = SendSocketService.SendRequest<CardInfoReponse>(request);
 
                 if (string.IsNullOrEmpty(response.ImageSource)) {
@@ -91,13 +103,18 @@ namespace ArkhamOverlaySdPlugin.Actions {
         }
 
         private int GetCardButtonIndex(Coordinates coordinates) {
-            //assume 8 cards per row, as this app only makes since on the large streamdeck
-            //subtract one for the "Return" location, since this will be in a folder
-            //return (coordinates.Row * 8 + coordinates.Column - 1);
+            var rows = 4;
+            var columns = 16;
+            var device = StreamDeck.Info.Devices.FirstOrDefault(x => x.Id == _deviceId);
+            if (device != null) {
+                rows = device.Size.Rows;
+                columns = device.Size.Columns;
+            }
 
-            //while developoing on my phone, use 5
-            return (coordinates.Row * 5 + coordinates.Column - 1);
+            var buttonsPerPage = rows * columns - 3; //3 because the return to parent, left, and right buttons take up three slots
 
+            //while developing on my phone, use 5
+            return (Page * buttonsPerPage) + (coordinates.Row * columns + coordinates.Column) - 1;
         }
 
     }

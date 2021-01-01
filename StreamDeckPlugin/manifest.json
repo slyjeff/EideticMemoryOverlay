@@ -14,6 +14,30 @@
                     "TitleAlignment": "middle"
                 }
             ]
+        },
+        {
+            "Name": "Page Right",
+            "UUID": "arkhamoverlay.pageright",
+            "Tooltip": "Display the next set of card buttons",
+            "States": [
+                {
+                    "FontSize": "9",
+                    "Image": "Icons/right-arrow",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        },
+        {
+            "Name": "Page Left",
+            "UUID": "arkhamoverlay.pageleft",
+            "Tooltip": "Display the previouus set of card buttons",
+            "States": [
+                {
+                    "FontSize": "9",
+                    "Image": "Icons/left-arrow",
+                    "TitleAlignment": "middle"
+                }
+            ]
         }
     ],
     "Category": "Arkham Overlay",
