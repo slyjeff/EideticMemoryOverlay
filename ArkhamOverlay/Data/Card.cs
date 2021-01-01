@@ -94,8 +94,8 @@ namespace ArkhamOverlay.Data {
                 return;
             }
 
-            SelectableCards.ToggleCard(this);
             IsVisible = !IsVisible;
+            SelectableCards.ToggleCard(this);
             OnPropertyChanged(nameof(BorderBrush));
         }
 

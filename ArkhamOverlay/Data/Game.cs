@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace ArkhamOverlay.Data {
         [JsonIgnore]
         public SelectableCards EncounterDeckCards { get; set; }
 
+
         public IList<Player> Players { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -51,12 +53,24 @@ namespace ArkhamOverlay.Data {
             return EncounterSets.Any(x => x.Code == code);
         }
 
+        public IList<SelectableCards> AllSelectableCards {
+            get {
+                var allDecks = new List<SelectableCards> {
+                    ScenarioCards,
+                    LocationCards,
+                    EncounterDeckCards
+                };
+                
+                foreach (var player in Players) {
+                    allDecks.Add(player.SelectableCards);
+                }
+                return allDecks;
+            }
+        }
+
         internal void ClearAllCards() {
-            ScenarioCards.ClearSelections();
-            LocationCards.ClearSelections();
-            EncounterDeckCards.ClearSelections();
-            foreach (var player in Players) {
-                player.SelectableCards.ClearSelections(); ;
+            foreach (var selectableCards in AllSelectableCards) {
+                selectableCards.ClearSelections();
             }
         }
     }

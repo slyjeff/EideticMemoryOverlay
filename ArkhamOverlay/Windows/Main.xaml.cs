@@ -11,28 +11,27 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using System.Linq;
 using ArkhamOverlay.Data;
+using ArkhamOverlay.TcpUtils;
 
 namespace ArkhamOverlay {
     public partial class Main : Window {
         private Overlay _overlay;
         private readonly ArkhamDbService _arkhamDbService = new ArkhamDbService();
-        private readonly SocketService _socketService;
         private readonly IList<SelectCards> _selectCardsList = new List<SelectCards>();
 
         public Main() {
             InitializeComponent();
-
-            var appData = new AppData();
-
-            _socketService = new SocketService(appData);
-
-            DataContext = appData;
         }
 
         public void InitializeApp(object sender, RoutedEventArgs e) {
+            var appData = new AppData();
+            DataContext = appData;
+
             LoadConfiguration();
             LoadLastSavedGame();
-            _socketService.StartListening();
+
+            var socketService = new ReceiveSocketService(new TcpRequestHandler(appData));
+            socketService.StartListening(TcpInfo.ArkhamOverlayPort);
         }
 
         private void LoadConfiguration() {
@@ -118,6 +117,7 @@ namespace ArkhamOverlay {
         }
 
         private void SetGame(Game game) {
+            //the selectable cards need to not be re-created for each player, as they would lose subscribed events
             ClearPlayerCardsList();
 
             _arkhamDbService.LoadAllPlayers(game);

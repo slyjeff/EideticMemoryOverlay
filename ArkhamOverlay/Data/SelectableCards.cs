@@ -71,10 +71,10 @@ namespace ArkhamOverlay.Data {
                 return;
             }
 
-            CardToggled?.Invoke(card, card.FlipSideCard);
             if (card.FlipSideCard != null) {
                 card.FlipSideCard.Hide();
             }
+            CardToggled?.Invoke(card, card.FlipSideCard);
         }
 
         internal void Load(IEnumerable<Card> cards) {

@@ -4,14 +4,17 @@ using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
 namespace ArkhamOverlay.Services {
-    internal class RequestHandler {
+    internal class TcpRequestHandler : IRequestHandler {
         private readonly AppData _appData;
 
-        public RequestHandler(AppData appData) {
+        public TcpRequestHandler(AppData appData) {
             _appData = appData;
         }
 
@@ -26,6 +29,9 @@ namespace ArkhamOverlay.Services {
                     break;
                 case AoTcpRequest.ClearAll:
                     HandleClearAll(request);
+                    break;
+                case AoTcpRequest.RegisterForUpdates:
+                    HandleRegisterForUpdates(request);
                     break;
             }
         }
@@ -58,12 +64,102 @@ namespace ArkhamOverlay.Services {
             SendOkResponse(request.Socket);
         }
 
+        private readonly IList<int> _updatePorts = new List<int>();
+        private bool _alreadyRegisteredForSelectableCardsToggleEvent = false;
+
+        private object _registerLock = new object();
+        private void HandleRegisterForUpdates(TcpRequest request) {
+            var registerForUpdatesRequest = JsonConvert.DeserializeObject<RegisterForUpdatesRequest>(request.Body);
+            if (!_updatePorts.Contains(registerForUpdatesRequest.Port)) {
+                _updatePorts.Add(registerForUpdatesRequest.Port);
+            }
+
+            lock(_registerLock) {
+                if (!_alreadyRegisteredForSelectableCardsToggleEvent) {
+                    var game = _appData.Game;
+                    foreach (var selectableCards in game.AllSelectableCards) {
+                        selectableCards.CardToggled += (card1, card2) => {
+                            SendCardInfoUpdate(card1, selectableCards);
+                            if (card2 != null) {
+                                SendCardInfoUpdate(card2, selectableCards);
+                            }
+                        };
+                    }
+                    _alreadyRegisteredForSelectableCardsToggleEvent = true;
+                }
+            }
+
+            SendOkResponse(request.Socket);
+        }
+
+        private void SendCardInfoUpdate(Card card, SelectableCards selectableCards) {
+            //if no one is listening, don't speak!
+            if (!_updatePorts.Any()) {
+                return;
+            }
+
+            var deck = GetDeckType(selectableCards);
+
+            var worker = new BackgroundWorker();
+            worker.DoWork += (x, y) => {
+                var portsToRemove = new List<int>();
+                foreach (var port in _updatePorts.ToList()) {
+                    try {
+                        var request = new UpdateCardInfoRequest {
+                            Deck = deck,
+                            Index = selectableCards.CardButtons.IndexOf(card),
+                            CardButtonType = GetCardType(card),
+                            Name = card.Name,
+                            ImageSource = card.ImageSource,
+                            IsVisible = card.IsVisible
+                        };
+                        SendSocketService.SendRequest(request, port);
+
+                    } catch {
+                        //this clearly is not cool- stop trying to talk
+                        portsToRemove.Add(port);
+                    }
+                }
+
+                foreach (var portToRemove in portsToRemove) {
+                    _updatePorts.Remove(portToRemove);
+                }
+            };
+            worker.RunWorkerAsync();
+        }
+
+        private Deck GetDeckType(SelectableCards selectableCards) {
+            var game = _appData.Game;
+            if (selectableCards == game.ScenarioCards) {
+                return Deck.Scenario;
+            }
+            if (selectableCards == game.LocationCards) {
+                return Deck.Locations;
+            }
+            if (selectableCards == game.EncounterDeckCards) {
+                return Deck.EncounterDeck;
+            }
+            if (selectableCards == game.Players[0].SelectableCards) {
+                return Deck.Player1;
+            }
+            if (selectableCards == game.Players[1].SelectableCards) {
+                return Deck.Player2;
+            }
+            if (selectableCards == game.Players[2].SelectableCards) {
+                return Deck.Player3;
+            }
+            return Deck.Player4;
+        }
 
         private void SendCardInfoResponse(Socket socket, ICardButton cardButton) {
             var card = (cardButton as Card);
             var cardInfoReponse = (cardButton == null)
                 ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
-                : new CardInfoResponse { CardButtonType = GetCardType(card), Name = cardButton.Name, ImageSource = card != null ? card.ImageSource : string.Empty };
+                : new CardInfoResponse { 
+                    CardButtonType = GetCardType(card), 
+                    Name = cardButton.Name, 
+                    IsVisible = card != null ? card.IsVisible : false,
+                    ImageSource = card != null ? card.ImageSource : string.Empty };
 
             Send(socket, cardInfoReponse.ToString());
         }
