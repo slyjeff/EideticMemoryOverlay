@@ -88,6 +88,8 @@
     <Compile Include="Services\ArkhamDbPack.cs" />
     <Compile Include="Services\ArkhamDbCard.cs" />
     <Compile Include="Services\ArkhamDbDeck.cs" />
+    <Compile Include="Services\RequestHandler.cs" />
+    <Compile Include="Services\SocketService.cs" />
     <Compile Include="Windows\ChooseEncounters.xaml.cs">
       <DependentUpon>ChooseEncounters.xaml</DependentUpon>
     </Compile>
@@ -152,6 +154,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ArkhamOverlay.TcpUtils\ArkhamOverlay.TcpUtils.csproj">
+      <Project>{434089c6-fa67-438d-8704-dab3e626eb10}</Project>
+      <Name>ArkhamOverlay.TcpUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

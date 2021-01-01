@@ -3,8 +3,8 @@
 namespace ArkhamOverlay.Data {
     public class AppData : INotifyPropertyChanged {
         public Game Game { get; set; }
-
         public Configuration Configuration { get; set; }
+        public bool ShuttingDown { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

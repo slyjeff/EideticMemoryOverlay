@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+    <html>
+
+    <head>
+        <meta charset="utf-8" />
+        <title>Arkham Overlay</title>
+        <link rel="stylesheet" href="css/sdpi.css">
+    </head>
+
+    <body>
+        <div class="sdpi-item">
+            <div class="sdpi-item-label">Deck</div> 
+            <select class="sdpi-item-value select" id="selectDeck" onchange="sendValueToPlugin(event.target.value, 'deck')">
+                <option value="player1">Player 1</option>
+                <option value="player2">Player 2</option>
+                <option value="player3">Player 3</option>
+                <option value="player4">Player 4</option>
+                <option value="scenario">Scenario Cards</option>
+                <option value="locations">Locations</option>
+                <option value="encounterDeck">Encounter Deck</option>
+            </select> 
+        </div>
+
+        <script src="index.js"></script>
+    </body>
+
+</html>

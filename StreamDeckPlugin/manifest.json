@@ -1,0 +1,33 @@
+﻿{
+    "Name": "Arkham Overlay",
+    "Version": "1.0.0",
+    "Author": "Jeff Sylvester",
+    "Actions": [
+        {
+            "Name": "Card Button",
+            "UUID": "arkhamoverlay.cardbutton",
+            "Tooltip": "Take the contextual action based on grid location and deck",
+            "States": [
+                {
+                    "FontSize": "9",
+                    "Image": "Icons/Guardian",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        }
+    ],
+    "Category": "Arkham Overlay",
+    "CodePath": "ArkahmOverlayPlugin.exe",
+    "PropertyInspectorPath": "index.html",                         
+    "Description": "Plugin for Arkham Overlay for Displaying Cards",
+    "SDKVersion": 2,
+    "Software": {
+        "MinimumVersion": "4.1"
+    },
+    "OS": [
+        {
+            "MinimumVersion": "10",
+            "Platform": "windows"
+        }
+    ]
+}

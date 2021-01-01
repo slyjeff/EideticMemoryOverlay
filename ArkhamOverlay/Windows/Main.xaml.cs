@@ -16,16 +16,23 @@ namespace ArkhamOverlay {
     public partial class Main : Window {
         private Overlay _overlay;
         private readonly ArkhamDbService _arkhamDbService = new ArkhamDbService();
+        private readonly SocketService _socketService;
         private readonly IList<SelectCards> _selectCardsList = new List<SelectCards>();
 
         public Main() {
             InitializeComponent();
-            DataContext = new AppData();
+
+            var appData = new AppData();
+
+            _socketService = new SocketService(appData);
+
+            DataContext = appData;
         }
 
         public void InitializeApp(object sender, RoutedEventArgs e) {
             LoadConfiguration();
             LoadLastSavedGame();
+            _socketService.StartListening();
         }
 
         private void LoadConfiguration() {
@@ -76,7 +83,10 @@ namespace ArkhamOverlay {
         }
 
         public void CloseApp(object sender, RoutedEventArgs e) {
+            AppData.ShuttingDown = true;
+
             ClearPlayerCardsList();
+
             if (_overlay != null) {
                 _overlay.Close();
             }
