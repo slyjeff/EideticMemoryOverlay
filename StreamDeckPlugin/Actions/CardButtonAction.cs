@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
@@ -15,28 +16,29 @@ namespace ArkhamOverlaySdPlugin.Actions {
 
     [StreamDeckAction("Card Button", "arkhamoverlay.cardbutton")]
     public class CardButtonAction : StreamDeckAction<CardButtonSettings> {
-        protected override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
-            var deck = args.Payload["deck"].Value<string>();
-            var settings = new CardButtonSettings {
-                Deck = deck
-            };
+        public static IList<CardButtonAction> ListOf = new List<CardButtonAction>();
 
-            SetSettingsAsync(settings);
+        private Coordinates _coordinates = new Coordinates();
+        private CardButtonSettings _settings = new CardButtonSettings();
+        public int Page { get; set; }
 
-            var coordinates = new Coordinates {
-                Column = args.Payload["coordinates"]["column"].Value<int>(),
-                Row = args.Payload["coordinates"]["row"].Value<int>()
-            };
-            GetButtonInfo(settings, coordinates);
-
-            return Task.CompletedTask;
+        public CardButtonAction() {
+            ListOf.Add(this);
         }
 
-        protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
-            var settings = args.Payload.GetSettings<CardButtonSettings>();
-            GetButtonInfo(settings, args.Payload.Coordinates);
+        protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
+            _settings.Deck = args.Payload["deck"].Value<string>();
             
-            return Task.CompletedTask;
+            await SetSettingsAsync(_settings);
+
+            await GetButtonInfo();
+        }
+
+        protected async override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
+            _coordinates = args.Payload.Coordinates;
+            _settings = args.Payload.GetSettings<CardButtonSettings>();
+            Page = 0;
+            await GetButtonInfo();
         }
 
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
@@ -53,14 +55,14 @@ namespace ArkhamOverlaySdPlugin.Actions {
             }
         }
 
-        private void GetButtonInfo(CardButtonSettings settings, Coordinates coordinates) {
-            var cardIndex = GetCardButtonIndex(coordinates);
+        public async Task GetButtonInfo() {
+            var cardIndex = GetCardButtonIndex(_coordinates);
             try {
-                var request = new GetCardInfoRequest { Deck = settings.Deck.AsDeck(), Index = cardIndex };
+                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = cardIndex };
                 var response = SendSocketService.SendRequest<CardInfoReponse>(request);
 
-                SetImageAsync(response.CardButtonType.AsImage());
-                SetTitleAsync(TextUtils.WrapTitle(response.Name));
+                await SetTitleAsync(TextUtils.WrapTitle(response.Name));
+                await SetImageAsync(response.CardButtonType.AsImage());
             } catch {
             }
         }
@@ -70,9 +72,8 @@ namespace ArkhamOverlaySdPlugin.Actions {
             //subtract one for the "Return" location, since this will be in a folder
             //return (coordinates.Row * 8 + coordinates.Column - 1);
 
-            //while developoing on my phone, use 5
-            return (coordinates.Row * 5 + coordinates.Column - 1);
-
+            //while developing on my phone, use 5
+            return (Page * 12) + (coordinates.Row * 5 + coordinates.Column - 1);
         }
 
     }
