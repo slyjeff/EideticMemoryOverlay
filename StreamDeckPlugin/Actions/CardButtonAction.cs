@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
@@ -20,6 +21,8 @@ namespace ArkhamOverlaySdPlugin.Actions {
 
         private Coordinates _coordinates = new Coordinates();
         private CardButtonSettings _settings = new CardButtonSettings();
+        private string _deviceId;
+
         public int Page { get; set; }
 
         public CardButtonAction() {
@@ -36,6 +39,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
 
         protected async override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _coordinates = args.Payload.Coordinates;
+            _deviceId = args.Device;
             _settings = args.Payload.GetSettings<CardButtonSettings>();
             Page = 0;
             await GetButtonInfo();
@@ -68,12 +72,18 @@ namespace ArkhamOverlaySdPlugin.Actions {
         }
 
         private int GetCardButtonIndex(Coordinates coordinates) {
-            //assume 8 cards per row, as this app only makes since on the large streamdeck
-            //subtract one for the "Return" location, since this will be in a folder
-            //return (coordinates.Row * 8 + coordinates.Column - 1);
+            var rows = 4;
+            var columns = 16;
+            var device = StreamDeck.Info.Devices.FirstOrDefault(x => x.Id == _deviceId);
+            if (device != null) {
+                rows = device.Size.Rows;
+                columns = device.Size.Columns;
+            }
+
+            var buttonsPerPage = rows * columns - 3; //3 because the return to parent, left, and right buttons take up three slots
 
             //while developing on my phone, use 5
-            return (Page * 12) + (coordinates.Row * 5 + coordinates.Column - 1);
+            return (Page * buttonsPerPage) + (coordinates.Row * columns + coordinates.Column) - 1;
         }
 
     }
