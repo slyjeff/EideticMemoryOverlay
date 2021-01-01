@@ -13,8 +13,9 @@ namespace ArkhamOverlay.Data {
             Code = arkhamDbCard.Code;
             Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")";
             Faction = GetFaction(arkhamDbCard.Faction_Name);
-            Type = isPlayerCard ? CardType.Player : GetCardType(arkhamDbCard.Type_Code);
+            Type = GetCardType(arkhamDbCard.Type_Code);
             ImageSource = cardBack ? arkhamDbCard.BackImageSrc : arkhamDbCard.ImageSrc;
+            IsPlayerCard = isPlayerCard;
 
             if (cardBack) {
                 Name += " (Back)";
@@ -39,8 +40,10 @@ namespace ArkhamOverlay.Data {
                         return new SolidColorBrush(Colors.SlateBlue);
                     case CardType.Treachery:
                         return new SolidColorBrush(Colors.SlateGray);
-                    case CardType.Player:
-                        switch(Faction) {
+                    case CardType.Asset:
+                    case CardType.Event:
+                    case CardType.Skill:
+                        switch (Faction) {
                             case Faction.Guardian:
                                 return new SolidColorBrush(Colors.DarkBlue);
                             case Faction.Seeker:
@@ -62,7 +65,7 @@ namespace ArkhamOverlay.Data {
 
         public bool IsHorizontal { get { return Type == CardType.Act || Type == CardType.Agenda; } }
 
-        public bool IsPlayerCard => Type == CardType.Player;
+        public bool IsPlayerCard { get; private set; }
 
         public SelectableCards SelectableCards { get; set; }
         public Card FlipSideCard { get; set; }

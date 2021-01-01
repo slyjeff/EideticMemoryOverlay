@@ -51,8 +51,8 @@ namespace ArkhamOverlay.Services {
         private void SendCardInfoResponse(Socket socket, ICardButton cardButton) {
             var card = (cardButton as Card);
             var cardInfoReponse = (cardButton == null)
-                ? new CardInfoReponse { CardButtonType = CardButtonType.Unknown, Name = "" }
-                : new CardInfoReponse { CardButtonType = GetCardType(card), Name = cardButton.Name, ImageSource = card != null ? card.ImageSource : string.Empty };
+                ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
+                : new CardInfoResponse { CardButtonType = GetCardType(card), Name = cardButton.Name, ImageSource = card != null ? card.ImageSource : string.Empty };
 
             Send(socket, cardInfoReponse.ToString());
         }
@@ -85,34 +85,25 @@ namespace ArkhamOverlay.Services {
 
             switch (card.Type) {
                 case CardType.Scenario:
-                    return TcpUtils.CardButtonType.Scenario;
+                    return CardButtonType.Scenario;
                 case CardType.Agenda:
-                    return TcpUtils.CardButtonType.Agenda;
+                    return CardButtonType.Agenda;
                 case CardType.Act:
-                    return TcpUtils.CardButtonType.Act;
+                    return CardButtonType.Act;
                 case CardType.Location:
-                    return TcpUtils.CardButtonType.Location;
+                    return CardButtonType.Location;
                 case CardType.Enemy:
-                    return TcpUtils.CardButtonType.Enemy;
+                    return CardButtonType.Enemy;
                 case CardType.Treachery:
-                    return TcpUtils.CardButtonType.Treachery;
-                case CardType.Player:
-                    switch (card.Faction) {
-                        case Faction.Guardian:
-                            return TcpUtils.CardButtonType.Guardian;
-                        case Faction.Seeker:
-                            return TcpUtils.CardButtonType.Seeker;
-                        case Faction.Rogue:
-                            return TcpUtils.CardButtonType.Rogue;
-                        case Faction.Survivor:
-                            return TcpUtils.CardButtonType.Survivor;
-                        case Faction.Mystic:
-                            return TcpUtils.CardButtonType.Mystic;
-                        default:
-                            return TcpUtils.CardButtonType.Unknown;
-                    }
+                    return CardButtonType.Treachery;
+                case CardType.Asset:
+                    return CardButtonType.Asset;
+                case CardType.Event:
+                    return CardButtonType.Event;
+                case CardType.Skill:
+                    return CardButtonType.Skill;
                 default:
-                    return TcpUtils.CardButtonType.Unknown;
+                    return CardButtonType.Unknown;
             }
         }
 

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Drawing;
-using System.Net;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
@@ -53,50 +52,36 @@ namespace ArkhamOverlaySdPlugin.Actions {
             return Task.CompletedTask;
         }
 
-
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
             var settings = args.Payload.GetSettings<CardButtonSettings>();
             var cardIndex = GetCardButtonIndex(args.Payload.Coordinates);
             try {
                 var request = new ClickCardButtonRequest { Deck = settings.Deck.AsDeck(), Index = cardIndex };
-                var response = SendSocketService.SendRequest<CardInfoReponse>(request);
+                var response = SendSocketService.SendRequest<CardInfoResponse>(request);
 
-                SetImageAsync(response.CardButtonType.AsImage());
+                SetImageAsync(response.AsImage());
                 return SetTitleAsync(TextUtils.WrapTitle(response.Name));
             } catch {
                 return SetTitleAsync("");
             }
         }
 
+        public async Task Clear() {
+            await SetTitleAsync(string.Empty);
+            await SetImageAsync(ImageUtils.BlankImage());
+        }
+
         public async Task GetButtonInfo() {
             var cardIndex = GetCardButtonIndex(_coordinates);
             try {
                 var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = cardIndex };
-                var response = SendSocketService.SendRequest<CardInfoReponse>(request);
+                var response = SendSocketService.SendRequest<CardInfoResponse>(request);
 
-                if (string.IsNullOrEmpty(response.ImageSource)) {
-                    SetImageAsync(response.CardButtonType.AsImage());
-                    SetTitleAsync(TextUtils.WrapTitle(response.Name));
+                if (string.IsNullOrEmpty(response.Name)) {
+                    await Clear();
                 } else {
-                    SetTitleAsync(TextUtils.WrapTitle(response.Name));
-                    var imageRequest = WebRequest.Create("https://arkhamdb.com/" + response.ImageSource);
-                    var imageResponse = imageRequest.GetResponse();                    
-                    var responseStream = imageResponse.GetResponseStream();
-                    var bitmap = new Bitmap(responseStream);
-
-                    var cropRect = new Rectangle(new Point(40, 40), new System.Drawing.Size(220, 200));
-                    var croppedBitmap = new Bitmap(cropRect.Width, cropRect.Height);
-
-                    using (Graphics g = Graphics.FromImage(croppedBitmap)) {
-                        g.DrawImage(bitmap, new Rectangle(0, 0, croppedBitmap.Width, croppedBitmap.Height), cropRect, GraphicsUnit.Pixel);
-                    }
-
-                    var converter = new ImageConverter();
-                    var converted = (byte[])converter.ConvertTo(croppedBitmap, typeof(byte[]));
-                    var imageString = Convert.ToBase64String(converted);
-
-                    SetImageAsync("data:image/png;base64," + imageString);
-                    //var bitmap = new BitmapImage(new Uri("https://arkhamdb.com/" + response.ImageSource, UriKind.Absolute));
+                    await SetTitleAsync(TextUtils.WrapTitle(response.Name));
+                    await SetImageAsync(response.AsImage());
                 }
             } catch {
             }
