@@ -17,12 +17,16 @@ namespace ArkhamOverlay.Services {
 
         public void HandleRequest(TcpRequest request) {
             Console.WriteLine("Handling Request: " + request.RequestType.AsString());
-            if (request.RequestType == AoTcpRequest.GetCardInfo) {
-                HandleGetCardInfo(request);
-            }
-
-            if (request.RequestType == AoTcpRequest.ClickCardButton) {
-                HandleClick(request);
+            switch (request.RequestType) {
+                case AoTcpRequest.GetCardInfo:
+                    HandleGetCardInfo(request);
+                    break;
+                case AoTcpRequest.ClickCardButton:
+                    HandleClick(request);
+                    break;
+                case AoTcpRequest.ClearAll:
+                    HandleClearAll(request);
+                    break;
             }
         }
 
@@ -48,6 +52,13 @@ namespace ArkhamOverlay.Services {
             SendCardInfoResponse(request.Socket, cardButton);
         }
 
+        private void HandleClearAll(TcpRequest request) {
+            _appData.Game.ClearAllCards();
+
+            SendOkResponse(request.Socket);
+        }
+
+
         private void SendCardInfoResponse(Socket socket, ICardButton cardButton) {
             var card = (cardButton as Card);
             var cardInfoReponse = (cardButton == null)
@@ -55,6 +66,10 @@ namespace ArkhamOverlay.Services {
                 : new CardInfoResponse { CardButtonType = GetCardType(card), Name = cardButton.Name, ImageSource = card != null ? card.ImageSource : string.Empty };
 
             Send(socket, cardInfoReponse.ToString());
+        }
+
+        private void SendOkResponse(Socket socket) {
+            Send(socket, new OkResponse().ToString());
         }
 
         private SelectableCards GetDeck(Deck deck) {

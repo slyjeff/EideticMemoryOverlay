@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ArkhamOverlay.TcpUtils {
     public static class SendSocketService {
-        public static T SendRequest<T>(Request request) where T : Response {
+        public static string SendRequest(Request request) {
             var ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             var ipAddress = ipHostInfo.AddressList[0];
             var remoteEP = new IPEndPoint(ipAddress, TcpInfo.Port);
@@ -24,11 +24,15 @@ namespace ArkhamOverlay.TcpUtils {
                 var bytes = new byte[1024];
                 int bytesRec = sender.Receive(bytes);
                 var responseData = Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                return JsonConvert.DeserializeObject<T>(responseData.Substring(0, responseData.IndexOf("<EOF>")));
+                return responseData.Substring(0, responseData.IndexOf("<EOF>"));
             } finally {
                 sender.Shutdown(SocketShutdown.Both);
                 sender.Close();
             }
+        }
+
+        public static T SendRequest<T>(Request request) where T : Response {
+            return JsonConvert.DeserializeObject<T>(SendRequest(request));
         }
     }
 }
