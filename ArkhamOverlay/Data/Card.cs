@@ -25,7 +25,6 @@ namespace ArkhamOverlay.Data {
         public string Name { get; set; }
         public Faction Faction { get; set; }
         public string ImageSource { get; set; }
-        public string BackImageSource { get; set; }
         public CardType Type { get; set; }
         public bool IsVisible { get; set;}
 

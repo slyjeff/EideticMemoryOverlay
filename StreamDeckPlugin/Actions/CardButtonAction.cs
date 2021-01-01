@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Drawing;
+using System.Net;
+using System.Threading.Tasks;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
@@ -59,8 +62,30 @@ namespace ArkhamOverlaySdPlugin.Actions {
                 var request = new GetCardInfoRequest { Deck = settings.Deck.AsDeck(), Index = cardIndex };
                 var response = SendSocketService.SendRequest<CardInfoReponse>(request);
 
-                SetImageAsync(response.CardButtonType.AsImage());
-                SetTitleAsync(TextUtils.WrapTitle(response.Name));
+                if (string.IsNullOrEmpty(response.ImageSource)) {
+                    SetImageAsync(response.CardButtonType.AsImage());
+                    SetTitleAsync(TextUtils.WrapTitle(response.Name));
+                } else {
+                    SetTitleAsync(TextUtils.WrapTitle(response.Name));
+                    var imageRequest = WebRequest.Create("https://arkhamdb.com/" + response.ImageSource);
+                    var imageResponse = imageRequest.GetResponse();                    
+                    var responseStream = imageResponse.GetResponseStream();
+                    var bitmap = new Bitmap(responseStream);
+
+                    var cropRect = new Rectangle(new Point(40, 40), new System.Drawing.Size(220, 200));
+                    var croppedBitmap = new Bitmap(cropRect.Width, cropRect.Height);
+
+                    using (Graphics g = Graphics.FromImage(croppedBitmap)) {
+                        g.DrawImage(bitmap, new Rectangle(0, 0, croppedBitmap.Width, croppedBitmap.Height), cropRect, GraphicsUnit.Pixel);
+                    }
+
+                    var converter = new ImageConverter();
+                    var converted = (byte[])converter.ConvertTo(croppedBitmap, typeof(byte[]));
+                    var imageString = Convert.ToBase64String(converted);
+
+                    SetImageAsync("data:image/png;base64," + imageString);
+                    //var bitmap = new BitmapImage(new Uri("https://arkhamdb.com/" + response.ImageSource, UriKind.Absolute));
+                }
             } catch {
             }
         }

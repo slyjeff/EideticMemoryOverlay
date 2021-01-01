@@ -48,10 +48,11 @@ namespace ArkhamOverlay.Services {
             SendCardInfoResponse(request.Socket, cardButton);
         }
 
-        private void  SendCardInfoResponse(Socket socket, ICardButton cardButton) {
+        private void SendCardInfoResponse(Socket socket, ICardButton cardButton) {
+            var card = (cardButton as Card);
             var cardInfoReponse = (cardButton == null)
                 ? new CardInfoReponse { CardButtonType = CardButtonType.Unknown, Name = "" }
-                : new CardInfoReponse { CardButtonType = GetCardType(cardButton as Card), Name = cardButton.Name };
+                : new CardInfoReponse { CardButtonType = GetCardType(card), Name = cardButton.Name, ImageSource = card != null ? card.ImageSource : string.Empty };
 
             Send(socket, cardInfoReponse.ToString());
         }
