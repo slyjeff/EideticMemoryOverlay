@@ -1,11 +1,16 @@
 ﻿using ArkhamOverlay.Services;
 using System;
+using System.ComponentModel;
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace ArkhamOverlay.Data {
     public delegate void CardToggledEvent(ICardButton card);
 
-    public class Card : ICardButton {
+    public class Card : ICardButton, INotifyPropertyChanged {
         public Card() {
         }
 
@@ -22,12 +27,26 @@ namespace ArkhamOverlay.Data {
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void OnPropertyChanged(string propertyName) {
+            var handler = PropertyChanged;
+            if (handler == null) {
+                return;
+            }
+            handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         public string Code { get; set; }
         public string Name { get; set; }
         public Faction Faction { get; set; }
+
         public string ImageSource { get; set; }
+
         public CardType Type { get; set; }
-        public bool IsVisible { get; set;}
+
+        public bool IsVisible { get; private set;}
+        public Brush BorderBrush { get {return IsVisible ? new SolidColorBrush(Colors.Black) : Background; } }
 
         public Brush Background {
             get {
@@ -77,6 +96,12 @@ namespace ArkhamOverlay.Data {
 
             SelectableCards.ToggleCard(this);
             IsVisible = !IsVisible;
+            OnPropertyChanged(nameof(BorderBrush));
+        }
+
+        public void Hide() {
+            IsVisible = false;
+            OnPropertyChanged(nameof(BorderBrush));
         }
 
         private CardType GetCardType(string typeCode) {

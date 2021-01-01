@@ -16,6 +16,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="2"/>
         </Style>
     </Window.Resources>
 
@@ -23,9 +24,11 @@
         <ItemsControl ItemsSource="{Binding CardButtons}" BorderThickness="0">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Button Style="{StaticResource CardButton}" Background="{Binding Background}" Click="CardSelected">
-                        <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center" />
-                    </Button>
+                    <Border BorderThickness="1">
+                        <Button BorderBrush="{Binding BorderBrush}" Style="{StaticResource CardButton}" Background="{Binding Background}" Click="CardSelected">
+                            <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center" />
+                        </Button>
+                    </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>

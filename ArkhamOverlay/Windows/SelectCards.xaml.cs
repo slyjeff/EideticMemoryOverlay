@@ -14,11 +14,11 @@ namespace ArkhamOverlay {
         }
 
         public void CardSelected(object sender, RoutedEventArgs e) {
-            if (!(sender is Button button)) {
+            if (!(sender is FrameworkElement element)) {
                 return;
             }
 
-            if (!(button.DataContext is ICardButton card)) {
+            if (!(element.DataContext is ICardButton card)) {
                 return;
             }
 
