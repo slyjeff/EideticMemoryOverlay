@@ -24,6 +24,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
         private string _deviceId;
 
         public int Page { get; set; }
+        public bool IsVisible { get; private set; }
 
         public CardButtonAction() {
             ListOf.Add(this);
@@ -42,8 +43,15 @@ namespace ArkhamOverlaySdPlugin.Actions {
             _deviceId = args.Device;
             _settings = args.Payload.GetSettings<CardButtonSettings>();
             Page = 0;
+            IsVisible = true;
             await GetButtonInfo();
         }
+
+        protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
+            IsVisible = false;
+            return Task.CompletedTask;
+        }
+
 
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
             var settings = args.Payload.GetSettings<CardButtonSettings>();
