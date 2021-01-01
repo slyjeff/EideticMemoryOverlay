@@ -1,76 +1,82 @@
 ﻿using System;
-using System.Drawing;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
+using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 using StreamDeckPlugin.Utils;
 
 namespace ArkhamOverlaySdPlugin.Actions {
+    public class CardButtonSettings {
+        public string Deck { get; set; }
+    }
+
     [StreamDeckAction("Card Button", "arkhamoverlay.cardbutton")]
-    public class CardButtonAction : StreamDeckAction<Card> {
-        private int GetCardButtonIndex(Coordinates coordinates) {
-            //assume 8 cards per row, as this app only makes since on the large streamdeck
-            //subtract one for the "Return" location, since this will be in a folder
-            return (coordinates.Row * 8 + coordinates.Column - 1);
-        }
+    public class CardButtonAction : StreamDeckAction<CardButtonSettings> {
+        protected override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
+            var deck = args.Payload["deck"].Value<string>();
+            var settings = new CardButtonSettings {
+                Deck = deck
+            };
 
-        private string WrapTitle(string title) {
-            string[] words = title.Split(' ');
+            SetSettingsAsync(settings);
 
-            var newSentence = new StringBuilder(); 
-            var line = "";
-            foreach (string word in words) {
-                if ((line + word).Length > 10) {
-                    newSentence.AppendLine(line.Trim());
-                    line = "";
-                }
 
-                line += string.Format("{0} ", word);
-            }
+            var coordinates = new Coordinates {
+                Column = args.Payload["coordinates"]["column"].Value<int>(),
+                Row = args.Payload["coordinates"]["row"].Value<int>()
+            };
+            GetButtonInfo(settings, coordinates);
 
-            if (line.Trim().Length > 0)
-                newSentence.AppendLine(line.Trim());
-
-            return newSentence.ToString().Trim();
+            return Task.CompletedTask;
         }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
-            var cardIndex = GetCardButtonIndex(args.Payload.Coordinates);
-            try {
-                var request = new GetCardInfoRequest { Deck = "Player1", Index = cardIndex };
-                var response = SendSocketService.SendRequest<CardInfoReponse>(request);
+            var settings = args.Payload.GetSettings<CardButtonSettings>();
+            GetButtonInfo(settings, args.Payload.Coordinates);
 
-                SetImageAsync(response.CardButtonType.AsImage());
-                return SetTitleAsync(WrapTitle(response.Name));
-            } catch (Exception e) {
-                return SetTitleAsync("");
-            }
+            return Task.CompletedTask;
         }
 
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
+            var settings = args.Payload.GetSettings<CardButtonSettings>();
             var cardIndex = GetCardButtonIndex(args.Payload.Coordinates);
             try {
-                var request = new ClickCardButtonRequest { Deck = "Player1", Index = cardIndex };
+                var request = new ClickCardButtonRequest { Deck = settings.Deck.AsDeck(), Index = cardIndex };
                 var response = SendSocketService.SendRequest<CardInfoReponse>(request);
 
                 SetImageAsync(response.CardButtonType.AsImage());
-                return SetTitleAsync(WrapTitle(response.Name));
+                return SetTitleAsync(TextUtils.WrapTitle(response.Name));
             } catch {
                 return SetTitleAsync("");
             }
         }
 
-        //protected override Task OnDidReceiveSettings(ActionEventArgs<ActionPayload> args, Card settings) {
-        //    if (args != null) {
+        private void GetButtonInfo(CardButtonSettings settings, Coordinates coordinates) {
+            var cardIndex = GetCardButtonIndex(coordinates);
+            try {
+                var request = new GetCardInfoRequest { Deck = settings.Deck.AsDeck(), Index = cardIndex };
+                var response = SendSocketService.SendRequest<CardInfoReponse>(request);
 
-        //    }
-        //    return base.OnDidReceiveSettings(args, settings);
-        //}
+                SetImageAsync(response.CardButtonType.AsImage());
+                SetTitleAsync(TextUtils.WrapTitle(response.Name));
+            } catch {
+            }
+        }
+
+        private int GetCardButtonIndex(Coordinates coordinates) {
+            //assume 8 cards per row, as this app only makes since on the large streamdeck
+            //subtract one for the "Return" location, since this will be in a folder
+            //return (coordinates.Row * 8 + coordinates.Column - 1);
+
+            //while developoing on my phone, use 5
+            return (coordinates.Row * 5 + coordinates.Column - 1);
+
+        }
+
     }
 }

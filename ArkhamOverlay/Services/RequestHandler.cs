@@ -30,7 +30,7 @@ namespace ArkhamOverlay.Services {
             var getCardInfoRequest = JsonConvert.DeserializeObject<GetCardInfoRequest>(request.Body);
             var cardIndex = getCardInfoRequest.Index;
 
-            var cards = _appData.Game.Players[0].SelectableCards.CardButtons;
+            var cards = GetDeck(getCardInfoRequest.Deck).CardButtons;
 
             var cardButton = (cardIndex < cards.Count) ? cards[cardIndex] : null;
             SendCardInfoResponse(request.Socket, cardButton);
@@ -40,7 +40,7 @@ namespace ArkhamOverlay.Services {
             var clickCardButtonRequest = JsonConvert.DeserializeObject<ClickCardButtonRequest>(request.Body);
             var cardIndex = clickCardButtonRequest.Index;
 
-            var cards = _appData.Game.Players[0].SelectableCards.CardButtons;
+            var cards = GetDeck(clickCardButtonRequest.Deck).CardButtons;
 
             var cardButton = (cardIndex < cards.Count) ? cards[cardIndex] : null;
             cardButton.Click();
@@ -54,6 +54,27 @@ namespace ArkhamOverlay.Services {
                 : new CardInfoReponse { CardButtonType = GetCardType(cardButton as Card), Name = cardButton.Name };
 
             Send(socket, cardInfoReponse.ToString());
+        }
+
+        private SelectableCards GetDeck(Deck deck) {
+            switch (deck) {
+                case Deck.Player1: 
+                    return _appData.Game.Players[0].SelectableCards;
+                case Deck.Player2: 
+                    return _appData.Game.Players[1].SelectableCards;
+                case Deck.Player3:
+                    return _appData.Game.Players[2].SelectableCards;
+                case Deck.Player4:
+                    return _appData.Game.Players[3].SelectableCards;
+                case Deck.Scenario:
+                    return _appData.Game.ScenarioCards;
+                case Deck.Locations:
+                    return _appData.Game.LocationCards;
+                case Deck.EncounterDeck:
+                    return _appData.Game.EncounterDeckCards;
+                default:
+                    return _appData.Game.Players[0].SelectableCards;
+            }
         }
 
         private static CardButtonType GetCardType(Card card) {

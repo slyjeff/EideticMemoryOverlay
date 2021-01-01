@@ -3,7 +3,7 @@
         public ClickCardButtonRequest() : base(AoTcpRequest.ClickCardButton) {
         }
 
-        public string Deck { get; set; }
+        public Deck Deck { get; set; }
         public int Index { get; set; }
     }
 }

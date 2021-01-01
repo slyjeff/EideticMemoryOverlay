@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="AoTcpRequest.cs" />
     <Compile Include="CardButtonType.cs" />
+    <Compile Include="Deck.cs" />
     <Compile Include="Requests\ClickCardRequest.cs" />
     <Compile Include="Requests\GetCardInfoRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

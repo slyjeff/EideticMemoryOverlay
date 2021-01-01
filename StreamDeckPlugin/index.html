@@ -3,33 +3,25 @@
 
     <head>
         <meta charset="utf-8" />
-        <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui,viewport-fit=cover">
-        <meta name=apple-mobile-web-app-capable content=yes>
-        <meta name=apple-mobile-web-app-status-bar-style content=black>
-        <title>Property Inspector</title>
+        <title>Arkham Overlay</title>
         <link rel="stylesheet" href="css/sdpi.css">
-        <!--link rel="stylesheet" 
-              media="screen and (max-width: 1025px)" 
-              href="css/local.css" -->
-
     </head>
 
     <body>
-        <div class="sdpi-item" id="select_combo">
+        <div class="sdpi-item">
             <div class="sdpi-item-label">Deck</div> 
-            <select class="sdpi-item-value select">
-                <option value="scenario">Scenario Cards</option>
-                <option value="locations">Locations</option>
-                <option value="encounterDeck">Encounter Deck</option>
+            <select class="sdpi-item-value select" id="selectDeck" onchange="sendValueToPlugin(event.target.value, 'deck')">
                 <option value="player1">Player 1</option>
                 <option value="player2">Player 2</option>
                 <option value="player3">Player 3</option>
                 <option value="player4">Player 4</option>
+                <option value="scenario">Scenario Cards</option>
+                <option value="locations">Locations</option>
+                <option value="encounterDeck">Encounter Deck</option>
             </select> 
-            <button class="sdpi-item-value" value="ClickMe">Click Me</button>
         </div>
 
         <script src="index.js"></script>
     </body>
 
-    </html>
+</html>
