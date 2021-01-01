@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
@@ -25,7 +23,6 @@ namespace ArkhamOverlaySdPlugin.Actions {
 
             SetSettingsAsync(settings);
 
-
             var coordinates = new Coordinates {
                 Column = args.Payload["coordinates"]["column"].Value<int>(),
                 Row = args.Payload["coordinates"]["row"].Value<int>()
@@ -38,7 +35,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             var settings = args.Payload.GetSettings<CardButtonSettings>();
             GetButtonInfo(settings, args.Payload.Coordinates);
-
+            
             return Task.CompletedTask;
         }
 
