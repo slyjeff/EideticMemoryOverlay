@@ -22,6 +22,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
         private Coordinates _coordinates = new Coordinates();
         private CardButtonSettings _settings = new CardButtonSettings();
         private string _deviceId;
+        private ICardInfo _currentCardInfo;
 
         public CardButtonAction() {
             ListOf.Add(this);
@@ -123,6 +124,15 @@ namespace ArkhamOverlaySdPlugin.Actions {
             if (string.IsNullOrEmpty(cardInfo.Name)) {
                 await Clear();
             } else {
+                if (_currentCardInfo != null) {
+                    if (_currentCardInfo.CardButtonType == cardInfo.CardButtonType
+                        && _currentCardInfo.Name == cardInfo.Name
+                        && _currentCardInfo.ImageSource == cardInfo.ImageSource
+                        && _currentCardInfo.IsVisible == cardInfo.IsVisible) {
+                        return;
+                    }
+                }
+
                 await SetTitleAsync(TextUtils.WrapTitle(cardInfo.Name));
                 await SetImageAsync(cardInfo.AsImage());
             }
