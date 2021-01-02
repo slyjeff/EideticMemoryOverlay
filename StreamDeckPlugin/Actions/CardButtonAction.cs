@@ -52,8 +52,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
                 }
 
                 var buttonsPerPage = rows * columns - 3; //3 because the return to parent, left, and right buttons take up three slots
-
-                //while developing on my phone, use 5
+ 
                 return (Page * buttonsPerPage) + (_coordinates.Row * columns + _coordinates.Column) - 1;
             }
         }
