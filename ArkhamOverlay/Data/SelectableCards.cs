@@ -66,7 +66,7 @@ namespace ArkhamOverlay.Data {
         public event Action<Card, Card> CardToggled;
 
         public void ToggleCard(Card card) {
-            if (card.IsVisible) {
+            if (!card.IsVisible) {
                 CardToggled?.Invoke(card, null);
                 return;
             }
