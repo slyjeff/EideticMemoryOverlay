@@ -293,14 +293,7 @@ namespace ArkhamOverlay {
         }
 
         public void ClearCards(object sender, RoutedEventArgs e) {
-            var game = AppData.Game;
-
-            game.ScenarioCards.ClearSelections();
-            game.LocationCards.ClearSelections();
-            game.EncounterDeckCards.ClearSelections();
-            foreach (var player in game.Players) {
-                player.SelectableCards.ClearSelections(); ;
-            }
+            AppData.Game.ClearAllCards();
         }
     }
 }

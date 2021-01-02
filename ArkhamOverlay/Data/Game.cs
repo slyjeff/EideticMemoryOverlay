@@ -51,5 +51,14 @@ namespace ArkhamOverlay.Data {
         internal bool IsEncounterSetSelected(string code) {
             return EncounterSets.Any(x => x.Code == code);
         }
+
+        internal void ClearAllCards() {
+            ScenarioCards.ClearSelections();
+            LocationCards.ClearSelections();
+            EncounterDeckCards.ClearSelections();
+            foreach (var player in Players) {
+                player.SelectableCards.ClearSelections(); ;
+            }
+        }
     }
 }

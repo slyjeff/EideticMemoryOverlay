@@ -38,6 +38,18 @@
                     "TitleAlignment": "middle"
                 }
             ]
+        },
+        {
+            "Name": "Clear Cards",
+            "UUID": "arkhamoverlay.clearcards",
+            "Tooltip": "Clear All Card From Arkham Overlay",
+            "States": [
+                {
+                    "FontSize": "9",
+                    "Image": "Icons/clear",
+                    "TitleAlignment": "middle"
+                }
+            ]
         }
     ],
     "Category": "Arkham Overlay",
