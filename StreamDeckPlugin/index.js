@@ -19,28 +19,19 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
         websocket.send(JSON.stringify(json));
     }
 
-    coordinates = actionInfo.payload.coordinates;
-
-    var valueToSelect = actionInfo.payload.settings['deck'];
-    if (!valueToSelect) {
-        valueToSelect = 'player1';
-    }
-
-    //if we have a saved value, initialize the deck drop down
-    let element = document.getElementById('selectDeck');
-    element.value = valueToSelect;
-
-
-    websocket.onmessage = function (evt) {
-        // Received message from Stream Deck
-        var jsonObj = JSON.parse(evt.data);
-        var event = jsonObj['event'];
-        var jsonPayload = jsonObj['payload'];
-
-        if(event == "didReceiveSettings") {
-            sendSettingsToPlugin(['settings']);
+    if (actionInfo.action === "arkhamoverlay.cardbutton") {
+        //if we have a saved value, initialize the deck drop down
+        var valueToSelect = actionInfo.payload.settings['deck'];
+        if (!valueToSelect) {
+            valueToSelect = 'player1';
         }
-    };
+
+        let element = document.getElementById('selectDeck');
+        element.value = valueToSelect;
+    } else {
+        let element = document.getElementById('selectDeckGroup');
+        element.style.display = "none";
+    }
 }
 
 function sendValueToPlugin(value, param) {
@@ -50,8 +41,7 @@ function sendValueToPlugin(value, param) {
             "event": "sendToPlugin",
             "context": uuid, 
             "payload": {
-                [param] : value,
-                "coordinates" : coordinates
+                [param] : value
             }
         };
         websocket.send(JSON.stringify(json));
