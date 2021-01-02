@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 
 namespace ArkhamOverlay.TcpUtils {
-    public enum CardButtonType { Action, Scenario, Agenda, Act, Location, Enemy, Treachery, Guardian, Seeker, Rogue, Survivor, Mystic, Unknown }
+    public enum CardButtonType { Action, Scenario, Agenda, Act, Location, Enemy, Treachery, Asset, Skill, Event, Unknown }
 
     public static class CardButtonTypeExtensions {
         public static Color AsColor(this CardButtonType cardButtonType) {
@@ -16,16 +16,12 @@ namespace ArkhamOverlay.TcpUtils {
                     return Color.SlateBlue;
                 case CardButtonType.Treachery:
                     return Color.SlateGray;
-                case CardButtonType.Guardian:
+                case CardButtonType.Asset:
                     return Color.DarkBlue;
-                case CardButtonType.Seeker:
+                case CardButtonType.Skill:
                     return Color.DarkGoldenrod;
-                case CardButtonType.Rogue:
+                case CardButtonType.Event:
                     return Color.DarkGreen;
-                case CardButtonType.Survivor:
-                    return Color.DarkRed;
-                case CardButtonType.Mystic:
-                    return Color.Indigo;
                 default:
                     return Color.DarkGray;
             }

@@ -52,29 +52,37 @@ namespace ArkhamOverlaySdPlugin.Actions {
             return Task.CompletedTask;
         }
 
-
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
             var settings = args.Payload.GetSettings<CardButtonSettings>();
             var cardIndex = GetCardButtonIndex(args.Payload.Coordinates);
             try {
                 var request = new ClickCardButtonRequest { Deck = settings.Deck.AsDeck(), Index = cardIndex };
-                var response = SendSocketService.SendRequest<CardInfoReponse>(request);
+                var response = SendSocketService.SendRequest<CardInfoResponse>(request);
 
-                SetImageAsync(response.CardButtonType.AsImage());
+                SetImageAsync(response.AsImage());
                 return SetTitleAsync(TextUtils.WrapTitle(response.Name));
             } catch {
                 return SetTitleAsync("");
             }
         }
 
+        public async Task Clear() {
+            await SetTitleAsync(string.Empty);
+            await SetImageAsync(ImageUtils.BlankImage());
+        }
+
         public async Task GetButtonInfo() {
             var cardIndex = GetCardButtonIndex(_coordinates);
             try {
                 var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = cardIndex };
-                var response = SendSocketService.SendRequest<CardInfoReponse>(request);
+                var response = SendSocketService.SendRequest<CardInfoResponse>(request);
 
-                await SetTitleAsync(TextUtils.WrapTitle(response.Name));
-                await SetImageAsync(response.CardButtonType.AsImage());
+                if (string.IsNullOrEmpty(response.Name)) {
+                    await Clear();
+                } else {
+                    await SetTitleAsync(TextUtils.WrapTitle(response.Name));
+                    await SetImageAsync(response.AsImage());
+                }
             } catch {
             }
         }

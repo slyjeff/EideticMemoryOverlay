@@ -1,6 +1,8 @@
 ﻿namespace ArkhamOverlay {
     public enum CardType {
-        Player,
+        Asset,
+        Event,
+        Skill,
         Scenario,
         Agenda,
         Act,
