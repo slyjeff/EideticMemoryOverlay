@@ -77,7 +77,7 @@ namespace ArkhamOverlay.Data {
             CardToggled?.Invoke(card, card.FlipSideCard);
         }
 
-        internal void Load(IEnumerable<Card> cards) {
+        internal void LoadCards(IEnumerable<Card> cards) {
             foreach (var card in cards) {
                 card.SelectableCards = this;
             }
@@ -87,6 +87,12 @@ namespace ArkhamOverlay.Data {
             var playerButtons = new List<ICardButton> { clearButton };
             playerButtons.AddRange(cards);
             CardButtons = playerButtons;
+            OnCardButtonsChanged();
+        }
+
+        internal void ClearCards() {
+            ClearSelections();
+            CardButtons.Clear();
             OnCardButtonsChanged();
         }
 
