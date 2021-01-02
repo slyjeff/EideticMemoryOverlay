@@ -49,7 +49,7 @@
         <StackPanel Orientation="Horizontal" 
                     Margin="0, 10, 0, 0"
                     x:Name="EncounterCardOptions" 
-                    Visibility="Collapsed">
+                    Visibility="{Binding Game.EncounterCardOptionsVisibility}">
             <ItemsControl ItemsSource="{Binding Game.EncounterSets}" Margin="0, 0, 10, 0">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

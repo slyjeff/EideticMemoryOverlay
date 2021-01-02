@@ -34,12 +34,6 @@ namespace ArkhamOverlay.Services {
             return;
         }
 
-        internal void LoadAllPlayers(Game game) {
-            foreach (var player in game.Players) {
-                LoadPlayer(player);
-            }
-        }
-
         internal void LoadPlayerCards(Player player) {
             if (player.CardIds == null) {
                 return;
@@ -59,14 +53,14 @@ namespace ArkhamOverlay.Services {
                         cards.Add(new Card(arkhamDbCard, true));
                     }
                 }
-                player.SelectableCards.Load(cards.OrderBy(x => x.Name.Replace("\"", "")));
+                player.SelectableCards.LoadCards(cards.OrderBy(x => x.Name.Replace("\"", "")));
             }
             finally {
                 player.SelectableCards.Loading = false;
             }
         }
 
-        internal bool FindMissingEncounterSets(Configuration configuration) {
+        internal void FindMissingEncounterSets(Configuration configuration) {
             var packsUrl = @"https://arkhamdb.com/api/public/packs/";
             HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(packsUrl);
 
@@ -84,7 +78,10 @@ namespace ArkhamOverlay.Services {
                     }
                 }
             }
-            return setsAdded;
+
+            if (setsAdded) {
+                configuration.OnConfigurationChange();
+            }
         }
 
         internal bool AddPackToConfiguration(Configuration configuration, ArkhamDbPack arkhamDbPack) {
@@ -138,7 +135,6 @@ namespace ArkhamOverlay.Services {
                 var treacheries = new List<Card>();
                 var enemies = new List<Card>();
 
-
                 foreach (var pack in packsToLoad) {
                     var arkhamDbCards = GetCardsInPack(pack.Code);
                     var cards = new List<Card>();
@@ -186,12 +182,12 @@ namespace ArkhamOverlay.Services {
 
                 scenarioCards.AddRange(agendas);
                 scenarioCards.AddRange(acts);
-                appData.Game.ScenarioCards.Load(scenarioCards);
+                appData.Game.ScenarioCards.LoadCards(scenarioCards);
 
-                appData.Game.LocationCards.Load(locations);
+                appData.Game.LocationCards.LoadCards(locations);
 
                 treacheries.AddRange(enemies);
-                appData.Game.EncounterDeckCards.Load(treacheries);
+                appData.Game.EncounterDeckCards.LoadCards(treacheries);
             } finally {
                 appData.Game.ScenarioCards.Loading = false;
                 appData.Game.LocationCards.Loading = false;

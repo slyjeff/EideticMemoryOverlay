@@ -1,9 +1,19 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 namespace ArkhamOverlay.Data {
     public class AppData : INotifyPropertyChanged {
-        public Game Game { get; set; }
-        public Configuration Configuration { get; set; }
+        public AppData() {
+            Game = new Game();
+            Configuration = new Configuration {
+                OverlayWidth = 1228,
+                OverlayHeight = 720,
+                CardHeight = 300
+            };
+        }
+
+        public Game Game { get; }
+        public Configuration Configuration { get; }
         public bool ShuttingDown { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -17,7 +27,7 @@ namespace ArkhamOverlay.Data {
         }
 
         public void OnGameChanged() {
-            OnPropertyChanged("Game");
+            OnPropertyChanged(nameof(Game));
         }
     }
 }
