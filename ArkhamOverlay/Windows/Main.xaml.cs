@@ -218,11 +218,16 @@ namespace ArkhamOverlay {
             };
 
             _overlay.Show();
-            ClearCardsButton.Visibility = Visibility.Visible;
         }
 
         public void ClearCards(object sender, RoutedEventArgs e) {
             _appData.Game.ClearAllCards();
+        }
+
+        public void ToggleActAgendaBar(object sender, RoutedEventArgs e) {
+            if (_overlay != null) {
+                _overlay.ToggleActAgendaBar();
+            }
         }
     }
 }
