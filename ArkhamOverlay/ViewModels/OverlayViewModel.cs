@@ -1,19 +1,20 @@
 ﻿using ArkhamOverlay.Data;
+using ArkhamOverlay.Pages.Main;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace ArkhamOverlay.ViewModels {
     public class OverlayViewModel : INotifyPropertyChanged {
-        public OverlayViewModel(AppData appData) {
-            Configuration = appData.Configuration;
+        public OverlayViewModel(AppData mainViewModel) {
+            Configuration = mainViewModel.Configuration;
             ActAgendaCards = new ObservableCollection<CardViewModel>();
             EncounterCards = new ObservableCollection<CardViewModel>();
             PlayerCards = new ObservableCollection<CardViewModel>();
 
-            appData.Configuration.PropertyChanged += (s, e) => {
+            mainViewModel.Configuration.PropertyChanged += (s, e) => {
                 if (e.PropertyName == nameof(Configuration.UseActAgendaBar)) {
-                    MoveActAgendaCards(appData.Configuration.UseActAgendaBar);
+                    MoveActAgendaCards(mainViewModel.Configuration.UseActAgendaBar);
                 }
             };
         }

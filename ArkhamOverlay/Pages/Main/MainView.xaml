@@ -1,18 +1,16 @@
-﻿<Window x:Class="ArkhamOverlay.Main"
+﻿<Window x:Class="ArkhamOverlay.Pages.Main.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:data="clr-namespace:ArkhamOverlay.Data" 
-        d:DataContext="{d:DesignInstance Type=data:AppData}"
+        xmlns:data="clr-namespace:ArkhamOverlay.Pages.Main" 
+        d:DataContext="{d:DesignInstance Type=data:MainViewModel}"
         mc:Ignorable="d"
         Title="Arkham Overlay Configuration"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
         Left="10"
-        Top="10"
-        Loaded="InitializeApp"
-        Unloaded="CloseApp">
+        Top="10">
     <StackPanel Margin="10" Orientation="Vertical">
         <StackPanel.Resources>
             <Style TargetType="{x:Type TextBlock}">
@@ -42,14 +40,14 @@
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="Game Name:" Width="70" />
             <TextBox Margin ="10, 0, 0, 0" Text="{Binding Game.Name, Mode=TwoWay}" Width="200" />
-            <Button Margin="10, 0, 0, 0" Click="SaveGame">Save</Button>
-            <Button Margin="10, 0, 0, 0" Click="LoadGame">Load</Button>
+            <Button Margin="10, 0, 0, 0" Command="{Binding SaveGame}">Save</Button>
+            <Button Margin="10, 0, 0, 0" Command="{Binding LoadGame}">Load</Button>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
             <TextBlock Text="Scenario:" Width="70"/>
             <TextBox Margin ="10, 0, 0, 0" Text="{Binding Game.Scenario, Mode=TwoWay}" Width="200" />
-            <Button Margin="10, 0, 0, 0" Click="SetEncounterSet">Set Encounter Sets</Button>
+            <Button Margin="10, 0, 0, 0" Command="{Binding SetEncounterSets}">Set Encounter Sets</Button>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" 
@@ -70,9 +68,9 @@
             </ItemsControl>
 
             <StackPanel Orientation="Vertical">
-                <Button Margin="0, 0, 0, 0" Width="200" Click="ShowOtherEncounters">Act/Agenda/Scenario Reference</Button>
-                <Button Margin="0, 10, 0, 0" Width="200" Click="ShowLocations">Locations</Button>
-                <Button Margin="0, 10, 0, 0" Width="200" Click="ShowEncounterDeck">Encounter Deck</Button>
+                <Button Margin="0, 0, 0, 0" Width="200" Command="{Binding ShowOtherEncounters}">Act/Agenda/Scenario Reference</Button>
+                <Button Margin="0, 10, 0, 0" Width="200" Command="{Binding ShowLocations}">Locations</Button>
+                <Button Margin="0, 10, 0, 0" Width="200" Command="{Binding ShowEncounterDeck}">Encounter Deck</Button>
             </StackPanel>
         </StackPanel>
 
@@ -88,8 +86,8 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Arkham Deck ID:" />
                             <TextBox Margin="10, 0, 0, 0" MaxLength="10" Text="{Binding DeckId, Mode=TwoWay}" />
-                            <Button FontSize="14" Padding="2, -3, 2, 0" Click="Refresh">⟲</Button>
-                            <Button FontSize="14" Padding="2, -3, 2, 0" Click="PlayerSelected" Visibility="{Binding LoadedVisiblity}" >🠆</Button>
+                            <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.Refresh, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">⟲</Button>
+                            <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.PlayerSelected, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}" Visibility="{Binding LoadedVisiblity}" >🠆</Button>
                         </StackPanel>
 
                         <Border BorderThickness="1" Background="Transparent" CornerRadius="10" Margin="0,5,0,0" >
@@ -103,14 +101,16 @@
                                 </Style>
                             </Border.Style>
                             <Image Width="217" 
-                                   Height="155.369"
-                                Source="{Binding InvestigatorImage}"
-                                MouseUp="PlayerSelected">
+                                    Height="155.369"
+                                Source="{Binding InvestigatorImage}">
                                 <Image.Clip>
                                     <RectangleGeometry RadiusX="10"
                                             RadiusY="10"
                                             Rect="0,0,218,156"/>
                                 </Image.Clip>
+                                <Image.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.PlayerSelected, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}"/>
+                                </Image.InputBindings>
                             </Image>
                         </Border>
                     </StackPanel>
@@ -130,9 +130,9 @@
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
-            <Button Click="ShowOverlay">Show Overlay</Button>
-            <Button Margin="10, 0, 0, 0" Click="ClearCards">Clear Cards</Button>
-            <Button Margin="10, 0, 0, 0" Click="ToggleActAgendaBar" Visibility="{Binding Path=Configuration.UseActAgendaBar, Converter={StaticResource BoolToVisibility}}">Toggle Act/Agenda Bar</Button>
+            <Button Command="{Binding ShowOverlay}">Show Overlay</Button>
+            <Button Margin="10, 0, 0, 0" Command="{Binding ClearCards}">Clear Cards</Button>
+            <Button Margin="10, 0, 0, 0" Command="{Binding ToggleActAgendaBar}" Visibility="{Binding Path=Configuration.UseActAgendaBar, Converter={StaticResource BoolToVisibility}}">Toggle Act/Agenda Bar</Button>
         </StackPanel>
     </StackPanel>
 </Window>

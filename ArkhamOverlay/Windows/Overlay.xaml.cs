@@ -1,4 +1,5 @@
 ﻿using ArkhamOverlay.Data;
+using ArkhamOverlay.Pages.Main;
 using ArkhamOverlay.ViewModels;
 using System;
 using System.Collections.ObjectModel;

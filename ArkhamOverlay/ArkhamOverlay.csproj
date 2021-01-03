@@ -51,8 +51,17 @@
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Platform.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="StructureMap, Version=4.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StructureMap.4.5.0\lib\net45\StructureMap.dll</HintPath>
+    </Reference>
+    <Reference Include="StructureMap.Microsoft.DependencyInjection, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StructureMap.Microsoft.DependencyInjection.2.0.0\lib\netstandard2.0\StructureMap.Microsoft.DependencyInjection.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -85,12 +94,24 @@
     <Compile Include="Data\SelectableCards.cs" />
     <Compile Include="Data\Player.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="PageController\Command.cs" />
+    <Compile Include="PageController\CommandAttribute.cs" />
+    <Compile Include="PageController\Controller.cs" />
+    <Compile Include="PageController\DynamicViewModelManager.cs" />
+    <Compile Include="PageController\IPageDependencyResolver.cs" />
+    <Compile Include="PageController\PageControllerConfiguration.cs" />
+    <Compile Include="PageController\PropertyChangedAttribute.cs" />
+    <Compile Include="PageController\View.cs" />
+    <Compile Include="PageController\ViewModel.cs" />
+    <Compile Include="Pages\Main\MainController.cs" />
+    <Compile Include="Pages\Main\MainViewModel.cs" />
     <Compile Include="Services\ArkhamDbPack.cs" />
     <Compile Include="Services\ArkhamDbCard.cs" />
     <Compile Include="Services\ArkhamDbDeck.cs" />
     <Compile Include="Services\CardLoadService.cs" />
     <Compile Include="Services\ConfigurationService.cs" />
     <Compile Include="Services\GameFileService.cs" />
+    <Compile Include="Services\StructureMapDependencyResolver.cs" />
     <Compile Include="Services\TcpRequestHandler.cs" />
     <Compile Include="ViewModels\CardViewModel.cs" />
     <Compile Include="Windows\ChooseEncounters.xaml.cs">
@@ -98,8 +119,8 @@
     </Compile>
     <Compile Include="Data\Configuration.cs" />
     <Compile Include="Design\SelectableCards.cs" />
-    <Compile Include="Windows\Main.xaml.cs">
-      <DependentUpon>Main.xaml</DependentUpon>
+    <Compile Include="Pages\Main\MainView.xaml.cs">
+      <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\OverlayViewModel.cs" />
     <Compile Include="Services\ArkhamDbService.cs" />
@@ -120,7 +141,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Data\Game.cs" />
-    <Page Include="Windows\Main.xaml">
+    <Page Include="Pages\Main\MainView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

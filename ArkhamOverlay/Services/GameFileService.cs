@@ -1,4 +1,5 @@
 ﻿using ArkhamOverlay.Data;
+using ArkhamOverlay.Pages.Main;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -29,11 +30,12 @@ namespace ArkhamOverlay.Services {
     }
 
     public class GameFileService {
-        private readonly AppData _appData;
-        private readonly ArkhamDbService _arkhamDbService = new ArkhamDbService();
+        private AppData _appData;
+        private readonly ArkhamDbService _arkhamDbService;
 
-        public GameFileService(AppData appData) {
+        public GameFileService(AppData appData, ArkhamDbService arkhamDbService) {
             _appData = appData;
+            _arkhamDbService = arkhamDbService;
         }
 
         internal void Load(string fileName) {

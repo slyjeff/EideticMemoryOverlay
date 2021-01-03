@@ -1,4 +1,5 @@
 ﻿using ArkhamOverlay.Data;
+using ArkhamOverlay.Pages.Main;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Net;
 using System.Windows.Media.Imaging;
 
 namespace ArkhamOverlay.Services {
-    internal class ArkhamDbService {
+    public class ArkhamDbService {
         internal void LoadPlayer(Player player) {
             if (string.IsNullOrEmpty(player.DeckId)) {
                 return;
@@ -112,16 +113,16 @@ namespace ArkhamOverlay.Services {
             return true;
         }
 
-        internal void LoadEncounterCards(AppData appData) {
+        internal void LoadEncounterCards(AppData mainViewModel) {
             try {
-                appData.Game.ScenarioCards.Loading = true;
-                appData.Game.LocationCards.Loading = true;
-                appData.Game.EncounterDeckCards.Loading = true;
+                mainViewModel.Game.ScenarioCards.Loading = true;
+                mainViewModel.Game.LocationCards.Loading = true;
+                mainViewModel.Game.EncounterDeckCards.Loading = true;
 
                 var packsToLoad = new List<Pack>();
-                foreach (var pack in appData.Configuration.Packs) {
+                foreach (var pack in mainViewModel.Configuration.Packs) {
                     foreach (var encounterSet in pack.EncounterSets) {
-                        if (appData.Game.IsEncounterSetSelected(encounterSet.Code)) {
+                        if (mainViewModel.Game.IsEncounterSetSelected(encounterSet.Code)) {
                             packsToLoad.Add(pack);
                             break;
                         }
@@ -140,7 +141,7 @@ namespace ArkhamOverlay.Services {
                     var cards = new List<Card>();
 
                     foreach (var arkhamDbCard in arkhamDbCards) {
-                        if (!appData.Game.IsEncounterSetSelected(arkhamDbCard.Encounter_Code)) {
+                        if (!mainViewModel.Game.IsEncounterSetSelected(arkhamDbCard.Encounter_Code)) {
                             continue;
                         }
 
@@ -182,16 +183,16 @@ namespace ArkhamOverlay.Services {
 
                 scenarioCards.AddRange(agendas);
                 scenarioCards.AddRange(acts);
-                appData.Game.ScenarioCards.LoadCards(scenarioCards);
+                mainViewModel.Game.ScenarioCards.LoadCards(scenarioCards);
 
-                appData.Game.LocationCards.LoadCards(locations);
+                mainViewModel.Game.LocationCards.LoadCards(locations);
 
                 treacheries.AddRange(enemies);
-                appData.Game.EncounterDeckCards.LoadCards(treacheries);
+                mainViewModel.Game.EncounterDeckCards.LoadCards(treacheries);
             } finally {
-                appData.Game.ScenarioCards.Loading = false;
-                appData.Game.LocationCards.Loading = false;
-                appData.Game.EncounterDeckCards.Loading = false;
+                mainViewModel.Game.ScenarioCards.Loading = false;
+                mainViewModel.Game.LocationCards.Loading = false;
+                mainViewModel.Game.EncounterDeckCards.Loading = false;
             }
         }
 
