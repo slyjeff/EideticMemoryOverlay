@@ -110,6 +110,12 @@
     <Compile Include="Pages\ChooseEncounters\ChooseEncountersController.cs" />
     <Compile Include="Pages\Main\MainController.cs" />
     <Compile Include="Pages\Main\MainViewModel.cs" />
+    <Compile Include="Pages\Overlay\OverlayCardViewModel.cs" />
+    <Compile Include="Pages\Overlay\OverlayController.cs" />
+    <Compile Include="Pages\Overlay\OverlayView.xaml.cs">
+      <DependentUpon>OverlayView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Overlay\OverlayViewModel.cs" />
     <Compile Include="Pages\SelectCards\SelectCardsController.cs" />
     <Compile Include="Pages\SelectCards\SelectCardsView.xaml.cs">
       <DependentUpon>SelectCardsView.xaml</DependentUpon>
@@ -124,25 +130,23 @@
     <Compile Include="Services\GameFileService.cs" />
     <Compile Include="Services\StructureMapDependencyResolver.cs" />
     <Compile Include="Services\TcpRequestHandler.cs" />
-    <Compile Include="ViewModels\CardViewModel.cs" />
     <Compile Include="Data\Configuration.cs" />
     <Compile Include="Design\SelectableCards.cs" />
     <Compile Include="Pages\Main\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\OverlayViewModel.cs" />
     <Compile Include="Services\ArkhamDbService.cs" />
     <Page Include="Pages\ChooseEncounters\ChooseEncountersView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Overlay\OverlayView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\SelectCards\SelectCardsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Windows\Overlay.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -155,9 +159,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Windows\Overlay.xaml.cs">
-      <DependentUpon>Overlay.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

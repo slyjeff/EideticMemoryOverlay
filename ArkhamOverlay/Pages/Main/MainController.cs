@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.Data;
 using ArkhamOverlay.Pages.ChooseEncounters;
+using ArkhamOverlay.Pages.Overlay;
 using ArkhamOverlay.Pages.SelectCards;
 using ArkhamOverlay.Services;
 using Microsoft.Win32;
@@ -12,7 +13,7 @@ using System.Windows.Threading;
 
 namespace ArkhamOverlay.Pages.Main {
     public class MainController : Controller<MainView, MainViewModel> {
-        private Overlay _overlay;
+        private OverlayController _overlayController;
         private readonly ArkhamDbService _arkhamDbService = new ArkhamDbService();
         private readonly IList<SelectCardsController> _selectCardsControllers = new List<SelectCardsController>();
 
@@ -30,8 +31,8 @@ namespace ArkhamOverlay.Pages.Main {
             View.Closed += (s, e) => {
                 ClearPlayerCardsWindows();
 
-                if (_overlay != null) {
-                    _overlay.Close();
+                if (_overlayController != null) {
+                    _overlayController.Close();
                 }
             };
         }
@@ -170,33 +171,30 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void ShowOverlay() {
-            if (_overlay != null) {
-                _overlay.Activate();
+            if (_overlayController != null) {
+                _overlayController.Activate();
                 return;
             }
 
+            _overlayController = _controllerFactory.CreateController<OverlayController>();
+            _overlayController.Top = View.Top + View.Height + 10;
 
-            _overlay = new Overlay {
-                Top = View.Top + View.Height + 10,
-            };
-            _overlay.SetAppData(ViewModel.AppData);
-
-            _overlay.Closed += (x, y) => {
-                _overlay = null;
+            _overlayController.Closed += () => {
+                _overlayController = null;
             };
 
-            _overlay.Show();
+            _overlayController.Show();
         }
 
         [Command]
-        public void ClearCards(object sender) {
+        public void ClearCards() {
             ViewModel.AppData.Game.ClearAllCards();
         }
 
         [Command]
         public void ToggleActAgendaBar() {
-            if (_overlay != null) {
-                _overlay.ToggleActAgendaBar();
+            if (_overlayController != null) {
+                _overlayController.ToggleActAgendaBar();
             }
         }
     }

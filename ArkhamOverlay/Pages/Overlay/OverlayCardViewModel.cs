@@ -1,21 +1,21 @@
 ﻿using ArkhamOverlay.Data;
+using PageController;
 using System;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace ArkhamOverlay.ViewModels {
-    public class CardViewModel : INotifyPropertyChanged {
+namespace ArkhamOverlay.Pages.Overlay {
+    public class OverlayCardViewModel : ViewModel {
         private readonly Configuration _configuartion;
 
-        public CardViewModel(Configuration configuartion) {
+        public OverlayCardViewModel(Configuration configuartion) {
             _configuartion = configuartion;
             _configuartion.PropertyChanged += (s, e) => {
                 if (e.PropertyName == nameof(_configuartion.CardHeight)) {
-                    OnPropertyChanged(nameof(Height));
-                    OnPropertyChanged(nameof(Width));
-                    OnPropertyChanged(nameof(Radius));
-                    OnPropertyChanged(nameof(ClipRect));
+                    NotifyPropertyChanged(nameof(Height));
+                    NotifyPropertyChanged(nameof(Width));
+                    NotifyPropertyChanged(nameof(Radius));
+                    NotifyPropertyChanged(nameof(ClipRect));
                 }
             };
         }
@@ -28,26 +28,16 @@ namespace ArkhamOverlay.ViewModels {
                 card = value;
                 CardImage = new BitmapImage(new Uri("https://arkhamdb.com/" + card.ImageSource, UriKind.Absolute));
 
-                OnPropertyChanged(nameof(CardImage));
+                NotifyPropertyChanged(nameof(CardImage));
 
                 Visibility = Visibility.Visible;
-                OnPropertyChanged(nameof(Visibility));
+                NotifyPropertyChanged(nameof(Visibility));
             }
         }
 
         public Visibility Visibility { get; set; }
 
         public BitmapImage CardImage { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged(string propertyName) {
-            var handler = PropertyChanged;
-            if (handler == null) {
-                return;
-            }
-            handler(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         public double Height {
             get {
@@ -71,5 +61,4 @@ namespace ArkhamOverlay.ViewModels {
             }
         }
     }
-
 }
