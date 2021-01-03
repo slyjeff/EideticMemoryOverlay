@@ -31,8 +31,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             };
         }
 
-    
-
         private void InitializeSelectableCards(SelectableCards selectableCards) {
             foreach (var cardButtons in selectableCards.CardButtons) {
                 if (!(cardButtons is Card card)) {
