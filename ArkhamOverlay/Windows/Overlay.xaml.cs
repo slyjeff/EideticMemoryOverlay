@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.Data;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
@@ -58,13 +59,29 @@ namespace ArkhamOverlay {
 
                 var overlayCardToReplace = cardToReplace != null ? overlayCards.FirstOrDefault(x => x.Card.Code == cardToReplace.Code) : null;
                 if (overlayCardToReplace == null) {
-                    overlayCards.Add(newOverlayCard);
+                    overlayCards.AddOverlayCard(newOverlayCard);
                 } else {
                     overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newOverlayCard;
                 }
             } else {
                 overlayCards.Remove(existingOverlayCard);
             }
+        }
+    }
+
+    public static class OverlayCardExtensions {
+        public static void AddOverlayCard(this ObservableCollection<OverlayCard> cards, OverlayCard overlayCard) {
+            var insertIndex = cards.Count;
+
+            if (overlayCard.Card.Type == CardType.Agenda) {
+                //add this directly to the left of the first act
+                var firstAct = cards.FirstOrDefault(x => x.Card.Type == CardType.Act);
+                if (firstAct != null) {
+                    insertIndex = cards.IndexOf(firstAct);
+                }
+            }
+
+            cards.Insert(insertIndex, overlayCard);
         }
     }
 }

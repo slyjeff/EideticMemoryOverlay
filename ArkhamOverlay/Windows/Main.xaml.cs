@@ -1,7 +1,5 @@
 ﻿using Microsoft.Win32;
-using Newtonsoft.Json;
 using System;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using ArkhamOverlay.Services;
