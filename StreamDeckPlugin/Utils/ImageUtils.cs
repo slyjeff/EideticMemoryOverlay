@@ -6,6 +6,8 @@ using System.Net;
 
 namespace StreamDeckPlugin.Utils {
     public static class ImageUtils {
+        const int ImageHeightAndWidth = 220;
+
         public static string BlankImage() {
             var bitmap = CreateSolidBackgroundBitmap(CardButtonType.Action);
 
@@ -35,7 +37,7 @@ namespace StreamDeckPlugin.Utils {
         private static void DrawSelected(Bitmap bitmap) {
             var pen = new Pen(Color.Goldenrod, 16);
             using (Graphics G = Graphics.FromImage(bitmap)) {
-                G.DrawRoundedRectangle(pen, new Rectangle(0, 0, 220, 220), 30);
+                G.DrawRoundedRectangle(pen, new Rectangle(0, 0, ImageHeightAndWidth, ImageHeightAndWidth), 30);
             }
         }
 
@@ -77,10 +79,10 @@ namespace StreamDeckPlugin.Utils {
 
 
         private static Bitmap CreateSolidBackgroundBitmap(CardButtonType cardButtonType) {
-            var bitmap = new Bitmap(72, 72);
+            var bitmap = new Bitmap(ImageHeightAndWidth, ImageHeightAndWidth);
             using (var gfx = Graphics.FromImage(bitmap)) {
                 var brush = new SolidBrush(cardButtonType.AsColor());
-                gfx.FillRectangle(brush, 0, 0, 72, 72);
+                gfx.FillRectangle(brush, 0, 0, ImageHeightAndWidth, ImageHeightAndWidth);
             }
 
             return bitmap;

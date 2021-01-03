@@ -9,7 +9,7 @@ namespace StreamDeckPlugin {
 //            System.Diagnostics.Debugger.Launch();
 #endif
 
-            new ReceiveSocketService( new TcpRequestHandler()).StartListening(StreamDeckTcpInfo.Port);
+            new ReceiveSocketService(new TcpRequestHandler()).StartListening(StreamDeckTcpInfo.Port);
 
             // register actions and connect to the Stream Deck
             SharpDeck.StreamDeckPlugin.Run();
