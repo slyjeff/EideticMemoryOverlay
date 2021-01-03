@@ -104,9 +104,12 @@
     <Compile Include="Actions\PageLeftAction.cs" />
     <Compile Include="Actions\PageRightAction.cs" />
     <Compile Include="Actions\CardButtonAction.cs" />
+    <Compile Include="Utils\RequestHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\StreamDeckSendSocketService.cs" />
     <Compile Include="Utils\ImageUtils.cs" />
+    <Compile Include="Utils\StreamDeckTcpInfo.cs" />
     <Compile Include="Utils\TextUtils.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -18,11 +18,8 @@ namespace ArkhamOverlay {
             };
 
             var game = appData.Game;
-            InitializeSelectableCards(game.ScenarioCards);
-            InitializeSelectableCards(game.LocationCards);
-            InitializeSelectableCards(game.EncounterDeckCards);
-            foreach (var player in game.Players) {
-                InitializeSelectableCards(player.SelectableCards);
+            foreach (var selectableCards in game.AllSelectableCards) {
+                InitializeSelectableCards(selectableCards);
             }
 
             DataContext = _overlayData;

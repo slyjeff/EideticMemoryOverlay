@@ -7,16 +7,14 @@ using System.Text;
 
 namespace ArkhamOverlay.TcpUtils {
     public static class SendSocketService {
-        public static string SendRequest(Request request) {
+        public static string SendRequest(Request request, int port) {
             var ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             var ipAddress = ipHostInfo.AddressList[0];
-            var remoteEP = new IPEndPoint(ipAddress, TcpInfo.Port);
+            var remoteEP = new IPEndPoint(ipAddress, port);
 
             var sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
             sender.Connect(remoteEP);
             try {
-
                 var payload = Encoding.ASCII.GetBytes(request.ToString());
 
                 int bytesSent = sender.Send(payload);
@@ -31,8 +29,8 @@ namespace ArkhamOverlay.TcpUtils {
             }
         }
 
-        public static T SendRequest<T>(Request request) where T : Response {
-            return JsonConvert.DeserializeObject<T>(SendRequest(request));
+        public static T SendRequest<T>(Request request, int port) where T : Response {
+            return JsonConvert.DeserializeObject<T>(SendRequest(request, port));
         }
     }
 }

@@ -88,8 +88,10 @@
     <Compile Include="Services\ArkhamDbPack.cs" />
     <Compile Include="Services\ArkhamDbCard.cs" />
     <Compile Include="Services\ArkhamDbDeck.cs" />
-    <Compile Include="Services\RequestHandler.cs" />
-    <Compile Include="Services\SocketService.cs" />
+    <Compile Include="Services\CardLoadService.cs" />
+    <Compile Include="Services\ConfigurationService.cs" />
+    <Compile Include="Services\GameFileService.cs" />
+    <Compile Include="Services\TcpRequestHandler.cs" />
     <Compile Include="Windows\ChooseEncounters.xaml.cs">
       <DependentUpon>ChooseEncounters.xaml</DependentUpon>
     </Compile>

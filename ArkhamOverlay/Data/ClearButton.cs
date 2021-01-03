@@ -15,6 +15,12 @@ namespace ArkhamOverlay.Data {
             }
         }
 
+        public Brush BorderBrush { 
+            get { 
+                return Background; 
+            } 
+        }
+
         public SelectableCards SelectableCards { get; internal set; }
 
         public void Click() {

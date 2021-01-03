@@ -1,13 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using ArkhamOverlay.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 
 namespace ArkhamOverlay.Data {
-    public class Game : INotifyPropertyChanged {
+    public class Game : IGame, INotifyPropertyChanged {
         public Game() {
-            Players = new List<Player>();
+            Players = new List<Player> { new Player(), new Player(), new Player(), new Player() };
             EncounterSets = new List<EncounterSet>();
             ScenarioCards = new SelectableCards(SelectableType.Scenario);
             LocationCards = new SelectableCards(SelectableType.Location);
@@ -18,18 +19,31 @@ namespace ArkhamOverlay.Data {
 
         public string Scenario { get; set; }
 
-        public IList<EncounterSet> EncounterSets { get; set; }
+        public IList<EncounterSet> EncounterSets { get; set;  }
 
-        [JsonIgnore]
-        public SelectableCards ScenarioCards { get; set; }
+        public SelectableCards ScenarioCards { get; }
 
-        [JsonIgnore]
-        public SelectableCards LocationCards { get; set; }
+        public SelectableCards LocationCards { get; }
 
-        [JsonIgnore]
-        public SelectableCards EncounterDeckCards { get; set; }
+        public SelectableCards EncounterDeckCards { get; }
 
-        public IList<Player> Players { get; set; }
+
+        public IList<Player> Players { get; }
+
+        public event Action PlayersChanged;
+
+        public event Action EncounterSetsChanged;
+        public void OnEncounterSetsChanged() {
+            EncounterSetsChanged?.Invoke();
+            OnPropertyChanged(nameof(EncounterSets));
+            OnPropertyChanged(nameof(EncounterCardOptionsVisibility));
+        }
+
+        public Visibility EncounterCardOptionsVisibility { 
+            get {
+                return EncounterSets.Any() ? Visibility.Visible : Visibility.Collapsed;
+            } 
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -41,23 +55,39 @@ namespace ArkhamOverlay.Data {
             handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void OnPlayersChanged() {
-            OnPropertyChanged(nameof(Players));
+        internal void ClearAllCardsLists() {
+            foreach (var selectableCards in AllSelectableCards) {
+                selectableCards.ClearCards();
+            }
         }
-        public void OnEncounterSetsChanged() {
-            OnPropertyChanged(nameof(EncounterSets));
+
+        public void OnPlayersChanged() {
+            PlayersChanged?.Invoke();
+            OnPropertyChanged(nameof(Players));
         }
 
         internal bool IsEncounterSetSelected(string code) {
             return EncounterSets.Any(x => x.Code == code);
         }
 
+        public IList<SelectableCards> AllSelectableCards {
+            get {
+                var allDecks = new List<SelectableCards> {
+                    ScenarioCards,
+                    LocationCards,
+                    EncounterDeckCards
+                };
+                
+                foreach (var player in Players) {
+                    allDecks.Add(player.SelectableCards);
+                }
+                return allDecks;
+            }
+        }
+
         internal void ClearAllCards() {
-            ScenarioCards.ClearSelections();
-            LocationCards.ClearSelections();
-            EncounterDeckCards.ClearSelections();
-            foreach (var player in Players) {
-                player.SelectableCards.ClearSelections(); ;
+            foreach (var selectableCards in AllSelectableCards) {
+                selectableCards.ClearSelections();
             }
         }
     }

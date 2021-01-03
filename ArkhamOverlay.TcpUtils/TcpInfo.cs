@@ -1,5 +1,5 @@
 ﻿namespace ArkhamOverlay.TcpUtils {
     public static class TcpInfo {
-        public static int Port { get { return 11000; } }
+        public static int ArkhamOverlayPort { get { return 11000; } }
     }
 }

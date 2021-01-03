@@ -66,18 +66,18 @@ namespace ArkhamOverlay.Data {
         public event Action<Card, Card> CardToggled;
 
         public void ToggleCard(Card card) {
-            if (card.IsVisible) {
+            if (!card.IsVisible) {
                 CardToggled?.Invoke(card, null);
                 return;
             }
 
-            CardToggled?.Invoke(card, card.FlipSideCard);
             if (card.FlipSideCard != null) {
-                card.FlipSideCard.IsVisible = false;
+                card.FlipSideCard.Hide();
             }
+            CardToggled?.Invoke(card, card.FlipSideCard);
         }
 
-        internal void Load(IEnumerable<Card> cards) {
+        internal void LoadCards(IEnumerable<Card> cards) {
             foreach (var card in cards) {
                 card.SelectableCards = this;
             }
@@ -87,6 +87,12 @@ namespace ArkhamOverlay.Data {
             var playerButtons = new List<ICardButton> { clearButton };
             playerButtons.AddRange(cards);
             CardButtons = playerButtons;
+            OnCardButtonsChanged();
+        }
+
+        internal void ClearCards() {
+            ClearSelections();
+            CardButtons.Clear();
             OnCardButtonsChanged();
         }
 

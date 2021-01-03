@@ -22,12 +22,39 @@ namespace ArkhamOverlaySdPlugin.Actions {
         private Coordinates _coordinates = new Coordinates();
         private CardButtonSettings _settings = new CardButtonSettings();
         private string _deviceId;
+        private ICardInfo _currentCardInfo;
+
+        public CardButtonAction() {
+            ListOf.Add(this);
+        }
 
         public int Page { get; set; }
         public bool IsVisible { get; private set; }
 
-        public CardButtonAction() {
-            ListOf.Add(this);
+        public Deck Deck {
+            get {
+                if (_settings == null) {
+                    return Deck.Player1;
+                }
+
+                return _settings.Deck.AsDeck();
+            }
+        }
+
+        public int CardButtonIndex {
+            get {
+                var rows = 4;
+                var columns = 16;
+                var device = StreamDeck.Info.Devices.FirstOrDefault(x => x.Id == _deviceId);
+                if (device != null) {
+                    rows = device.Size.Rows;
+                    columns = device.Size.Columns;
+                }
+
+                var buttonsPerPage = rows * columns - 3; //3 because the return to parent, left, and right buttons take up three slots
+ 
+                return (Page * buttonsPerPage) + (_coordinates.Row * columns + _coordinates.Column) - 1;
+            }
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
@@ -44,7 +71,19 @@ namespace ArkhamOverlaySdPlugin.Actions {
             _settings = args.Payload.GetSettings<CardButtonSettings>();
             Page = 0;
             IsVisible = true;
+
+            //do this for the first cardbutton on the screen- we don't need a million requests going out
+            if (CardButtonIndex == 0) {
+                RegisterForButtonUpdates();
+            }
+
             await GetButtonInfo();
+        }
+
+        private void RegisterForButtonUpdates() {
+            //send this every time just to make sure the overlay is aware of us- otherwise we won't get updates
+            var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
+            StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
         }
 
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
@@ -54,10 +93,9 @@ namespace ArkhamOverlaySdPlugin.Actions {
 
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
             var settings = args.Payload.GetSettings<CardButtonSettings>();
-            var cardIndex = GetCardButtonIndex(args.Payload.Coordinates);
             try {
-                var request = new ClickCardButtonRequest { Deck = settings.Deck.AsDeck(), Index = cardIndex };
-                var response = SendSocketService.SendRequest<CardInfoResponse>(request);
+                var request = new ClickCardButtonRequest { Deck = settings.Deck.AsDeck(), Index = CardButtonIndex };
+                var response = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
 
                 SetImageAsync(response.AsImage());
                 return SetTitleAsync(TextUtils.WrapTitle(response.Name));
@@ -72,34 +110,31 @@ namespace ArkhamOverlaySdPlugin.Actions {
         }
 
         public async Task GetButtonInfo() {
-            var cardIndex = GetCardButtonIndex(_coordinates);
             try {
-                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = cardIndex };
-                var response = SendSocketService.SendRequest<CardInfoResponse>(request);
+                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex };
+                var response = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
 
-                if (string.IsNullOrEmpty(response.Name)) {
-                    await Clear();
-                } else {
-                    await SetTitleAsync(TextUtils.WrapTitle(response.Name));
-                    await SetImageAsync(response.AsImage());
-                }
+                await UpdateButtonInfo(response);
             } catch {
             }
         }
 
-        private int GetCardButtonIndex(Coordinates coordinates) {
-            var rows = 4;
-            var columns = 16;
-            var device = StreamDeck.Info.Devices.FirstOrDefault(x => x.Id == _deviceId);
-            if (device != null) {
-                rows = device.Size.Rows;
-                columns = device.Size.Columns;
+        public async Task UpdateButtonInfo(ICardInfo cardInfo) {
+            if (string.IsNullOrEmpty(cardInfo.Name)) {
+                await Clear();
+            } else {
+                if (_currentCardInfo != null) {
+                    if (_currentCardInfo.CardButtonType == cardInfo.CardButtonType
+                        && _currentCardInfo.Name == cardInfo.Name
+                        && _currentCardInfo.ImageSource == cardInfo.ImageSource
+                        && _currentCardInfo.IsVisible == cardInfo.IsVisible) {
+                        return;
+                    }
+                }
+
+                await SetTitleAsync(TextUtils.WrapTitle(cardInfo.Name));
+                await SetImageAsync(cardInfo.AsImage());
             }
-
-            var buttonsPerPage = rows * columns - 3; //3 because the return to parent, left, and right buttons take up three slots
-
-            //while developing on my phone, use 5
-            return (Page * buttonsPerPage) + (coordinates.Row * columns + coordinates.Column) - 1;
         }
 
     }

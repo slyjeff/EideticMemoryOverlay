@@ -11,98 +11,60 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using System.Linq;
 using ArkhamOverlay.Data;
+using ArkhamOverlay.TcpUtils;
 
 namespace ArkhamOverlay {
     public partial class Main : Window {
         private Overlay _overlay;
         private readonly ArkhamDbService _arkhamDbService = new ArkhamDbService();
-        private readonly SocketService _socketService;
-        private readonly IList<SelectCards> _selectCardsList = new List<SelectCards>();
+        private readonly IList<SelectCards> _selectCardsWindows = new List<SelectCards>();
+
+        private readonly AppData _appData = new AppData();
+        private readonly ConfigurationService _configurationService;
+        private readonly GameFileService _gameFileService;
 
         public Main() {
             InitializeComponent();
+            _configurationService = new ConfigurationService(_appData);
+            _gameFileService = new GameFileService(_appData);
+            new CardLoadService(_appData);
 
-            var appData = new AppData();
-
-            _socketService = new SocketService(appData);
-
-            DataContext = appData;
+            DataContext = _appData;
         }
 
         public void InitializeApp(object sender, RoutedEventArgs e) {
-            LoadConfiguration();
-            LoadLastSavedGame();
-            _socketService.StartListening();
+            _configurationService.Load();
+            _gameFileService.Load("LastSaved.json");
+            LoadEncounterSets();
+
+            var socketService = new ReceiveSocketService(new TcpRequestHandler(_appData));
+            socketService.StartListening(TcpInfo.ArkhamOverlayPort);
         }
 
-        private void LoadConfiguration() {
-            var configuration = new Configuration {
-                OverlayWidth = 1228,
-                OverlayHeight = 720,
-                CardHeight = 300
-            };
-
-            if (File.Exists("Config.json")) {
-                try {
-                    configuration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText("Config.json"));
-                } catch {
-                    // if there's an error, we don't care- just use the default configuration
-                }
-            }
-
-            configuration.OverlayConfigurationChanged += () => {
-                File.WriteAllText("Config.json", JsonConvert.SerializeObject(AppData.Configuration));
-            };
-
+        private void LoadEncounterSets() {
             var worker = new BackgroundWorker();
             worker.DoWork += (x, y) => {
-                if (_arkhamDbService.FindMissingEncounterSets(configuration)) {
-                    File.WriteAllText("Config.json", JsonConvert.SerializeObject(configuration));
-                }
+                _arkhamDbService.FindMissingEncounterSets(_appData.Configuration);
             };
             worker.RunWorkerAsync();
-
-            AppData.Configuration = configuration;
-        }
-
-        private void LoadLastSavedGame() {
-            var game = new Game();
-            if (File.Exists("LastSaved.json")) {
-                try {
-                    game = JsonConvert.DeserializeObject<Game>(File.ReadAllText("LastSaved.json"));
-                } catch {
-                    // if there's an error, we don't care- just use the default game
-                }
-            }
-
-            while (game.Players.Count < 4) {
-                game.Players.Add(new Player());
-            }
-
-            SetGame(game);
         }
 
         public void CloseApp(object sender, RoutedEventArgs e) {
-            AppData.ShuttingDown = true;
-
-            ClearPlayerCardsList();
+            ClearPlayerCardsWindows();
 
             if (_overlay != null) {
                 _overlay.Close();
             }
         }
 
-        private void ClearPlayerCardsList() {
-            while (_selectCardsList.Count > 0) {
-                _selectCardsList.First().Close();
+        private void ClearPlayerCardsWindows() {
+            while (_selectCardsWindows.Count > 0) {
+                _selectCardsWindows.First().Close();
             }
         }
 
-        public AppData AppData { get { return DataContext as AppData; } }
-
         public void SaveGame(object sender, RoutedEventArgs e) {
-            File.WriteAllText(AppData.Game.Name + ".json", JsonConvert.SerializeObject(AppData.Game));
-            File.WriteAllText("LastSaved.json", JsonConvert.SerializeObject(AppData.Game));
+            _gameFileService.Save(_appData.Game.Name + ".json");
         }
 
         public void LoadGame(object sender, RoutedEventArgs e) {
@@ -112,59 +74,28 @@ namespace ArkhamOverlay {
             };
 
             if (dialog.ShowDialog() == true) {
-                var game = JsonConvert.DeserializeObject<Game>(File.ReadAllText(dialog.FileName));
-                SetGame(game);
+                _gameFileService.Load(dialog.FileName);
+                ClearPlayerCardsWindows();
             }
-        }
-
-        private void SetGame(Game game) {
-            ClearPlayerCardsList();
-
-            _arkhamDbService.LoadAllPlayers(game);
-
-            AppData.Game = game;
-            AppData.OnGameChanged();
-            LoadEncounterCards();
-
-            var worker = new BackgroundWorker();
-            worker.DoWork += (x, y) => {
-                foreach (var player in game.Players) {
-                    _arkhamDbService.LoadPlayerCards(player);
-                }
-            };
-            worker.RunWorkerAsync();
         }
 
         public void SetEncounterSet(object sender, RoutedEventArgs e) {
             var chooseEncounters = new ChooseEncounters();
-            chooseEncounters.SetAppData(AppData);
+            chooseEncounters.SetAppData(_appData);
             chooseEncounters.ShowDialog();
-
-            LoadEncounterCards();
-        }
-
-        private void LoadEncounterCards() {
-            EncounterCardOptions.Visibility = AppData.Game.EncounterSets.Any() ? Visibility.Visible : Visibility.Collapsed;
-
-            var appData = AppData;
-            var worker = new BackgroundWorker();
-            worker.DoWork += (x, y) => {
-                _arkhamDbService.LoadEncounterCards(appData);
-            };
-            worker.RunWorkerAsync();
         }
 
         public void ShowOtherEncounters(object sender, RoutedEventArgs e) {
-            ShowSelectCardsWindow(AppData.Game.ScenarioCards);
+            ShowSelectCardsWindow(_appData.Game.ScenarioCards);
 
         }
 
         public void ShowLocations(object sender, RoutedEventArgs e) {
-            ShowSelectCardsWindow(AppData.Game.LocationCards);
+            ShowSelectCardsWindow(_appData.Game.LocationCards);
         }
 
         public void ShowEncounterDeck(object sender, RoutedEventArgs e) {
-            ShowSelectCardsWindow(AppData.Game.EncounterDeckCards);
+            ShowSelectCardsWindow(_appData.Game.EncounterDeckCards);
         }
 
         public void Refresh(object sender, RoutedEventArgs e) {
@@ -185,8 +116,8 @@ namespace ArkhamOverlay {
         }
 
         private void MainWindowActivated(object sender, EventArgs e) {
-            foreach (var selectCards in _selectCardsList) {
-                selectCards.Show();
+            foreach (var selectCardsWindow in _selectCardsWindows) {
+                selectCardsWindow.Show();
             }
         }
 
@@ -219,7 +150,7 @@ namespace ArkhamOverlay {
             var width = (double)786;
             var top = Top;
             SelectCards selectCardsWindow = null;
-            foreach (var selectCardsWindowInList in _selectCardsList) {
+            foreach (var selectCardsWindowInList in _selectCardsWindows) {
                 if (selectCardsWindowInList.SelectableCards == selectableCard) {
                     selectCardsWindow = selectCardsWindowInList;
                     selectCardsWindow.Activate();
@@ -242,10 +173,10 @@ namespace ArkhamOverlay {
                 };
 
                 selectCardsWindow.Closed += (x, y) => {
-                    _selectCardsList.Remove(selectCardsWindow);
+                    _selectCardsWindows.Remove(selectCardsWindow);
                 };
 
-                _selectCardsList.Add(selectCardsWindow);
+                _selectCardsWindows.Add(selectCardsWindow);
             }
 
             if (!selectCardsWindow.SelectableCards.Loading) {
@@ -282,7 +213,7 @@ namespace ArkhamOverlay {
             _overlay = new Overlay {
                 Top = Top + Height + 10,
             };
-            _overlay.SetAppData(AppData);
+            _overlay.SetAppData(_appData);
 
             _overlay.Closed += (x, y) => {
                 _overlay = null;
@@ -293,7 +224,7 @@ namespace ArkhamOverlay {
         }
 
         public void ClearCards(object sender, RoutedEventArgs e) {
-            AppData.Game.ClearAllCards();
+            _appData.Game.ClearAllCards();
         }
     }
 }

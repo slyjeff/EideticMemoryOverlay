@@ -41,6 +41,7 @@ namespace ArkhamOverlay.Data {
             set {
                 card = value;
                 CardImage = new BitmapImage(new Uri("https://arkhamdb.com/" + card.ImageSource, UriKind.Absolute));
+                
                 OnPropertyChanged(nameof(CardImage));
 
                 Visibility = Visibility.Visible;

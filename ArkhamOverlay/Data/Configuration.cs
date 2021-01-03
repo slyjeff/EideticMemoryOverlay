@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using ArkhamOverlay.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,9 +6,7 @@ using System.Linq;
 using System.Windows;
 
 namespace ArkhamOverlay.Data {
-    public delegate void OverlayConfigurationChange();
-
-    public class Configuration : INotifyPropertyChanged {
+    public class Configuration : IConfiguration, INotifyPropertyChanged {
         public Configuration() {
             Packs = new List<Pack>();
         }
@@ -21,8 +19,8 @@ namespace ArkhamOverlay.Data {
             get => _overlayHeight;
             set {
                 _overlayHeight = value;
-                OnPropertyChanged("OverlayHeight");
-                OverlayConfigurationChanged?.Invoke();
+                OnPropertyChanged(nameof(OverlayHeight));
+                OnConfigurationChange();
             }
         }
 
@@ -30,8 +28,8 @@ namespace ArkhamOverlay.Data {
             get => _overlayWidth;
             set {
                 _overlayWidth = value;
-                OnPropertyChanged("OverlayWidth");
-                OverlayConfigurationChanged?.Invoke();
+                OnPropertyChanged(nameof(OverlayWidth));
+                OnConfigurationChange();
             }
         }
 
@@ -46,28 +44,24 @@ namespace ArkhamOverlay.Data {
                 };
                 CardRadius = _cardHeight / 30;
 
-                OnPropertyChanged("CardHeight");
-                OnPropertyChanged("CardClipRect");
-                OnPropertyChanged("CardRadius");
-                OnPropertyChanged("CardWidth");
-                OverlayConfigurationChanged?.Invoke();
+                OnPropertyChanged(nameof(CardHeight));
+                OnPropertyChanged(nameof(CardClipRect));
+                OnPropertyChanged(nameof(CardRadius));
+                OnPropertyChanged(nameof(CardWidth));
+                OnConfigurationChange();
             }
         }
 
         public IList<Pack> Packs { get; set; }
 
-        [JsonIgnore]
         public double CardWidth {
             get => _cardHeight * .716;
         }
         
-        [JsonIgnore]
         public double CardRadius { get; set; }
 
-        [JsonIgnore]
         public Rect CardClipRect { get; set; }
 
-        [JsonIgnore]
         public IList<EncounterSet> EncounterSets {
             get {
                 return (from pack in Packs
@@ -77,7 +71,10 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public event OverlayConfigurationChange OverlayConfigurationChanged;
+        public event Action ConfigurationChanged;
+        public void OnConfigurationChange() {
+            ConfigurationChanged?.Invoke();
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -95,18 +92,39 @@ namespace ArkhamOverlay.Data {
             EncounterSets = new List<EncounterSet>();
         }
 
+        public Pack(Pack pack) {
+            Code = pack.Code;
+            Name = pack.Name;
+            CyclePosition = pack.CyclePosition;
+            Position = pack.Position;
+
+            EncounterSets = new List<EncounterSet>();
+            foreach (var encounterSet in pack.EncounterSets) {
+                EncounterSets.Add(new EncounterSet(encounterSet));
+            }
+        }
+
+
         public string Code { get; set; }
 
         public string Name { get; set; }
 
         public int CyclePosition { get; set; }
-        public int Position { get; set; }
 
+        public int Position { get; set; }
 
         public IList<EncounterSet> EncounterSets { get; set; }
     }
 
     public class EncounterSet {
+        public EncounterSet() {
+        }
+
+        public EncounterSet(EncounterSet encounterSet) {
+            Name = encounterSet.Name;
+            Code = encounterSet.Code;
+        }
+
         public string Name { get; set; }
         public string Code { get; set; }
     }
