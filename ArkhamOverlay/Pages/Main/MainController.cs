@@ -1,4 +1,6 @@
 ﻿using ArkhamOverlay.Data;
+using ArkhamOverlay.Pages.ChooseEncounters;
+using ArkhamOverlay.Pages.SelectCards;
 using ArkhamOverlay.Services;
 using Microsoft.Win32;
 using PageController;
@@ -12,14 +14,16 @@ namespace ArkhamOverlay.Pages.Main {
     public class MainController : Controller<MainView, MainViewModel> {
         private Overlay _overlay;
         private readonly ArkhamDbService _arkhamDbService = new ArkhamDbService();
-        private readonly IList<SelectCards> _selectCardsWindows = new List<SelectCards>();
+        private readonly IList<SelectCardsController> _selectCardsControllers = new List<SelectCardsController>();
 
         private readonly GameFileService _gameFileService;
+        private readonly IControllerFactory _controllerFactory;
 
-        public MainController(AppData appData, GameFileService gameFileService) {
+        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory) {
             ViewModel.AppData = appData;
 
             _gameFileService = gameFileService;
+            _controllerFactory = controllerFactory;
 
             LoadEncounterSets();
 
@@ -41,64 +45,63 @@ namespace ArkhamOverlay.Pages.Main {
         }
 
         private void ClearPlayerCardsWindows() {
-            while (_selectCardsWindows.Count > 0) {
-                _selectCardsWindows.First().Close();
+            while (_selectCardsControllers.Count > 0) {
+                _selectCardsControllers.First().Close();
             }
         }
 
-        private void ShowSelectCardsWindow(SelectableCards selectableCard) {
+        private void ShowSelectCardsWindow(ISelectableCards selectableCards) {
             var left = View.Left + View.Width + 10;
             var width = (double)786;
             var top = View.Top;
-            SelectCards selectCardsWindow = null;
-            foreach (var selectCardsWindowInList in _selectCardsWindows) {
-                if (selectCardsWindowInList.SelectableCards == selectableCard) {
-                    selectCardsWindow = selectCardsWindowInList;
-                    selectCardsWindow.Activate();
+            SelectCardsController controller = null;
+            foreach (var selectCardsControllerInList in _selectCardsControllers) {
+                if (selectCardsControllerInList.SelectableCards == selectableCards) {
+                    controller = selectCardsControllerInList;
+                    controller.Activate();
                     break;
                 } else {
-                    if (selectCardsWindowInList.Top + selectCardsWindowInList.Height > top) {
-                        top = selectCardsWindowInList.Top + selectCardsWindowInList.Height + 10;
-                        width = selectCardsWindowInList.Width;
-                        left = selectCardsWindowInList.Left;
+                    if (selectCardsControllerInList.Top + selectCardsControllerInList.Height > top) {
+                        top = selectCardsControllerInList.Top + selectCardsControllerInList.Height + 10;
+                        width = selectCardsControllerInList.Width;
+                        left = selectCardsControllerInList.Left;
                     }
                 }
             }
 
-            if (selectCardsWindow == null) {
-                selectCardsWindow = new SelectCards {
-                    SelectableCards = selectableCard,
-                    Left = left,
-                    Top = top,
-                    Width = width
+            if (controller == null) {
+                controller = _controllerFactory.CreateController<SelectCardsController>();
+                controller.SelectableCards = selectableCards;
+                controller.Left = left;
+                controller.Top = top;
+                controller.Width = width;
+
+                controller.Closed += () => {
+                    _selectCardsControllers.Remove(controller);
                 };
 
-                selectCardsWindow.Closed += (x, y) => {
-                    _selectCardsWindows.Remove(selectCardsWindow);
-                };
-
-                _selectCardsWindows.Add(selectCardsWindow);
+                _selectCardsControllers.Add(controller);
             }
 
-            if (!selectCardsWindow.SelectableCards.Loading) {
-                selectCardsWindow.Show();
+            if (!controller.SelectableCards.Loading) {
+                controller.Show();
             } else {
-                ShowSelectCardsWindowWhenFinishedLoading(selectCardsWindow);
+                ShowSelectCardsWindowWhenFinishedLoading(controller);
             }
         }
 
-        private void ShowSelectCardsWindowWhenFinishedLoading(SelectCards selectCardsWindow) {
+        private void ShowSelectCardsWindowWhenFinishedLoading(SelectCardsController selectCardsController) {
             var timer = new DispatcherTimer {
                 Interval = new TimeSpan(500)
             };
 
             timer.Tick += (x, y) => {
-                if (selectCardsWindow.SelectableCards.Loading) {
+                if (selectCardsController.SelectableCards.Loading) {
                     return;
                 }
 
                 timer.Stop();
-                selectCardsWindow.Show();
+                selectCardsController.Show();
             };
 
             timer.Start();
@@ -125,8 +128,7 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void SetEncounterSets() {
-            var chooseEncounters = new ChooseEncounters();
-            chooseEncounters.SetAppData(ViewModel.AppData);
+            var chooseEncounters = _controllerFactory.CreateController<ChooseEncountersController>();
             chooseEncounters.ShowDialog();
         }
 
@@ -156,7 +158,7 @@ namespace ArkhamOverlay.Pages.Main {
         }
 
         private void MainWindowActivated(object sender, EventArgs e) {
-            foreach (var selectCardsWindow in _selectCardsWindows) {
+            foreach (var selectCardsWindow in _selectCardsControllers) {
                 selectCardsWindow.Show();
             }
         }

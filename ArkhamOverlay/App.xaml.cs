@@ -17,11 +17,13 @@ namespace ArkhamOverlay {
                     y.WithDefaultConventions();
                 });
             });
+            
             PageControllerConfiguration.PageDependencyResolver = new StructureMapDependencyResolver(container);
 
             container.Configure(x => {
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
                 x.For<AppData>().Use(new AppData());
+                x.For<IControllerFactory>().Use(new ControllerFactory(container));
             });
 
             var cardLoadService = container.GetInstance<CardLoadService>();
