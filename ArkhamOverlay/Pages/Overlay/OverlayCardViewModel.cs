@@ -1,8 +1,7 @@
 ﻿using ArkhamOverlay.Data;
 using PageController;
-using System;
 using System.Windows;
-using System.Windows.Media.Imaging;
+using System.Windows.Media;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayCardViewModel : ViewModel {
@@ -26,18 +25,24 @@ namespace ArkhamOverlay.Pages.Overlay {
             get => card;
             set {
                 card = value;
-                CardImage = new BitmapImage(new Uri("https://arkhamdb.com/" + card.ImageSource, UriKind.Absolute));
+                CardImage = card.Image;
 
                 NotifyPropertyChanged(nameof(CardImage));
 
-                Visibility = Visibility.Visible;
-                NotifyPropertyChanged(nameof(Visibility));
+                Show = true;
             }
         }
 
-        public Visibility Visibility { get; set; }
+        private bool _show;
+        public virtual bool Show {
+            get => _show; 
+            set {
+                _show = value;
+                NotifyPropertyChanged(nameof(Show));
+            }
+        }
 
-        public BitmapImage CardImage { get; set; }
+        public ImageSource CardImage { get; set; }
 
         public double Height {
             get {
