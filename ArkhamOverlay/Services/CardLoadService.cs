@@ -1,5 +1,4 @@
 ﻿using ArkhamOverlay.Data;
-using System;
 using System.ComponentModel;
 
 namespace ArkhamOverlay.Services {
@@ -7,10 +6,14 @@ namespace ArkhamOverlay.Services {
         private readonly AppData _appData;
         private readonly ArkhamDbService _arkhamDbService = new ArkhamDbService();
 
-        public CardLoadService(AppData appData) {
+        public CardLoadService(ArkhamDbService arkhamDbService, AppData appData) {
+            _arkhamDbService = arkhamDbService;
             _appData = appData;
-            appData.Game.PlayersChanged += LoadPlayerCards;
-            appData.Game.EncounterSetsChanged += LoadEncounterCards;
+        }
+
+        internal void RegisterEvents() {
+            _appData.Game.PlayersChanged += LoadPlayerCards;
+            _appData.Game.EncounterSetsChanged += LoadEncounterCards;
         }
 
         private void LoadEncounterCards() {

@@ -1,30 +1,34 @@
 ﻿using ArkhamOverlay.Data;
-using ArkhamOverlay.ViewModels;
+using PageController;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace ArkhamOverlay {
-    public partial class Overlay : Window {
-        private OverlayViewModel _overlayViewModel;
+namespace ArkhamOverlay.Pages.Overlay {
+    public class OverlayController : Controller<OverlayView, OverlayViewModel> {
         private Configuration _configuration;
 
-        public Overlay() {
-            InitializeComponent();
-        }
-
-        public void SetAppData(AppData appData) {
-            _overlayViewModel = new OverlayViewModel(appData);
+        public OverlayController(AppData appData) {
             _configuration = appData.Configuration;
+            ViewModel.Configuration = appData.Configuration;
 
-            var game = appData.Game;
-            foreach (var selectableCards in game.AllSelectableCards) {
+            foreach (var selectableCards in appData.Game.AllSelectableCards) {
                 InitializeSelectableCards(selectableCards);
             }
 
-            DataContext = _overlayViewModel;
+            var config = appData.Configuration;
+            config.PropertyChanged += (s, e) => {
+                if (e.PropertyName == nameof(Configuration.UseActAgendaBar)) {
+                    MoveActAgendaCards(config.UseActAgendaBar);
+                }
+            };
+
+            View.Closed += (s, e) => {
+                Closed?.Invoke();
+            };
         }
 
         private void InitializeSelectableCards(SelectableCards selectableCards) {
@@ -41,6 +45,42 @@ namespace ArkhamOverlay {
             selectableCards.CardToggled += ToggleCardHandler;
         }
 
+        private void MoveActAgendaCards(bool useActAgendaBar) {
+            var sourceCards = ViewModel.ActAgendaCards;
+            var destinationCards = ViewModel.EncounterCards;
+            if (useActAgendaBar) {
+                sourceCards = ViewModel.EncounterCards;
+                destinationCards = ViewModel.ActAgendaCards;
+            }
+
+            var cardsToMove = new List<OverlayCardViewModel>();
+            foreach (var cardViewModel in sourceCards) {
+                if (cardViewModel.Card.Type == CardType.Act || cardViewModel.Card.Type == CardType.Agenda) {
+                    cardsToMove.Add(cardViewModel);
+                }
+            }
+
+            foreach (var cardToMove in cardsToMove) {
+                sourceCards.Remove(cardToMove);
+                destinationCards.Add(cardToMove);
+            }
+        }
+        public double Top { get => View.Top; set => View.Top = value; }
+
+        public void Close() {
+            View.Close();
+        }
+
+        public void Activate() {
+            View.Activate();
+        }
+
+        internal void Show() {
+            View.Show();
+        }
+
+        public event Action Closed;
+
         internal void ToggleCardHandler(Card card, Card cardToReplace) {
             if (Application.Current.Dispatcher.CheckAccess()) {
                 ToggleCard(card, cardToReplace);
@@ -56,7 +96,7 @@ namespace ArkhamOverlay {
 
             var existingCardViewModel = overlayCards.FirstOrDefault(x => x.Card == card);
             if (existingCardViewModel == null) {
-                var newCardViewModel = new CardViewModel(_overlayViewModel.Configuration) { Card = card };
+                var newCardViewModel = new OverlayCardViewModel(ViewModel.Configuration) { Card = card };
 
                 var overlayCardToReplace = cardToReplace != null ? overlayCards.FirstOrDefault(x => x.Card.Code == cardToReplace.Code) : null;
                 if (overlayCardToReplace == null) {
@@ -69,27 +109,28 @@ namespace ArkhamOverlay {
             }
         }
 
-        private ObservableCollection<CardViewModel> GetCardList(Card card) {
+
+        private ObservableCollection<OverlayCardViewModel> GetCardList(Card card) {
             if (card.IsPlayerCard) {
-                return _overlayViewModel.PlayerCards;
+                return ViewModel.PlayerCards;
             }
 
             if (_configuration.UseActAgendaBar) {
                 if (card.Type == CardType.Act || card.Type == CardType.Agenda) {
-                    return _overlayViewModel.ActAgendaCards;
+                    return ViewModel.ActAgendaCards;
                 }
             }
 
-            return _overlayViewModel.EncounterCards;
+            return ViewModel.EncounterCards;
         }
 
         internal void ToggleActAgendaBar() {
-            _overlayViewModel.ShowActAgendaBar = !_overlayViewModel.ShowActAgendaBar;
+            ViewModel.ShowActAgendaBar = !ViewModel.ShowActAgendaBar;
         }
     }
 
     public static class OverlayCardExtensions {
-        public static void AddOverlayCard(this ObservableCollection<CardViewModel> cards, CardViewModel cardViewModel) {
+        public static void AddOverlayCard(this ObservableCollection<OverlayCardViewModel> cards, OverlayCardViewModel cardViewModel) {
             var insertIndex = cards.Count;
 
             if (cardViewModel.Card.Type == CardType.Agenda) {
@@ -103,4 +144,5 @@ namespace ArkhamOverlay {
             cards.Insert(insertIndex, cardViewModel);
         }
     }
+
 }

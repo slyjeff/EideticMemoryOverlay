@@ -1,4 +1,5 @@
 ﻿using ArkhamOverlay.Data;
+using ArkhamOverlay.Pages.Main;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
@@ -12,10 +13,10 @@ using System.Text;
 
 namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
-        private readonly AppData _appData;
+        private readonly AppData _mainViewModel;
 
-        public TcpRequestHandler(AppData appData) {
-            _appData = appData;
+        public TcpRequestHandler(AppData viewModel) {
+            _mainViewModel = viewModel;
         }
 
         public void HandleRequest(TcpRequest request) {
@@ -59,7 +60,7 @@ namespace ArkhamOverlay.Services {
         }
 
         private void HandleClearAll(TcpRequest request) {
-            _appData.Game.ClearAllCards();
+            _mainViewModel.Game.ClearAllCards();
 
             SendOkResponse(request.Socket);
         }
@@ -76,7 +77,7 @@ namespace ArkhamOverlay.Services {
 
             lock(_registerLock) {
                 if (!_alreadyRegisteredForSelectableCardsToggleEvent) {
-                    var game = _appData.Game;
+                    var game = _mainViewModel.Game;
                     foreach (var selectableCards in game.AllSelectableCards) {
                         selectableCards.CardToggled += (card1, card2) => {
                             SendCardInfoUpdate(card1, selectableCards);
@@ -129,7 +130,7 @@ namespace ArkhamOverlay.Services {
         }
 
         private Deck GetDeckType(SelectableCards selectableCards) {
-            var game = _appData.Game;
+            var game = _mainViewModel.Game;
             if (selectableCards == game.ScenarioCards) {
                 return Deck.Scenario;
             }
@@ -171,21 +172,21 @@ namespace ArkhamOverlay.Services {
         private SelectableCards GetDeck(Deck deck) {
             switch (deck) {
                 case Deck.Player1: 
-                    return _appData.Game.Players[0].SelectableCards;
+                    return _mainViewModel.Game.Players[0].SelectableCards;
                 case Deck.Player2: 
-                    return _appData.Game.Players[1].SelectableCards;
+                    return _mainViewModel.Game.Players[1].SelectableCards;
                 case Deck.Player3:
-                    return _appData.Game.Players[2].SelectableCards;
+                    return _mainViewModel.Game.Players[2].SelectableCards;
                 case Deck.Player4:
-                    return _appData.Game.Players[3].SelectableCards;
+                    return _mainViewModel.Game.Players[3].SelectableCards;
                 case Deck.Scenario:
-                    return _appData.Game.ScenarioCards;
+                    return _mainViewModel.Game.ScenarioCards;
                 case Deck.Locations:
-                    return _appData.Game.LocationCards;
+                    return _mainViewModel.Game.LocationCards;
                 case Deck.EncounterDeck:
-                    return _appData.Game.EncounterDeckCards;
+                    return _mainViewModel.Game.EncounterDeckCards;
                 default:
-                    return _appData.Game.Players[0].SelectableCards;
+                    return _mainViewModel.Game.Players[0].SelectableCards;
             }
         }
 

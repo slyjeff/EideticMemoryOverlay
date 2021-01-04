@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
+﻿using PageController;
 
 namespace ArkhamOverlay.Data {
-    public class AppData : INotifyPropertyChanged {
+    public class AppData : ViewModel {
         public AppData() {
             Game = new Game();
             Configuration = new Configuration {
@@ -15,18 +15,8 @@ namespace ArkhamOverlay.Data {
         public Configuration Configuration { get; }
         public bool ShuttingDown { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged(string propertyName) {
-            var handler = PropertyChanged;
-            if (handler == null) {
-                return;
-            }
-            handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         public void OnGameChanged() {
-            OnPropertyChanged(nameof(Game));
+            NotifyPropertyChanged(nameof(Game));
         }
     }
 }

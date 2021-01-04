@@ -25,11 +25,9 @@ namespace ArkhamOverlay.Services {
     }
 
     public class ConfigurationService {
-        private readonly ArkhamDbService _arkhamDbService = new ArkhamDbService();
-        private readonly AppData _appData;
-
+        private readonly Configuration _configuration;
         public ConfigurationService(AppData appData) {
-            _appData = appData;
+            _configuration = appData.Configuration;
         }
 
         public void Load() {
@@ -46,14 +44,14 @@ namespace ArkhamOverlay.Services {
                     // if there's an error, we don't care- just use the default configuration
                 }
             }
-            configuration.CopyTo(_appData.Configuration);
+            configuration.CopyTo(_configuration);
 
-            _appData.Configuration.ConfigurationChanged += Save;
+            _configuration.ConfigurationChanged += Save;
         }
 
         private void Save() {
             var configurationFile = new ConfigurationFile();
-            _appData.Configuration.CopyTo(configurationFile);
+            _configuration.CopyTo(configurationFile);
 
             File.WriteAllText("Config.json", JsonConvert.SerializeObject(configurationFile));
         }

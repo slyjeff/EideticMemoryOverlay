@@ -1,4 +1,4 @@
-﻿<Window x:Class="ArkhamOverlay.SelectCards"
+﻿<Window x:Class="ArkhamOverlay.Pages.SelectCards.SelectCardsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -20,11 +20,15 @@
     </Window.Resources>
 
     <Grid>
-        <ItemsControl ItemsSource="{Binding CardButtons}" BorderThickness="0">
+        <ItemsControl ItemsSource="{Binding SelectableCards.CardButtons}" BorderThickness="0">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border BorderThickness="1">
-                        <Button BorderBrush="{Binding BorderBrush}" Style="{StaticResource CardButton}" Background="{Binding Background}" Click="CardSelected">
+                        <Button BorderBrush="{Binding BorderBrush}" 
+                                Style="{StaticResource CardButton}" 
+                                Background="{Binding Background}" 
+                                Command="{Binding DataContext.CardSelected, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}">
                             <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center" />
                         </Button>
                     </Border>
@@ -38,3 +42,4 @@
         </ItemsControl>
     </Grid>
 </Window>
+

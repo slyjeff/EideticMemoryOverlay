@@ -113,6 +113,9 @@
     <Compile Include="Utils\TextUtils.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="App.config" />
     <None Include="manifest.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
