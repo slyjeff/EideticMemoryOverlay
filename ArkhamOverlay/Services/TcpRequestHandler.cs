@@ -13,23 +13,26 @@ using System.Text;
 
 namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
-        private readonly AppData _mainViewModel;
+        private readonly AppData _appData;
 
         public TcpRequestHandler(AppData viewModel) {
-            _mainViewModel = viewModel;
+            _appData = viewModel;
         }
 
         public void HandleRequest(TcpRequest request) {
             Console.WriteLine("Handling Request: " + request.RequestType.AsString());
             switch (request.RequestType) {
+                case AoTcpRequest.ClearAll:
+                    HandleClearAll(request);
+                    break;
+                case AoTcpRequest.ToggleActAgendaBarRequest:
+                    HandleToggleActAgendaBar(request);
+                    break;
                 case AoTcpRequest.GetCardInfo:
                     HandleGetCardInfo(request);
                     break;
                 case AoTcpRequest.ClickCardButton:
                     HandleClick(request);
-                    break;
-                case AoTcpRequest.ClearAll:
-                    HandleClearAll(request);
                     break;
                 case AoTcpRequest.RegisterForUpdates:
                     HandleRegisterForUpdates(request);
@@ -60,13 +63,17 @@ namespace ArkhamOverlay.Services {
         }
 
         private void HandleClearAll(TcpRequest request) {
-            _mainViewModel.Game.ClearAllCards();
+            _appData.Game.ClearAllCards();
+            SendOkResponse(request.Socket);
+        }
 
+        private void HandleToggleActAgendaBar(TcpRequest request) {
+            _appData.IsActAgendaBarVisible = !_appData.IsActAgendaBarVisible;
             SendOkResponse(request.Socket);
         }
 
         private readonly IList<int> _updatePorts = new List<int>();
-        private bool _alreadyRegisteredForSelectableCardsToggleEvent = false;
+        private bool _alreadyRegisteredEvents = false;
 
         private object _registerLock = new object();
         private void HandleRegisterForUpdates(TcpRequest request) {
@@ -76,8 +83,14 @@ namespace ArkhamOverlay.Services {
             }
 
             lock(_registerLock) {
-                if (!_alreadyRegisteredForSelectableCardsToggleEvent) {
-                    var game = _mainViewModel.Game;
+                if (!_alreadyRegisteredEvents) {
+                    _appData.PropertyChanged += (s, e) => {
+                        if (e.PropertyName == nameof(AppData.IsActAgendaBarVisible)) {
+                            SendActAgendaBarStatus(_appData.IsActAgendaBarVisible);
+                        }
+                    };
+
+                    var game = _appData.Game;
                     foreach (var selectableCards in game.AllSelectableCards) {
                         selectableCards.CardToggled += (card1, card2) => {
                             SendCardInfoUpdate(card1, selectableCards);
@@ -86,36 +99,47 @@ namespace ArkhamOverlay.Services {
                             }
                         };
                     }
-                    _alreadyRegisteredForSelectableCardsToggleEvent = true;
+
+                    _alreadyRegisteredEvents = true;
                 }
             }
 
             SendOkResponse(request.Socket);
         }
 
+        private void SendActAgendaBarStatus(bool isVisible) {
+            var request = new ActAgendaBarStatusRequest {
+                IsVisible = isVisible
+            };
+            SendStatusToAllRegisteredPorts(request);
+        }
+
         private void SendCardInfoUpdate(Card card, SelectableCards selectableCards) {
+            var deck = GetDeckType(selectableCards);
+            var request = new UpdateCardInfoRequest {
+                Deck = deck,
+                Index = selectableCards.CardButtons.IndexOf(card),
+                CardButtonType = GetCardType(card),
+                Name = card.Name,
+                ImageSource = card.ImageSource,
+                IsVisible = card.IsVisible
+            };
+
+            SendStatusToAllRegisteredPorts(request);
+        }
+
+        private void SendStatusToAllRegisteredPorts(Request request) {
             //if no one is listening, don't speak!
             if (!_updatePorts.Any()) {
                 return;
             }
-
-            var deck = GetDeckType(selectableCards);
 
             var worker = new BackgroundWorker();
             worker.DoWork += (x, y) => {
                 var portsToRemove = new List<int>();
                 foreach (var port in _updatePorts.ToList()) {
                     try {
-                        var request = new UpdateCardInfoRequest {
-                            Deck = deck,
-                            Index = selectableCards.CardButtons.IndexOf(card),
-                            CardButtonType = GetCardType(card),
-                            Name = card.Name,
-                            ImageSource = card.ImageSource,
-                            IsVisible = card.IsVisible
-                        };
                         SendSocketService.SendRequest(request, port);
-
                     } catch {
                         //this clearly is not cool- stop trying to talk
                         portsToRemove.Add(port);
@@ -130,7 +154,7 @@ namespace ArkhamOverlay.Services {
         }
 
         private Deck GetDeckType(SelectableCards selectableCards) {
-            var game = _mainViewModel.Game;
+            var game = _appData.Game;
             if (selectableCards == game.ScenarioCards) {
                 return Deck.Scenario;
             }
@@ -172,21 +196,21 @@ namespace ArkhamOverlay.Services {
         private SelectableCards GetDeck(Deck deck) {
             switch (deck) {
                 case Deck.Player1: 
-                    return _mainViewModel.Game.Players[0].SelectableCards;
+                    return _appData.Game.Players[0].SelectableCards;
                 case Deck.Player2: 
-                    return _mainViewModel.Game.Players[1].SelectableCards;
+                    return _appData.Game.Players[1].SelectableCards;
                 case Deck.Player3:
-                    return _mainViewModel.Game.Players[2].SelectableCards;
+                    return _appData.Game.Players[2].SelectableCards;
                 case Deck.Player4:
-                    return _mainViewModel.Game.Players[3].SelectableCards;
+                    return _appData.Game.Players[3].SelectableCards;
                 case Deck.Scenario:
-                    return _mainViewModel.Game.ScenarioCards;
+                    return _appData.Game.ScenarioCards;
                 case Deck.Locations:
-                    return _mainViewModel.Game.LocationCards;
+                    return _appData.Game.LocationCards;
                 case Deck.EncounterDeck:
-                    return _mainViewModel.Game.EncounterDeckCards;
+                    return _appData.Game.EncounterDeckCards;
                 default:
-                    return _mainViewModel.Game.Players[0].SelectableCards;
+                    return _appData.Game.Players[0].SelectableCards;
             }
         }
 

@@ -52,6 +52,8 @@
     <Compile Include="Requests\RegisterForUpdatesRequest.cs" />
     <Compile Include="Requests\ClearAllCardsRequest.cs" />
     <Compile Include="Requests\ClickCardRequest.cs" />
+    <Compile Include="Requests\ActAgendaBarStatusRequest.cs" />
+    <Compile Include="Requests\ToggleActAgendaBarRequest.cs" />
     <Compile Include="Requests\UpdateCardInfoRequest.cs" />
     <Compile Include="Requests\GetCardInfoRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

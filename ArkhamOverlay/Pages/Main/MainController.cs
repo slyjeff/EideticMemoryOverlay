@@ -193,9 +193,7 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void ToggleActAgendaBar() {
-            if (_overlayController != null) {
-                _overlayController.ToggleActAgendaBar();
-            }
+            ViewModel.AppData.IsActAgendaBarVisible = !ViewModel.AppData.IsActAgendaBarVisible;
         }
     }
 }

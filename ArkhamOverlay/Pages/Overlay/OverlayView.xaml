@@ -8,12 +8,12 @@
         mc:Ignorable="d"
         Title="Arkham Overlay" 
         Left = "10"
-        Width="{Binding Configuration.OverlayWidth}" 
-        MinWidth="{Binding Configuration.OverlayWidth}" 
-        MaxWidth="{Binding Configuration.OverlayWidth}" 
-        Height="{Binding Configuration.OverlayHeight}" 
-        MaxHeight="{Binding Configuration.OverlayHeight}" 
-        MinHeight="{Binding Configuration.OverlayHeight}" 
+        Width="{Binding AppData.Configuration.OverlayWidth}" 
+        MinWidth="{Binding AppData.Configuration.OverlayWidth}" 
+        MaxWidth="{Binding AppData.Configuration.OverlayWidth}" 
+        Height="{Binding AppData.Configuration.OverlayHeight}" 
+        MaxHeight="{Binding AppData.Configuration.OverlayHeight}" 
+        MinHeight="{Binding AppData.Configuration.OverlayHeight}" 
         Background="#00B164">
     <Grid>
         <Grid.Resources>
@@ -76,7 +76,7 @@
                 ItemsSource="{Binding ActAgendaCards}"
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Top" 
-                Visibility="{Binding Path=ShowActAgendaBar, Converter={StaticResource BoolToVisibility}}">
+                Visibility="{Binding Path=AppData.IsActAgendaBarVisible, Converter={StaticResource BoolToVisibility}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel></WrapPanel>

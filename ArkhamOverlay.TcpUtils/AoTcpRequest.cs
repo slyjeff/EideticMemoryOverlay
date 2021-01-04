@@ -5,7 +5,9 @@
         ClickCardButton, 
         ClearAll, 
         UpdateCardInfo, 
-        RegisterForUpdates
+        RegisterForUpdates,
+        ToggleActAgendaBarRequest,
+        ActAgendaBarStatusRequest
     };
 
     public static class AoTcpRequestExtensions {
@@ -21,6 +23,10 @@
                     return "UpdateCardInfo";
                 case AoTcpRequest.RegisterForUpdates:
                     return "RegisterForUpdates";
+                case AoTcpRequest.ToggleActAgendaBarRequest:
+                    return "ToggleActAgendaBarRequest";
+                case AoTcpRequest.ActAgendaBarStatusRequest:
+                    return "ActAgendaBarStatusRequest";
                 default:
                     return "Unkown";
             }
@@ -38,6 +44,10 @@
                     return AoTcpRequest.UpdateCardInfo;
                 case "RegisterForUpdates":
                     return AoTcpRequest.RegisterForUpdates;
+                case "ToggleActAgendaBarRequest":
+                    return AoTcpRequest.ToggleActAgendaBarRequest;
+                case "ActAgendaBarStatusRequest":
+                    return AoTcpRequest.ActAgendaBarStatusRequest;
                 default:
                     return AoTcpRequest.Unknown;
             }

@@ -13,7 +13,7 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public OverlayController(AppData appData) {
             _configuration = appData.Configuration;
-            ViewModel.Configuration = appData.Configuration;
+            ViewModel.AppData = appData;
 
             foreach (var selectableCards in appData.Game.AllSelectableCards) {
                 InitializeSelectableCards(selectableCards);
@@ -96,7 +96,7 @@ namespace ArkhamOverlay.Pages.Overlay {
 
             var existingCardViewModel = overlayCards.FirstOrDefault(x => x.Card == card);
             if (existingCardViewModel == null) {
-                var newCardViewModel = new OverlayCardViewModel(ViewModel.Configuration) { Card = card };
+                var newCardViewModel = new OverlayCardViewModel(ViewModel.AppData.Configuration) { Card = card };
 
                 var overlayCardToReplace = cardToReplace != null ? overlayCards.FirstOrDefault(x => x.Card.Code == cardToReplace.Code) : null;
                 if (overlayCardToReplace == null) {
@@ -122,10 +122,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             return ViewModel.EncounterCards;
-        }
-
-        internal void ToggleActAgendaBar() {
-            ViewModel.ShowActAgendaBar = !ViewModel.ShowActAgendaBar;
         }
     }
 
