@@ -21,7 +21,7 @@
 
             <Style x:Key="CardImage" TargetType="{x:Type Image}" >
                 <Setter Property="Margin" Value="5" />
-                <Setter Property="Visibility" Value="{Binding Visibility}" />
+                <Setter Property="IsEnabled" Value="{Binding Show}" />
                 <Setter Property="Height" Value="{Binding Height}" />
                 <Setter Property="Width" Value="{Binding Width}" />
                 <Setter Property="Clip">
@@ -33,11 +33,20 @@
                 </Setter>
 
                 <Style.Triggers>
-                    <Trigger Property="Visibility" Value="Visible">
+                    <Trigger Property="IsEnabled" Value="True">
                         <Trigger.EnterActions>
                             <BeginStoryboard>
                                 <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:.5"/>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:0.5"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </Trigger.EnterActions>
+                    </Trigger>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Trigger.EnterActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.5"/>
                                 </Storyboard>
                             </BeginStoryboard>
                         </Trigger.EnterActions>

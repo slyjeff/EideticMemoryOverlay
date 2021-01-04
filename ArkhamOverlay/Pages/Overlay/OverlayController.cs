@@ -105,7 +105,13 @@ namespace ArkhamOverlay.Pages.Overlay {
                     overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newCardViewModel;
                 }
             } else {
-                overlayCards.Remove(existingCardViewModel);
+                existingCardViewModel.Show = false;
+                var dispatcherTimer = new DispatcherTimer();
+                dispatcherTimer.Tick += (s, e) => {
+                    overlayCards.Remove(existingCardViewModel);
+                };
+                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+                dispatcherTimer.Start();
             }
         }
 
