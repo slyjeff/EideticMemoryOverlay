@@ -126,7 +126,6 @@ namespace ArkhamOverlaySdPlugin.Actions {
                 if (_currentCardInfo != null) {
                     if (_currentCardInfo.CardButtonType == cardInfo.CardButtonType
                         && _currentCardInfo.Name == cardInfo.Name
-                        && _currentCardInfo.ImageSource == cardInfo.ImageSource
                         && _currentCardInfo.IsVisible == cardInfo.IsVisible) {
                         return;
                     }

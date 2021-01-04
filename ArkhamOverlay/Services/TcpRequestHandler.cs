@@ -1,5 +1,4 @@
 ﻿using ArkhamOverlay.Data;
-using ArkhamOverlay.Pages.Main;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
@@ -121,7 +120,7 @@ namespace ArkhamOverlay.Services {
                 Index = selectableCards.CardButtons.IndexOf(card),
                 CardButtonType = GetCardType(card),
                 Name = card.Name,
-                ImageSource = card.ImageSource,
+                ImageBytes = card.ButtonImageAsBytes,
                 IsVisible = card.IsVisible
             };
 
@@ -178,13 +177,15 @@ namespace ArkhamOverlay.Services {
 
         private void SendCardInfoResponse(Socket socket, ICardButton cardButton) {
             var card = (cardButton as Card);
+
             var cardInfoReponse = (cardButton == null)
                 ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
                 : new CardInfoResponse { 
                     CardButtonType = GetCardType(card), 
                     Name = cardButton.Name, 
-                    IsVisible = card != null ? card.IsVisible : false,
-                    ImageSource = card != null ? card.ImageSource : string.Empty };
+                    IsVisible = card != null && card.IsVisible,
+                    ImageBytes = card != null ? card.ButtonImageAsBytes : null
+                };
 
             Send(socket, cardInfoReponse.ToString());
         }

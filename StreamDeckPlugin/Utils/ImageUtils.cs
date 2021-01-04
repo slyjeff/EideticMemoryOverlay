@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Net;
 
 namespace StreamDeckPlugin.Utils {
@@ -19,7 +20,7 @@ namespace StreamDeckPlugin.Utils {
         }
 
         public static string AsImage(this ICardInfo cardInfo) {
-            var bitmap = string.IsNullOrEmpty(cardInfo.ImageSource)
+            var bitmap = cardInfo.ImageBytes == null
                        ? CreateSolidBackgroundBitmap(cardInfo.CardButtonType)
                        : CreateCardArtBitmap(cardInfo);
 
@@ -89,46 +90,12 @@ namespace StreamDeckPlugin.Utils {
         }
 
         public static Bitmap CreateCardArtBitmap(ICardInfo cardInfo) {
-            var imageRequest = WebRequest.Create("https://arkhamdb.com/" + cardInfo.ImageSource);
-            var imageResponse = imageRequest.GetResponse();
-            var responseStream = imageResponse.GetResponseStream();
-            var bitmap = new Bitmap(responseStream);
-
-            var cropRect = new Rectangle(CreateStartingPointBasedOnCardType(cardInfo.CardButtonType), new Size(220, 220));
-            var croppedBitmap = new Bitmap(cropRect.Width, cropRect.Height);
-
-            using (Graphics g = Graphics.FromImage(croppedBitmap)) {
-                g.DrawImage(bitmap, new Rectangle(0, 0, croppedBitmap.Width, croppedBitmap.Height), cropRect, GraphicsUnit.Pixel);
+            Bitmap bitmap;
+            using (var stream = new MemoryStream(cardInfo.ImageBytes)) {
+                bitmap = new Bitmap(stream);
             }
 
-            return croppedBitmap;
-        }
-
-        private static Point CreateStartingPointBasedOnCardType(CardButtonType cardButtonType) {
-            switch (cardButtonType) {
-                case CardButtonType.Scenario:
-                    return new Point(40, 60);
-                case CardButtonType.Agenda:
-                    return new Point(10, 40);
-                case CardButtonType.Act:
-                    return new Point(190, 40);
-                case CardButtonType.Location:
-                    return new Point(40, 40);
-                case CardButtonType.Enemy:
-                    return new Point(40, 200);
-                case CardButtonType.Treachery:
-                    return new Point(40, 0);
-                case CardButtonType.Asset:
-                    return new Point(40, 40);
-                case CardButtonType.Event:
-                    return new Point(40, 0);
-                case CardButtonType.Skill:
-                    return new Point(40, 40);
-                case CardButtonType.Unknown:
-                    return new Point(40, 40);
-                default:
-                    return new Point(40, 40);
-            }
+            return bitmap;
         }
     }
 }

@@ -19,9 +19,15 @@ namespace ArkhamOverlay.TcpUtils {
 
                 int bytesSent = sender.Send(payload);
 
-                var bytes = new byte[1024];
-                int bytesRec = sender.Receive(bytes);
-                var responseData = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                var responseData = string.Empty;
+
+                do {
+                    var bytes = new byte[1014];
+                    int bytesRec = sender.Receive(bytes);
+                    responseData += Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                } while (responseData.IndexOf("<EOF>") == -1);
+
+
                 return responseData.Substring(0, responseData.IndexOf("<EOF>"));
             } finally {
                 sender.Shutdown(SocketShutdown.Both);
