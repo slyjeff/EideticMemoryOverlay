@@ -9,9 +9,8 @@ namespace ArkhamOverlay.Pages.Overlay {
             EncounterCards = new ObservableCollection<OverlayCardViewModel>();
             PlayerCards = new ObservableCollection<OverlayCardViewModel>();
         }
-        public virtual bool ShowActAgendaBar { get; set; }
 
-        public virtual Configuration Configuration { get; set; }
+        public virtual AppData AppData { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> ActAgendaCards { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> EncounterCards { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> PlayerCards { get; set; }

@@ -9,7 +9,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
     [StreamDeckAction("Clear Cards", "arkhamoverlay.clearcards")]
     public class ClearCardsAction : StreamDeckAction {
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            var response = StreamDeckSendSocketService.SendRequest(new ClearAllCardsRequest());
+            StreamDeckSendSocketService.SendRequest(new ClearAllCardsRequest());
             return Task.CompletedTask;
         }
     }

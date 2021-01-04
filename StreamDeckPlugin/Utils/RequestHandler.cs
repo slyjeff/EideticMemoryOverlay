@@ -15,6 +15,9 @@ namespace StreamDeckPlugin.Utils {
                 case AoTcpRequest.UpdateCardInfo:
                     UpdateCardInfo(request);
                     break;
+                case AoTcpRequest.ActAgendaBarStatusRequest:
+                    UpdateActAgendaBarStatus(request);
+                    break;
             }
         }
 
@@ -32,6 +35,18 @@ namespace StreamDeckPlugin.Utils {
                     cardButtonAction.UpdateButtonInfo(updateCardInfoRequest);
 #pragma warning restore CS4014 
                 }
+            }
+            Send(request.Socket, new OkResponse().ToString());
+        }
+
+        private void UpdateActAgendaBarStatus(TcpRequest request) {
+            var actAgendaBarStatusRequest = JsonConvert.DeserializeObject<ActAgendaBarStatusRequest>(request.Body);
+            if (actAgendaBarStatusRequest == null) {
+                return;
+            }
+
+            foreach (var toggleActAgendaBarAction in ToggleActAgendaBarAction.ListOf) {
+                toggleActAgendaBarAction.SetStatus(actAgendaBarStatusRequest.IsVisible);
             }
             Send(request.Socket, new OkResponse().ToString());
         }

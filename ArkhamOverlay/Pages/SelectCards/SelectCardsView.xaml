@@ -6,31 +6,49 @@
         xmlns:design="clr-namespace:ArkhamOverlay.Design" 
         d:DataContext="{d:DesignInstance {x:Type design:SelectableCards}, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
-        Title="{Binding Name}"
-        SizeToContent="Height">
-    <Window.Resources>
-        <Style x:Key="CardButton" TargetType="Button">
-            <Setter Property="Width" Value="70"/>
-            <Setter Property="Height" Value="70"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="3"/>
-        </Style>
-    </Window.Resources>
-
+        Title="{Binding SelectableCards.Name}"
+        SizeToContent="Height"
+        Background="Black">
     <Grid>
         <ItemsControl ItemsSource="{Binding SelectableCards.CardButtons}" BorderThickness="0">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderThickness="1">
-                        <Button BorderBrush="{Binding BorderBrush}" 
-                                Style="{StaticResource CardButton}" 
-                                Background="{Binding Background}" 
-                                Command="{Binding DataContext.CardSelected, RelativeSource={RelativeSource AncestorType=Window}}"
-                                CommandParameter="{Binding}">
-                            <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center" />
-                        </Button>
+                    <Border BorderThickness="3"
+                            BorderBrush="{Binding BorderBrush}"
+                            CornerRadius="10">
+                        <Grid>
+                            <Image Source="{Binding ButtonImage}" Height="76" Width="76">
+                                <Image.Clip>
+                                    <RectangleGeometry RadiusX="10"
+                                                RadiusY="10"
+                                                Rect="0,0,76,76"/>
+                                </Image.Clip>
+                            </Image>
+                            <TextBlock Text="{Binding Name}" 
+                                       TextWrapping="Wrap"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontWeight="Bold"
+                                       FontSize="12"
+                                       TextAlignment="Center"
+                                       Foreground="White"
+                                       Width="76">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect
+                                        ShadowDepth="0"
+                                        Direction="0"
+                                        Color="Black"
+                                        Opacity="1"
+                                        BlurRadius="10"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                        </Grid>
+                        <Border.InputBindings>
+                            <MouseBinding 
+                                        MouseAction="LeftClick" 
+                                        Command="{Binding DataContext.CardSelected, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        CommandParameter="{Binding}"/>
+                        </Border.InputBindings>
                     </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

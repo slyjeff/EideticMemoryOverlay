@@ -1,12 +1,12 @@
-﻿using System;
+﻿using ArkhamOverlay.Utils;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.Data {
     public class ClearButton : ICardButton {
-        public string Name { 
+        public string Name {
             get {
-                return "Clear Cards";        
-            } 
+                return "Clear Cards";
+            }
         }
 
         public Brush Background {
@@ -15,10 +15,10 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Brush BorderBrush { 
-            get { 
-                return Background; 
-            } 
+        public Brush BorderBrush {
+            get {
+                return Background;
+            }
         }
 
         public SelectableCards SelectableCards { get; internal set; }
@@ -30,6 +30,7 @@ namespace ArkhamOverlay.Data {
 
             SelectableCards.ClearSelections();
         }
-    }
 
+        public ImageSource ButtonImage { get { return ImageUtils.CreateSolidColorImage(Colors.DarkGray); } }
+    }
 }

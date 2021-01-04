@@ -83,7 +83,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
         private void RegisterForButtonUpdates() {
             //send this every time just to make sure the overlay is aware of us- otherwise we won't get updates
             var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
-            StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
+            StreamDeckSendSocketService.SendRequest<OkResponse>(request);
         }
 
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
@@ -131,11 +131,11 @@ namespace ArkhamOverlaySdPlugin.Actions {
                         return;
                     }
                 }
+                _currentCardInfo = cardInfo;
 
                 await SetTitleAsync(TextUtils.WrapTitle(cardInfo.Name));
                 await SetImageAsync(cardInfo.AsImage());
             }
         }
-
     }
 }

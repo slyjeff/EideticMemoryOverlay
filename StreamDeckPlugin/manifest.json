@@ -4,6 +4,37 @@
     "Author": "Jeff Sylvester",
     "Actions": [
         {
+            "Name": "Clear Cards",
+            "UUID": "arkhamoverlay.clearcards",
+            "Tooltip": "Clear All Card From Arkham Overlay",
+            "States": [
+                {
+                    "FontSize": "9",
+                    "Image": "Icons/clear",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        },
+        {
+            "Name": "Toggle Act/Agenda Bar",
+            "UUID": "arkhamoverlay.toggleactagendabar",
+            "Tooltip": "Show or Hide the Act/Agenda Bar",
+            "States": [
+                {
+                    "Name": "Visible",
+                    "FontSize": "9",
+                    "Image": "Icons/act-agenda-bar-visible",
+                    "TitleAlignment": "middle"
+                },
+                {
+                    "Name": "Hidden",
+                    "FontSize": "9",
+                    "Image": "Icons/act-agenda-bar-hidden",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        },
+        {
             "Name": "Card Button",
             "UUID": "arkhamoverlay.cardbutton",
             "Tooltip": "Take the contextual action based on grid location and deck",
@@ -35,18 +66,6 @@
                 {
                     "FontSize": "9",
                     "Image": "Icons/left-arrow",
-                    "TitleAlignment": "middle"
-                }
-            ]
-        },
-        {
-            "Name": "Clear Cards",
-            "UUID": "arkhamoverlay.clearcards",
-            "Tooltip": "Clear All Card From Arkham Overlay",
-            "States": [
-                {
-                    "FontSize": "9",
-                    "Image": "Icons/clear",
                     "TitleAlignment": "middle"
                 }
             ]

@@ -13,7 +13,15 @@ namespace ArkhamOverlay.Data {
 
         public Game Game { get; }
         public Configuration Configuration { get; }
-        public bool ShuttingDown { get; set; }
+
+        private bool _isActAgendaBarVisible;
+        public bool IsActAgendaBarVisible {
+            get => _isActAgendaBarVisible;
+            set {
+                _isActAgendaBarVisible = value;
+                NotifyPropertyChanged(nameof(IsActAgendaBarVisible));
+            }
+        }
 
         public void OnGameChanged() {
             NotifyPropertyChanged(nameof(Game));
