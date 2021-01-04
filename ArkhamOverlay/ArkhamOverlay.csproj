@@ -92,6 +92,7 @@
     <Compile Include="Services\ConfigurationService.cs" />
     <Compile Include="Services\GameFileService.cs" />
     <Compile Include="Services\TcpRequestHandler.cs" />
+    <Compile Include="ViewModels\CardViewModel.cs" />
     <Compile Include="Windows\ChooseEncounters.xaml.cs">
       <DependentUpon>ChooseEncounters.xaml</DependentUpon>
     </Compile>
@@ -100,7 +101,7 @@
     <Compile Include="Windows\Main.xaml.cs">
       <DependentUpon>Main.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Data\OverlayData.cs" />
+    <Compile Include="ViewModels\OverlayViewModel.cs" />
     <Compile Include="Services\ArkhamDbService.cs" />
     <Page Include="Windows\ChooseEncounters.xaml">
       <SubType>Designer</SubType>
@@ -163,5 +164,6 @@
       <Name>ArkhamOverlay.TcpUtils</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

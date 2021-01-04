@@ -1,28 +1,14 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using ArkhamOverlay.Data;
+using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace ArkhamOverlay.Data {
-    public class OverlayData {
-        public OverlayData() {
-            EncounterCards = new ObservableCollection<OverlayCard>();
-            PlayerCards = new ObservableCollection<OverlayCard>();
-        }
-
-        public AppData AppData { get; set; }
-        public Configuration Configuration { get { return AppData.Configuration; } }
-
-        public ObservableCollection<OverlayCard> EncounterCards { get; set; }
-        public ObservableCollection<OverlayCard> PlayerCards { get; set; }
-    }
-
-    public class OverlayCard : INotifyPropertyChanged {
+namespace ArkhamOverlay.ViewModels {
+    public class CardViewModel : INotifyPropertyChanged {
         private readonly Configuration _configuartion;
 
-        public OverlayCard(Configuration configuartion) {
+        public CardViewModel(Configuration configuartion) {
             _configuartion = configuartion;
             _configuartion.PropertyChanged += (s, e) => {
                 if (e.PropertyName == nameof(_configuartion.CardHeight)) {
@@ -41,7 +27,7 @@ namespace ArkhamOverlay.Data {
             set {
                 card = value;
                 CardImage = new BitmapImage(new Uri("https://arkhamdb.com/" + card.ImageSource, UriKind.Absolute));
-                
+
                 OnPropertyChanged(nameof(CardImage));
 
                 Visibility = Visibility.Visible;
@@ -63,13 +49,13 @@ namespace ArkhamOverlay.Data {
             handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public double Height { 
+        public double Height {
             get {
                 return card.IsHorizontal ? _configuartion.CardWidth : _configuartion.CardHeight;
             }
         }
 
-        public double Width { 
+        public double Width {
             get {
                 return card.IsHorizontal ? _configuartion.CardHeight : _configuartion.CardWidth;
             }
@@ -77,12 +63,13 @@ namespace ArkhamOverlay.Data {
 
         public double Radius { get { return _configuartion.CardRadius; } }
 
-        public Rect ClipRect { 
+        public Rect ClipRect {
             get {
-                return card.IsHorizontal 
-                    ? new Rect { Height = _configuartion.CardClipRect.Width, Width = _configuartion.CardClipRect.Height } 
+                return card.IsHorizontal
+                    ? new Rect { Height = _configuartion.CardClipRect.Width, Width = _configuartion.CardClipRect.Height }
                     : _configuartion.CardClipRect;
-            } 
+            }
         }
     }
+
 }
