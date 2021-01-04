@@ -29,12 +29,18 @@ namespace ArkhamOverlay.Pages.Overlay {
 
                 NotifyPropertyChanged(nameof(CardImage));
 
-                Visibility = Visibility.Visible;
-                NotifyPropertyChanged(nameof(Visibility));
+                Show = true;
             }
         }
 
-        public Visibility Visibility { get; set; }
+        private bool _show;
+        public virtual bool Show {
+            get => _show; 
+            set {
+                _show = value;
+                NotifyPropertyChanged(nameof(Show));
+            }
+        }
 
         public ImageSource CardImage { get; set; }
 
