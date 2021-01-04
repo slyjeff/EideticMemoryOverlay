@@ -53,7 +53,7 @@ namespace ArkhamOverlay.Pages.Main {
 
         private void ShowSelectCardsWindow(ISelectableCards selectableCards) {
             var left = View.Left + View.Width + 10;
-            var width = (double)786;
+            var width = (double)836;
             var top = View.Top;
             SelectCardsController controller = null;
             foreach (var selectCardsControllerInList in _selectCardsControllers) {

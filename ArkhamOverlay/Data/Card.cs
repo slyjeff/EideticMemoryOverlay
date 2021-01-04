@@ -1,16 +1,20 @@
 ﻿using ArkhamOverlay.Services;
+using ArkhamOverlay.Utils;
+using PageController;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Net;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace ArkhamOverlay.Data {
     public delegate void CardToggledEvent(ICardButton card);
 
-    public class Card : ICardButton, INotifyPropertyChanged {
+    public class Card : ViewModel, ICardButton, INotifyPropertyChanged {
+        private static readonly Dictionary<string, BitmapImage> CardImageCache = new Dictionary<string, BitmapImage>();
+
         public Card() {
         }
 
@@ -21,63 +25,119 @@ namespace ArkhamOverlay.Data {
             Type = GetCardType(arkhamDbCard.Type_Code);
             ImageSource = cardBack ? arkhamDbCard.BackImageSrc : arkhamDbCard.ImageSrc;
             IsPlayerCard = isPlayerCard;
-
             if (cardBack) {
                 Name += " (Back)";
             }
-        }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged(string propertyName) {
-            var handler = PropertyChanged;
-            if (handler == null) {
+            //stometimes if we are closing, this will be null and we can just bail
+            if (Application.Current == null) {
                 return;
             }
-            handler(this, new PropertyChangedEventArgs(propertyName));
+
+            if (Application.Current.Dispatcher.CheckAccess()) {
+                LoadImage();
+            } else {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                    LoadImage();
+                }));
+            }
         }
 
-        public string Code { get; set; }
+        private void LoadImage() {
+            if (string.IsNullOrEmpty(ImageSource)) {
+                Image = ImageUtils.CreateSolidColorImage(CardColor);
+                ButtonImage = Image;
+                return;
+            }
+
+            if (CardImageCache.ContainsKey(Name)) {
+                Image = CardImageCache[Name];
+                CropImage();
+                return;
+            }
+
+            var bitmapImage = new BitmapImage(new Uri("https://arkhamdb.com/" + ImageSource, UriKind.Absolute));
+            bitmapImage.DownloadCompleted += (s, e) => {
+                CardImageCache[Name] = bitmapImage;
+                CropImage();
+            };
+            Image = bitmapImage;
+        }
+
+        private void CropImage() {
+            var startingPoint = GetCropStartingPoint();
+            ButtonImage = new CroppedBitmap(Image as BitmapImage, new Int32Rect(Convert.ToInt32(startingPoint.X), Convert.ToInt32(startingPoint.Y), 220, 220));
+        }
+
+        private Point GetCropStartingPoint() {
+            switch (Type) {
+                case CardType.Scenario:
+                    return new Point(40, 60);
+                case CardType.Agenda:
+                    return new Point(10, 40);
+                case CardType.Act:
+                    return new Point(190, 40);
+                case CardType.Location:
+                    return new Point(40, 40);
+                case CardType.Enemy:
+                    return new Point(40, 190);
+                case CardType.Treachery:
+                    return new Point(40, 0);
+                case CardType.Asset:
+                    return new Point(40, 40);
+                case CardType.Event:
+                    return new Point(40, 0);
+                case CardType.Skill:
+                    return new Point(40, 40);
+                default:
+                    return new Point(40, 40);
+            }
+        }
+
+        public string Code { get; }
         public string Name { get; set; }
-        public Faction Faction { get; set; }
+        public Faction Faction { get; set;  }
 
-        public string ImageSource { get; set; }
+        public string ImageSource { get; }
+        public ImageSource Image { get; private set; }
 
-        public CardType Type { get; set; }
+        public ImageSource ButtonImage { get; private set; }
+
+        public CardType Type { get; }
 
         public bool IsVisible { get; private set;}
-        public Brush BorderBrush { get {return IsVisible ? new SolidColorBrush(Colors.Black) : Background; } }
+        public Brush BorderBrush { get {return IsVisible ? new SolidColorBrush(Colors.DarkGoldenrod) : new SolidColorBrush(Colors.Black); } }
 
-        public Brush Background {
+        public Color CardColor {
             get {
                 switch (Type) {
                     case CardType.Agenda:
-                        return new SolidColorBrush(Colors.Chocolate);
+                        return Colors.Chocolate;
                     case CardType.Act:
-                        return new SolidColorBrush(Colors.BurlyWood);
+                        return Colors.BurlyWood;
                     case CardType.Enemy:
-                        return new SolidColorBrush(Colors.SlateBlue);
+                        return Colors.SlateBlue;
                     case CardType.Treachery:
-                        return new SolidColorBrush(Colors.SlateGray);
+                        return Colors.SlateGray;
                     case CardType.Asset:
                     case CardType.Event:
                     case CardType.Skill:
                         switch (Faction) {
                             case Faction.Guardian:
-                                return new SolidColorBrush(Colors.DarkBlue);
+                                return Colors.DarkBlue;
                             case Faction.Seeker:
-                                return new SolidColorBrush(Colors.DarkGoldenrod);
+                                return Colors.DarkGoldenrod;
                             case Faction.Rogue:
-                                return new SolidColorBrush(Colors.DarkGreen);
+                                return Colors.DarkGreen;
                             case Faction.Survivor:
-                                return new SolidColorBrush(Colors.DarkRed);
+                                return Colors.DarkRed;
                             case Faction.Mystic:
-                                return new SolidColorBrush(Colors.Indigo);
+                                return Colors.Indigo;
                             default:
-                                return new SolidColorBrush(Colors.DarkGray);
+                                return Colors.DarkGray;
                         }
                     default:
-                        return new SolidColorBrush(Colors.DarkGray);
+                        return Colors.DarkGray;
                 }
             }
         }
@@ -96,12 +156,12 @@ namespace ArkhamOverlay.Data {
 
             IsVisible = !IsVisible;
             SelectableCards.ToggleCard(this);
-            OnPropertyChanged(nameof(BorderBrush));
+            NotifyPropertyChanged(nameof(BorderBrush));
         }
 
         public void Hide() {
             IsVisible = false;
-            OnPropertyChanged(nameof(BorderBrush));
+            NotifyPropertyChanged(nameof(BorderBrush));
         }
 
         private CardType GetCardType(string typeCode) {

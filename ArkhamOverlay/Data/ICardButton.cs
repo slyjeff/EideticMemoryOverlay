@@ -4,7 +4,7 @@ namespace ArkhamOverlay.Data {
     public interface ICardButton {
         string Name { get; }
 
-        Brush Background { get; }
+        ImageSource ButtonImage { get; }
 
         void Click();
     }
