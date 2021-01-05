@@ -4,6 +4,7 @@ using PageController;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -67,6 +68,20 @@ namespace ArkhamOverlay.Data {
         private void CropImage() {
             var startingPoint = GetCropStartingPoint();
             ButtonImage = new CroppedBitmap(Image as BitmapImage, new Int32Rect(Convert.ToInt32(startingPoint.X), Convert.ToInt32(startingPoint.Y), 220, 220));
+
+            byte[] bytes = null;
+            var bitmapSource = ButtonImage as BitmapSource;
+
+            if (bitmapSource != null) {
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                using (var stream = new MemoryStream()) {
+                    encoder.Save(stream);
+                    bytes = stream.ToArray();
+                }
+            }
+            ButtonImageAsBytes = bytes;
         }
 
         private Point GetCropStartingPoint() {
@@ -102,6 +117,7 @@ namespace ArkhamOverlay.Data {
         public ImageSource Image { get; private set; }
 
         public ImageSource ButtonImage { get; private set; }
+        public byte[] ButtonImageAsBytes { get; private set; }
 
         public CardType Type { get; }
 
