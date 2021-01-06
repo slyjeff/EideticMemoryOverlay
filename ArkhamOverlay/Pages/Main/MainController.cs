@@ -19,12 +19,14 @@ namespace ArkhamOverlay.Pages.Main {
 
         private readonly GameFileService _gameFileService;
         private readonly IControllerFactory _controllerFactory;
+        private readonly LoadingStatusService _loadingStatusService;
 
-        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory) {
+        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, LoadingStatusService loadingStatusService) {
             ViewModel.AppData = appData;
 
             _gameFileService = gameFileService;
             _controllerFactory = controllerFactory;
+            _loadingStatusService = loadingStatusService;
 
             LoadEncounterSets();
 
@@ -40,7 +42,9 @@ namespace ArkhamOverlay.Pages.Main {
         private void LoadEncounterSets() {
             var worker = new BackgroundWorker();
             worker.DoWork += (x, y) => {
+                _loadingStatusService.ReportEncounterCardsStatus(Status.LoadingDeck);
                 _arkhamDbService.FindMissingEncounterSets(ViewModel.AppData.Configuration);
+                _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
             };
             worker.RunWorkerAsync();
         }
@@ -150,12 +154,28 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void Refresh(Player player) {
-            _arkhamDbService.LoadPlayer(player);
-            var worker = new BackgroundWorker();
-            worker.DoWork += (x, y) => {
-                _arkhamDbService.LoadPlayerCards(player);
-            };
-            worker.RunWorkerAsync();
+            if (!string.IsNullOrEmpty(player.DeckId)) {
+                try {
+                    _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingDeck);
+                    _arkhamDbService.LoadPlayer(player);
+
+                    var worker = new BackgroundWorker();
+                    worker.DoWork += (x, y) => {
+                        _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingCards);
+                        try {
+                            _arkhamDbService.LoadPlayerCards(player);
+                            _loadingStatusService.ReportPlayerStatus(player.ID, Status.Finished);
+                        }
+                        catch {
+                            _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
+                        }
+                    };
+                    worker.RunWorkerAsync();
+                }
+                catch {
+                    _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
+                }
+            }
         }
 
         private void MainWindowActivated(object sender, EventArgs e) {

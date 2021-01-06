@@ -15,23 +15,20 @@ namespace ArkhamOverlay.Services {
                 return;
             }
 
-            try {
-                string url = @"https://arkhamdb.com/api/public/deck/" + player.DeckId;
+            string url = @"https://arkhamdb.com/api/public/deck/" + player.DeckId;
 
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                using (Stream stream = response.GetResponseStream())
-                using (StreamReader reader = new StreamReader(stream)) {
-                    var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
-                    player.InvestigatorImage = new BitmapImage(new Uri("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png", UriKind.Absolute));
-                    player.CardIds = from cardId in arkhamDbDeck.Slots.Keys select cardId;
-                    player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
-                    player.OnPlayerChanged();
-                }
-            } catch {
-                return;
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream)) {
+                var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
+                player.InvestigatorImage = new BitmapImage(new Uri("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png", UriKind.Absolute));
+                player.CardIds = from cardId in arkhamDbDeck.Slots.Keys select cardId;
+                player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
+                player.OnPlayerChanged();
             }
+
             return;
         }
 

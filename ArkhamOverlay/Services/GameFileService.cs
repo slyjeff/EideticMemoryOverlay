@@ -32,10 +32,12 @@ namespace ArkhamOverlay.Services {
     public class GameFileService {
         private AppData _appData;
         private readonly ArkhamDbService _arkhamDbService;
+        private readonly LoadingStatusService _loadingStatusService;
 
-        public GameFileService(AppData appData, ArkhamDbService arkhamDbService) {
+        public GameFileService(AppData appData, ArkhamDbService arkhamDbService, LoadingStatusService loadingStatusService) {
             _appData = appData;
             _arkhamDbService = arkhamDbService;
+            _loadingStatusService = loadingStatusService;
         }
 
         internal void Load(string fileName) {
@@ -51,7 +53,14 @@ namespace ArkhamOverlay.Services {
 
                     for (var index = 0; index < gameFile.DeckIds.Count && index < game.Players.Count; index++) {
                         game.Players[index].DeckId = gameFile.DeckIds[index];
-                        _arkhamDbService.LoadPlayer(game.Players[index]);
+                        if (!string.IsNullOrEmpty(game.Players[index].DeckId)) {
+                            try {
+                                _arkhamDbService.LoadPlayer(game.Players[index]);
+                            }
+                            catch {
+                                _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.Error);
+                            }
+                        }
                     }
 
                     game.OnPlayersChanged();
