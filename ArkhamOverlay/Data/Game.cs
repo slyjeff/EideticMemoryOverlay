@@ -8,7 +8,7 @@ using System.Windows;
 namespace ArkhamOverlay.Data {
     public class Game : IGame, INotifyPropertyChanged {
         public Game() {
-            Players = new List<Player> { new Player(), new Player(), new Player(), new Player() };
+            Players = new List<Player> { new Player(1), new Player(2), new Player(3), new Player(4) };
             EncounterSets = new List<EncounterSet>();
             ScenarioCards = new SelectableCards(SelectableType.Scenario);
             LocationCards = new SelectableCards(SelectableType.Location);

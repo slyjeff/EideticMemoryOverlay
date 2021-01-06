@@ -12,7 +12,18 @@ namespace ArkhamOverlay.Data {
         }
 
         public Game Game { get; }
+
         public Configuration Configuration { get; }
+
+        private string _status;
+
+        public string Status {
+            get => _status; 
+            set {
+                _status = value;
+                NotifyPropertyChanged(nameof(Status));
+            }
+        }
 
         private bool _isActAgendaBarVisible;
         public bool IsActAgendaBarVisible {

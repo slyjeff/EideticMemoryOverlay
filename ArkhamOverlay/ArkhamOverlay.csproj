@@ -128,6 +128,7 @@
     <Compile Include="Services\ConfigurationService.cs" />
     <Compile Include="Services\ControllerFactory.cs" />
     <Compile Include="Services\GameFileService.cs" />
+    <Compile Include="Services\LoadingStatusService.cs" />
     <Compile Include="Services\StructureMapDependencyResolver.cs" />
     <Compile Include="Services\TcpRequestHandler.cs" />
     <Compile Include="Data\Configuration.cs" />
