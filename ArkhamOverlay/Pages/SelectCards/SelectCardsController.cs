@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Data;
 using PageController;
 using System;
 
@@ -33,7 +34,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
 
         [Command]
         public void CardSelected(ICardButton card) {
-            card.Click();
+            card.LeftClick();
         }
     }
 }

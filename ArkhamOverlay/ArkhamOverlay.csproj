@@ -88,9 +88,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Data\AppData.cs" />
-    <Compile Include="Data\Card.cs" />
-    <Compile Include="Data\ClearButton.cs" />
-    <Compile Include="Data\ICardButton.cs" />
+    <Compile Include="CardButtons\Card.cs" />
+    <Compile Include="CardButtons\ClearButton.cs" />
+    <Compile Include="CardButtons\CardButton.cs" />
     <Compile Include="Data\SelectableCards.cs" />
     <Compile Include="Data\Player.cs" />
     <Compile Include="Enums.cs" />

@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Data;
 using System.Collections.Generic;
 using System.Windows;
 
@@ -13,7 +14,7 @@ namespace ArkhamOverlay.Design {
 
         public string Name => "Lola Hayes";
 
-        public List<ICardButton> CardButtons => new List<ICardButton> { 
+        List<ICardButton> ISelectableCards.CardButtons => new List<ICardButton> { 
             new ClearButton(), 
             new Card() { Name = "Survivor Card", Faction = Faction.Survivor }, 
             new Card { Name = "Guardian Card", Faction = Faction.Guardian } 
@@ -21,6 +22,6 @@ namespace ArkhamOverlay.Design {
 
         public bool Loading => true;
 
-        public Visibility LoadedVisiblity => Visibility.Visible;        
+        public Visibility LoadedVisiblity => Visibility.Visible;
     }
 }

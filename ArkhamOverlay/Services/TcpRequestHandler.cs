@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Data;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
@@ -56,7 +57,7 @@ namespace ArkhamOverlay.Services {
             var cards = GetDeck(clickCardButtonRequest.Deck).CardButtons;
 
             var cardButton = (cardIndex < cards.Count) ? cards[cardIndex] : null;
-            cardButton.Click();
+            cardButton.LeftClick();
 
             SendCardInfoResponse(request.Socket, cardButton);
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ArkhamOverlay.CardButtons;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -77,6 +78,19 @@ namespace ArkhamOverlay.Data {
             CardToggled?.Invoke(card, card.FlipSideCard);
         }
 
+        internal void ClearSelections() {
+            foreach (var cardButtons in CardButtons) {
+                if (!(cardButtons is Card card)) {
+                    continue;
+                }
+
+                if (card.IsVisible) {
+                    card.FlipSideCard.Hide();
+                    CardToggled?.Invoke(card, null);
+                }
+            }
+        }
+
         internal void LoadCards(IEnumerable<Card> cards) {
             foreach (var card in cards) {
                 card.SelectableCards = this;
@@ -94,18 +108,6 @@ namespace ArkhamOverlay.Data {
             ClearSelections();
             CardButtons.Clear();
             OnCardButtonsChanged();
-        }
-
-        internal void ClearSelections() {
-            foreach (var cardButtons in CardButtons) {
-                if (!(cardButtons is Card card)) {
-                    continue;
-                }
-
-                if (card.IsVisible) {
-                    card.Click();
-                }
-            }
         }
     }
 }

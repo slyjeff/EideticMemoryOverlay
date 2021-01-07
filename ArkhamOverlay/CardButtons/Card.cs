@@ -10,10 +10,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace ArkhamOverlay.Data {
+namespace ArkhamOverlay.CardButtons {
     public delegate void CardToggledEvent(ICardButton card);
 
-    public class Card : ViewModel, ICardButton, INotifyPropertyChanged {
+    public class Card : CardButton, INotifyPropertyChanged {
         private static readonly Dictionary<string, BitmapImage> CardImageCache = new Dictionary<string, BitmapImage>();
 
         public Card() {
@@ -110,7 +110,6 @@ namespace ArkhamOverlay.Data {
         }
 
         public string Code { get; }
-        public string Name { get; set; }
         public Faction Faction { get; set;  }
 
         public string ImageSource { get; }
@@ -122,7 +121,7 @@ namespace ArkhamOverlay.Data {
         public CardType Type { get; }
 
         public bool IsVisible { get; private set;}
-        public Brush BorderBrush { get {return IsVisible ? new SolidColorBrush(Colors.DarkGoldenrod) : new SolidColorBrush(Colors.Black); } }
+        public override Brush BorderBrush { get {return IsVisible ? new SolidColorBrush(Colors.DarkGoldenrod) : new SolidColorBrush(Colors.Black); } }
 
         public Color CardColor {
             get {
@@ -162,10 +161,9 @@ namespace ArkhamOverlay.Data {
 
         public bool IsPlayerCard { get; private set; }
 
-        public SelectableCards SelectableCards { get; set; }
         public Card FlipSideCard { get; set; }
 
-        public void Click() {
+        public override void LeftClick() {
             if (SelectableCards == null) {
                 return;
             }
@@ -174,6 +172,17 @@ namespace ArkhamOverlay.Data {
             SelectableCards.ToggleCard(this);
             NotifyPropertyChanged(nameof(BorderBrush));
         }
+
+        public override void RightClick() {
+            if (SelectableCards == null) {
+                return;
+            }
+
+            IsVisible = !IsVisible;
+            SelectableCards.ToggleCard(this);
+            NotifyPropertyChanged(nameof(BorderBrush));
+        }
+
 
         public void Hide() {
             IsVisible = false;
