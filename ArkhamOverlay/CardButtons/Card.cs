@@ -1,6 +1,5 @@
 ﻿using ArkhamOverlay.Services;
 using ArkhamOverlay.Utils;
-using PageController;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -120,7 +119,14 @@ namespace ArkhamOverlay.CardButtons {
 
         public CardType Type { get; }
 
-        public bool IsVisible { get; private set;}
+        private bool _isVisible;
+        public bool IsVisible { 
+            get => _isVisible;
+            private set {
+                _isVisible = value;
+                NotifyPropertyChanged(nameof(BorderBrush));
+            }
+        }
         public override Brush BorderBrush { get {return IsVisible ? new SolidColorBrush(Colors.DarkGoldenrod) : new SolidColorBrush(Colors.Black); } }
 
         public Color CardColor {
@@ -170,7 +176,6 @@ namespace ArkhamOverlay.CardButtons {
 
             IsVisible = !IsVisible;
             SelectableCards.ToggleCard(this);
-            NotifyPropertyChanged(nameof(BorderBrush));
         }
 
         public override void RightClick() {
@@ -180,13 +185,11 @@ namespace ArkhamOverlay.CardButtons {
 
             IsVisible = !IsVisible;
             SelectableCards.ToggleCard(this);
-            NotifyPropertyChanged(nameof(BorderBrush));
         }
 
 
         public void Hide() {
             IsVisible = false;
-            NotifyPropertyChanged(nameof(BorderBrush));
         }
 
         private CardType GetCardType(string typeCode) {

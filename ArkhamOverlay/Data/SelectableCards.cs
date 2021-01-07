@@ -85,7 +85,7 @@ namespace ArkhamOverlay.Data {
                 }
 
                 if (card.IsVisible) {
-                    card.FlipSideCard.Hide();
+                    card.Hide();
                     CardToggled?.Invoke(card, null);
                 }
             }
