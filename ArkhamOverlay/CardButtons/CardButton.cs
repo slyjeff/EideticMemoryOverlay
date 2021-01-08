@@ -12,7 +12,15 @@ namespace ArkhamOverlay.CardButtons {
     }
 
     public abstract class CardButton : ViewModel, ICardButton {
-        public string Name { get; set; }
+
+        private string _name;
+        public string Name {
+            get => _name;
+            set {
+                _name = value;
+                NotifyPropertyChanged(nameof(Name));
+            }
+        }
 
         public Brush Background { get { return new SolidColorBrush(Colors.Black); } }
 

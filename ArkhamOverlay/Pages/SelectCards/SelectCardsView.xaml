@@ -18,8 +18,8 @@
             <Setter Property="Source" Value="{Binding ButtonImage}" />
             <Setter Property="Clip">
                 <Setter.Value>
-                    <RectangleGeometry RadiusX="10"
-                                                RadiusY="10"
+                    <RectangleGeometry RadiusX="7"
+                                                RadiusY="7"
                                                 Rect="0,0,76,76"/>
                 </Setter.Value>
             </Setter>
@@ -84,12 +84,12 @@
         <TextBlock Margin="5, 10, 0, 2"
                    Foreground="White"
                    FontWeight="Bold"
-                   Text="{Binding SelectableCards.CardButtonSetName}"
-                   Visibility="{Binding Path=SelectableCards.ShowCardButtonSet, Converter={StaticResource BoolToVisibility}}"/>
+                   Text="{Binding SelectableCards.CardSetName}"
+                   Visibility="{Binding Path=SelectableCards.ShowCardSet, Converter={StaticResource BoolToVisibility}}"/>
         <ItemsControl 
-            ItemsSource="{Binding SelectableCards.CardButtonSet}" 
+            ItemsSource="{Binding SelectableCards.CardSet}" 
             BorderThickness="0"
-            Visibility="{Binding Path=SelectableCards.ShowCardButtonSet, Converter={StaticResource BoolToVisibility}}">
+            Visibility="{Binding Path=SelectableCards.ShowCardSet, Converter={StaticResource BoolToVisibility}}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardButtonStyle}">
@@ -104,7 +104,7 @@
                                         CommandParameter="{Binding}"/>
                             <MouseBinding 
                                         MouseAction="RightClick" 
-                                        Command="{Binding DataContext.CardRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        Command="{Binding DataContext.InSetCardRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
                                         CommandParameter="{Binding}"/>
                         </Border.InputBindings>
                     </Border>

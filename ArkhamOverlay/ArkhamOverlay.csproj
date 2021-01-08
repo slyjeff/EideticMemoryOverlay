@@ -87,6 +87,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CardButtons\ShowSetButton.cs" />
     <Compile Include="Data\AppData.cs" />
     <Compile Include="CardButtons\Card.cs" />
     <Compile Include="CardButtons\ClearButton.cs" />

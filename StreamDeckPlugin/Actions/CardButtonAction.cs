@@ -11,16 +11,16 @@ using SharpDeck.Manifest;
 using StreamDeckPlugin.Utils;
 
 namespace ArkhamOverlaySdPlugin.Actions {
-    public class CardButtonSettings {
+    public class CardSettings {
         public string Deck { get; set; }
     }
 
     [StreamDeckAction("Card Button", "arkhamoverlay.cardbutton")]
-    public class CardButtonAction : StreamDeckAction<CardButtonSettings> {
+    public class CardButtonAction : StreamDeckAction<CardSettings> {
         public static IList<CardButtonAction> ListOf = new List<CardButtonAction>();
 
         private Coordinates _coordinates = new Coordinates();
-        private CardButtonSettings _settings = new CardButtonSettings();
+        private CardSettings _settings = new CardSettings();
         private string _deviceId;
         private ICardInfo _currentCardInfo;
 
@@ -68,7 +68,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
         protected async override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _coordinates = args.Payload.Coordinates;
             _deviceId = args.Device;
-            _settings = args.Payload.GetSettings<CardButtonSettings>();
+            _settings = args.Payload.GetSettings<CardSettings>();
             Page = 0;
             IsVisible = true;
 
@@ -92,7 +92,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
         }
 
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            var settings = args.Payload.GetSettings<CardButtonSettings>();
+            var settings = args.Payload.GetSettings<CardSettings>();
             try {
                 var request = new ClickCardButtonRequest { Deck = settings.Deck.AsDeck(), Index = CardButtonIndex };
                 var response = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);

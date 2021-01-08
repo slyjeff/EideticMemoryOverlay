@@ -8,7 +8,6 @@ namespace ArkhamOverlay.Services {
         int OverlayHeight { get; set; }
         int OverlayWidth { get; set; }
         int CardHeight { get; set; }
-        bool UseActAgendaBar { get; set; }
         IList<Pack> Packs { get; }
     }
 
@@ -62,7 +61,6 @@ namespace ArkhamOverlay.Services {
             toConfiguration.OverlayHeight = fromConfiguration.OverlayHeight;
             toConfiguration.OverlayWidth = fromConfiguration.OverlayWidth;
             toConfiguration.CardHeight = fromConfiguration.CardHeight;
-            toConfiguration.UseActAgendaBar = fromConfiguration.UseActAgendaBar;
             toConfiguration.Packs.Clear();
             foreach (var pack in fromConfiguration.Packs) {
                 toConfiguration.Packs.Add(new Pack(pack));

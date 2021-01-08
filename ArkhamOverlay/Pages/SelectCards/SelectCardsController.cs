@@ -41,5 +41,10 @@ namespace ArkhamOverlay.Pages.SelectCards {
         public void CardRightClick(ICardButton card) {
             card.RightClick();
         }
+
+        [Command]
+        public void InSetCardRightClick(Card card) {
+            card.InSetRightClick();
+        }
     }
 }

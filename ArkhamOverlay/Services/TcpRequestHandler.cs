@@ -68,7 +68,7 @@ namespace ArkhamOverlay.Services {
         }
 
         private void HandleToggleActAgendaBar(TcpRequest request) {
-            _appData.IsActAgendaBarVisible = !_appData.IsActAgendaBarVisible;
+            _appData.Game.ScenarioCards.ToggleCardSetVisibility() ;
             SendOkResponse(request.Socket);
         }
 
@@ -84,15 +84,13 @@ namespace ArkhamOverlay.Services {
 
             lock(_registerLock) {
                 if (!_alreadyRegisteredEvents) {
-                    _appData.PropertyChanged += (s, e) => {
-                        if (e.PropertyName == nameof(AppData.IsActAgendaBarVisible)) {
-                            SendActAgendaBarStatus(_appData.IsActAgendaBarVisible);
-                        }
+                    var game = _appData.Game;
+                    game.LocationCards.SetUpdated += (selectableCards, isVisible) => {
+                        SendActAgendaBarStatus(isVisible);
                     };
 
-                    var game = _appData.Game;
                     foreach (var selectableCards in game.AllSelectableCards) {
-                        selectableCards.CardToggled += (card1, card2) => {
+                        selectableCards.CardVisibilityToggled += (card1, card2) => {
                             SendCardInfoUpdate(card1, selectableCards);
                             if (card2 != null) {
                                 SendCardInfoUpdate(card2, selectableCards);

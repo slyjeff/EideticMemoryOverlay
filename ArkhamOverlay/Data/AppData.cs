@@ -25,15 +25,6 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        private bool _isActAgendaBarVisible;
-        public bool IsActAgendaBarVisible {
-            get => _isActAgendaBarVisible;
-            set {
-                _isActAgendaBarVisible = value;
-                NotifyPropertyChanged(nameof(IsActAgendaBarVisible));
-            }
-        }
-
         public void OnGameChanged() {
             NotifyPropertyChanged(nameof(Game));
         }

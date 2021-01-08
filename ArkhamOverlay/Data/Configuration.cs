@@ -14,7 +14,6 @@ namespace ArkhamOverlay.Data {
         private int _overlayHeight;
         private int _overlayWidth;
         private int _cardHeight;
-        private bool _useActAgendaBar;
 
         public int OverlayHeight {
             get => _overlayHeight;
@@ -52,14 +51,7 @@ namespace ArkhamOverlay.Data {
                 OnConfigurationChange();
             }
         }
-
-        public bool UseActAgendaBar {
-            get => _useActAgendaBar;
-            set {
-                _useActAgendaBar = value;
-                OnPropertyChanged(nameof(UseActAgendaBar));
-            }
-        }
+       
 
         public IList<Pack> Packs { get; set; }
 

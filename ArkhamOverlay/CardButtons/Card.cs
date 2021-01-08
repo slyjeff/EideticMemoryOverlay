@@ -184,7 +184,11 @@ namespace ArkhamOverlay.CardButtons {
                 return;
             }
 
-            SelectableCards.ToggleCardInSet(this);
+            SelectableCards.AddCardToSet(this);
+        }
+
+        public void InSetRightClick() {
+            SelectableCards.RemoveCardFromSet(this);
         }
 
         public void Hide() {
