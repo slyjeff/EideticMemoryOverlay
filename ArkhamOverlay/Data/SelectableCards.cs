@@ -1,6 +1,8 @@
 ﻿using ArkhamOverlay.CardButtons;
+using PageController;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace ArkhamOverlay.Data {
@@ -10,16 +12,17 @@ namespace ArkhamOverlay.Data {
         string Name { get; }
 
         List<ICardButton> CardButtons { get; }
-
+        
         bool Loading { get; }
     }
 
-    public class SelectableCards : ISelectableCards, INotifyPropertyChanged {
+    public class SelectableCards : ViewModel, ISelectableCards, INotifyPropertyChanged {
         private string _playerName = string.Empty;
 
         public SelectableCards(SelectableType type) {
             Type = type;
             CardButtons = new List<ICardButton>();
+            CardButtonSet = new ObservableCollection<ICardButton>();
         }
 
         public SelectableType Type { get; }
@@ -46,27 +49,36 @@ namespace ArkhamOverlay.Data {
             }
         }
 
+        public string CardButtonSetName {
+            get {
+                switch (Type) {
+                    case SelectableType.Scenario:
+                        return "Act/Agena Bar:";
+                    case SelectableType.Player:
+                        return "In Hand:";
+                    default:
+                        return "";
+                }
+            }
+        }
+
         public List<ICardButton> CardButtons { get; set; }
+        public ObservableCollection<ICardButton> CardButtonSet { get; set; }
+        
+        private bool _showCardButtonSet;
+        public bool ShowCardButtonSet { 
+            get => _showCardButtonSet;
+            set {
+                _showCardButtonSet = value;
+                NotifyPropertyChanged(nameof(ShowCardButtonSet));
+            }
+        }
 
         public bool Loading { get; internal set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged(string propertyName) {
-            var handler = PropertyChanged;
-            if (handler == null) {
-                return;
-            }
-            handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public void OnCardButtonsChanged() {
-            OnPropertyChanged(nameof(CardButtons));
-        }
-
         public event Action<Card, Card> CardToggled;
 
-        public void ToggleCard(Card card) {
+        public void ToggleCardVisibility(Card card) {
             if (!card.IsVisible) {
                 CardToggled?.Invoke(card, null);
                 return;
@@ -90,6 +102,18 @@ namespace ArkhamOverlay.Data {
                 }
             }
         }
+        
+        public void ToggleCardInSet(Card card) {
+            if (CardButtonSet.Contains(card)) {
+                CardButtonSet.Remove(card);
+            } else if (CardButtonSet.Contains(card.FlipSideCard)) {
+                CardButtonSet[CardButtonSet.IndexOf(card.FlipSideCard)] = card;
+            } else {
+                CardButtonSet.Add(card);
+            }
+
+            ShowCardButtonSet = CardButtonSet.Count > 0;
+        }
 
         internal void LoadCards(IEnumerable<Card> cards) {
             foreach (var card in cards) {
@@ -101,13 +125,13 @@ namespace ArkhamOverlay.Data {
             var playerButtons = new List<ICardButton> { clearButton };
             playerButtons.AddRange(cards);
             CardButtons = playerButtons;
-            OnCardButtonsChanged();
+            NotifyPropertyChanged(nameof(CardButtons));
         }
 
         internal void ClearCards() {
             ClearSelections();
             CardButtons.Clear();
-            OnCardButtonsChanged();
+            NotifyPropertyChanged(nameof(CardButtons));
         }
     }
 }

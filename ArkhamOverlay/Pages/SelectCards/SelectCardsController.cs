@@ -33,8 +33,13 @@ namespace ArkhamOverlay.Pages.SelectCards {
         public double Height { get => View.Height; set => View.Height = value; }
 
         [Command]
-        public void CardSelected(ICardButton card) {
+        public void CardLeftClick(ICardButton card) {
             card.LeftClick();
+        }
+
+        [Command]
+        public void CardRightClick(ICardButton card) {
+            card.RightClick();
         }
     }
 }

@@ -175,18 +175,17 @@ namespace ArkhamOverlay.CardButtons {
             }
 
             IsVisible = !IsVisible;
-            SelectableCards.ToggleCard(this);
+            SelectableCards.ToggleCardVisibility(this);
         }
 
         public override void RightClick() {
-            if (SelectableCards == null) {
+            //we only put act/agend/player cards in sets
+            if ((Type != CardType.Act) && (Type != CardType.Agenda) && !IsPlayerCard) {
                 return;
             }
 
-            IsVisible = !IsVisible;
-            SelectableCards.ToggleCard(this);
+            SelectableCards.ToggleCardInSet(this);
         }
-
 
         public void Hide() {
             IsVisible = false;

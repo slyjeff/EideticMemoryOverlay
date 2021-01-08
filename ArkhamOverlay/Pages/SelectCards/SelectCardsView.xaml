@@ -3,50 +3,73 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-        xmlns:design="clr-namespace:ArkhamOverlay.Design" 
-        d:DataContext="{d:DesignInstance {x:Type design:SelectableCards}, IsDesignTimeCreatable=True}"
+        xmlns:selectcards="clr-namespace:ArkhamOverlay.Pages.SelectCards"
+        d:DataContext="{d:DesignInstance {x:Type selectcards:SelectCardsViewModel}, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
         Title="{Binding SelectableCards.Name}"
         SizeToContent="Height"
         Background="Black">
-    <Grid>
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="ImageStyle" TargetType="{x:Type Image}">
+            <Setter Property="Height" Value="76" />
+            <Setter Property="Width" Value="76" />
+            <Setter Property="Source" Value="{Binding ButtonImage}" />
+            <Setter Property="Clip">
+                <Setter.Value>
+                    <RectangleGeometry RadiusX="10"
+                                                RadiusY="10"
+                                                Rect="0,0,76,76"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TextBlockStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="Text" Value="{Binding Name}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Width" Value="76" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect
+                            ShadowDepth="0"
+                            Direction="0"
+                            Color="Black"
+                            Opacity="1"
+                            BlurRadius="10"/>
+                    </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardButtonStyle" TargetType="{x:Type Border}">
+            <Setter Property="BorderBrush" Value="{Binding BorderBrush}" />
+            <Setter Property="BorderThickness" Value="3" />
+            <Setter Property="CornerRadius" Value="10" />
+        </Style>
+    </Window.Resources>
+    <StackPanel Orientation="Vertical">
         <ItemsControl ItemsSource="{Binding SelectableCards.CardButtons}" BorderThickness="0">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderThickness="3"
-                            BorderBrush="{Binding BorderBrush}"
-                            CornerRadius="10">
+                    <Border Style="{StaticResource CardButtonStyle}">
                         <Grid>
-                            <Image Source="{Binding ButtonImage}" Height="76" Width="76">
-                                <Image.Clip>
-                                    <RectangleGeometry RadiusX="10"
-                                                RadiusY="10"
-                                                Rect="0,0,76,76"/>
-                                </Image.Clip>
-                            </Image>
-                            <TextBlock Text="{Binding Name}" 
-                                       TextWrapping="Wrap"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontWeight="Bold"
-                                       FontSize="12"
-                                       TextAlignment="Center"
-                                       Foreground="White"
-                                       Width="76">
-                                <TextBlock.Effect>
-                                    <DropShadowEffect
-                                        ShadowDepth="0"
-                                        Direction="0"
-                                        Color="Black"
-                                        Opacity="1"
-                                        BlurRadius="10"/>
-                                </TextBlock.Effect>
-                            </TextBlock>
+                            <Image Style="{StaticResource ImageStyle}"/>
+                            <TextBlock Style="{StaticResource TextBlockStyle}"/>
                         </Grid>
                         <Border.InputBindings>
-                            <MouseBinding 
+                           <MouseBinding 
                                         MouseAction="LeftClick" 
-                                        Command="{Binding DataContext.CardSelected, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        Command="{Binding DataContext.CardLeftClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        CommandParameter="{Binding}"/>
+                            <MouseBinding 
+                                        MouseAction="RightClick" 
+                                        Command="{Binding DataContext.CardRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
                                         CommandParameter="{Binding}"/>
                         </Border.InputBindings>
                     </Border>
@@ -58,6 +81,41 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-    </Grid>
+        <TextBlock Margin="5, 10, 0, 2"
+                   Foreground="White"
+                   FontWeight="Bold"
+                   Text="{Binding SelectableCards.CardButtonSetName}"
+                   Visibility="{Binding Path=SelectableCards.ShowCardButtonSet, Converter={StaticResource BoolToVisibility}}"/>
+        <ItemsControl 
+            ItemsSource="{Binding SelectableCards.CardButtonSet}" 
+            BorderThickness="0"
+            Visibility="{Binding Path=SelectableCards.ShowCardButtonSet, Converter={StaticResource BoolToVisibility}}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Style="{StaticResource CardButtonStyle}">
+                        <Grid>
+                            <Image Style="{StaticResource ImageStyle}"/>
+                            <TextBlock Style="{StaticResource TextBlockStyle}"/>
+                        </Grid>
+                        <Border.InputBindings>
+                            <MouseBinding 
+                                        MouseAction="LeftClick" 
+                                        Command="{Binding DataContext.CardLeftClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        CommandParameter="{Binding}"/>
+                            <MouseBinding 
+                                        MouseAction="RightClick" 
+                                        Command="{Binding DataContext.CardRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        CommandParameter="{Binding}"/>
+                        </Border.InputBindings>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel></WrapPanel>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </StackPanel>
 </Window>
 
