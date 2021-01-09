@@ -78,10 +78,17 @@ namespace ArkhamOverlay.Data {
 
         public bool Loading { get; internal set; }
 
+
         public event Action<Card> CardVisibilityToggled;
         public void ToggleCardVisibility(Card card) {
             CardVisibilityToggled?.Invoke(card);
         }
+
+        public event Action<ICardButton> ButtonChanged;
+        public void OnButtonChanged(ICardButton button) {
+            ButtonChanged?.Invoke(button);
+        }
+
 
         internal void ToggleCardSetVisibility() {
             if (_showSetButton == null) {
@@ -117,7 +124,7 @@ namespace ArkhamOverlay.Data {
             if (CardSet.Buttons.Any()) {
                 _showSetButton.Text = "Show " + buttonName + " (" + CardSet.Buttons.Count + ")";
             } else {
-                _showSetButton.Text = "Right Click cards to add them to " + buttonName;
+                _showSetButton.Text = "Right Click to add cards to " + buttonName;
             }
         }
 
@@ -127,7 +134,7 @@ namespace ArkhamOverlay.Data {
             var playerButtons = new List<ICardButton> { clearButton };
 
             if (Type == SelectableType.Scenario || Type == SelectableType.Player) {
-                _showSetButton = new ShowSetButton(CardSet);
+                _showSetButton = new ShowSetButton(this);
                 playerButtons.Add(_showSetButton);
                 UpdateShowSetButtonName();
             }

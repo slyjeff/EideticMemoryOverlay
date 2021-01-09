@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Utils;
+﻿using ArkhamOverlay.Data;
+using ArkhamOverlay.Utils;
 using PageController;
 using System.Windows.Media;
 
@@ -9,10 +10,14 @@ namespace ArkhamOverlay.CardButtons {
         void LeftClick();
 
         void RightClick();
+
+        bool IsToggled { get; }
     }
 
     public abstract class CardButton : ViewModel, ICardButton {
-        protected CardButton() {
+        private readonly SelectableCards _selectableCards;
+        protected CardButton(SelectableCards selectableCards) {
+            _selectableCards = selectableCards;
         }
 
         private string _text;
@@ -21,6 +26,7 @@ namespace ArkhamOverlay.CardButtons {
             set {
                 _text = value;
                 NotifyPropertyChanged(nameof(Text));
+                _selectableCards.OnButtonChanged(this);
             }
         }
 

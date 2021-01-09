@@ -93,6 +93,7 @@ namespace ArkhamOverlay.Pages.Overlay {
         public event Action Closed;
 
         internal void ToggleCardVisibilityHandler(Card card) {
+            card.IsDisplayedOnOverlay = !card.IsDisplayedOnOverlay;
             if (Application.Current.Dispatcher.CheckAccess()) {
                 ToggleCard(card);
             } else {
@@ -117,10 +118,9 @@ namespace ArkhamOverlay.Pages.Overlay {
             if (overlayCardToReplace == null) {
                 overlayCards.AddOverlayCard(newOverlayCard);
             } else {
+                overlayCardToReplace.Card.IsDisplayedOnOverlay = false;
                 overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newOverlayCard;
             }
-
-            card.IsDisplayedOnOverlay = true;
         }
 
         private ObservableCollection<OverlayCardViewModel> GetCardList(Card card) {

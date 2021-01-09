@@ -105,6 +105,10 @@ namespace ArkhamOverlaySdPlugin.Actions {
         }
 
         public async Task Clear() {
+            _currentCardInfo.CardButtonType = CardButtonType.Unknown;
+            _currentCardInfo.Name = string.Empty;
+            _currentCardInfo.IsVisible = false;
+
             await SetTitleAsync(string.Empty);
             await SetImageAsync(ImageUtils.BlankImage());
         }

@@ -4,7 +4,7 @@ namespace ArkhamOverlay.CardButtons {
     public class ClearButton : CardButton {
         private readonly SelectableCards _selectableCards;
 
-        public ClearButton(SelectableCards selectableCards) {
+        public ClearButton(SelectableCards selectableCards) : base (selectableCards) {
             Text = "Clear Cards";
             _selectableCards = selectableCards;
         }

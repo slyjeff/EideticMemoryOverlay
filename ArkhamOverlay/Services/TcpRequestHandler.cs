@@ -90,11 +90,8 @@ namespace ArkhamOverlay.Services {
                     };
 
                     foreach (var selectableCards in game.AllSelectableCards) {
-                        selectableCards.CardVisibilityToggled += (card) => {
-                            SendCardInfoUpdate(card, selectableCards);
-                            if (card.FlipSideCard != null) {
-                                SendCardInfoUpdate(card.FlipSideCard, selectableCards);
-                            }
+                        selectableCards.ButtonChanged += (button) => {
+                            SendButtonInfoUpdate(button, selectableCards);
                         };
                     }
 
@@ -112,18 +109,23 @@ namespace ArkhamOverlay.Services {
             SendStatusToAllRegisteredPorts(request);
         }
 
-        private void SendCardInfoUpdate(Card card, SelectableCards selectableCards) {
+        private void SendButtonInfoUpdate(ICardButton button, SelectableCards selectableCards) {
+            Card card = null;
+            if (button is ShowCardButton showCardButton) {
+                card = showCardButton.Card;
+            }
+
             var deck = GetDeckType(selectableCards);
 
-            var index = selectableCards.CardButtons.IndexOf(selectableCards.CardButtons.OfType<ShowCardButton>().FirstOrDefault(x => x.Card == card));
+            var index = selectableCards.CardButtons.IndexOf(button);
 
             var request = new UpdateCardInfoRequest {
                 Deck = deck,
                 Index = index,
                 CardButtonType = GetCardType(card),
-                Name = card.Name,
-                ImageBytes = card.ButtonImageAsBytes,
-                IsVisible = card.IsDisplayedOnOverlay
+                Name = button.Text.Replace("Right Click", "Long Press"),
+                ImageBytes = card?.ButtonImageAsBytes,
+                IsVisible = button.IsToggled
             };
 
             SendStatusToAllRegisteredPorts(request);
@@ -183,8 +185,8 @@ namespace ArkhamOverlay.Services {
             var cardInfoReponse = (cardButton == null)
                 ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
                 : new CardInfoResponse { 
-                    CardButtonType = GetCardType(showCardButton == null ? null : showCardButton.Card), 
-                    Name = cardButton.Text, 
+                    CardButtonType = GetCardType(showCardButton == null ? null : showCardButton.Card),
+                    Name = cardButton.Text.Replace("Right Click", "Long Press"),
                     IsVisible = showCardButton == null ? false : showCardButton.IsToggled,
                     ImageBytes = showCardButton != null ? showCardButton.Card.ButtonImageAsBytes : null
                 };

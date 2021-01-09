@@ -2,16 +2,18 @@
 
 namespace ArkhamOverlay.CardButtons {
     public class ShowSetButton : CardButton {
-        private readonly CardSet _cardSet;
+        private readonly SelectableCards _selectableCards;
 
-        public ShowSetButton(CardSet cardSet) {
-            Text = "";
-            _cardSet = cardSet;
-            _cardSet.IsDisplayedOnOverlayChanged += (isDisplayedOnOverlay) => IsToggled = isDisplayedOnOverlay;
+        public ShowSetButton(SelectableCards selectableCards) : base (selectableCards) {
+            _selectableCards = selectableCards;
+            selectableCards.CardSet.IsDisplayedOnOverlayChanged += (isDisplayedOnOverlay) => {
+                IsToggled = isDisplayedOnOverlay;
+                selectableCards.OnButtonChanged(this);
+            };
         }
 
         public override void LeftClick() {
-            _cardSet.ToggleVisibility();
+            _selectableCards.CardSet.ToggleVisibility();
         }
     }
 }
