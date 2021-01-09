@@ -54,7 +54,32 @@
                 </Style.Triggers>
             </Style>
         </Grid.Resources>
-        <StackPanel Orientation="Vertical" VerticalAlignment="Center" >
+
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ItemsControl 
+            Grid.Row="0"    
+            ItemsSource="{Binding ActAgendaCards}"
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Top">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel></WrapPanel>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Image Style="{StaticResource CardImage}" Source="{Binding CardImage}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Center" >
             <ItemsControl ItemsSource="{Binding EncounterCards}" HorizontalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -80,37 +105,22 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </StackPanel>
-        <Grid>
-            <ItemsControl 
-                ItemsSource="{Binding ActAgendaCards}"
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Top">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel></WrapPanel>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Image Style="{StaticResource CardImage}" Source="{Binding CardImage}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <ItemsControl 
-                ItemsSource="{Binding HandCards}"
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Bottom">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel></WrapPanel>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Image Style="{StaticResource CardImage}" Source="{Binding CardImage}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Grid>
+
+        <ItemsControl 
+            Grid.Row="2"    
+            ItemsSource="{Binding HandCards}"
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Bottom">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel></WrapPanel>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Image Style="{StaticResource CardImage}" Source="{Binding CardImage}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </Window>
