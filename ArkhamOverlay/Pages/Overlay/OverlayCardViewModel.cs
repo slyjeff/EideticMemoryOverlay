@@ -1,11 +1,14 @@
-﻿using ArkhamOverlay.CardButtons;
-using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.Data;
 using PageController;
+using System;
 using System.Windows;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayCardViewModel : ViewModel {
+        private const double _cardWidthRatio = 0.716;
+        private const double _cardRadiusDivisor = 30;
+
         private readonly Configuration _configuartion;
 
         public OverlayCardViewModel(Configuration configuartion) {
@@ -20,13 +23,24 @@ namespace ArkhamOverlay.Pages.Overlay {
             };
         }
 
-        private Card card;
-
-        public Card Card {
-            get => card;
+        private double _maxHeight = double.MaxValue;
+        public double MaxHeight { 
+            get => _maxHeight;
             set {
-                card = value;
-                CardImage = card.Image;
+                _maxHeight = value;
+                NotifyPropertyChanged(nameof(Height));
+                NotifyPropertyChanged(nameof(Width));
+                NotifyPropertyChanged(nameof(Radius));
+                NotifyPropertyChanged(nameof(ClipRect));
+            }
+        }
+
+        private Card _card;
+        public Card Card {
+            get => _card;
+            set {
+                _card = value;
+                CardImage = _card.Image;
 
                 NotifyPropertyChanged(nameof(CardImage));
 
@@ -56,24 +70,18 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public double Height {
             get {
-                return card.IsHorizontal ? _configuartion.CardWidth : _configuartion.CardHeight;
+                return Math.Min(MaxHeight, Card.IsHorizontal ? _configuartion.CardHeight * _cardWidthRatio : _configuartion.CardHeight);
             }
         }
 
         public double Width {
             get {
-                return card.IsHorizontal ? _configuartion.CardHeight : _configuartion.CardWidth;
+                return Card.IsHorizontal ? Height / _cardWidthRatio : Height * _cardWidthRatio;
             }
         }
 
-        public double Radius { get { return _configuartion.CardRadius; } }
+        public double Radius { get { return Height / _cardRadiusDivisor; } }
 
-        public Rect ClipRect {
-            get {
-                return card.IsHorizontal
-                    ? new Rect { Height = _configuartion.CardClipRect.Width, Width = _configuartion.CardClipRect.Height }
-                    : _configuartion.CardClipRect;
-            }
-        }
+        public Rect ClipRect {get { return new Rect { Height = Height, Width = Width }; } }
     }
 }
