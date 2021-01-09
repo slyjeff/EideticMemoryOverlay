@@ -1,10 +1,10 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.Utils;
 using PageController;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.CardButtons {
     public interface ICardButton {
-        string Name { get; }
+        string Text { get; }
 
         void LeftClick();
 
@@ -12,26 +12,35 @@ namespace ArkhamOverlay.CardButtons {
     }
 
     public abstract class CardButton : ViewModel, ICardButton {
+        protected CardButton() {
+        }
 
-        private string _name;
-        public string Name {
-            get => _name;
+        private string _text;
+        public string Text {
+            get => _text;
             set {
-                _name = value;
-                NotifyPropertyChanged(nameof(Name));
+                _text = value;
+                NotifyPropertyChanged(nameof(Text));
             }
         }
 
-        public Brush Background { get { return new SolidColorBrush(Colors.Black); } }
+        public Brush BorderBrush { get { return IsToggled ? new SolidColorBrush(Colors.DarkGoldenrod) : new SolidColorBrush(Colors.Black); } }
 
-        public virtual Brush BorderBrush {get { return Background; } }
-
-        public SelectableCards SelectableCards { get; set; }
+        public virtual ImageSource ButtonImage { get { return ImageUtils.CreateSolidColorImage(Colors.DarkGray); } }
 
         public abstract void LeftClick();
 
         public virtual void RightClick() {
             //by default, do nothing
+        }
+
+        private bool _isToggled;
+        public bool IsToggled {
+            get => _isToggled;
+            protected set {
+                _isToggled = value;
+                NotifyPropertyChanged(nameof(BorderBrush));
+            }
         }
     }
 }

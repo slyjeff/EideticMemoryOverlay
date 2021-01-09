@@ -2,7 +2,6 @@
 using PageController;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 
@@ -24,7 +23,8 @@ namespace ArkhamOverlay.Data {
         public SelectableCards(SelectableType type) {
             Type = type;
             CardButtons = new List<ICardButton>();
-            CardSet = new ObservableCollection<Card>();
+            CardSet = new CardSet(this);
+            CardSet.Buttons.CollectionChanged += (s, e) => CardSetUpdated();
         }
 
         public SelectableType Type { get; }
@@ -65,31 +65,22 @@ namespace ArkhamOverlay.Data {
         }
 
         public List<ICardButton> CardButtons { get; set; }
-        public ObservableCollection<Card> CardSet { get; set; }
+        public CardSet CardSet { get; }
         
-        private bool _showCardSet;
-        public bool ShowCardSet { 
-            get => _showCardSet;
+        private bool _showCardSetButtons;
+        public bool ShowCardSetButtons { 
+            get => _showCardSetButtons;
             set {
-                _showCardSet = value;
-                NotifyPropertyChanged(nameof(ShowCardSet));
+                _showCardSetButtons = value;
+                NotifyPropertyChanged(nameof(ShowCardSetButtons));
             }
         }
 
         public bool Loading { get; internal set; }
 
-        public event Action<Card, Card> CardVisibilityToggled;
-
+        public event Action<Card> CardVisibilityToggled;
         public void ToggleCardVisibility(Card card) {
-            if (!card.IsVisible) {
-                CardVisibilityToggled?.Invoke(card, null);
-                return;
-            }
-
-            if (card.FlipSideCard != null) {
-                card.FlipSideCard.Hide();
-            }
-            CardVisibilityToggled?.Invoke(card, card.FlipSideCard);
+            CardVisibilityToggled?.Invoke(card);
         }
 
         internal void ToggleCardSetVisibility() {
@@ -100,54 +91,19 @@ namespace ArkhamOverlay.Data {
             _showSetButton.LeftClick();
         }
 
-        internal void ClearSelections() {
-            foreach (var cardButtons in CardButtons) {
-                if (!(cardButtons is Card card)) {
-                    continue;
-                }
 
-                if (card.IsVisible) {
-                    card.Hide();
-                    CardVisibilityToggled?.Invoke(card, null);
+        internal void HideAllCards() {
+            foreach (var showCardButton in CardButtons.OfType<ShowCardButton>()) {
+                if (showCardButton.Card.IsDisplayedOnOverlay) {
+                    CardVisibilityToggled?.Invoke(showCardButton.Card);
                 }
             }
         }
-        
-        public void AddCardToSet(Card card) {
-            if (CardSet.Contains(card.FlipSideCard)) {
-                CardSet[CardSet.IndexOf(card.FlipSideCard)] = card;
-            } else {
-                //don't add more than one copy unless it's a player card
-                if (!card.IsPlayerCard && CardSet.Any(x => x == card)) {
-                    return;
-                }
 
-                //if there's an act and this is an agenda, always add it to the left
-                var index = CardSet.Count();
-                if (card.Type == CardType.Agenda && CardSet.Any(x => x.Type == CardType.Act)) {
-                    index = CardSet.IndexOf(CardSet.First(x => x.Type == CardType.Act));
-                }
-
-                CardSet.Insert(index, card);
-            }
-
-            if (_showSetButton.IsVisible) {
-                OnSetUpdated();
-            }
-
+        private void CardSetUpdated() {
             UpdateShowSetButtonName();
-            ShowCardSet = CardSet.Count > 0;
+            ShowCardSetButtons = CardSet.Buttons.Count > 0;
         }
-
-        public void RemoveCardFromSet(Card card) {
-            CardSet.RemoveAt(CardSet.IndexOf(card));
-
-            OnSetUpdated();
-
-            UpdateShowSetButtonName();
-            ShowCardSet = CardSet.Count > 0;
-        }
-
 
         private void UpdateShowSetButtonName() {
             if (_showSetButton == null) {
@@ -158,51 +114,33 @@ namespace ArkhamOverlay.Data {
                 ? "Act/Agenda Bar"
                 : "Hand";
 
-            if (CardSet.Any()) {
-                _showSetButton.Name = "Show " + buttonName + " (" + CardSet.Count + ")";
+            if (CardSet.Buttons.Any()) {
+                _showSetButton.Text = "Show " + buttonName + " (" + CardSet.Buttons.Count + ")";
             } else {
-                _showSetButton.Name = "Right Click cards to add them to " + buttonName;
+                _showSetButton.Text = "Right Click cards to add them to " + buttonName;
             }
         }
 
         internal void LoadCards(IEnumerable<Card> cards) {
-            foreach (var card in cards) {
-                card.SelectableCards = this;
-            }
-
-            var clearButton = new ClearButton { SelectableCards = this };
+            var clearButton = new ClearButton(this);
 
             var playerButtons = new List<ICardButton> { clearButton };
 
             if (Type == SelectableType.Scenario || Type == SelectableType.Player) {
-                _showSetButton = new ShowSetButton { SelectableCards = this };
+                _showSetButton = new ShowSetButton(CardSet);
                 playerButtons.Add(_showSetButton);
                 UpdateShowSetButtonName();
             }
 
-            playerButtons.AddRange(cards);
+            playerButtons.AddRange(from card in cards select new ShowCardButton(this, card));
             CardButtons = playerButtons;
             NotifyPropertyChanged(nameof(CardButtons));
         }
 
         internal void ClearCards() {
-            ClearSelections();
+            HideAllCards();
             CardButtons.Clear();
             NotifyPropertyChanged(nameof(CardButtons));
-        }
-
-        public event Action<SelectableCards, bool> SetUpdated;
-
-        public void OnSetUpdated() {
-            SetUpdated?.Invoke(this, _showSetButton.IsVisible);
-        }
-
-        public void SetHidden() {
-            if (_showSetButton == null) {
-                return;
-            }
-
-            _showSetButton.SetHidden();
         }
     }
 }

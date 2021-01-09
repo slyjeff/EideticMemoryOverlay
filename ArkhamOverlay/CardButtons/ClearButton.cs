@@ -1,20 +1,16 @@
-﻿using ArkhamOverlay.Utils;
-using System.Windows.Media;
+﻿using ArkhamOverlay.Data;
 
 namespace ArkhamOverlay.CardButtons {
     public class ClearButton : CardButton {
-        public ClearButton() {
-            Name = "Clear Cards";
+        private readonly SelectableCards _selectableCards;
+
+        public ClearButton(SelectableCards selectableCards) {
+            Text = "Clear Cards";
+            _selectableCards = selectableCards;
         }
 
         public override void LeftClick() {
-            if (SelectableCards == null) {
-                return;
-            }
-
-            SelectableCards.ClearSelections();
+            _selectableCards.HideAllCards();
         }
-
-        public ImageSource ButtonImage { get { return ImageUtils.CreateSolidColorImage(Colors.DarkGray); } }
     }
 }

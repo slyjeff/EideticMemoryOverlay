@@ -85,15 +85,15 @@ namespace ArkhamOverlay.Services {
             lock(_registerLock) {
                 if (!_alreadyRegisteredEvents) {
                     var game = _appData.Game;
-                    game.LocationCards.SetUpdated += (selectableCards, isVisible) => {
-                        SendActAgendaBarStatus(isVisible);
+                    game.LocationCards.CardSet.Buttons.CollectionChanged += (s, e) => {
+                        SendActAgendaBarStatus(game.LocationCards.CardSet.IsDisplayedOnOverlay);
                     };
 
                     foreach (var selectableCards in game.AllSelectableCards) {
-                        selectableCards.CardVisibilityToggled += (card1, card2) => {
-                            SendCardInfoUpdate(card1, selectableCards);
-                            if (card2 != null) {
-                                SendCardInfoUpdate(card2, selectableCards);
+                        selectableCards.CardVisibilityToggled += (card) => {
+                            SendCardInfoUpdate(card, selectableCards);
+                            if (card.FlipSideCard != null) {
+                                SendCardInfoUpdate(card.FlipSideCard, selectableCards);
                             }
                         };
                     }
@@ -114,13 +114,16 @@ namespace ArkhamOverlay.Services {
 
         private void SendCardInfoUpdate(Card card, SelectableCards selectableCards) {
             var deck = GetDeckType(selectableCards);
+
+            var index = selectableCards.CardButtons.IndexOf(selectableCards.CardButtons.OfType<ShowCardButton>().FirstOrDefault(x => x.Card == card));
+
             var request = new UpdateCardInfoRequest {
                 Deck = deck,
-                Index = selectableCards.CardButtons.IndexOf(card),
+                Index = index,
                 CardButtonType = GetCardType(card),
                 Name = card.Name,
                 ImageBytes = card.ButtonImageAsBytes,
-                IsVisible = card.IsVisible
+                IsVisible = card.IsDisplayedOnOverlay
             };
 
             SendStatusToAllRegisteredPorts(request);
@@ -175,15 +178,15 @@ namespace ArkhamOverlay.Services {
         }
 
         private void SendCardInfoResponse(Socket socket, ICardButton cardButton) {
-            var card = (cardButton as Card);
+            var showCardButton = cardButton as ShowCardButton;
 
             var cardInfoReponse = (cardButton == null)
                 ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
                 : new CardInfoResponse { 
-                    CardButtonType = GetCardType(card), 
-                    Name = cardButton.Name, 
-                    IsVisible = card != null && card.IsVisible,
-                    ImageBytes = card != null ? card.ButtonImageAsBytes : null
+                    CardButtonType = GetCardType(showCardButton == null ? null : showCardButton.Card), 
+                    Name = cardButton.Text, 
+                    IsVisible = showCardButton == null ? false : showCardButton.IsToggled,
+                    ImageBytes = showCardButton != null ? showCardButton.Card.ButtonImageAsBytes : null
                 };
 
             Send(socket, cardInfoReponse.ToString());

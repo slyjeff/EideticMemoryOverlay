@@ -34,6 +34,15 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
+        private ICardInstance _cardInstance;
+        public ICardInstance CardInstance { 
+            get => _cardInstance; 
+            set {
+                _cardInstance = value;
+                Card = _cardInstance.Card;
+            } 
+        }
+
         private bool _show;
         public virtual bool Show {
             get => _show; 

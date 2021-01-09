@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Services;
+﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Services;
 using ArkhamOverlay.Utils;
 using System;
 using System.Collections.Generic;
@@ -9,10 +10,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace ArkhamOverlay.CardButtons {
+namespace ArkhamOverlay.Data {
     public delegate void CardToggledEvent(ICardButton card);
 
-    public class Card : CardButton, INotifyPropertyChanged {
+    public class Card {
         private static readonly Dictionary<string, BitmapImage> CardImageCache = new Dictionary<string, BitmapImage>();
 
         public Card() {
@@ -108,6 +109,7 @@ namespace ArkhamOverlay.CardButtons {
             }
         }
 
+        public string Name { get; }
         public string Code { get; }
         public Faction Faction { get; set;  }
 
@@ -118,16 +120,6 @@ namespace ArkhamOverlay.CardButtons {
         public byte[] ButtonImageAsBytes { get; private set; }
 
         public CardType Type { get; }
-
-        private bool _isVisible;
-        public bool IsVisible { 
-            get => _isVisible;
-            private set {
-                _isVisible = value;
-                NotifyPropertyChanged(nameof(BorderBrush));
-            }
-        }
-        public override Brush BorderBrush { get {return IsVisible ? new SolidColorBrush(Colors.DarkGoldenrod) : new SolidColorBrush(Colors.Black); } }
 
         public Color CardColor {
             get {
@@ -169,30 +161,15 @@ namespace ArkhamOverlay.CardButtons {
 
         public Card FlipSideCard { get; set; }
 
-        public override void LeftClick() {
-            if (SelectableCards == null) {
-                return;
+        public event Action<bool> IsDisplayedOnOverlayChanged;
+        
+        private bool _isDisplayedOnOverlay = false;
+        public bool IsDisplayedOnOverlay {
+            get => _isDisplayedOnOverlay;
+            set {
+                _isDisplayedOnOverlay = value;
+                IsDisplayedOnOverlayChanged?.Invoke(_isDisplayedOnOverlay);
             }
-
-            IsVisible = !IsVisible;
-            SelectableCards.ToggleCardVisibility(this);
-        }
-
-        public override void RightClick() {
-            //we only put act/agend/player cards in sets
-            if ((Type != CardType.Act) && (Type != CardType.Agenda) && !IsPlayerCard) {
-                return;
-            }
-
-            SelectableCards.AddCardToSet(this);
-        }
-
-        public void InSetRightClick() {
-            SelectableCards.RemoveCardFromSet(this);
-        }
-
-        public void Hide() {
-            IsVisible = false;
         }
 
         private CardType GetCardType(string typeCode) {

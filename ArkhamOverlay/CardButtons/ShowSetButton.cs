@@ -1,36 +1,17 @@
-﻿using ArkhamOverlay.Utils;
-using System.Windows.Media;
+﻿using ArkhamOverlay.Data;
 
 namespace ArkhamOverlay.CardButtons {
     public class ShowSetButton : CardButton {
-        public ShowSetButton() {
-            Name = "";
+        private readonly CardSet _cardSet;
+
+        public ShowSetButton(CardSet cardSet) {
+            Text = "";
+            _cardSet = cardSet;
+            _cardSet.IsDisplayedOnOverlayChanged += (isDisplayedOnOverlay) => IsToggled = isDisplayedOnOverlay;
         }
 
         public override void LeftClick() {
-            if (SelectableCards == null) {
-                return;
-            }
-
-            IsVisible = !IsVisible;
-            SelectableCards.OnSetUpdated();
+            _cardSet.ToggleVisibility();
         }
-
-        public void SetHidden() {
-            IsVisible = false;
-        }
-
-        public ImageSource ButtonImage { get { return ImageUtils.CreateSolidColorImage(Colors.DarkGray); } }
-
-        private bool _isVisible;
-        public bool IsVisible {
-            get => _isVisible;
-            private set {
-                _isVisible = value;
-                NotifyPropertyChanged(nameof(BorderBrush));
-            }
-        }
-
-        public override Brush BorderBrush { get { return IsVisible ? new SolidColorBrush(Colors.DarkGoldenrod) : new SolidColorBrush(Colors.Black); } }
     }
 }

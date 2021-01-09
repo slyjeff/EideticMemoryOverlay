@@ -87,7 +87,7 @@ namespace ArkhamOverlay.Data {
 
         internal void ClearAllCards() {
             foreach (var selectableCards in AllSelectableCards) {
-                selectableCards.ClearSelections();
+                selectableCards.HideAllCards();
             }
         }
     }

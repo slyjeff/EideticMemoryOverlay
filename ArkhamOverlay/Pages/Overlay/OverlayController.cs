@@ -1,5 +1,4 @@
-﻿using ArkhamOverlay.CardButtons;
-using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.Data;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -23,23 +22,38 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             View.Closed += (s, e) => {
+                foreach (var overlayCards in ViewModel.AllOverlayCards) {
+                    foreach (var overlayCard in overlayCards) {
+                        overlayCard.Card.IsDisplayedOnOverlay = false;
+                    }
+                }
+
                 Closed?.Invoke();
             };
         }
 
         private void InitializeSelectableCards(SelectableCards selectableCards) {
-            foreach (var cardButtons in selectableCards.CardButtons) {
-                if (!(cardButtons is Card card)) {
-                    continue;
-                }
-
-                if (card.IsVisible) {
-                    ToggleCard(card, null);
-                }
-            }
-
             selectableCards.CardVisibilityToggled += ToggleCardVisibilityHandler;
-            selectableCards.SetUpdated += SetUpdatedHandler;
+
+            selectableCards.CardSet.VisibilityToggled += () => {
+                if (selectableCards.Type == SelectableType.Scenario) {
+                    ToggleActAgendaVisibility();
+                } else {
+                    ToggleHandVisibility(selectableCards.CardSet);
+                }
+            };
+
+            selectableCards.CardSet.Buttons.CollectionChanged += (s, e) => {
+                if (!selectableCards.CardSet.IsDisplayedOnOverlay) {
+                    return;
+                }
+
+                if (selectableCards.Type == SelectableType.Scenario) {
+                    UpdateCardSet(selectableCards.CardSet, ViewModel.ActAgendaCards);
+                } else {
+                    UpdateCardSet(selectableCards.CardSet, ViewModel.HandCards);
+                }
+            };
         }
 
         private void MoveActAgendaCards(bool useActAgendaBar) {
@@ -78,39 +92,35 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public event Action Closed;
 
-        internal void ToggleCardVisibilityHandler(Card card, Card cardToReplace) {
+        internal void ToggleCardVisibilityHandler(Card card) {
             if (Application.Current.Dispatcher.CheckAccess()) {
-                ToggleCard(card, cardToReplace);
+                ToggleCard(card);
             } else {
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                    ToggleCard(card, cardToReplace);
+                    ToggleCard(card);
                 }));
             }
         }
 
-        internal void ToggleCard(Card card, Card cardToReplace) {
+        internal void ToggleCard(Card card) {
             var overlayCards = GetCardList(card);
 
-            var existingCardViewModel = overlayCards.FirstOrDefault(x => x.Card == card);
-            if (existingCardViewModel == null) {
-                var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration) { Card = card };
-
-                var overlayCardToReplace = cardToReplace != null ? overlayCards.FirstOrDefault(x => x.Card.Code == cardToReplace.Code) : null;
-                if (overlayCardToReplace == null) {
-                    overlayCards.AddOverlayCard(newOverlayCard);
-                } else {
-                    overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newOverlayCard;
-                }
-            } else {
-                existingCardViewModel.Show = false;
-                var dispatcherTimer = new DispatcherTimer();
-                dispatcherTimer.Tick += (s, e) => {
-                    overlayCards.Remove(existingCardViewModel);
-                    dispatcherTimer.Stop();
-                };
-                dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
-                dispatcherTimer.Start();
+            var overlayCard = overlayCards.FirstOrDefault(x => x.Card == card);
+            if (overlayCard != null) {
+                overlayCards.RemoveOverlayCards(overlayCard);
+                return;
             }
+
+            var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration) { Card = card };
+
+            var overlayCardToReplace = overlayCards.FindCardToReplace(card);
+            if (overlayCardToReplace == null) {
+                overlayCards.AddOverlayCard(newOverlayCard);
+            } else {
+                overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newOverlayCard;
+            }
+
+            card.IsDisplayedOnOverlay = true;
         }
 
         private ObservableCollection<OverlayCardViewModel> GetCardList(Card card) {
@@ -121,70 +131,67 @@ namespace ArkhamOverlay.Pages.Overlay {
             return ViewModel.EncounterCards;
         }
 
-        private void SetUpdatedHandler(SelectableCards selectableCards, bool isVisible) {
-            var overlayCards = selectableCards.Type == SelectableType.Scenario ? ViewModel.ActAgendaCards : ViewModel.HandCards;
-            if (!isVisible) {
-                foreach (var overlayCard in overlayCards) {
-                    overlayCard.Show = false;
-                }
+        private void ToggleActAgendaVisibility() {
+            var cardSet = _appData.Game.ScenarioCards.CardSet;
+            if (cardSet.IsDisplayedOnOverlay) {
+                ViewModel.ActAgendaCards.RemoveOverlayCards(ViewModel.ActAgendaCards.ToArray());
+                cardSet.IsDisplayedOnOverlay = false;
+                return;
+            }
 
+            cardSet.IsDisplayedOnOverlay = true;
+            UpdateCardSet(cardSet, ViewModel.ActAgendaCards);
+        }
+
+        private void ToggleHandVisibility(CardSet cardSet) {
+            //if there is a current hand being displayed- clear it
+            var currentHandCardSet = ViewModel.CurrentlyDisplayedHandCardSet;
+            var cardsRemoved = false;
+            if (currentHandCardSet != null) {
+                cardsRemoved = true;
+                currentHandCardSet.IsDisplayedOnOverlay = false;
+                ViewModel.CurrentlyDisplayedHandCardSet = null;
+
+                ViewModel.HandCards.RemoveOverlayCards(ViewModel.HandCards.ToArray());
+            }
+
+            //if this hand is the hand that was already set, all we were doing was hiding it
+            if (cardSet == currentHandCardSet) {
+                return;
+            }
+
+            ViewModel.CurrentlyDisplayedHandCardSet = cardSet;
+            cardSet.IsDisplayedOnOverlay = true;
+
+             if (cardsRemoved) { 
+                //if this is a different hand, we need to show it- but we need to wait for the removal to complete to start showing new cards
                 var dispatcherTimer = new DispatcherTimer();
                 dispatcherTimer.Tick += (s, e) => {
-                    overlayCards.Clear();
                     dispatcherTimer.Stop();
+                    UpdateCardSet(cardSet, ViewModel.HandCards);
                 };
                 dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
                 dispatcherTimer.Start();
             } else {
-
-                if (selectableCards.Type == SelectableType.Player && overlayCards.Any()) {
-                    //in the case where the player cards list is currently populated, we need to notify it that it is no longer being shown
-                    foreach (var selectablePlayerCards in _appData.Game.AllSelectableCards.Where(x => x.Type == SelectableType.Player && x != selectableCards)) {
-                        selectablePlayerCards.SetHidden();
-                    }
-                }
-
-                var cardSet = selectableCards.CardSet;
-                var cardRemoved = false;
-                //remove cards 
-                foreach (var overlayCard in overlayCards) {
-                    //copyindex = which copy of this card (first, second, third) are we dealing with
-                    var copyIndex = overlayCards.Count(x => x.Card == overlayCard.Card && overlayCards.IndexOf(x) <= overlayCards.IndexOf(overlayCard));
-
-                    //how many copies do we expect?
-                    var expectedCount = cardSet.Count(x => x == overlayCard.Card);
-                    if (copyIndex > expectedCount) {
-                        overlayCard.Show = false;
-                        cardRemoved = true;
-                    }
-                }
-
-                //if any cards are removed- fade them out, then remove them
-                if (cardRemoved) {
-                    var dispatcherTimer = new DispatcherTimer();
-                    dispatcherTimer.Tick += (s, e) => {
-                        while (overlayCards.Any(x => !x.Show)) {
-                            overlayCards.Remove(overlayCards.First(x => !x.Show));
-                        }
-                        AddMissingCardsFromSet(overlayCards, cardSet);
-                        dispatcherTimer.Stop();
-                    };
-                    dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
-                    dispatcherTimer.Start();
-                } else {
-                    AddMissingCardsFromSet(overlayCards, cardSet);
-                }
+                UpdateCardSet(cardSet, ViewModel.HandCards);
             }
         }
 
-        private void AddMissingCardsFromSet(ObservableCollection<OverlayCardViewModel> overlayCards, ObservableCollection<Card> cards) {
-            foreach (var card in cards) {
-                //how many cards should there be
-                var expectedCount = cards.Count(x => x == card);
+        private void UpdateCardSet(CardSet cardSet, ObservableCollection<OverlayCardViewModel> overlayCards) {
+            var overlayCardsToRemove = new List<OverlayCardViewModel>();
+            foreach (var overlayCard in overlayCards) {
+                if (!cardSet.CardInstances.Contains(overlayCard.CardInstance)) {
+                    overlayCardsToRemove.Add(overlayCard);
+                }
 
-                //make it so
-                while (overlayCards.Count(x => x.Card == card) < expectedCount) {
-                    var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration) { Card = card };
+                if (overlayCardsToRemove.Any()) {
+                    overlayCards.RemoveOverlayCards(overlayCardsToRemove.ToArray());
+                }
+            }
+
+            foreach (var cardInstance in cardSet.CardInstances) {
+                if (!overlayCards.Any(x => x.CardInstance == cardInstance)) {
+                    var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration) { CardInstance = cardInstance };
                     overlayCards.AddOverlayCard(newOverlayCard);
                 }
             }
@@ -204,6 +211,27 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             cards.Insert(insertIndex, cardViewModel);
+        }
+
+        public static void RemoveOverlayCards(this ObservableCollection<OverlayCardViewModel> overlayCards, params OverlayCardViewModel[] overlayCardsToRemove) {
+            foreach (var overlayCard in overlayCardsToRemove) {
+                overlayCard.Show = false;
+                overlayCard.Card.IsDisplayedOnOverlay = false;
+            }
+
+            var dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Tick += (s, e) => {
+                dispatcherTimer.Stop();
+                foreach (var overlayCard in overlayCardsToRemove) {
+                    overlayCards.Remove(overlayCard);
+                }
+            };
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+            dispatcherTimer.Start();
+        }
+
+        public static OverlayCardViewModel FindCardToReplace(this ObservableCollection<OverlayCardViewModel> overlayCards, Card card) {
+            return overlayCards.FirstOrDefault(x => x.Card == card.FlipSideCard);
         }
     }
 }
