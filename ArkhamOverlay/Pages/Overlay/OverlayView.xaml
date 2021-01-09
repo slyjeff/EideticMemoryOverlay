@@ -20,7 +20,7 @@
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
             <Style x:Key="CardImage" TargetType="{x:Type Image}" >
-                <Setter Property="Margin" Value="5" />
+                <Setter Property="Margin" Value="{Binding Margin}" />
                 <Setter Property="IsEnabled" Value="{Binding Show}" />
                 <Setter Property="Height" Value="{Binding Height}" />
                 <Setter Property="Width" Value="{Binding Width}" />
@@ -69,7 +69,7 @@
             VerticalAlignment="Top">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel></WrapPanel>
+                    <StackPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
@@ -83,7 +83,7 @@
             <ItemsControl ItemsSource="{Binding EncounterCards}" HorizontalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel></WrapPanel>
+                        <StackPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
@@ -95,7 +95,7 @@
             <ItemsControl ItemsSource="{Binding PlayerCards}" HorizontalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel></WrapPanel>
+                        <StackPanel Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
@@ -113,7 +113,7 @@
             VerticalAlignment="Bottom">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel></WrapPanel>
+                    <StackPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>

@@ -41,7 +41,28 @@ namespace ArkhamOverlay.Data {
                 OnConfigurationChange();
             }
         }
-       
+
+        public int _actAgendaCardHeight;
+        public int ActAgendaCardHeight {
+            get => _actAgendaCardHeight;
+            set {
+                _actAgendaCardHeight = value;
+
+                OnPropertyChanged(nameof(ActAgendaCardHeight));
+                OnConfigurationChange();
+            }
+        }
+
+        public int _handCardHeight;
+        public int HandCardHeight {
+            get => _handCardHeight;
+            set {
+                _handCardHeight = value;
+
+                OnPropertyChanged(nameof(HandCardHeight));
+                OnConfigurationChange();
+            }
+        }
 
         public IList<Pack> Packs { get; set; }
 

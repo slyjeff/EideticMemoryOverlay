@@ -15,6 +15,21 @@ namespace ArkhamOverlay.Pages.Overlay {
         public OverlayController(AppData appData) {
             _appData = appData;
             _configuration = appData.Configuration;
+
+            _configuration.PropertyChanged += (s, e) => {
+                if ((e.PropertyName == nameof(Configuration.OverlayHeight))
+                || (e.PropertyName == nameof(Configuration.OverlayWidth))
+                || (e.PropertyName == nameof(Configuration.CardHeight))
+                || (e.PropertyName == nameof(Configuration.ActAgendaCardHeight))
+                || (e.PropertyName == nameof(Configuration.HandCardHeight))) {
+                    CalculateMaxHeightForCards();    
+                }
+            };
+
+            foreach (var overlayCards in ViewModel.AllOverlayCards) {
+                overlayCards.CollectionChanged += (s, e) => CalculateMaxHeightForCards();
+            }
+
             ViewModel.AppData = appData;
 
             foreach (var selectableCards in appData.Game.AllSelectableCards) {
@@ -30,6 +45,10 @@ namespace ArkhamOverlay.Pages.Overlay {
 
                 Closed?.Invoke();
             };
+        }
+
+        private void CalculateMaxHeightForCards() {
+            
         }
 
         private void InitializeSelectableCards(SelectableCards selectableCards) {
@@ -56,26 +75,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             };
         }
 
-        private void MoveActAgendaCards(bool useActAgendaBar) {
-            var sourceCards = ViewModel.ActAgendaCards;
-            var destinationCards = ViewModel.EncounterCards;
-            if (useActAgendaBar) {
-                sourceCards = ViewModel.EncounterCards;
-                destinationCards = ViewModel.ActAgendaCards;
-            }
-
-            var cardsToMove = new List<OverlayCardViewModel>();
-            foreach (var cardViewModel in sourceCards) {
-                if (cardViewModel.Card.Type == CardType.Act || cardViewModel.Card.Type == CardType.Agenda) {
-                    cardsToMove.Add(cardViewModel);
-                }
-            }
-
-            foreach (var cardToMove in cardsToMove) {
-                sourceCards.Remove(cardToMove);
-                destinationCards.Add(cardToMove);
-            }
-        }
         public double Top { get => View.Top; set => View.Top = value; }
 
         public void Close() {
@@ -112,7 +111,7 @@ namespace ArkhamOverlay.Pages.Overlay {
                 return;
             }
 
-            var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration) { Card = card };
+            var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration, OverlayCardType.Display) { Card = card };
 
             var overlayCardToReplace = overlayCards.FindCardToReplace(card);
             if (overlayCardToReplace == null) {
@@ -191,7 +190,9 @@ namespace ArkhamOverlay.Pages.Overlay {
 
             foreach (var cardInstance in cardSet.CardInstances) {
                 if (!overlayCards.Any(x => x.CardInstance == cardInstance)) {
-                    var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration) { CardInstance = cardInstance };
+                    var overlayCardType = (overlayCards == ViewModel.ActAgendaCards) ? OverlayCardType.ActAgenda : OverlayCardType.Hand;
+
+                    var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration, overlayCardType) { CardInstance = cardInstance };
                     overlayCards.AddOverlayCard(newOverlayCard);
                 }
             }

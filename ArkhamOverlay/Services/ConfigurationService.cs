@@ -8,6 +8,8 @@ namespace ArkhamOverlay.Services {
         int OverlayHeight { get; set; }
         int OverlayWidth { get; set; }
         int CardHeight { get; set; }
+        int ActAgendaCardHeight { get; set; }
+        int HandCardHeight { get; set; }
         IList<Pack> Packs { get; }
     }
 
@@ -19,6 +21,8 @@ namespace ArkhamOverlay.Services {
         public int OverlayHeight { get; set; }
         public int OverlayWidth { get; set; }
         public int CardHeight { get; set; }
+        public int ActAgendaCardHeight { get; set; }
+        public int HandCardHeight { get; set; }
         public bool UseActAgendaBar { get; set; }
         public IList<Pack> Packs { get; set; }
     }
@@ -33,7 +37,9 @@ namespace ArkhamOverlay.Services {
             var configuration = new ConfigurationFile {
                 OverlayWidth = 1228,
                 OverlayHeight = 720,
-                CardHeight = 300
+                CardHeight = 300,
+                ActAgendaCardHeight = 200,
+                HandCardHeight = 200
             };
 
             if (File.Exists("Config.json")) {
@@ -61,6 +67,8 @@ namespace ArkhamOverlay.Services {
             toConfiguration.OverlayHeight = fromConfiguration.OverlayHeight;
             toConfiguration.OverlayWidth = fromConfiguration.OverlayWidth;
             toConfiguration.CardHeight = fromConfiguration.CardHeight;
+            toConfiguration.ActAgendaCardHeight = fromConfiguration.ActAgendaCardHeight;
+            toConfiguration.HandCardHeight = fromConfiguration.HandCardHeight;
             toConfiguration.Packs.Clear();
             foreach (var pack in fromConfiguration.Packs) {
                 toConfiguration.Packs.Add(new Pack(pack));

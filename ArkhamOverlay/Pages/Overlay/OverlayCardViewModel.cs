@@ -5,22 +5,48 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.Pages.Overlay {
+    public enum OverlayCardType { Display, ActAgenda, Hand,}
+
     public class OverlayCardViewModel : ViewModel {
         private const double _cardWidthRatio = 0.716;
         private const double _cardRadiusDivisor = 30;
 
         private readonly Configuration _configuartion;
 
-        public OverlayCardViewModel(Configuration configuartion) {
+        public OverlayCardViewModel(Configuration configuartion, OverlayCardType overlayCardType) {
             _configuartion = configuartion;
+            OverlayCardType = overlayCardType;
+
             _configuartion.PropertyChanged += (s, e) => {
-                if (e.PropertyName == nameof(_configuartion.CardHeight)) {
+                if (e.PropertyName == HeightProperty) {
                     NotifyPropertyChanged(nameof(Height));
                     NotifyPropertyChanged(nameof(Width));
                     NotifyPropertyChanged(nameof(Radius));
                     NotifyPropertyChanged(nameof(ClipRect));
                 }
             };
+        }
+
+        public OverlayCardType OverlayCardType { get; }
+        public string HeightProperty { 
+            get {
+                switch (OverlayCardType) {
+                    case OverlayCardType.Display:
+                        return nameof(Configuration.CardHeight);
+                    case OverlayCardType.ActAgenda:
+                        return nameof(Configuration.ActAgendaCardHeight);
+                    case OverlayCardType.Hand:
+                        return nameof(Configuration.HandCardHeight);
+                    default:
+                        return nameof(Configuration.CardHeight);
+                }
+            }
+        }
+
+        private double ConfigurationHeight {
+            get {
+                return (int)_configuartion.GetType().GetProperty(HeightProperty).GetValue(_configuartion, null);
+            }
         }
 
         private double _maxHeight = double.MaxValue;
@@ -70,7 +96,7 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public double Height {
             get {
-                return Math.Min(MaxHeight, Card.IsHorizontal ? _configuartion.CardHeight * _cardWidthRatio : _configuartion.CardHeight);
+                return Math.Min(MaxHeight, Card.IsHorizontal ? ConfigurationHeight * _cardWidthRatio : ConfigurationHeight);
             }
         }
 
@@ -83,5 +109,7 @@ namespace ArkhamOverlay.Pages.Overlay {
         public double Radius { get { return Height / _cardRadiusDivisor; } }
 
         public Rect ClipRect {get { return new Rect { Height = Height, Width = Width }; } }
+
+        public double Margin { get => 5; }
     }
 }
