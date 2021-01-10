@@ -139,10 +139,38 @@ namespace ArkhamOverlay.Data {
                 UpdateShowSetButtonName();
             }
 
-            playerButtons.AddRange(from card in cards select new ShowCardButton(this, card));
+            playerButtons.AddRange(from card in SortCards(cards) select new ShowCardButton(this, card));
             CardButtons = playerButtons;
             NotifyPropertyChanged(nameof(CardButtons));
         }
+
+        private IEnumerable<Card> SortCards(IEnumerable<Card> cards) {
+            var firstCard = cards.FirstOrDefault();
+            if (firstCard == null) {
+                return cards;
+            }
+
+            //don't sort scenario cards- easier to find when acts/agendas are in order
+            if (firstCard.Type == CardType.Scenario) {
+                return cards;
+            }
+
+            var sortedCards = cards.OrderBy(x => x.Name).ToList();
+            if (firstCard.Type == CardType.Location) {
+                //for location cards, we want the backs before the front in the list
+                for (var index = 0; index < sortedCards.Count(); index++) {
+                    var card = sortedCards[index];
+                    var flipSideCardIndex = sortedCards.IndexOf(card.FlipSideCard); 
+                    if (flipSideCardIndex > index) {
+                        sortedCards.RemoveAt(flipSideCardIndex);
+                        sortedCards.Insert(index, card.FlipSideCard);
+                    }
+                }
+            }
+
+            return sortedCards;
+        }
+
 
         internal void ClearCards() {
             HideAllCards();
