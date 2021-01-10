@@ -6,16 +6,13 @@
         xmlns:overlay="clr-namespace:ArkhamOverlay.Pages.Overlay" 
         d:DataContext="{d:DesignInstance Type=overlay:OverlayViewModel}"
         mc:Ignorable="d"
-        Title="Arkham Overlay" 
-        Left = "10"
-        Width="{Binding AppData.Configuration.OverlayWidth}" 
-        MinWidth="{Binding AppData.Configuration.OverlayWidth}" 
-        MaxWidth="{Binding AppData.Configuration.OverlayWidth}" 
+        Title="Arkham Overlay"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        Left = "10">
+    <Grid Width="{Binding AppData.Configuration.OverlayWidth}" 
         Height="{Binding AppData.Configuration.OverlayHeight}" 
-        MaxHeight="{Binding AppData.Configuration.OverlayHeight}" 
-        MinHeight="{Binding AppData.Configuration.OverlayHeight}" 
         Background="#00B164">
-    <Grid>
         <Grid.Resources>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
