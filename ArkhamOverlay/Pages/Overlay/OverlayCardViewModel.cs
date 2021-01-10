@@ -8,7 +8,7 @@ namespace ArkhamOverlay.Pages.Overlay {
     public enum OverlayCardType { Display, ActAgenda, Hand,}
 
     public class OverlayCardViewModel : ViewModel {
-        private const double _cardWidthRatio = 0.716;
+        public static double CardWidthRatio = 0.716;
         private const double _cardRadiusDivisor = 30;
 
         private readonly Configuration _configuartion;
@@ -96,17 +96,17 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public double Height {
             get {
-                return Math.Min(MaxHeight, Card.IsHorizontal ? ConfigurationHeight * _cardWidthRatio : ConfigurationHeight);
+                return Card.IsHorizontal ? Math.Min(MaxHeight, ConfigurationHeight) * CardWidthRatio : Math.Min(MaxHeight, ConfigurationHeight);
             }
         }
 
         public double Width {
             get {
-                return Card.IsHorizontal ? Height / _cardWidthRatio : Height * _cardWidthRatio;
+                return Card.IsHorizontal ? Height / CardWidthRatio : Height * CardWidthRatio;
             }
         }
 
-        public double Radius { get { return Height / _cardRadiusDivisor; } }
+        public double Radius { get { return (Card.IsHorizontal ? Width : Height) / _cardRadiusDivisor; } }
 
         public Rect ClipRect {get { return new Rect { Height = Height, Width = Width }; } }
 

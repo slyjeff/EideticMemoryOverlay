@@ -48,8 +48,55 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         private void CalculateMaxHeightForCards() {
-            
+            var actAgendaHeight = Math.Min(_configuration.ActAgendaCardHeight,  CalculateMaxHeightForRow(ViewModel.ActAgendaCards));
+            var handHeight = Math.Min(_configuration.HandCardHeight, CalculateMaxHeightForRow(ViewModel.HandCards));
+            var encounterHeight = Math.Min(_configuration.CardHeight, CalculateMaxHeightForRow(ViewModel.EncounterCards));
+            var playerHeight = Math.Min(_configuration.CardHeight, CalculateMaxHeightForRow(ViewModel.PlayerCards));
+
+            var margins = 50; // top and bottom
+            if (actAgendaHeight > 0) margins += 10;
+            if (handHeight > 0) margins += 10;
+            if (encounterHeight > 0) margins += 10;
+            if (playerHeight > 0) margins += 10;
+
+            var overlayHeightWithMargins = _configuration.OverlayHeight - margins;
+
+            if ((actAgendaHeight + handHeight + encounterHeight + playerHeight) > overlayHeightWithMargins) {
+                if ((encounterHeight > 0) && (playerHeight > 0)) {
+                    var cardMaxHeight = (overlayHeightWithMargins - actAgendaHeight - handHeight) / 2;
+                    encounterHeight = Math.Min(cardMaxHeight, encounterHeight);
+                    playerHeight = overlayHeightWithMargins - actAgendaHeight - handHeight - encounterHeight;
+                } else {
+                    encounterHeight = Math.Min(encounterHeight, overlayHeightWithMargins - actAgendaHeight - handHeight);
+                    playerHeight = Math.Min(playerHeight, overlayHeightWithMargins - actAgendaHeight - handHeight);
+                }
+            }
+
+            SetMaxHeightForRow(ViewModel.ActAgendaCards, actAgendaHeight);
+            SetMaxHeightForRow(ViewModel.HandCards, handHeight);
+            SetMaxHeightForRow(ViewModel.EncounterCards, encounterHeight);
+            SetMaxHeightForRow(ViewModel.PlayerCards, playerHeight);
         }
+
+        private double CalculateMaxHeightForRow(IList<OverlayCardViewModel> overlayCards) {
+            if (!overlayCards.Any()) {
+                return 0;
+            }
+
+            var margin = overlayCards.First().Margin * 2;
+            var horizontalCount = overlayCards.Count(x => x.Card.IsHorizontal);
+            var verticalCount = overlayCards.Count(x => !x.Card.IsHorizontal);
+            var maxCardWidth = (_configuration.OverlayWidth - 35 - (margin * (horizontalCount + verticalCount) )) / (verticalCount + horizontalCount / OverlayCardViewModel.CardWidthRatio);
+
+            return maxCardWidth / OverlayCardViewModel.CardWidthRatio;
+        }
+
+        private void SetMaxHeightForRow(IList<OverlayCardViewModel> overlayCards, double maxHeight) {
+            foreach (var overlayCard in overlayCards) {
+                overlayCard.MaxHeight = maxHeight;
+            }
+        }
+
 
         private void InitializeSelectableCards(SelectableCards selectableCards) {
             selectableCards.CardVisibilityToggled += ToggleCardVisibilityHandler;
