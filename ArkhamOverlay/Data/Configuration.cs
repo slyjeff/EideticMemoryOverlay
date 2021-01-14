@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 
 namespace ArkhamOverlay.Data {
     public class Configuration : IConfiguration, INotifyPropertyChanged {
@@ -75,10 +76,83 @@ namespace ArkhamOverlay.Data {
             }
         }
 
+        public Point _scenarioCardsPosition = new Point(0, 0);
+        public Point ScenarioCardsPosition {
+            get => _scenarioCardsPosition;
+            set {
+                _scenarioCardsPosition = value;
+                OnConfigurationChange();
+            }
+        }
+
+        public Point _locationsPosition = new Point(0, 0);
+        public Point LocationsPosition {
+            get => _locationsPosition;
+            set {
+                _locationsPosition = value;
+                OnConfigurationChange();
+            }
+        }
+
+        public Point _encounterCardsPosition = new Point(0, 0);
+        public Point EncounterCardsPosition {
+            get => _encounterCardsPosition;
+            set {
+                _encounterCardsPosition = value;
+                OnConfigurationChange();
+            }
+        }
+
+        public Point _player1Position = new Point(0, 0);
+        public Point Player1Position {
+            get => _player1Position;
+            set {
+                _player1Position = value;
+                OnConfigurationChange();
+            }
+        }
+
+        public Point _player2Position = new Point(0, 0);
+        public Point Player2Position {
+            get => _player2Position;
+            set {
+                _player2Position = value;
+                OnConfigurationChange();
+            }
+        }
+
+        public Point _player3Position = new Point(0, 0);
+        public Point Player3Position {
+            get => _player3Position;
+            set {
+                _player3Position = value;
+                OnConfigurationChange();
+            }
+        }
+
+        public Point _player4Position = new Point(0, 0);
+        public Point Player4Position {
+            get => _player4Position;
+            set {
+                _player4Position = value;
+                OnConfigurationChange();
+            }
+        }
+
+        public Point _overlayPosition = new Point(0, 0);
+        public Point OverlayPosition {
+            get => _overlayPosition;
+            set {
+                _overlayPosition = value;
+                OnConfigurationChange();
+            }
+        }
+
         public event Action ConfigurationChanged;
         public void OnConfigurationChange() {
             ConfigurationChanged?.Invoke();
         }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

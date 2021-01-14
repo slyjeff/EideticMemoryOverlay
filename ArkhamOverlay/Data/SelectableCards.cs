@@ -160,7 +160,7 @@ namespace ArkhamOverlay.Data {
                 //for location cards, we want the backs before the front in the list
                 for (var index = 0; index < sortedCards.Count(); index++) {
                     var card = sortedCards[index];
-                    var flipSideCardIndex = sortedCards.IndexOf(card.FlipSideCard); 
+                    var flipSideCardIndex = sortedCards.IndexOf(card.FlipSideCard);
                     if (flipSideCardIndex > index) {
                         sortedCards.RemoveAt(flipSideCardIndex);
                         sortedCards.Insert(index, card.FlipSideCard);

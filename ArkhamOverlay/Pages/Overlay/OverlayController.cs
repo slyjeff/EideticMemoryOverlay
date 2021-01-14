@@ -123,6 +123,7 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         public double Top { get => View.Top; set => View.Top = value; }
+        public double Left { get => View.Left; set => View.Left = value; }
 
         public void Close() {
             View.Close();
@@ -207,10 +208,9 @@ namespace ArkhamOverlay.Pages.Overlay {
                 if (!cardSet.CardInstances.Contains(overlayCard.CardInstance)) {
                     overlayCardsToRemove.Add(overlayCard);
                 }
-
-                if (overlayCardsToRemove.Any()) {
-                    overlayCards.RemoveOverlayCards(overlayCardsToRemove.ToArray());
-                }
+            }
+            if (overlayCardsToRemove.Any()) {
+                overlayCards.RemoveOverlayCards(overlayCardsToRemove.ToArray());
             }
 
             foreach (var cardInstance in cardSet.CardInstances) {

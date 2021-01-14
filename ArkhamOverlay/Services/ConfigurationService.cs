@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
 
 namespace ArkhamOverlay.Services {
     public interface IConfiguration {
@@ -10,6 +11,14 @@ namespace ArkhamOverlay.Services {
         int CardHeight { get; set; }
         int ActAgendaCardHeight { get; set; }
         int HandCardHeight { get; set; }
+        Point ScenarioCardsPosition { get; set; }
+        Point LocationsPosition { get; set; }
+        Point EncounterCardsPosition { get; set; }
+        Point Player1Position { get; set; }
+        Point Player2Position { get; set; }
+        Point Player3Position { get; set; }
+        Point Player4Position { get; set; }
+        Point OverlayPosition { get; set; }
         IList<Pack> Packs { get; }
     }
 
@@ -25,6 +34,15 @@ namespace ArkhamOverlay.Services {
         public int HandCardHeight { get; set; }
         public bool UseActAgendaBar { get; set; }
         public IList<Pack> Packs { get; set; }
+        public Point ScenarioCardsPosition { get; set; }
+        public Point LocationsPosition { get; set; }
+        public Point EncounterCardsPosition { get; set; }
+        public Point Player1Position { get; set; }
+        public Point Player2Position { get; set; }
+        public Point Player3Position { get; set; }
+        public Point Player4Position { get; set; }
+        public Point OverlayPosition { get; set; }
+
     }
 
     public class ConfigurationService {
@@ -69,6 +87,14 @@ namespace ArkhamOverlay.Services {
             toConfiguration.CardHeight = fromConfiguration.CardHeight;
             toConfiguration.ActAgendaCardHeight = fromConfiguration.ActAgendaCardHeight;
             toConfiguration.HandCardHeight = fromConfiguration.HandCardHeight;
+            toConfiguration.ScenarioCardsPosition = fromConfiguration.ScenarioCardsPosition;
+            toConfiguration.LocationsPosition = fromConfiguration.LocationsPosition;
+            toConfiguration.EncounterCardsPosition = fromConfiguration.EncounterCardsPosition;
+            toConfiguration.Player1Position = fromConfiguration.Player1Position;
+            toConfiguration.Player2Position = fromConfiguration.Player2Position;
+            toConfiguration.Player3Position = fromConfiguration.Player3Position;
+            toConfiguration.Player4Position = fromConfiguration.Player4Position;
+            toConfiguration.OverlayPosition = fromConfiguration.OverlayPosition;
             toConfiguration.Packs.Clear();
             foreach (var pack in fromConfiguration.Packs) {
                 toConfiguration.Packs.Add(new Pack(pack));

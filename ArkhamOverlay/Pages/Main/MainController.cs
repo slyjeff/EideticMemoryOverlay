@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace ArkhamOverlay.Pages.Main {
@@ -55,7 +56,7 @@ namespace ArkhamOverlay.Pages.Main {
             }
         }
 
-        private void ShowSelectCardsWindow(ISelectableCards selectableCards) {
+        private void ShowSelectCardsWindow(ISelectableCards selectableCards, string startingPositionConfigName) {
             var left = View.Left + View.Width + 10;
             var width = (double)836;
             var top = View.Top;
@@ -74,15 +75,22 @@ namespace ArkhamOverlay.Pages.Main {
                 }
             }
 
+            var startingPositionProperty = ViewModel.AppData.Configuration.GetType().GetProperty(startingPositionConfigName);
+            var startingPosition = (Point)startingPositionProperty.GetValue(ViewModel.AppData.Configuration);
+
             if (controller == null) {
                 controller = _controllerFactory.CreateController<SelectCardsController>();
                 controller.SelectableCards = selectableCards;
-                controller.Left = left;
-                controller.Top = top;
+                controller.Left = startingPosition.X == 0 ? left : startingPosition.X;
+                controller.Top = startingPosition.Y == 0 ? top : startingPosition.Y;
                 controller.Width = width;
 
                 controller.Closed += () => {
                     _selectCardsControllers.Remove(controller);
+                };
+
+                controller.View.LocationChanged += (s, e) => {
+                    startingPositionProperty.SetValue(ViewModel.AppData.Configuration, new Point(controller.View.Left, controller.View.Top));
                 };
 
                 _selectCardsControllers.Add(controller);
@@ -139,17 +147,17 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void ShowOtherEncounters() {
-            ShowSelectCardsWindow(ViewModel.AppData.Game.ScenarioCards);
+            ShowSelectCardsWindow(ViewModel.AppData.Game.ScenarioCards, nameof(Configuration.ScenarioCardsPosition));
         }
 
         [Command]
         public void ShowLocations() {
-            ShowSelectCardsWindow(ViewModel.AppData.Game.LocationCards);
+            ShowSelectCardsWindow(ViewModel.AppData.Game.LocationCards, nameof(Configuration.LocationsPosition));
         }
 
         [Command]
         public void ShowEncounterDeck() {
-            ShowSelectCardsWindow(ViewModel.AppData.Game.EncounterDeckCards);
+            ShowSelectCardsWindow(ViewModel.AppData.Game.EncounterDeckCards, nameof(Configuration.EncounterCardsPosition));
         }
 
         [Command]
@@ -186,7 +194,13 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void PlayerSelected(SelectableCards selectableCards) {
-            ShowSelectCardsWindow(selectableCards);
+            var startingPositionProperty = string.Empty;
+            if (ViewModel.Game.Players[0].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player1Position); }
+            else if (ViewModel.Game.Players[1].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player2Position); }
+            else if (ViewModel.Game.Players[2].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player3Position); }
+            else if (ViewModel.Game.Players[3].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player4Position); }
+
+            ShowSelectCardsWindow(selectableCards, startingPositionProperty);
         }
 
         [Command]
@@ -197,10 +211,19 @@ namespace ArkhamOverlay.Pages.Main {
             }
 
             _overlayController = _controllerFactory.CreateController<OverlayController>();
-            _overlayController.Top = View.Top + View.Height + 10;
+            var overlayPosition = ViewModel.AppData.Configuration.OverlayPosition;
+
+            _overlayController.Top = overlayPosition.Y == 0 ? View.Top + View.Height + 10 : overlayPosition.Y;
+            if (overlayPosition.X != 0) {
+                _overlayController.Left = overlayPosition.X;
+            }
 
             _overlayController.Closed += () => {
                 _overlayController = null;
+            };
+
+            _overlayController.View.LocationChanged += (s, e) => {
+                ViewModel.AppData.Configuration.OverlayPosition = new Point(_overlayController.Left, _overlayController.Top);
             };
 
             _overlayController.Show();
