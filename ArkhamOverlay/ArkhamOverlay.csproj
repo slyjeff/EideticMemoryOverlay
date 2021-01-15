@@ -87,10 +87,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CardButtons\CardImageButton.cs" />
+    <Compile Include="CardButtons\CardInSetButton.cs" />
+    <Compile Include="CardButtons\ShowCardButton.cs" />
+    <Compile Include="CardButtons\ShowSetButton.cs" />
     <Compile Include="Data\AppData.cs" />
     <Compile Include="Data\Card.cs" />
-    <Compile Include="Data\ClearButton.cs" />
-    <Compile Include="Data\ICardButton.cs" />
+    <Compile Include="CardButtons\ClearButton.cs" />
+    <Compile Include="CardButtons\CardButton.cs" />
+    <Compile Include="Data\CardSet.cs" />
+    <Compile Include="Data\ICardInstance.cs" />
     <Compile Include="Data\SelectableCards.cs" />
     <Compile Include="Data\Player.cs" />
     <Compile Include="Enums.cs" />

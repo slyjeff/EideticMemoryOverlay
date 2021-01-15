@@ -1,6 +1,6 @@
-﻿using ArkhamOverlay.Services;
+﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Services;
 using ArkhamOverlay.Utils;
-using PageController;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +13,7 @@ using System.Windows.Threading;
 namespace ArkhamOverlay.Data {
     public delegate void CardToggledEvent(ICardButton card);
 
-    public class Card : ViewModel, ICardButton, INotifyPropertyChanged {
+    public class Card {
         private static readonly Dictionary<string, BitmapImage> CardImageCache = new Dictionary<string, BitmapImage>();
 
         public Card() {
@@ -109,8 +109,8 @@ namespace ArkhamOverlay.Data {
             }
         }
 
+        public string Name { get; }
         public string Code { get; }
-        public string Name { get; set; }
         public Faction Faction { get; set;  }
 
         public string ImageSource { get; }
@@ -120,9 +120,6 @@ namespace ArkhamOverlay.Data {
         public byte[] ButtonImageAsBytes { get; private set; }
 
         public CardType Type { get; }
-
-        public bool IsVisible { get; private set;}
-        public Brush BorderBrush { get {return IsVisible ? new SolidColorBrush(Colors.DarkGoldenrod) : new SolidColorBrush(Colors.Black); } }
 
         public Color CardColor {
             get {
@@ -162,22 +159,17 @@ namespace ArkhamOverlay.Data {
 
         public bool IsPlayerCard { get; private set; }
 
-        public SelectableCards SelectableCards { get; set; }
         public Card FlipSideCard { get; set; }
 
-        public void Click() {
-            if (SelectableCards == null) {
-                return;
+        public event Action<bool> IsDisplayedOnOverlayChanged;
+        
+        private bool _isDisplayedOnOverlay = false;
+        public bool IsDisplayedOnOverlay {
+            get => _isDisplayedOnOverlay;
+            set {
+                _isDisplayedOnOverlay = value;
+                IsDisplayedOnOverlayChanged?.Invoke(_isDisplayedOnOverlay);
             }
-
-            IsVisible = !IsVisible;
-            SelectableCards.ToggleCard(this);
-            NotifyPropertyChanged(nameof(BorderBrush));
-        }
-
-        public void Hide() {
-            IsVisible = false;
-            NotifyPropertyChanged(nameof(BorderBrush));
         }
 
         private CardType GetCardType(string typeCode) {

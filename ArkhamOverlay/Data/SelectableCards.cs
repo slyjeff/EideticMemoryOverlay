@@ -1,6 +1,9 @@
-﻿using System;
+﻿using ArkhamOverlay.CardButtons;
+using PageController;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace ArkhamOverlay.Data {
     public interface ISelectableCards {
@@ -9,16 +12,19 @@ namespace ArkhamOverlay.Data {
         string Name { get; }
 
         List<ICardButton> CardButtons { get; }
-
+        
         bool Loading { get; }
     }
 
-    public class SelectableCards : ISelectableCards, INotifyPropertyChanged {
+    public class SelectableCards : ViewModel, ISelectableCards, INotifyPropertyChanged {
         private string _playerName = string.Empty;
+        private ShowSetButton _showSetButton = null;
 
         public SelectableCards(SelectableType type) {
             Type = type;
             CardButtons = new List<ICardButton>();
+            CardSet = new CardSet(this);
+            CardSet.Buttons.CollectionChanged += (s, e) => CardSetUpdated();
         }
 
         public SelectableType Type { get; }
@@ -45,67 +51,103 @@ namespace ArkhamOverlay.Data {
             }
         }
 
+        public string CardSetName {
+            get {
+                switch (Type) {
+                    case SelectableType.Scenario:
+                        return "Act/Agena Bar:";
+                    case SelectableType.Player:
+                        return "In Hand:";
+                    default:
+                        return "";
+                }
+            }
+        }
+
         public List<ICardButton> CardButtons { get; set; }
+        public CardSet CardSet { get; }
+        
+        private bool _showCardSetButtons;
+        public bool ShowCardSetButtons { 
+            get => _showCardSetButtons;
+            set {
+                _showCardSetButtons = value;
+                NotifyPropertyChanged(nameof(ShowCardSetButtons));
+            }
+        }
 
         public bool Loading { get; internal set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
 
-        public void OnPropertyChanged(string propertyName) {
-            var handler = PropertyChanged;
-            if (handler == null) {
-                return;
-            }
-            handler(this, new PropertyChangedEventArgs(propertyName));
+        public event Action<Card> CardVisibilityToggled;
+        public void ToggleCardVisibility(Card card) {
+            CardVisibilityToggled?.Invoke(card);
         }
 
-        public void OnCardButtonsChanged() {
-            OnPropertyChanged(nameof(CardButtons));
+        public event Action<ICardButton> ButtonChanged;
+        public void OnButtonChanged(ICardButton button) {
+            ButtonChanged?.Invoke(button);
         }
 
-        public event Action<Card, Card> CardToggled;
 
-        public void ToggleCard(Card card) {
-            if (!card.IsVisible) {
-                CardToggled?.Invoke(card, null);
+        internal void ToggleCardSetVisibility() {
+            if (_showSetButton == null) {
                 return;
             }
 
-            if (card.FlipSideCard != null) {
-                card.FlipSideCard.Hide();
+            _showSetButton.LeftClick();
+        }
+
+
+        internal void HideAllCards() {
+            foreach (var showCardButton in CardButtons.OfType<ShowCardButton>()) {
+                if (showCardButton.Card.IsDisplayedOnOverlay) {
+                    CardVisibilityToggled?.Invoke(showCardButton.Card);
+                }
             }
-            CardToggled?.Invoke(card, card.FlipSideCard);
+        }
+
+        private void CardSetUpdated() {
+            UpdateShowSetButtonName();
+            ShowCardSetButtons = CardSet.Buttons.Count > 0;
+        }
+
+        private void UpdateShowSetButtonName() {
+            if (_showSetButton == null) {
+                return;
+            }
+
+            var buttonName = (Type == SelectableType.Scenario)
+                ? "Act/Agenda Bar"
+                : "Hand";
+
+            if (CardSet.Buttons.Any()) {
+                _showSetButton.Text = "Show " + buttonName + " (" + CardSet.Buttons.Count + ")";
+            } else {
+                _showSetButton.Text = "Right Click to add cards to " + buttonName;
+            }
         }
 
         internal void LoadCards(IEnumerable<Card> cards) {
-            foreach (var card in cards) {
-                card.SelectableCards = this;
-            }
-
-            var clearButton = new ClearButton { SelectableCards = this };
+            var clearButton = new ClearButton(this);
 
             var playerButtons = new List<ICardButton> { clearButton };
-            playerButtons.AddRange(cards);
+
+            if (Type == SelectableType.Scenario || Type == SelectableType.Player) {
+                _showSetButton = new ShowSetButton(this);
+                playerButtons.Add(_showSetButton);
+                UpdateShowSetButtonName();
+            }
+
+            playerButtons.AddRange(from card in cards select new ShowCardButton(this, card));
             CardButtons = playerButtons;
-            OnCardButtonsChanged();
+            NotifyPropertyChanged(nameof(CardButtons));
         }
 
         internal void ClearCards() {
-            ClearSelections();
+            HideAllCards();
             CardButtons.Clear();
-            OnCardButtonsChanged();
-        }
-
-        internal void ClearSelections() {
-            foreach (var cardButtons in CardButtons) {
-                if (!(cardButtons is Card card)) {
-                    continue;
-                }
-
-                if (card.IsVisible) {
-                    card.Click();
-                }
-            }
+            NotifyPropertyChanged(nameof(CardButtons));
         }
     }
 }

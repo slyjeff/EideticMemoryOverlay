@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Data;
 using PageController;
 using System.Windows;
 using System.Windows.Media;
@@ -31,6 +32,15 @@ namespace ArkhamOverlay.Pages.Overlay {
 
                 Show = true;
             }
+        }
+
+        private ICardInstance _cardInstance;
+        public ICardInstance CardInstance { 
+            get => _cardInstance; 
+            set {
+                _cardInstance = value;
+                Card = _cardInstance.Card;
+            } 
         }
 
         private bool _show;
