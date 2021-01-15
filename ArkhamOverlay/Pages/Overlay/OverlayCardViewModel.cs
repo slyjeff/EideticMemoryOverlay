@@ -69,8 +69,6 @@ namespace ArkhamOverlay.Pages.Overlay {
                 CardImage = _card.Image;
 
                 NotifyPropertyChanged(nameof(CardImage));
-
-                Show = true;
             }
         }
 
@@ -81,15 +79,6 @@ namespace ArkhamOverlay.Pages.Overlay {
                 _cardInstance = value;
                 Card = _cardInstance.Card;
             } 
-        }
-
-        private bool _show;
-        public virtual bool Show {
-            get => _show; 
-            set {
-                _show = value;
-                NotifyPropertyChanged(nameof(Show));
-            }
         }
 
         public ImageSource CardImage { get; set; }

@@ -6,22 +6,18 @@
         xmlns:overlay="clr-namespace:ArkhamOverlay.Pages.Overlay" 
         d:DataContext="{d:DesignInstance Type=overlay:OverlayViewModel}"
         mc:Ignorable="d"
-        Title="Arkham Overlay" 
-        Left = "10"
-        Width="{Binding AppData.Configuration.OverlayWidth}" 
-        MinWidth="{Binding AppData.Configuration.OverlayWidth}" 
-        MaxWidth="{Binding AppData.Configuration.OverlayWidth}" 
+        Title="Arkham Overlay"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        Left = "10">
+    <Grid Width="{Binding AppData.Configuration.OverlayWidth}" 
         Height="{Binding AppData.Configuration.OverlayHeight}" 
-        MaxHeight="{Binding AppData.Configuration.OverlayHeight}" 
-        MinHeight="{Binding AppData.Configuration.OverlayHeight}" 
         Background="#00B164">
-    <Grid>
         <Grid.Resources>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
             <Style x:Key="CardImage" TargetType="{x:Type Image}" >
                 <Setter Property="Margin" Value="{Binding Margin}" />
-                <Setter Property="IsEnabled" Value="{Binding Show}" />
                 <Setter Property="Height" Value="{Binding Height}" />
                 <Setter Property="Width" Value="{Binding Width}" />
                 <Setter Property="Clip">
@@ -31,27 +27,6 @@
                                            Rect="{Binding ClipRect }"/>
                     </Setter.Value>
                 </Setter>
-
-                <Style.Triggers>
-                    <Trigger Property="IsEnabled" Value="True">
-                        <Trigger.EnterActions>
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0" Duration="0:0:0.5"/>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </Trigger.EnterActions>
-                    </Trigger>
-                    <Trigger Property="IsEnabled" Value="False">
-                        <Trigger.EnterActions>
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:0.5"/>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </Trigger.EnterActions>
-                    </Trigger>
-                </Style.Triggers>
             </Style>
         </Grid.Resources>
 
