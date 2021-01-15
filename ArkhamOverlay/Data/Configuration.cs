@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
 
 namespace ArkhamOverlay.Data {
     public class Configuration : IConfiguration, INotifyPropertyChanged {
@@ -38,30 +37,34 @@ namespace ArkhamOverlay.Data {
             set {
                 _cardHeight = value;
 
-                CardClipRect = new Rect {
-                    Height = _cardHeight,
-                    Width = _cardHeight * 0.716
-                };
-                CardRadius = _cardHeight / 30;
-
                 OnPropertyChanged(nameof(CardHeight));
-                OnPropertyChanged(nameof(CardClipRect));
-                OnPropertyChanged(nameof(CardRadius));
-                OnPropertyChanged(nameof(CardWidth));
                 OnConfigurationChange();
             }
         }
-       
+
+        public int _actAgendaCardHeight;
+        public int ActAgendaCardHeight {
+            get => _actAgendaCardHeight;
+            set {
+                _actAgendaCardHeight = value;
+
+                OnPropertyChanged(nameof(ActAgendaCardHeight));
+                OnConfigurationChange();
+            }
+        }
+
+        public int _handCardHeight;
+        public int HandCardHeight {
+            get => _handCardHeight;
+            set {
+                _handCardHeight = value;
+
+                OnPropertyChanged(nameof(HandCardHeight));
+                OnConfigurationChange();
+            }
+        }
 
         public IList<Pack> Packs { get; set; }
-
-        public double CardWidth {
-            get => _cardHeight * .716;
-        }
-        
-        public double CardRadius { get; set; }
-
-        public Rect CardClipRect { get; set; }
 
         public IList<EncounterSet> EncounterSets {
             get {
