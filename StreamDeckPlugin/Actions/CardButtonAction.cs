@@ -105,22 +105,33 @@ namespace ArkhamOverlaySdPlugin.Actions {
         }
 
         public async Task Clear() {
+            if (_currentCardInfo == null) {
+                return;
+            }
+
             _currentCardInfo.CardButtonType = CardButtonType.Unknown;
             _currentCardInfo.Name = string.Empty;
             _currentCardInfo.IsVisible = false;
-
+            
             await SetTitleAsync(string.Empty);
             await SetImageAsync(ImageUtils.BlankImage());
         }
 
         public async Task GetButtonInfo() {
             try {
-                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex };
-                var response = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
+                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex};
+                var cardInfo = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
 
-                await UpdateButtonInfo(response);
+                await UpdateButtonInfo(cardInfo);
             } catch {
             }
+        }
+
+        private Task GetButtonImage() {
+            var request = new ButtonImageRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex };
+            var response = StreamDeckSendSocketService.SendRequest<ButtonImageResponse>(request);
+            ImageUtils.ImageCache[response.Name] = response.Bytes;
+            return Task.CompletedTask;
         }
 
         public async Task UpdateButtonInfo(ICardInfo cardInfo) {
@@ -135,6 +146,10 @@ namespace ArkhamOverlaySdPlugin.Actions {
                     }
                 }
                 _currentCardInfo = cardInfo;
+
+                if (cardInfo.ImageAvailable && !ImageUtils.ImageCache.ContainsKey(cardInfo.Name)) {
+                    await GetButtonImage();
+                }
 
                 await SetTitleAsync(TextUtils.WrapTitle(cardInfo.Name));
                 await SetImageAsync(cardInfo.AsImage());

@@ -2,6 +2,7 @@
     public enum AoTcpRequest {
         Unknown,
         GetCardInfo,
+        GetButtonImage,
         ClickCardButton, 
         ClearAll, 
         UpdateCardInfo, 
@@ -15,6 +16,8 @@
             switch (request) {
                 case AoTcpRequest.GetCardInfo:
                     return "Info";
+                case AoTcpRequest.GetButtonImage:
+                    return "Image";
                 case AoTcpRequest.ClickCardButton:
                     return "ClickCardButton";
                 case AoTcpRequest.ClearAll:
@@ -36,6 +39,8 @@
             switch (request) {
                 case "Info":
                     return AoTcpRequest.GetCardInfo;
+                case "Image":
+                    return AoTcpRequest.GetButtonImage;
                 case "ClickCardButton":
                     return AoTcpRequest.ClickCardButton;
                 case "ClearAll":

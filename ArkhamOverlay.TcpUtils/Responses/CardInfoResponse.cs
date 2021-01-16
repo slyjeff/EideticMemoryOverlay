@@ -3,6 +3,6 @@
         public CardButtonType CardButtonType { get; set; }
         public string Name { get; set; }
         public bool IsVisible { get; set; }
-        public byte[] ImageBytes { get; set; }
+        public bool ImageAvailable { get; set; }
     }
 }

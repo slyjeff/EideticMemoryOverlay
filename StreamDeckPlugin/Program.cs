@@ -6,7 +6,7 @@ namespace StreamDeckPlugin {
         public static void Main(string[] args) {
 #if DEBUG
             // optional, but recommended
-            //System.Diagnostics.Debugger.Launch();
+            System.Diagnostics.Debugger.Launch();
 #endif
 
             new ReceiveSocketService(new TcpRequestHandler()).StartListening(StreamDeckTcpInfo.Port);
