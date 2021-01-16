@@ -24,15 +24,16 @@ namespace ArkhamOverlaySdPlugin.Actions {
         private CardSettings _settings = new CardSettings();
         private string _deviceId;
         private ICardInfo _currentCardInfo;
-        private Timer _keyPressTimer = new Timer(1000);
+        private Timer _keyPressTimer = new Timer(700);
+
 
         public CardButtonAction() {
             ListOf.Add(this);
             _keyPressTimer.Enabled = false;
-            _keyPressTimer.Elapsed += OneSecondAfterKeyDown;
+            _keyPressTimer.Elapsed += KeyHeldDown;
         }
-
         public int Page { get; set; }
+        public bool ShowCardSet { get; set; }
         public bool IsVisible { get; private set; }
 
         public Deck Deck {
@@ -55,7 +56,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
                     columns = device.Size.Columns;
                 }
 
-                var buttonsPerPage = rows * columns - 3; //3 because the return to parent, left, and right buttons take up three slots
+                var buttonsPerPage = rows * columns - 4; //3 because the return to parent, show hand, left, and right buttons take up four slots
  
                 return (Page * buttonsPerPage) + (_coordinates.Row * columns + _coordinates.Column) - 1;
             }
@@ -74,6 +75,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
             _deviceId = args.Device;
             _settings = args.Payload.GetSettings<CardSettings>();
             Page = 0;
+            ShowCardSet = false;
             IsVisible = true;
 
             //do this for the first cardbutton on the screen- we don't need a million requests going out
@@ -106,7 +108,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
             return Task.CompletedTask;
         }
 
-        private void OneSecondAfterKeyDown(object sender, ElapsedEventArgs e) {
+        private void KeyHeldDown(object sender, ElapsedEventArgs e) {
             if (!_keyIsDown) {
                 return;
             }
@@ -130,7 +132,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
 
         private void SendClick(ButtonClick click) {
             try {
-                var request = new ClickCardButtonRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, Click = click };
+                var request = new ClickCardButtonRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet, Click = click };
                 var response = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
 
                 SetImageAsync(response.AsImage());
@@ -155,7 +157,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
 
         public async Task GetButtonInfo() {
             try {
-                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex};
+                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet};
                 var cardInfo = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
 
                 await UpdateButtonInfo(cardInfo);
@@ -164,7 +166,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
         }
 
         private Task GetButtonImage() {
-            var request = new ButtonImageRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex };
+            var request = new ButtonImageRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet };
             var response = StreamDeckSendSocketService.SendRequest<ButtonImageResponse>(request);
             ImageUtils.ImageCache[response.Name] = response.Bytes;
             return Task.CompletedTask;

@@ -30,7 +30,8 @@ namespace StreamDeckPlugin.Utils {
             foreach (var cardButtonAction in CardButtonAction.ListOf) {
                 if ((cardButtonAction.Deck == updateCardInfoRequest.Deck) &&
                     (cardButtonAction.CardButtonIndex == updateCardInfoRequest.Index) &&
-                    cardButtonAction.IsVisible) {
+                    cardButtonAction.IsVisible && 
+                    !cardButtonAction.ShowCardSet) {
 #pragma warning disable CS4014 
                     cardButtonAction.UpdateButtonInfo(updateCardInfoRequest);
 #pragma warning restore CS4014 

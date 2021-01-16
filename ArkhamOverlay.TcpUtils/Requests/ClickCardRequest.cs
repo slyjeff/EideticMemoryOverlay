@@ -8,5 +8,6 @@
         public Deck Deck { get; set; }
         public int Index { get; set; }
         public ButtonClick Click { get; set; }
+        public bool FromCardSet { get; set; }
     }
 }
