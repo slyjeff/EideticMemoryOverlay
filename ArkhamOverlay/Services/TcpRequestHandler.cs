@@ -75,7 +75,11 @@ namespace ArkhamOverlay.Services {
             var cardButton = (cardIndex < cards.Count) ? cards[cardIndex] : null;
 
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                cardButton.LeftClick();
+                if (clickCardButtonRequest.Click == ButtonClick.Left) {
+                    cardButton.LeftClick();
+                } else {
+                    cardButton.RightClick();
+                }
                 SendCardInfoResponse(request.Socket, cardButton);
             }));
         }

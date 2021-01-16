@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
@@ -23,9 +24,12 @@ namespace ArkhamOverlaySdPlugin.Actions {
         private CardSettings _settings = new CardSettings();
         private string _deviceId;
         private ICardInfo _currentCardInfo;
+        private Timer _keyPressTimer = new Timer(1000);
 
         public CardButtonAction() {
             ListOf.Add(this);
+            _keyPressTimer.Enabled = false;
+            _keyPressTimer.Elapsed += OneSecondAfterKeyDown;
         }
 
         public int Page { get; set; }
@@ -91,16 +95,48 @@ namespace ArkhamOverlaySdPlugin.Actions {
             return Task.CompletedTask;
         }
 
+
+        private bool _keyIsDown = false;
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            var settings = args.Payload.GetSettings<CardSettings>();
+            _settings = args.Payload.GetSettings<CardSettings>();
+            _keyIsDown = true;
+
+            _keyPressTimer.Enabled = true;
+
+            return Task.CompletedTask;
+        }
+
+        private void OneSecondAfterKeyDown(object sender, ElapsedEventArgs e) {
+            if (!_keyIsDown) {
+                return;
+            }
+            _keyIsDown = false;
+            _keyPressTimer.Enabled = false;
+
+            SendClick(ButtonClick.Right);
+        }
+
+
+        protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
+            if (!_keyIsDown) {
+                return Task.CompletedTask;
+            }
+            _keyIsDown = false;
+
+            _settings = args.Payload.GetSettings<CardSettings>();
+            SendClick(ButtonClick.Left);
+            return Task.CompletedTask;
+        }
+
+        private void SendClick(ButtonClick click) {
             try {
-                var request = new ClickCardButtonRequest { Deck = settings.Deck.AsDeck(), Index = CardButtonIndex };
+                var request = new ClickCardButtonRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, Click = click };
                 var response = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
 
                 SetImageAsync(response.AsImage());
-                return SetTitleAsync(TextUtils.WrapTitle(response.Name));
+                SetTitleAsync(TextUtils.WrapTitle(response.Name));
             } catch {
-                return SetTitleAsync("");
+                SetTitleAsync("");
             }
         }
 
