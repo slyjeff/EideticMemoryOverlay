@@ -233,5 +233,15 @@ namespace ArkhamOverlay.Pages.Main {
         public void ClearCards() {
             ViewModel.AppData.Game.ClearAllCards();
         }
+
+        [Command]
+        public void ShowAllWindows() {
+            if (_overlayController != null) {
+                _overlayController.Activate();
+            }
+            foreach (var selectCardsWindow in _selectCardsControllers) {
+                selectCardsWindow.Activate();
+            }
+        }
     }
 }
