@@ -98,6 +98,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
         }
 
 
+        private object _keyUpLock = new object();
         private bool _keyIsDown = false;
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
             _settings = args.Payload.GetSettings<CardSettings>();
@@ -109,36 +110,39 @@ namespace ArkhamOverlaySdPlugin.Actions {
         }
 
         private void KeyHeldDown(object sender, ElapsedEventArgs e) {
-            if (!_keyIsDown) {
-                return;
-            }
-            _keyIsDown = false;
-            _keyPressTimer.Enabled = false;
+            lock (_keyUpLock) {
+                if (!_keyIsDown) {
+                    return;
+                }
+                _keyIsDown = false;
+                _keyPressTimer.Enabled = false;
 
-            SendClick(ButtonClick.Right);
+                SendClick(ButtonClick.Right);
+            }
         }
 
 
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
-            if (!_keyIsDown) {
+            lock (_keyUpLock) {
+                if (!_keyIsDown) {
+                    return Task.CompletedTask;
+                }
+                _keyIsDown = false;
+                _keyPressTimer.Enabled = false;
+
+                _settings = args.Payload.GetSettings<CardSettings>();
+                SendClick(ButtonClick.Left);
                 return Task.CompletedTask;
             }
-            _keyIsDown = false;
-
-            _settings = args.Payload.GetSettings<CardSettings>();
-            SendClick(ButtonClick.Left);
-            return Task.CompletedTask;
         }
 
         private void SendClick(ButtonClick click) {
-            try {
-                var request = new ClickCardButtonRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet, Click = click };
-                var response = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
-
-                SetImageAsync(response.AsImage());
-                SetTitleAsync(TextUtils.WrapTitle(response.Name));
-            } catch {
-                SetTitleAsync("");
+            var request = new ClickCardButtonRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet, Click = click };
+            StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
+            
+            //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look
+            if (_currentCardInfo != null) {
+                SetTitleAsync(TextUtils.WrapTitle(_currentCardInfo.Name));
             }
         }
 
@@ -149,7 +153,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
 
             _currentCardInfo.CardButtonType = CardButtonType.Unknown;
             _currentCardInfo.Name = string.Empty;
-            _currentCardInfo.IsVisible = false;
+            _currentCardInfo.IsToggled = false;
             
             await SetTitleAsync(string.Empty);
             await SetImageAsync(ImageUtils.BlankImage());
@@ -179,7 +183,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
                 if (_currentCardInfo != null) {
                     if (_currentCardInfo.CardButtonType == cardInfo.CardButtonType
                         && _currentCardInfo.Name == cardInfo.Name
-                        && _currentCardInfo.IsVisible == cardInfo.IsVisible) {
+                        && _currentCardInfo.IsToggled == cardInfo.IsToggled) {
                         return;
                     }
                 }

@@ -2,7 +2,7 @@
     public interface ICardInfo {
         CardButtonType CardButtonType { get; set; }
         string Name { get; set; }
-        bool IsVisible { get; set; }
+        bool IsToggled { get; set; }
         bool ImageAvailable { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Net.Sockets;
@@ -62,7 +62,7 @@ namespace ArkhamOverlay.Services {
             var clickCardButtonRequest = JsonConvert.DeserializeObject<ClickCardButtonRequest>(request.Body);
             var cardButton = GetCardButton(clickCardButtonRequest.Deck, clickCardButtonRequest.FromCardSet, clickCardButtonRequest.Index);
             if (cardButton == null) {
-                SendCardInfoResponse(request.Socket, cardButton);
+                SendOkResponse(request.Socket);
                 return;
             }
 
@@ -72,7 +72,7 @@ namespace ArkhamOverlay.Services {
                 } else {
                     cardButton.RightClick();
                 }
-                SendCardInfoResponse(request.Socket, cardButton);
+                SendOkResponse(request.Socket);
             }));
         }
 
@@ -117,7 +117,23 @@ namespace ArkhamOverlay.Services {
 
                     foreach (var selectableCards in game.AllSelectableCards) {
                         selectableCards.ButtonChanged += (button) => {
+                            if (button is CardInSetButton cardInSetButton) {
+                                SendCardInSetInfoUpdate(cardInSetButton, selectableCards);
+                                return;
+                            }
+
                             SendButtonInfoUpdate(button, selectableCards);
+                        };
+
+                        selectableCards.CardSet.Buttons.CollectionChanged += (s, e) => {
+                            foreach (var button in selectableCards.CardSet.Buttons) {
+                                SendCardInSetInfoUpdate(button, selectableCards);
+                            }
+
+                            //if an item was removed, we need to send an update to clear the last item
+                            if (e.Action == NotifyCollectionChangedAction.Remove) {
+                                SendCardInSetInfoUpdate(null, selectableCards);
+                            }
                         };
                     }
 
@@ -137,21 +153,41 @@ namespace ArkhamOverlay.Services {
 
         private void SendButtonInfoUpdate(ICardButton button, SelectableCards selectableCards) {
             Card card = null;
-            if (button is ShowCardButton showCardButton) {
-                card = showCardButton.Card;
+            if (button is CardImageButton cardImageButton) {
+                card = cardImageButton.Card;
             }
 
             var deck = GetDeckType(selectableCards);
 
-            var index = selectableCards.CardButtons.IndexOf(button);
+            var request = new UpdateCardInfoRequest {
+                Deck = deck,
+                Index = selectableCards.CardButtons.IndexOf(button),
+                CardButtonType = GetCardType(card),
+                Name = button?.Text,
+                IsToggled = button != null && button.IsToggled,
+                ImageAvailable = card?.ButtonImageAsBytes != null,
+                IsCardInSet = false
+            };
+
+            SendStatusToAllRegisteredPorts(request);
+        }
+
+        private void SendCardInSetInfoUpdate(CardInSetButton button, SelectableCards selectableCards) {
+            Card card = null;
+            if (button is CardImageButton cardImageButton) {
+                card = cardImageButton.Card;
+            }
+
+            var deck = GetDeckType(selectableCards);
 
             var request = new UpdateCardInfoRequest {
                 Deck = deck,
-                Index = index,
+                Index = button == null ? selectableCards.CardSet.Buttons.Count : selectableCards.CardSet.Buttons.IndexOf(button),
                 CardButtonType = GetCardType(card),
-                Name = button.Text.Replace("Right Click", "Long Press"),
-                IsVisible = button.IsToggled,
-                ImageAvailable = card?.ButtonImage != null
+                Name = button?.Text.Replace("Right Click", "Long Press"),
+                IsToggled = button != null && button.IsToggled,
+                ImageAvailable = card?.ButtonImageAsBytes != null,
+                IsCardInSet = true
             };
 
             SendStatusToAllRegisteredPorts(request);
@@ -213,8 +249,8 @@ namespace ArkhamOverlay.Services {
                 : new CardInfoResponse { 
                     CardButtonType = GetCardType(cardImageButton?.Card),
                     Name = cardButton.Text.Replace("Right Click", "Long Press"),
-                    IsVisible = cardButton.IsToggled,
-                    ImageAvailable = cardImageButton?.Card.ButtonImage != null
+                    IsToggled = cardButton.IsToggled,
+                    ImageAvailable = cardImageButton?.Card.ButtonImageAsBytes != null
                 };
 
             Send(socket, cardInfoReponse.ToString());

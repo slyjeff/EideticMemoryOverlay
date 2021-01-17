@@ -26,7 +26,7 @@ namespace StreamDeckPlugin.Utils {
                        ? CreateCardArtBitmap(ImageCache[cardInfo.Name])
                        : CreateSolidBackgroundBitmap(cardInfo.CardButtonType);
 
-            if (cardInfo.IsVisible) {
+            if (cardInfo.IsToggled) {
                 DrawSelected(bitmap);
             }
 
