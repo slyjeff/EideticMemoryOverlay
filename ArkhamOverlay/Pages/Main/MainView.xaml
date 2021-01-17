@@ -150,7 +150,8 @@
             <Button Command="{Binding ShowOverlay}">Show Overlay</Button>
             <Button Margin="10, 0, 0, 0" Command="{Binding ClearCards}">Clear Cards</Button>
             <TextBlock Margin = "10, 0, 0, 0" Text="Overlay background color:" />
-            <xctk:ColorPicker Name="OverlayColorPicker" SelectedColor="{Binding Configuration.OverlayColor}" />
+            <xctk:ColorPicker Margin = "10, 0, 0, 0" Name="OverlayColorPicker" SelectedColor="{Binding Configuration.OverlayColor}" />
+            <Button Margin="10, 0, 0, 0" Command="{Binding ResetOverlayColor}">Reset Overlay Color</Button>
         </StackPanel>
     </StackPanel>
 </Window>

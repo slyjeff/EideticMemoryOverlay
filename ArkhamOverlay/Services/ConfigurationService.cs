@@ -49,6 +49,8 @@ namespace ArkhamOverlay.Services {
     }
 
     public class ConfigurationService {
+        public static Color DefaultBackgroundColor = (Color)ColorConverter.ConvertFromString("#00B164");
+
         private readonly Configuration _configuration;
         public ConfigurationService(AppData appData) {
             _configuration = appData.Configuration;
@@ -56,7 +58,7 @@ namespace ArkhamOverlay.Services {
 
         public void Load() {
             var configuration = new ConfigurationFile {
-                OverlayColor = (Color)ColorConverter.ConvertFromString("#00B164"),
+                OverlayColor = DefaultBackgroundColor,
                 OverlayWidth = 1228,
                 OverlayHeight = 720,
                 CardHeight = 300,

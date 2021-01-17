@@ -233,5 +233,10 @@ namespace ArkhamOverlay.Pages.Main {
         public void ClearCards() {
             ViewModel.AppData.Game.ClearAllCards();
         }
+
+        [Command]
+        public void ResetOverlayColor() {
+            ViewModel.Configuration.OverlayColor = ConfigurationService.DefaultBackgroundColor;
+        }
     }
 }
