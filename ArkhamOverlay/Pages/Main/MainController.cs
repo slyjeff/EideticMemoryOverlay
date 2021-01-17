@@ -235,6 +235,16 @@ namespace ArkhamOverlay.Pages.Main {
         }
 
         [Command]
+        public void ShowAllWindows() {
+            if (_overlayController != null) {
+                _overlayController.Activate();
+            }
+            foreach (var selectCardsWindow in _selectCardsControllers) {
+                selectCardsWindow.Activate();
+            }
+        }
+        
+        [Command]
         public void ResetOverlayColor() {
             ViewModel.Configuration.OverlayColor = ConfigurationService.DefaultBackgroundColor;
         }
