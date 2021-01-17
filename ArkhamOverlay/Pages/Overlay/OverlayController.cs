@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Data;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,22 @@ namespace ArkhamOverlay.Pages.Overlay {
                 || (e.PropertyName == nameof(Configuration.HandCardHeight))) {
                     CalculateMaxHeightForCards();    
                 }
+
+                if (e.PropertyName == nameof(Configuration.OverlayHeight)) {
+                    CalculateDeckListHeight();
+                    CalculateDeckListFontSize();
+                }
+
+                if (e.PropertyName == nameof(Configuration.OverlayWidth)) {
+                    CalculateDeckListItemWidth();
+                    CalculateDeckListMargin();
+                }
             };
+
+            CalculateDeckListHeight();
+            CalculateDeckListFontSize();
+            CalculateDeckListItemWidth();
+            CalculateDeckListMargin();
 
             foreach (var overlayCards in ViewModel.AllOverlayCards) {
                 overlayCards.CollectionChanged += (s, e) => CalculateMaxHeightForCards();
@@ -46,6 +62,25 @@ namespace ArkhamOverlay.Pages.Overlay {
                 Closed?.Invoke();
             };
         }
+
+        private void CalculateDeckListHeight() {
+            ViewModel.DeckListHeight = _appData.Configuration.OverlayHeight - 40;
+        }
+
+        private void CalculateDeckListFontSize() {
+            ViewModel.DeckListFontSize = _appData.Configuration.OverlayHeight / 24;
+        }
+
+        private void CalculateDeckListItemWidth() {
+            ViewModel.DeckListItemWidth = (_appData.Configuration.OverlayWidth - _appData.Configuration.OverlayWidth * .2) / 2;
+        }
+
+        private void CalculateDeckListMargin() {
+            var horizontalMargin = _appData.Configuration.OverlayWidth * .1;
+
+            ViewModel.DeckListMargin = new Thickness(horizontalMargin, 10, horizontalMargin, 10);
+        }
+
 
         private void CalculateMaxHeightForCards() {
             var actAgendaHeight = Math.Min(_configuration.ActAgendaCardHeight,  CalculateMaxHeightForRow(ViewModel.ActAgendaCards));
@@ -142,6 +177,16 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         private void ShowDeckListHandler(SelectableCards selectableCards) {
             RemoveAllVisibleCards();
+
+            var cards = from cardButton in selectableCards.CardButtons.OfType<ShowCardButton>()
+                        select cardButton.Card;
+
+            var deckList = new List<string>();
+            foreach (var card in cards) {
+                deckList.Add(card.Name);
+            }
+
+            ViewModel.DeckList = deckList;
         }
 
         private void RemoveAllVisibleCards() {

@@ -38,7 +38,25 @@
         </Grid.RowDefinitions>
 
         <ItemsControl 
-            Grid.Row="0"    
+            Grid.Row="0"
+            Margin="{Binding DeckListMargin}"
+            Height="{Binding DeckListHeight}"
+            ItemsSource="{Binding DeckList}"
+            FontSize="{Binding DeckListFontSize}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Vertical" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Width="{Binding DataContext.DeckListItemWidth, RelativeSource={RelativeSource AncestorType=Window}}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <ItemsControl 
+            Grid.Row="0"
             ItemsSource="{Binding ActAgendaCards}"
             HorizontalAlignment="Center" 
             VerticalAlignment="Top">
