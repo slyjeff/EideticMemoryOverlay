@@ -40,7 +40,17 @@ namespace ArkhamOverlay.Pages.Overlay {
             _card = card;
         }
 
-        public string Name { get { return _card.Name; } }
+        public string Name { 
+            get {
+                var name = _card.NameWithoutXp;
+                for (var x = 0; x < _card.Xp; x++) {
+                    name += "•";
+                }
+
+                return _card.Count + "x " + name; 
+            } 
+        }
+
         public Brush Foreground { 
             get { 
                 switch (_card.Faction) {
