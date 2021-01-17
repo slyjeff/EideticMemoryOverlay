@@ -103,9 +103,10 @@
                             <TextBox Margin="10, 0, 0, 0" MaxLength="10" Text="{Binding DeckId, Mode=TwoWay}" />
                             <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.Refresh, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">⟲</Button>
                             <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.PlayerSelected, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}" Visibility="{Binding LoadedVisiblity}" >🠆</Button>
+                            <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.ShowDeckList, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}" Visibility="{Binding LoadedVisiblity}" >List</Button>
                         </StackPanel>
 
-                        <Border BorderThickness="1" Background="Transparent" CornerRadius="10" Margin="0,5,0,0" >
+                        <Border BorderThickness="2" Background="Transparent" CornerRadius="10" Margin="0,5,0,0" Width="221" HorizontalAlignment="Left">
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Style.Triggers>

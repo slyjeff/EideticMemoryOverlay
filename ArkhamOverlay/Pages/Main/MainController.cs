@@ -119,7 +119,11 @@ namespace ArkhamOverlay.Pages.Main {
 
             timer.Start();
         }
-
+        private void MainWindowActivated(object sender, EventArgs e) {
+            foreach (var selectCardsWindow in _selectCardsControllers) {
+                selectCardsWindow.Show();
+            }
+        }
 
         [Command]
         public void SaveGame() {
@@ -186,12 +190,6 @@ namespace ArkhamOverlay.Pages.Main {
             }
         }
 
-        private void MainWindowActivated(object sender, EventArgs e) {
-            foreach (var selectCardsWindow in _selectCardsControllers) {
-                selectCardsWindow.Show();
-            }
-        }
-
         [Command]
         public void PlayerSelected(SelectableCards selectableCards) {
             var startingPositionProperty = string.Empty;
@@ -201,6 +199,10 @@ namespace ArkhamOverlay.Pages.Main {
             else if (ViewModel.Game.Players[3].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player4Position); }
 
             ShowSelectCardsWindow(selectableCards, startingPositionProperty);
+        }
+
+        [Command]
+        public void ShowDeckList(SelectableCards selectableCards) {
         }
 
         [Command]
