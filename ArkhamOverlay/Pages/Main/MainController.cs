@@ -243,5 +243,10 @@ namespace ArkhamOverlay.Pages.Main {
                 selectCardsWindow.Activate();
             }
         }
+        
+        [Command]
+        public void ResetOverlayColor() {
+            ViewModel.Configuration.OverlayColor = ConfigurationService.DefaultBackgroundColor;
+        }
     }
 }

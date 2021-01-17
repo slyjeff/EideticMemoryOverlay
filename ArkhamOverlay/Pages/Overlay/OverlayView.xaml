@@ -4,33 +4,33 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:overlay="clr-namespace:ArkhamOverlay.Pages.Overlay" 
+        xmlns:utils="clr-namespace:ArkhamOverlay.Utils"
         d:DataContext="{d:DesignInstance Type=overlay:OverlayViewModel}"
         mc:Ignorable="d"
         Title="Arkham Overlay"
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
         Left = "10">
-    <Grid Width="{Binding AppData.Configuration.OverlayWidth}" 
-        Height="{Binding AppData.Configuration.OverlayHeight}" 
-        Background="#00B164">
-        <Grid.Resources>
-            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <utils:ColorToBrushConverter x:Key="ColorToBrush" />
 
-            <Style x:Key="CardImage" TargetType="{x:Type Image}" >
-                <Setter Property="Margin" Value="{Binding Margin}" />
-                <Setter Property="Height" Value="{Binding Height}" />
-                <Setter Property="Width" Value="{Binding Width}" />
-                <Setter Property="Clip">
-                    <Setter.Value>
-                        <RectangleGeometry RadiusX="{Binding Radius }"
+        <Style x:Key="CardImage" TargetType="{x:Type Image}" >
+            <Setter Property="Margin" Value="{Binding Margin}" />
+            <Setter Property="Height" Value="{Binding Height}" />
+            <Setter Property="Width" Value="{Binding Width}" />
+            <Setter Property="Clip">
+                <Setter.Value>
+                    <RectangleGeometry RadiusX="{Binding Radius }"
                                            RadiusY="{Binding Radius }"
                                            Rect="{Binding ClipRect }"/>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </Grid.Resources>
-
-
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Width="{Binding AppData.Configuration.OverlayWidth}" 
+        Height="{Binding AppData.Configuration.OverlayHeight}" 
+        Background="{Binding Path=AppData.Configuration.OverlayColor, Converter={StaticResource ColorToBrush}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 
 namespace ArkhamOverlay.Data {
     public class Configuration : IConfiguration, INotifyPropertyChanged {
@@ -11,9 +12,19 @@ namespace ArkhamOverlay.Data {
             Packs = new List<Pack>();
         }
 
+        private Color _overlayColor;
         private int _overlayHeight;
         private int _overlayWidth;
         private int _cardHeight;
+
+        public Color OverlayColor {
+            get => _overlayColor;
+            set {
+                _overlayColor = value;
+                OnPropertyChanged(nameof(OverlayColor));
+                OnConfigurationChange();
+            }
+        }
 
         public int OverlayHeight {
             get => _overlayHeight;
