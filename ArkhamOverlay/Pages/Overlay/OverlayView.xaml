@@ -10,7 +10,8 @@
         Title="Arkham Overlay"
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
-        Left = "10">
+        Left = "10"
+        Background="White">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <utils:ColorToBrushConverter x:Key="ColorToBrush" />
@@ -50,7 +51,18 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding}" Width="{Binding DataContext.DeckListItemWidth, RelativeSource={RelativeSource AncestorType=Window}}" />
+                    <TextBlock Text="{Binding Name}"
+                               Foreground="{Binding Foreground}"
+                               Width="{Binding DataContext.DeckListItemWidth, RelativeSource={RelativeSource AncestorType=Window}}">
+                        <TextBlock.Effect>
+                            <DropShadowEffect
+                              ShadowDepth="3"
+                              Direction="330"
+                              Color="Black"
+                              Opacity="0.3"
+                             BlurRadius="4"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

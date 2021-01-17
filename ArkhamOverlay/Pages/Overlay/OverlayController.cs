@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayController : Controller<OverlayView, OverlayViewModel> {
@@ -181,9 +180,9 @@ namespace ArkhamOverlay.Pages.Overlay {
             var cards = from cardButton in selectableCards.CardButtons.OfType<ShowCardButton>()
                         select cardButton.Card;
 
-            var deckList = new List<string>();
+            var deckList = new List<DeckListItem>();
             foreach (var card in cards) {
-                deckList.Add(card.Name);
+                deckList.Add(new DeckListItem(card));
             }
 
             ViewModel.DeckList = deckList;

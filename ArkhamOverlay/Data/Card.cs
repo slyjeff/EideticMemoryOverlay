@@ -111,7 +111,7 @@ namespace ArkhamOverlay.Data {
 
         public string Name { get; }
         public string Code { get; }
-        public Faction Faction { get; set;  }
+        public Faction Faction { get; set; }
 
         public string ImageSource { get; }
         public ImageSource Image { get; private set; }

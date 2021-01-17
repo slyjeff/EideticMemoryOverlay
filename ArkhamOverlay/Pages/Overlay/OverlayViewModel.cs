@@ -3,6 +3,7 @@ using PageController;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Media;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayViewModel : ViewModel {
@@ -19,7 +20,7 @@ namespace ArkhamOverlay.Pages.Overlay {
         public virtual double DeckListHeight { get; set; }
         public virtual Thickness DeckListMargin { get; set; }
 
-        public virtual IList<string> DeckList { get; set; }
+        public virtual IList<DeckListItem> DeckList { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> ActAgendaCards { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> HandCards { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> EncounterCards { get; set; }
@@ -31,5 +32,26 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         public CardSet CurrentlyDisplayedHandCardSet { get; set; }
+    }
+
+    public class DeckListItem {
+        private Card _card;
+        public DeckListItem(Card card) {
+            _card = card;
+        }
+
+        public string Name { get { return _card.Name; } }
+        public Brush Foreground { 
+            get { 
+                switch (_card.Faction) {
+                    case Faction.Guardian: return new SolidColorBrush(Colors.DarkBlue);
+                    case Faction.Seeker: return new SolidColorBrush(Colors.DarkGoldenrod);
+                    case Faction.Mystic: return new SolidColorBrush(Colors.Purple);
+                    case Faction.Rogue: return new SolidColorBrush(Colors.DarkGreen);
+                    case Faction.Survivor: return new SolidColorBrush(Colors.DarkRed);
+                    default: return new SolidColorBrush(Colors.Black);
+                }
+            } 
+        }
     }
 }
