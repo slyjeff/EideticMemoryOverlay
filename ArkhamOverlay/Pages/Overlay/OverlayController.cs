@@ -99,6 +99,7 @@ namespace ArkhamOverlay.Pages.Overlay {
 
 
         private void InitializeSelectableCards(SelectableCards selectableCards) {
+            selectableCards.ShowDeckListTriggered += () => ShowDeckListHandler(selectableCards);
             selectableCards.CardVisibilityToggled += ToggleCardVisibilityHandler;
 
             selectableCards.CardSet.VisibilityToggled += () => {
@@ -138,6 +139,23 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         public event Action Closed;
+
+        private void ShowDeckListHandler(SelectableCards selectableCards) {
+            RemoveAllVisibleCards();
+        }
+
+        private void RemoveAllVisibleCards() {
+            if (ViewModel.ActAgendaCards.Any()) {
+                ViewModel.ActAgendaCards.RemoveOverlayCards(ViewModel.ActAgendaCards.ToArray());
+            }
+
+            if (ViewModel.HandCards.Any()) {
+                ViewModel.HandCards.RemoveOverlayCards(ViewModel.HandCards.ToArray());
+            }
+
+            _appData.Game.ClearAllCards();
+        }
+
 
         internal void ToggleCardVisibilityHandler(Card card) {
             card.IsDisplayedOnOverlay = !card.IsDisplayedOnOverlay;

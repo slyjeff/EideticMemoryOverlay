@@ -203,8 +203,7 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void ShowDeckList(SelectableCards selectableCards) {
-            ViewModel.AppData.Game.ClearAllCards();
-            ViewModel.AppData.Game.ClearAllCardSets();
+            selectableCards.ShowDeckList();
         }
 
         [Command]

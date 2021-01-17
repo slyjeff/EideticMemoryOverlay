@@ -90,13 +90,5 @@ namespace ArkhamOverlay.Data {
                 selectableCards.HideAllCards();
             }
         }
-
-        internal void ClearAllCardSets() {
-            foreach (var selectableCards in AllSelectableCards) {
-                if (selectableCards.CardSet.IsDisplayedOnOverlay) {
-                    selectableCards.CardSet.ToggleVisibility();
-                }
-            }
-        }
     }
 }
