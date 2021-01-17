@@ -3,9 +3,11 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
+using System.Windows.Media;
 
 namespace ArkhamOverlay.Services {
     public interface IConfiguration {
+        Color OverlayColor { get; set; }
         int OverlayHeight { get; set; }
         int OverlayWidth { get; set; }
         int CardHeight { get; set; }
@@ -27,6 +29,7 @@ namespace ArkhamOverlay.Services {
             Packs = new List<Pack>();
         }
                 
+        public Color OverlayColor { get; set; }
         public int OverlayHeight { get; set; }
         public int OverlayWidth { get; set; }
         public int CardHeight { get; set; }
@@ -53,6 +56,7 @@ namespace ArkhamOverlay.Services {
 
         public void Load() {
             var configuration = new ConfigurationFile {
+                OverlayColor = (Color)ColorConverter.ConvertFromString("#00B164"),
                 OverlayWidth = 1228,
                 OverlayHeight = 720,
                 CardHeight = 300,
@@ -82,6 +86,7 @@ namespace ArkhamOverlay.Services {
 
     public static class ConfigurationExtensions {
         public static void CopyTo(this IConfiguration fromConfiguration, IConfiguration toConfiguration) {
+            toConfiguration.OverlayColor = fromConfiguration.OverlayColor;
             toConfiguration.OverlayHeight = fromConfiguration.OverlayHeight;
             toConfiguration.OverlayWidth = fromConfiguration.OverlayWidth;
             toConfiguration.CardHeight = fromConfiguration.CardHeight;
