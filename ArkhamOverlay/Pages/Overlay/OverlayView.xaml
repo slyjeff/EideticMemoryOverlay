@@ -12,7 +12,6 @@
         SizeToContent="WidthAndHeight"
         Left = "10">
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <utils:ColorToBrushConverter x:Key="ColorToBrush" />
 
         <Style x:Key="CardImage" TargetType="{x:Type Image}" >

@@ -64,6 +64,14 @@
             <TextBlock Text="Status:" Margin="20, 0, 0, 0" Grid.Row="0" Grid.Column="1" />
             <TextBlock Text="{Binding AppData.Status}" TextWrapping="NoWrap" Margin="20, 5, 0, 0" Grid.Row="1" Grid.Column="1" />
         </Grid>
+        
+        <StackPanel Orientation="Vertical" Margin="0, 0, 0, 0">
+            <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+                <TextBlock Text="Snapshot Directory:" />
+                <TextBlock Margin="10,0,0,0"  Text="{Binding Game.SnapshotDirectory}" />
+            </StackPanel>
+            <Button Margin="0, 2, 0, 0" Command="{Binding SelectSnapshotDirectory}">Choose Directory</Button>
+        </StackPanel>
 
         <StackPanel Orientation="Horizontal" 
                     Margin="0, 10, 0, 0"
@@ -148,8 +156,9 @@
 
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
             <Button Command="{Binding ShowOverlay}">Show Overlay</Button>
-            <Button Margin="10, 0, 0, 0" Command="{Binding ClearCards}">Clear Cards</Button>
-            <Button Margin="10, 0, 0, 0" Command="{Binding ShowAllWindows}">Show All Windows</Button>
+            <Button Margin="10, 0, 0, 0" Command="{Binding ClearCards}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Clear Cards</Button>
+            <Button Margin="10, 0, 0, 0" Command="{Binding ShowAllWindows}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Show All Windows</Button>
+            <Button Margin="10, 0, 0, 0" Command="{Binding TakeSnapeshot}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Snapshot</Button>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
