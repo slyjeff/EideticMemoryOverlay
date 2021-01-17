@@ -152,7 +152,7 @@
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
-            <TextBlock Margin = "10, 0, 0, 0" Text="Overlay background color:" />
+            <TextBlock Text="Overlay background color:" />
             <xctk:ColorPicker Margin = "10, 0, 0, 0" Name="OverlayColorPicker" SelectedColor="{Binding Configuration.OverlayColor}" />
             <Button Margin="10, 0, 0, 0" Command="{Binding ResetOverlayColor}">Reset Overlay Color</Button>
         </StackPanel>
