@@ -10,7 +10,7 @@
     <body>
         <div class="sdpi-item" id="selectDeckGroup">
             <div class="sdpi-item-label">Deck</div> 
-            <select class="sdpi-item-value select" id="selectDeck" onchange="sendValueToPlugin(event.target.value, 'deck')">
+            <select class="sdpi-item-value select" id="selectDeck" onchange="sendCardButtonValueToPlugin(event.target.value, 'deck')">
                 <option value="player1">Player 1</option>
                 <option value="player2">Player 2</option>
                 <option value="player3">Player 3</option>
@@ -18,6 +18,16 @@
                 <option value="scenario">Scenario Cards</option>
                 <option value="locations">Locations</option>
                 <option value="encounterDeck">Encounter Deck</option>
+            </select> 
+        </div>
+
+        <div class="sdpi-item" id="selectPlayerGroup">
+            <div class="sdpi-item-label">Deck</div> 
+            <select class="sdpi-item-value select" id="selectPlayer" onchange="sendDeckListValueToPlugin(event.target.value, 'deck')">
+                <option value="player1">Player 1</option>
+                <option value="player2">Player 2</option>
+                <option value="player3">Player 3</option>
+                <option value="player4">Player 4</option>
             </select> 
         </div>
 

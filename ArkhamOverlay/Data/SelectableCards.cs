@@ -79,6 +79,11 @@ namespace ArkhamOverlay.Data {
         public bool Loading { get; internal set; }
 
 
+        public event Action ShowDeckListTriggered;
+        public void ShowDeckList() {
+            ShowDeckListTriggered?.Invoke();
+        }
+
         public event Action<Card> CardVisibilityToggled;
         public void ToggleCardVisibility(Card card) {
             CardVisibilityToggled?.Invoke(card);
@@ -88,7 +93,6 @@ namespace ArkhamOverlay.Data {
         public void OnButtonChanged(ICardButton button) {
             ButtonChanged?.Invoke(button);
         }
-
 
         internal void ToggleCardSetVisibility() {
             if (_showSetButton == null) {

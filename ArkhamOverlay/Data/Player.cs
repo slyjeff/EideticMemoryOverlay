@@ -22,7 +22,7 @@ namespace ArkhamOverlay.Data {
         public BitmapImage InvestigatorImage { get; set; }
 
         [JsonIgnore]
-        public IEnumerable<string> CardIds { get; set; }
+        public IDictionary<string, int> Slots { get; set; }
 
         [JsonIgnore]
         public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(SelectableCards.Name) ? Visibility.Hidden : Visibility.Visible; } }

@@ -8,7 +8,8 @@
         UpdateCardInfo, 
         RegisterForUpdates,
         ToggleActAgendaBarRequest,
-        ActAgendaBarStatusRequest
+        ActAgendaBarStatusRequest,
+        ShowDeckList
     };
 
     public static class AoTcpRequestExtensions {
@@ -30,6 +31,8 @@
                     return "ToggleActAgendaBarRequest";
                 case AoTcpRequest.ActAgendaBarStatusRequest:
                     return "ActAgendaBarStatusRequest";
+                case AoTcpRequest.ShowDeckList:
+                    return "ShowDeckList";
                 default:
                     return "Unkown";
             }
@@ -53,6 +56,8 @@
                     return AoTcpRequest.ToggleActAgendaBarRequest;
                 case "ActAgendaBarStatusRequest":
                     return AoTcpRequest.ActAgendaBarStatusRequest;
+                case "ShowDeckList":
+                    return AoTcpRequest.ShowDeckList;
                 default:
                     return AoTcpRequest.Unknown;
             }

@@ -25,7 +25,7 @@ namespace ArkhamOverlay.Services {
             using (StreamReader reader = new StreamReader(stream)) {
                 var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
                 player.InvestigatorImage = new BitmapImage(new Uri("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png", UriKind.Absolute));
-                player.CardIds = from cardId in arkhamDbDeck.Slots.Keys select cardId;
+                player.Slots = arkhamDbDeck.Slots;
                 player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
                 player.OnPlayerChanged();
             }
@@ -34,22 +34,22 @@ namespace ArkhamOverlay.Services {
         }
 
         internal void LoadPlayerCards(Player player) {
-            if (player.CardIds == null) {
+            if (player.Slots == null) {
                 return;
             }
 
             player.SelectableCards.Loading = true;
             try {
                 var cards = new List<Card>();
-                foreach (var cardId in player.CardIds) {
+                foreach (var slot in player.Slots) {
                     var baseCardUrl = @"https://arkhamdb.com/api/public/card/";
-                    HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(baseCardUrl + cardId);
+                    HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(baseCardUrl + slot.Key);
 
                     using (HttpWebResponse cardRsponse = (HttpWebResponse)cardRequest.GetResponse())
                     using (Stream cardStream = cardRsponse.GetResponseStream())
                     using (StreamReader cardReader = new StreamReader(cardStream)) {
                         var arkhamDbCard = JsonConvert.DeserializeObject<ArkhamDbCard>(cardReader.ReadToEnd());
-                        cards.Add(new Card(arkhamDbCard, true));
+                        cards.Add(new Card(arkhamDbCard, slot.Value, true));
                     }
                 }
                 player.SelectableCards.LoadCards(cards);
@@ -143,10 +143,10 @@ namespace ArkhamOverlay.Services {
                             continue;
                         }
 
-                        var newCard = new Card(arkhamDbCard, false);
+                        var newCard = new Card(arkhamDbCard, 1, false);
                         cards.Add(newCard);
                         if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) {
-                            var newCardBack = new Card(arkhamDbCard, false, true);
+                            var newCardBack = new Card(arkhamDbCard, 1, false, true);
                             newCard.FlipSideCard = newCardBack;
                             newCardBack.FlipSideCard = newCard;
                             cards.Add(newCardBack);

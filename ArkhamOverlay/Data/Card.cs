@@ -19,9 +19,12 @@ namespace ArkhamOverlay.Data {
         public Card() {
         }
 
-        public Card(ArkhamDbCard arkhamDbCard, bool isPlayerCard, bool cardBack = false) {
+        public Card(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false) {
             Code = arkhamDbCard.Code;
+            Count = count;
             Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")";
+            NameWithoutXp = arkhamDbCard.Name;
+            Xp = arkhamDbCard.Xp == null ? 0 : int.Parse(arkhamDbCard.Xp);
             Faction = GetFaction(arkhamDbCard.Faction_Name);
             Type = GetCardType(arkhamDbCard.Type_Code);
             ImageSource = cardBack ? arkhamDbCard.BackImageSrc : arkhamDbCard.ImageSrc;
@@ -110,8 +113,11 @@ namespace ArkhamOverlay.Data {
         }
 
         public string Name { get; }
+        public string NameWithoutXp { get; }
+        public int Xp { get; }
         public string Code { get; }
-        public Faction Faction { get; set;  }
+        public Faction Faction { get; set; }
+        public int Count { get; set; }
 
         public string ImageSource { get; }
         public ImageSource Image { get; private set; }

@@ -16,6 +16,19 @@
             ]
         },
         {
+            "Name": "Show Deck List",
+            "UUID": "arkhamoverlay.showdecklist",
+            "Tooltip": "Show or Hide the Deck List",
+            "States": [
+                {
+                    "Name": "Visible",
+                    "FontSize": "9",
+                    "Image": "",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        },
+        {
             "Name": "Toggle Act/Agenda Bar",
             "UUID": "arkhamoverlay.toggleactagendabar",
             "Tooltip": "Show or Hide the Act/Agenda Bar",
