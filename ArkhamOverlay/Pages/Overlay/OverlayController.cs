@@ -208,7 +208,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             _appData.Game.ClearAllCards();
         }
 
-
         internal void ToggleCardVisibilityHandler(Card card) {
             ClearDeckList();
 

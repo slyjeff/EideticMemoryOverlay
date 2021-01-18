@@ -37,6 +37,9 @@ namespace ArkhamOverlay.Services {
                 case AoTcpRequest.RegisterForUpdates:
                     HandleRegisterForUpdates(request);
                     break;
+                case AoTcpRequest.ShowDeckList:
+                    HandleShowDeckList(request);
+                    break;
             }
         }
 
@@ -98,6 +101,14 @@ namespace ArkhamOverlay.Services {
                     _alreadyRegisteredEvents = true;
                 }
             }
+
+            SendOkResponse(request.Socket);
+        }
+
+        private void HandleShowDeckList(TcpRequest request) {
+            var showDeckListRequest = JsonConvert.DeserializeObject<ShowDeckListRequest>(request.Body);
+            var selectableCards = GetDeck(showDeckListRequest.Deck);
+            selectableCards.ShowDeckList();
 
             SendOkResponse(request.Socket);
         }
