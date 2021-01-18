@@ -12,12 +12,15 @@ namespace ArkhamOverlay.Data {
             Packs = new List<Pack>();
         }
 
+        public bool TrackPlayerStats { get { return TrackHealthAndSanity || TrackResources || TrackClues; } }
+
         private bool _trackHealthAndSanity;
         public bool TrackHealthAndSanity {
             get => _trackHealthAndSanity;
             set {
                 _trackHealthAndSanity = value;
                 NotifyPropertyChanged(nameof(TrackHealthAndSanity));
+                NotifyPropertyChanged(nameof(TrackPlayerStats));
                 OnConfigurationChange();
             }
         }
@@ -28,6 +31,7 @@ namespace ArkhamOverlay.Data {
             set {
                 _trackResources = value;
                 NotifyPropertyChanged(nameof(TrackResources));
+                NotifyPropertyChanged(nameof(TrackPlayerStats));
                 OnConfigurationChange();
             }
         }
@@ -38,6 +42,7 @@ namespace ArkhamOverlay.Data {
             set {
                 _trackClues = value;
                 NotifyPropertyChanged(nameof(TrackClues));
+                NotifyPropertyChanged(nameof(TrackPlayerStats));
                 OnConfigurationChange();
             }
         }

@@ -142,8 +142,10 @@
                             <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.ShowDeckList, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}" Visibility="{Binding LoadedVisiblity}" >List</Button>
                         </StackPanel>
 
-                        <StackPanel Orientation="Horizontal" Margin="5, 5, 0 ,0" Visibility="{Binding LoadedVisiblity}">
-                            <Grid DataContext="{Binding Health}" Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal" Margin="5, 5, 0 ,0" Visibility="{Binding StatTrackingVisibility}">
+                            <Grid DataContext="{Binding Health}"
+                                  Margin="0,0,10,0"
+                                  Visibility="{Binding DataContext.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <Image Style="{DynamicResource TrackValueImage}" />
                                 <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
                                 <Grid.InputBindings>
@@ -153,7 +155,9 @@
                                     <MouseBinding MouseAction="RightDoubleClick" Command="{Binding Decrease}"/>
                                 </Grid.InputBindings>
                             </Grid>
-                            <Grid DataContext="{Binding Sanity}"  Margin="0,0,10,0">
+                            <Grid DataContext="{Binding Sanity}"                                    
+                                  Margin="0,0,10,0"
+                                  Visibility="{Binding DataContext.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <Image Style="{DynamicResource TrackValueImage}" />
                                 <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
                                 <Grid.InputBindings>
@@ -163,7 +167,9 @@
                                     <MouseBinding MouseAction="RightDoubleClick" Command="{Binding Decrease}"/>
                                 </Grid.InputBindings>
                             </Grid>
-                            <Grid DataContext="{Binding Resources}"  Margin="0,0,10,0">
+                            <Grid DataContext="{Binding Resources}"
+                                  Margin="0,0,10,0"
+                                  Visibility="{Binding DataContext.Configuration.TrackResources, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <Image Style="{DynamicResource TrackValueImage}" />
                                 <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
                                 <Grid.InputBindings>
@@ -173,7 +179,8 @@
                                     <MouseBinding MouseAction="RightDoubleClick" Command="{Binding Decrease}"/>
                                 </Grid.InputBindings>
                             </Grid>
-                            <Grid DataContext="{Binding Clues}">
+                            <Grid DataContext="{Binding Clues}"
+                                Visibility="{Binding DataContext.Configuration.TrackClues, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <Image Style="{DynamicResource TrackValueImage}" />
                                 <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
                                 <Grid.InputBindings>

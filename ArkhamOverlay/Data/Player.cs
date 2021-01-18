@@ -8,13 +8,22 @@ using System.Windows.Media.Imaging;
 
 namespace ArkhamOverlay.Data {
     public class Player : ViewModel {
-        public Player(int id) {
+        Configuration _configuration;
+
+        public Player(Configuration configuration, int id) {
+            _configuration = configuration;
             ID = id;
             SelectableCards = new SelectableCards(SelectableType.Player);
             Health = new Stat("health.png");
             Sanity = new Stat("sanity.png");
             Resources = new Stat("resource.png");
             Clues = new Stat("clue.png");
+
+            configuration.PropertyChanged += (s, e) => {
+                if (e.PropertyName == nameof(Configuration.TrackPlayerStats)) {
+                    NotifyPropertyChanged(nameof(StatTrackingVisibility));
+                }
+            };
         }
 
         public int ID { get; }
@@ -32,12 +41,15 @@ namespace ArkhamOverlay.Data {
         public void OnPlayerChanged() {
             NotifyPropertyChanged(nameof(LoadedVisiblity));
             NotifyPropertyChanged(nameof(InvestigatorImage));
+            NotifyPropertyChanged(nameof(StatTrackingVisibility));
         }
 
         public Stat Health { get; }
         public Stat Sanity { get; }
         public Stat Resources { get; }
         public Stat Clues { get; }
+        
+        public Visibility StatTrackingVisibility { get { return string.IsNullOrEmpty(SelectableCards.Name) || !_configuration.TrackPlayerStats ? Visibility.Collapsed : Visibility.Visible; } }
     }
 
     public class Stat : ViewModel {
