@@ -45,7 +45,6 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
 
         selectDeckGroup.style.display = "none";
     } else {
-        let element = document.getElementById('selectDeckGroup');
         selectDeckGroup.style.display = "none";
         selectPlayerGroup.style.display = "none";
     }
