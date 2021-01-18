@@ -1,6 +1,6 @@
 ﻿namespace ArkhamOverlay.TcpUtils.Requests {
-    public class GetCardInfoRequest : Request {
-        public GetCardInfoRequest() : base(AoTcpRequest.GetCardInfo) {
+    public class ButtonImageRequest : Request {
+        public ButtonImageRequest() : base(AoTcpRequest.GetButtonImage) {
         }
 
         public Deck Deck { get; set; }

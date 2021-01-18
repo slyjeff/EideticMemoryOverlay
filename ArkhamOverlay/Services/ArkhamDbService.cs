@@ -52,7 +52,7 @@ namespace ArkhamOverlay.Services {
                         cards.Add(new Card(arkhamDbCard, slot.Value, true));
                     }
                 }
-                player.SelectableCards.LoadCards(cards.OrderBy(x => x.Name.Replace("\"", "")));
+                player.SelectableCards.LoadCards(cards);
             }
             finally {
                 player.SelectableCards.Loading = false;
@@ -168,10 +168,8 @@ namespace ArkhamOverlay.Services {
                                 locations.Add(card);
                                 break;
                             case CardType.Treachery:
-                                treacheries.Add(card);
-                                break;
                             case CardType.Enemy:
-                                enemies.Add(card);
+                                treacheries.Add(card);
                                 break;
                             default:
                                 break;
@@ -182,10 +180,7 @@ namespace ArkhamOverlay.Services {
                 scenarioCards.AddRange(agendas);
                 scenarioCards.AddRange(acts);
                 mainViewModel.Game.ScenarioCards.LoadCards(scenarioCards);
-
                 mainViewModel.Game.LocationCards.LoadCards(locations);
-
-                treacheries.AddRange(enemies);
                 mainViewModel.Game.EncounterDeckCards.LoadCards(treacheries);
             } finally {
                 mainViewModel.Game.ScenarioCards.Loading = false;

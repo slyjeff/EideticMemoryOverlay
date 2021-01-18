@@ -1,12 +1,14 @@
 ﻿using ArkhamOverlay.TcpUtils;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
-using System.Net;
 
 namespace StreamDeckPlugin.Utils {
     public static class ImageUtils {
+        public static IDictionary<string, byte[]> ImageCache = new Dictionary<string, byte[]>();
+
         const int ImageHeightAndWidth = 220;
 
         public static string BlankImage() {
@@ -20,11 +22,11 @@ namespace StreamDeckPlugin.Utils {
         }
 
         public static string AsImage(this ICardInfo cardInfo) {
-            var bitmap = cardInfo.ImageBytes == null
-                       ? CreateSolidBackgroundBitmap(cardInfo.CardButtonType)
-                       : CreateCardArtBitmap(cardInfo);
+            var bitmap = ImageCache.ContainsKey(cardInfo.Name)
+                       ? CreateCardArtBitmap(ImageCache[cardInfo.Name])
+                       : CreateSolidBackgroundBitmap(cardInfo.CardButtonType);
 
-            if (cardInfo.IsVisible) {
+            if (cardInfo.IsToggled) {
                 DrawSelected(bitmap);
             }
 
@@ -89,9 +91,9 @@ namespace StreamDeckPlugin.Utils {
             return bitmap;
         }
 
-        public static Bitmap CreateCardArtBitmap(ICardInfo cardInfo) {
+        public static Bitmap CreateCardArtBitmap(byte[] bytes) {
             Bitmap bitmap;
-            using (var stream = new MemoryStream(cardInfo.ImageBytes)) {
+            using (var stream = new MemoryStream(bytes)) {
                 bitmap = new Bitmap(stream);
             }
 

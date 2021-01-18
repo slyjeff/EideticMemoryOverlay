@@ -60,6 +60,18 @@
             ]
         },
         {
+            "Name": "Toggle Set",
+            "UUID": "arkhamoverlay.toggleset",
+            "Tooltip": "Toggle Hand",
+            "States": [
+                {
+                    "FontSize": "9",
+                    "Image": "",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        },
+        {
             "Name": "Page Right",
             "UUID": "arkhamoverlay.pageright",
             "Tooltip": "Display the next set of card buttons",

@@ -1,12 +1,12 @@
 ﻿using ArkhamOverlay.Services;
+using PageController;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 
 namespace ArkhamOverlay.Data {
-    public class Game : IGame, INotifyPropertyChanged {
+    public class Game : ViewModel, IGame {
         public Game() {
             Players = new List<Player> { new Player(1), new Player(2), new Player(3), new Player(4) };
             EncounterSets = new List<EncounterSet>();
@@ -18,6 +18,15 @@ namespace ArkhamOverlay.Data {
         public string Name { get; set; }
 
         public string Scenario { get; set; }
+        
+        private string _snapshotDirectory;
+        public string SnapshotDirectory {
+            get => _snapshotDirectory;
+            set {
+                _snapshotDirectory = value;
+                NotifyPropertyChanged(nameof(SnapshotDirectory));
+            }
+        }
 
         public IList<EncounterSet> EncounterSets { get; set;  }
 
@@ -27,7 +36,6 @@ namespace ArkhamOverlay.Data {
 
         public SelectableCards EncounterDeckCards { get; }
 
-
         public IList<Player> Players { get; }
 
         public event Action PlayersChanged;
@@ -35,24 +43,14 @@ namespace ArkhamOverlay.Data {
         public event Action EncounterSetsChanged;
         public void OnEncounterSetsChanged() {
             EncounterSetsChanged?.Invoke();
-            OnPropertyChanged(nameof(EncounterSets));
-            OnPropertyChanged(nameof(EncounterCardOptionsVisibility));
+            NotifyPropertyChanged(nameof(EncounterSets));
+            NotifyPropertyChanged(nameof(EncounterCardOptionsVisibility));
         }
 
         public Visibility EncounterCardOptionsVisibility { 
             get {
                 return EncounterSets.Any() ? Visibility.Visible : Visibility.Collapsed;
             } 
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged(string propertyName) {
-            var handler = PropertyChanged;
-            if (handler == null) {
-                return;
-            }
-            handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
         internal void ClearAllCardsLists() {
@@ -63,7 +61,7 @@ namespace ArkhamOverlay.Data {
 
         public void OnPlayersChanged() {
             PlayersChanged?.Invoke();
-            OnPropertyChanged(nameof(Players));
+            NotifyPropertyChanged(nameof(Players));
         }
 
         internal bool IsEncounterSetSelected(string code) {
