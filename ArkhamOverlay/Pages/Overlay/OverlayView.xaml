@@ -42,12 +42,12 @@
                 Background="White"
                 Margin="{Binding DeckListMargin}"
                 Height="{Binding DeckListHeight}"
-                CornerRadius="10">
+                CornerRadius="10"                
+                Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibility}}">
             <ItemsControl 
                 Margin="10"
-                ItemsSource="{Binding DeckList}"
                 FontSize="{Binding DeckListFontSize}"
-                Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibility}}">
+                ItemsSource="{Binding DeckList}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Vertical" />
