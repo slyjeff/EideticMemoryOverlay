@@ -96,7 +96,12 @@
                 <Button Margin="0, 10, 0, 0" Width="200" Command="{Binding ShowEncounterDeck}">Encounter Deck</Button>
             </StackPanel>
         </StackPanel>
-
+        <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+            <TextBlock Text="Track Player Values: " />
+            <CheckBox Margin="10, 1, 0, 0" IsChecked="{Binding Configuration.TrackHealthAndSanity}">TrackHealth/Sanity</CheckBox>
+            <CheckBox Margin="10, 1, 0, 0" IsChecked="{Binding Configuration.TrackResources}">Resources</CheckBox>
+            <CheckBox Margin="10, 1, 0, 0" IsChecked="{Binding Configuration.TrackClues}">Clues</CheckBox>
+        </StackPanel>
         <ItemsControl ItemsSource="{Binding Game.Players}" Margin="0, 10, 0, 0">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -161,7 +166,6 @@
             <Button Margin="10, 0, 0, 0" Command="{Binding ClearCards}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Clear Cards</Button>
             <Button Margin="10, 0, 0, 0" Command="{Binding TakeSnapshot}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Snapshot</Button>
         </StackPanel>
-
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
             <TextBlock Text="Overlay background color:" />
             <xctk:ColorPicker Margin = "10, 0, 0, 0" Name="OverlayColorPicker" SelectedColor="{Binding Configuration.OverlayColor}" />

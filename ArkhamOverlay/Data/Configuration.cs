@@ -1,55 +1,84 @@
 ﻿using ArkhamOverlay.Services;
+using PageController;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.Data {
-    public class Configuration : IConfiguration, INotifyPropertyChanged {
+    public class Configuration : ViewModel, IConfiguration {
         public Configuration() {
             Packs = new List<Pack>();
         }
 
-        private Color _overlayColor;
-        private int _overlayHeight;
-        private int _overlayWidth;
-        private int _cardHeight;
+        private bool _trackHealthAndSanity;
+        public bool TrackHealthAndSanity {
+            get => _trackHealthAndSanity;
+            set {
+                _trackHealthAndSanity = value;
+                NotifyPropertyChanged(nameof(TrackHealthAndSanity));
+                OnConfigurationChange();
+            }
+        }
 
+        private bool _trackResources;
+        public bool TrackResources {
+            get => _trackResources;
+            set {
+                _trackResources = value;
+                NotifyPropertyChanged(nameof(TrackResources));
+                OnConfigurationChange();
+            }
+        }
+
+        private bool _trackClues;
+        public bool TrackClues {
+            get => _trackClues;
+            set {
+                _trackClues = value;
+                NotifyPropertyChanged(nameof(TrackClues));
+                OnConfigurationChange();
+            }
+        }
+
+        private Color _overlayColor;
         public Color OverlayColor {
             get => _overlayColor;
             set {
                 _overlayColor = value;
-                OnPropertyChanged(nameof(OverlayColor));
+                NotifyPropertyChanged(nameof(OverlayColor));
                 OnConfigurationChange();
             }
         }
 
+        private int _overlayHeight;
         public int OverlayHeight {
             get => _overlayHeight;
             set {
                 _overlayHeight = value;
-                OnPropertyChanged(nameof(OverlayHeight));
+                NotifyPropertyChanged(nameof(OverlayHeight));
                 OnConfigurationChange();
             }
         }
 
+        private int _overlayWidth;
         public int OverlayWidth {
             get => _overlayWidth;
             set {
                 _overlayWidth = value;
-                OnPropertyChanged(nameof(OverlayWidth));
+                NotifyPropertyChanged(nameof(OverlayWidth));
                 OnConfigurationChange();
             }
         }
 
+        private int _cardHeight;
         public int CardHeight {
             get => _cardHeight;
             set {
                 _cardHeight = value;
 
-                OnPropertyChanged(nameof(CardHeight));
+                NotifyPropertyChanged(nameof(CardHeight));
                 OnConfigurationChange();
             }
         }
@@ -60,7 +89,7 @@ namespace ArkhamOverlay.Data {
             set {
                 _actAgendaCardHeight = value;
 
-                OnPropertyChanged(nameof(ActAgendaCardHeight));
+                NotifyPropertyChanged(nameof(ActAgendaCardHeight));
                 OnConfigurationChange();
             }
         }
@@ -71,7 +100,7 @@ namespace ArkhamOverlay.Data {
             set {
                 _handCardHeight = value;
 
-                OnPropertyChanged(nameof(HandCardHeight));
+                NotifyPropertyChanged(nameof(HandCardHeight));
                 OnConfigurationChange();
             }
         }
@@ -162,17 +191,6 @@ namespace ArkhamOverlay.Data {
         public event Action ConfigurationChanged;
         public void OnConfigurationChange() {
             ConfigurationChanged?.Invoke();
-        }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged(string propertyName) {
-            var handler = PropertyChanged;
-            if (handler == null) {
-                return;
-            }
-            handler(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

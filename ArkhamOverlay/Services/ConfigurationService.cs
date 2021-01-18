@@ -7,6 +7,9 @@ using System.Windows.Media;
 
 namespace ArkhamOverlay.Services {
     public interface IConfiguration {
+        bool TrackHealthAndSanity { get; set; }
+        bool TrackResources { get; set; }
+        bool TrackClues { get; set; }
         Color OverlayColor { get; set; }
         int OverlayHeight { get; set; }
         int OverlayWidth { get; set; }
@@ -28,7 +31,10 @@ namespace ArkhamOverlay.Services {
         public ConfigurationFile() {
             Packs = new List<Pack>();
         }
-                
+
+        public bool TrackHealthAndSanity { get; set; }
+        public bool TrackResources { get; set; }
+        public bool TrackClues { get; set; }
         public Color OverlayColor { get; set; }
         public int OverlayHeight { get; set; }
         public int OverlayWidth { get; set; }
@@ -88,6 +94,9 @@ namespace ArkhamOverlay.Services {
 
     public static class ConfigurationExtensions {
         public static void CopyTo(this IConfiguration fromConfiguration, IConfiguration toConfiguration) {
+            toConfiguration.TrackHealthAndSanity = fromConfiguration.TrackHealthAndSanity;
+            toConfiguration.TrackResources = fromConfiguration.TrackResources;
+            toConfiguration.TrackClues = fromConfiguration.TrackClues;
             toConfiguration.OverlayColor = fromConfiguration.OverlayColor;
             toConfiguration.OverlayHeight = fromConfiguration.OverlayHeight;
             toConfiguration.OverlayWidth = fromConfiguration.OverlayWidth;
