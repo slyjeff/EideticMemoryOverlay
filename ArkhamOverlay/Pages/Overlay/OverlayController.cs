@@ -85,31 +85,58 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         private void CalculateMaxHeightForCards() {
-            var actAgendaHeight = Math.Min(_configuration.ActAgendaCardHeight,  CalculateMaxHeightForRow(ViewModel.ActAgendaCards));
+            var actAgendaHeight = Math.Min(_configuration.ActAgendaCardHeight * OverlayCardViewModel.CardWidthRatio,  CalculateMaxHeightForRow(ViewModel.ActAgendaCards));
             var handHeight = Math.Min(_configuration.HandCardHeight, CalculateMaxHeightForRow(ViewModel.HandCards));
             var encounterHeight = Math.Min(_configuration.CardHeight, CalculateMaxHeightForRow(ViewModel.EncounterCards));
             var playerHeight = Math.Min(_configuration.CardHeight, CalculateMaxHeightForRow(ViewModel.PlayerCards));
 
+            var isActAgendaVisible = actAgendaHeight > 0;
+            var isEncounterVisible = encounterHeight > 0;
+            var isPlayerVisible = playerHeight > 0;
+            var isHandVisible = handHeight > 0;
+
             var margins = 50; // top and bottom
-            if (actAgendaHeight > 0) margins += 10;
-            if (handHeight > 0) margins += 10;
-            if (encounterHeight > 0) margins += 10;
-            if (playerHeight > 0) margins += 10;
+            if (isActAgendaVisible) margins += 10;
+            if (isEncounterVisible) margins += 10;
+            if (isPlayerVisible) margins += 10;
+            if (isHandVisible) margins += 10;
 
             var overlayHeightWithMargins = _configuration.OverlayHeight - margins;
 
+            //is there enough room to show everything?
             if ((actAgendaHeight + handHeight + encounterHeight + playerHeight) > overlayHeightWithMargins) {
-                if ((encounterHeight > 0) && (playerHeight > 0)) {
-                    var cardMaxHeight = (overlayHeightWithMargins - actAgendaHeight - handHeight) / 2;
-                    encounterHeight = Math.Min(cardMaxHeight, encounterHeight);
-                    playerHeight = overlayHeightWithMargins - actAgendaHeight - handHeight - encounterHeight;
-                } else {
-                    encounterHeight = Math.Min(encounterHeight, overlayHeightWithMargins - actAgendaHeight - handHeight);
-                    playerHeight = Math.Min(playerHeight, overlayHeightWithMargins - actAgendaHeight - handHeight);
+                //there is not- keep the act/agenda fixed and fill the remaining space
+                var spaceToFill = overlayHeightWithMargins - actAgendaHeight;
+
+                //how many zones do we have to account for?
+                var remainingZoneCount = 0;
+                if (isEncounterVisible) remainingZoneCount++;
+                if (isPlayerVisible) remainingZoneCount++;
+                if (isHandVisible) remainingZoneCount++;
+
+                //what is the average remaining zone height?
+                var averageHeight = spaceToFill / remainingZoneCount;
+
+                //if the encounter height is smaller than the average height, we have extra we can add to the other zones
+                var encounterHeightLeftover = (!isEncounterVisible || encounterHeight > averageHeight) ? 0 : averageHeight - encounterHeight;
+
+                //if the player height is smaller than the average height, we have extra we can add to the other zones
+                var playerHeightLeftover = (!isPlayerVisible || playerHeight > averageHeight) ? 0 : averageHeight - playerHeight;
+
+                //if the hand height is smaller than the average heigh, we have extra we can add to the encounter player
+                var handHeightLeftover = (!isHandVisible || handHeight > averageHeight) ? 0 : averageHeight - handHeight;
+                
+                //hand heightLeftover needs to be split if both the encounter and player zones are visible
+                if (isEncounterVisible && isPlayerVisible) {
+                    handHeightLeftover = handHeightLeftover / 2;
                 }
+
+                encounterHeight = Math.Min(encounterHeight, averageHeight + handHeightLeftover);
+                playerHeight = Math.Min(playerHeight, averageHeight + handHeightLeftover);
+                handHeight = Math.Min(handHeight, averageHeight + encounterHeightLeftover + playerHeightLeftover);
             }
 
-            SetMaxHeightForRow(ViewModel.ActAgendaCards, actAgendaHeight);
+            SetMaxHeightForRow(ViewModel.ActAgendaCards, actAgendaHeight / OverlayCardViewModel.CardWidthRatio);
             SetMaxHeightForRow(ViewModel.HandCards, handHeight);
             SetMaxHeightForRow(ViewModel.EncounterCards, encounterHeight);
             SetMaxHeightForRow(ViewModel.PlayerCards, playerHeight);
