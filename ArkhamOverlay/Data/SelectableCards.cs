@@ -155,7 +155,7 @@ namespace ArkhamOverlay.Data {
                 return cards;
             }
 
-            var sortedCards = cards.OrderBy(x => x.Name).ToList();
+            var sortedCards = cards.OrderBy(x => x.Name.Replace("\"", "")).ToList();
             if (firstCard.Type == CardType.Location) {
                 //for location cards, we want the backs before the front in the list
                 for (var index = 0; index < sortedCards.Count(); index++) {

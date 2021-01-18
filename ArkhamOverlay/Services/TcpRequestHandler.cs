@@ -6,10 +6,13 @@ using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
@@ -31,6 +34,9 @@ namespace ArkhamOverlay.Services {
                 case AoTcpRequest.GetCardInfo:
                     HandleGetCardInfo(request);
                     break;
+                case AoTcpRequest.GetButtonImage:
+                    HandleGetButtonImage(request);
+                    break;
                 case AoTcpRequest.ClickCardButton:
                     HandleClick(request);
                     break;
@@ -42,34 +48,54 @@ namespace ArkhamOverlay.Services {
 
         private void HandleGetCardInfo(TcpRequest request) {
             var getCardInfoRequest = JsonConvert.DeserializeObject<GetCardInfoRequest>(request.Body);
-            var cardIndex = getCardInfoRequest.Index;
-
-            var cards = GetDeck(getCardInfoRequest.Deck).CardButtons;
-
-            var cardButton = (cardIndex < cards.Count) ? cards[cardIndex] : null;
+            var cardButton = GetCardButton(getCardInfoRequest.Deck, getCardInfoRequest.FromCardSet, getCardInfoRequest.Index);
             SendCardInfoResponse(request.Socket, cardButton);
+        }
+
+        private void HandleGetButtonImage(TcpRequest request) {
+            var buttonImageRequest = JsonConvert.DeserializeObject<ButtonImageRequest>(request.Body);
+            var cardButton = GetCardButton(buttonImageRequest.Deck, buttonImageRequest.FromCardSet, buttonImageRequest.Index);
+            SendButtonImageResponse(request.Socket, cardButton as ShowCardButton);
         }
 
         private void HandleClick(TcpRequest request) {
             var clickCardButtonRequest = JsonConvert.DeserializeObject<ClickCardButtonRequest>(request.Body);
-            var cardIndex = clickCardButtonRequest.Index;
+            var cardButton = GetCardButton(clickCardButtonRequest.Deck, clickCardButtonRequest.FromCardSet, clickCardButtonRequest.Index);
+            if (cardButton == null) {
+                SendOkResponse(request.Socket);
+                return;
+            }
 
-            var cards = GetDeck(clickCardButtonRequest.Deck).CardButtons;
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                if (clickCardButtonRequest.Click == ButtonClick.Left) {
+                    cardButton.LeftClick();
+                } else {
+                    cardButton.RightClick();
+                }
+                SendOkResponse(request.Socket);
+            }));
+        }
 
-            var cardButton = (cardIndex < cards.Count) ? cards[cardIndex] : null;
-            cardButton.LeftClick();
-
-            SendCardInfoResponse(request.Socket, cardButton);
+        private ICardButton GetCardButton(Deck deck, bool cardInSet,  int index) {
+            var selectableCards = GetDeck(deck);
+            if (cardInSet) {
+                return (index < selectableCards.CardSet.Buttons.Count) ? selectableCards.CardSet.Buttons[index] : null;
+            } 
+            return (index < selectableCards.CardButtons.Count) ? selectableCards.CardButtons[index] : null;
         }
 
         private void HandleClearAll(TcpRequest request) {
-            _appData.Game.ClearAllCards();
-            SendOkResponse(request.Socket);
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                _appData.Game.ClearAllCards();
+                SendOkResponse(request.Socket);
+            }));
         }
 
         private void HandleToggleActAgendaBar(TcpRequest request) {
-            _appData.Game.ScenarioCards.ToggleCardSetVisibility() ;
-            SendOkResponse(request.Socket);
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                _appData.Game.ScenarioCards.ToggleCardSetVisibility();
+                SendOkResponse(request.Socket);
+            }));
         }
 
         private readonly IList<int> _updatePorts = new List<int>();
@@ -91,7 +117,23 @@ namespace ArkhamOverlay.Services {
 
                     foreach (var selectableCards in game.AllSelectableCards) {
                         selectableCards.ButtonChanged += (button) => {
+                            if (button is CardInSetButton cardInSetButton) {
+                                SendCardInSetInfoUpdate(cardInSetButton, selectableCards);
+                                return;
+                            }
+
                             SendButtonInfoUpdate(button, selectableCards);
+                        };
+
+                        selectableCards.CardSet.Buttons.CollectionChanged += (s, e) => {
+                            foreach (var button in selectableCards.CardSet.Buttons) {
+                                SendCardInSetInfoUpdate(button, selectableCards);
+                            }
+
+                            //if an item was removed, we need to send an update to clear the last item
+                            if (e.Action == NotifyCollectionChangedAction.Remove) {
+                                SendCardInSetInfoUpdate(null, selectableCards);
+                            }
                         };
                     }
 
@@ -111,21 +153,41 @@ namespace ArkhamOverlay.Services {
 
         private void SendButtonInfoUpdate(ICardButton button, SelectableCards selectableCards) {
             Card card = null;
-            if (button is ShowCardButton showCardButton) {
-                card = showCardButton.Card;
+            if (button is CardImageButton cardImageButton) {
+                card = cardImageButton.Card;
             }
 
             var deck = GetDeckType(selectableCards);
 
-            var index = selectableCards.CardButtons.IndexOf(button);
+            var request = new UpdateCardInfoRequest {
+                Deck = deck,
+                Index = selectableCards.CardButtons.IndexOf(button),
+                CardButtonType = GetCardType(card),
+                Name = button?.Text,
+                IsToggled = button != null && button.IsToggled,
+                ImageAvailable = card?.ButtonImageAsBytes != null,
+                IsCardInSet = false
+            };
+
+            SendStatusToAllRegisteredPorts(request);
+        }
+
+        private void SendCardInSetInfoUpdate(CardInSetButton button, SelectableCards selectableCards) {
+            Card card = null;
+            if (button is CardImageButton cardImageButton) {
+                card = cardImageButton.Card;
+            }
+
+            var deck = GetDeckType(selectableCards);
 
             var request = new UpdateCardInfoRequest {
                 Deck = deck,
-                Index = index,
+                Index = button == null ? selectableCards.CardSet.Buttons.Count : selectableCards.CardSet.Buttons.IndexOf(button),
                 CardButtonType = GetCardType(card),
-                Name = button.Text.Replace("Right Click", "Long Press"),
-                ImageBytes = card?.ButtonImageAsBytes,
-                IsVisible = button.IsToggled
+                Name = button?.Text.Replace("Right Click", "Long Press"),
+                IsToggled = button != null && button.IsToggled,
+                ImageAvailable = card?.ButtonImageAsBytes != null,
+                IsCardInSet = true
             };
 
             SendStatusToAllRegisteredPorts(request);
@@ -180,19 +242,29 @@ namespace ArkhamOverlay.Services {
         }
 
         private void SendCardInfoResponse(Socket socket, ICardButton cardButton) {
-            var showCardButton = cardButton as ShowCardButton;
+            var cardImageButton = cardButton as CardImageButton;
 
             var cardInfoReponse = (cardButton == null)
                 ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
                 : new CardInfoResponse { 
-                    CardButtonType = GetCardType(showCardButton == null ? null : showCardButton.Card),
+                    CardButtonType = GetCardType(cardImageButton?.Card),
                     Name = cardButton.Text.Replace("Right Click", "Long Press"),
-                    IsVisible = showCardButton == null ? false : showCardButton.IsToggled,
-                    ImageBytes = showCardButton != null ? showCardButton.Card.ButtonImageAsBytes : null
+                    IsToggled = cardButton.IsToggled,
+                    ImageAvailable = cardImageButton?.Card.ButtonImageAsBytes != null
                 };
 
             Send(socket, cardInfoReponse.ToString());
         }
+
+        private void SendButtonImageResponse(Socket socket, ShowCardButton cardButton) {
+            var buttonImageResponse = new ButtonImageResponse { 
+                Name = cardButton?.Card.Name, 
+                Bytes = cardButton?.Card.ButtonImageAsBytes 
+            };
+
+            Send(socket, buttonImageResponse.ToString());
+        }
+
 
         private void SendOkResponse(Socket socket) {
             Send(socket, new OkResponse().ToString());

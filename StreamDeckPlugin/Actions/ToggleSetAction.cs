@@ -4,15 +4,17 @@ using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 
 namespace ArkhamOverlaySdPlugin.Actions {
-    [StreamDeckAction("Page Right", "arkhamoverlay.pageright")]
-    public class PageRightAction : StreamDeckAction {
+    [StreamDeckAction("Toggle Set", "arkhamoverlay.toggleset")]
+    public class ToggleSetAction : StreamDeckAction {
         protected async override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
             foreach (var cardButtonAction in CardButtonAction.ListOf) {
                 if (!cardButtonAction.IsVisible) {
                     continue;
                 }
 
-                cardButtonAction.Page++;
+                cardButtonAction.Page = 0;
+                cardButtonAction.ShowCardSet = !cardButtonAction.ShowCardSet;
+
                 await cardButtonAction.GetButtonInfo();
             }
         }
