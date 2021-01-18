@@ -39,13 +39,6 @@
                 <Setter Property="Width" Value="32" />
                 <Setter Property="Height" Value="32" />
                 <Setter Property="Source" Value="{Binding Image}"/>
-                <Setter Property="Clip">
-                    <Setter.Value>
-                        <RectangleGeometry RadiusX="5"
-                                           RadiusY="5"
-                                           Rect="0, 0, 32, 32"/>
-                    </Setter.Value>
-                </Setter>
             </Style>
 
             <Style x:Key="TrackValueText" TargetType="{x:Type TextBlock}">

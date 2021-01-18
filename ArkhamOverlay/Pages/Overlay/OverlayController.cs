@@ -31,7 +31,8 @@ namespace ArkhamOverlay.Pages.Overlay {
 
                 if (e.PropertyName == nameof(Configuration.OverlayHeight)) {
                     CalculateDeckListHeight();
-                    CalculateDeckListFontSize();
+                    CalculateOverlayFontSize();
+                    CalculateStatImageSize();
                 }
 
                 if (e.PropertyName == nameof(Configuration.OverlayWidth)) {
@@ -41,7 +42,8 @@ namespace ArkhamOverlay.Pages.Overlay {
             };
 
             CalculateDeckListHeight();
-            CalculateDeckListFontSize();
+            CalculateOverlayFontSize();
+            CalculateStatImageSize();
             CalculateDeckListItemWidth();
             CalculateDeckListMargin();
 
@@ -70,8 +72,12 @@ namespace ArkhamOverlay.Pages.Overlay {
             ViewModel.DeckListHeight = _appData.Configuration.OverlayHeight - 40;
         }
 
-        private void CalculateDeckListFontSize() {
-            ViewModel.DeckListFontSize = _appData.Configuration.OverlayHeight / 24;
+        private void CalculateOverlayFontSize() {
+            ViewModel.OverlayFontSize = _appData.Configuration.OverlayHeight / 24;
+        }
+
+        private void CalculateStatImageSize() {
+            ViewModel.StatImageSize = _appData.Configuration.OverlayHeight / 20;
         }
 
         private void CalculateDeckListItemWidth() {

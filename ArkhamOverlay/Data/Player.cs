@@ -33,6 +33,8 @@ namespace ArkhamOverlay.Data {
 
         public SelectableCards SelectableCards { get; }
 
+        public string Name { get { return SelectableCards.Name; } }
+
         public BitmapImage InvestigatorImage { get; set; }
         public string InvestigatorCode { get; set; }
 
@@ -43,6 +45,8 @@ namespace ArkhamOverlay.Data {
         public void OnPlayerChanged() {
             NotifyPropertyChanged(nameof(LoadedVisiblity));
             NotifyPropertyChanged(nameof(InvestigatorImage));
+            NotifyPropertyChanged(nameof(Name));
+            NotifyPropertyChanged(nameof(PlayerNameBrush));
             NotifyPropertyChanged(nameof(StatTrackingVisibility));
         }
 

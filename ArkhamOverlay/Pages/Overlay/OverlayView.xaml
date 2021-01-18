@@ -22,9 +22,9 @@
             <Setter Property="Width" Value="{Binding Width}" />
             <Setter Property="Clip">
                 <Setter.Value>
-                    <RectangleGeometry RadiusX="{Binding Radius }"
-                                           RadiusY="{Binding Radius }"
-                                           Rect="{Binding ClipRect }"/>
+                    <RectangleGeometry RadiusX="{Binding Radius}"
+                                           RadiusY="{Binding Radius}"
+                                           Rect="{Binding ClipRect}"/>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -36,19 +36,13 @@
 
         <DockPanel Grid.Row="0"  LastChildFill="false">
             <DockPanel DockPanel.Dock="Top" LastChildFill="false">
-                <overlay:StatDisplay DockPanel.Dock="Left"  DataContext="{Binding AppData.Game.Players[0]}">
-                </overlay:StatDisplay>
-
-                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}">
-                </overlay:StatDisplay>
+                <overlay:StatDisplay DockPanel.Dock="Left"  DataContext="{Binding AppData.Game.Players[0]}" />
+                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}" />
             </DockPanel>
 
             <DockPanel DockPanel.Dock="Bottom"  LastChildFill="false">
-                <overlay:StatDisplay  DockPanel.Dock="Left" DataContext="{Binding AppData.Game.Players[2]}">
-                </overlay:StatDisplay>
-
-                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[3]}">
-                </overlay:StatDisplay>
+                <overlay:StatDisplay  DockPanel.Dock="Left" DataContext="{Binding AppData.Game.Players[2]}" />
+                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[3]}" />
             </DockPanel>
         </DockPanel>
 
@@ -67,7 +61,7 @@
                     Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibility}}">
                 <ItemsControl 
                     Margin="10"
-                    FontSize="{Binding DeckListFontSize}"
+                    FontSize="{Binding OverlayFontSize}"
                     ItemsSource="{Binding DeckList}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

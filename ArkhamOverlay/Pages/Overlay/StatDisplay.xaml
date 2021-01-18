@@ -17,8 +17,8 @@
     <Border.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <Style x:Key="StatText" TargetType="{x:Type TextBlock}">
-            <Setter Property="FontSize" Value="{Binding DataContext.DeckListFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
-            <Setter Property="Text" Value="{Binding SelectableCards.Name}" />
+            <Setter Property="FontSize" Value="{Binding DataContext.OverlayFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Setter Property="Text" Value="{Binding Name}" />
             <Setter Property="Foreground" Value="{Binding PlayerNameBrush}" />
             <Setter Property="Effect">
                 <Setter.Value>
@@ -33,16 +33,9 @@
         </Style>
 
         <Style x:Key="TrackValueImage" TargetType="{x:Type Image}">
-            <Setter Property="Width" Value="32" />
-            <Setter Property="Height" Value="32" />
+            <Setter Property="Width" Value="{Binding DataContext.StatImageSize, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Setter Property="Height" Value="{Binding DataContext.StatImageSize, RelativeSource={RelativeSource AncestorType=Window}}" />
             <Setter Property="Source" Value="{Binding Image}"/>
-            <Setter Property="Clip">
-                <Setter.Value>
-                    <RectangleGeometry RadiusX="5"
-                                               RadiusY="5"
-                                               Rect="0, 0, 32, 32"/>
-                </Setter.Value>
-            </Setter>
         </Style>
 
         <Style x:Key="TrackValueText" TargetType="{x:Type TextBlock}">
@@ -50,13 +43,13 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Text" Value="{Binding Value}"/>
-            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontSize" Value="{Binding DataContext.OverlayFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
             <Setter Property="Margin" Value="0,0,0,3"/>
         </Style>
     </Border.Resources>
     <StackPanel Orientation="Vertical">
         <TextBlock Style="{DynamicResource StatText}" />
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" Margin="5, 0, 0, 0">
             <Grid DataContext="{Binding Health}"
                                   Margin="0,0,10,0"
                                   Visibility="{Binding DataContext.AppData.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
