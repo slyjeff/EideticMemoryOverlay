@@ -35,6 +35,29 @@
                 <Setter Property="VerticalAlignment" Value="Center" />
             </Style>
 
+            <Style x:Key="TrackValueImage" TargetType="{x:Type Image}">
+                <Setter Property="Width" Value="32" />
+                <Setter Property="Height" Value="32" />
+                <Setter Property="Source" Value="{Binding Image}"/>
+                <Setter Property="Clip">
+                    <Setter.Value>
+                        <RectangleGeometry RadiusX="5"
+                                           RadiusY="5"
+                                           Rect="0, 0, 32, 32"/>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="TrackValueText" TargetType="{x:Type TextBlock}">
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Text" Value="{Binding Value}"/>
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="Margin" Value="0,0,0,3"/>
+            </Style>
+
+            
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         </StackPanel.Resources>
 
@@ -117,6 +140,49 @@
                             <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.Refresh, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">⟲</Button>
                             <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.PlayerSelected, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}" Visibility="{Binding LoadedVisiblity}" >🠆</Button>
                             <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.ShowDeckList, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}" Visibility="{Binding LoadedVisiblity}" >List</Button>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="5, 5, 0 ,0" Visibility="{Binding LoadedVisiblity}">
+                            <Grid DataContext="{Binding Health}" Margin="0,0,10,0">
+                                <Image Style="{DynamicResource TrackValueImage}" />
+                                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                                <Grid.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" Command="{Binding Increase}"/>
+                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding Increase}"/>
+                                    <MouseBinding MouseAction="RightClick" Command="{Binding Decrease}"/>
+                                    <MouseBinding MouseAction="RightDoubleClick" Command="{Binding Decrease}"/>
+                                </Grid.InputBindings>
+                            </Grid>
+                            <Grid DataContext="{Binding Sanity}"  Margin="0,0,10,0">
+                                <Image Style="{DynamicResource TrackValueImage}" />
+                                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                                <Grid.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" Command="{Binding Increase}"/>
+                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding Increase}"/>
+                                    <MouseBinding MouseAction="RightClick" Command="{Binding Decrease}"/>
+                                    <MouseBinding MouseAction="RightDoubleClick" Command="{Binding Decrease}"/>
+                                </Grid.InputBindings>
+                            </Grid>
+                            <Grid DataContext="{Binding Resources}"  Margin="0,0,10,0">
+                                <Image Style="{DynamicResource TrackValueImage}" />
+                                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                                <Grid.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" Command="{Binding Increase}"/>
+                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding Increase}"/>
+                                    <MouseBinding MouseAction="RightClick" Command="{Binding Decrease}"/>
+                                    <MouseBinding MouseAction="RightDoubleClick" Command="{Binding Decrease}"/>
+                                </Grid.InputBindings>
+                            </Grid>
+                            <Grid DataContext="{Binding Clues}">
+                                <Image Style="{DynamicResource TrackValueImage}" />
+                                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                                <Grid.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" Command="{Binding Increase}"/>
+                                    <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding Increase}"/>
+                                    <MouseBinding MouseAction="RightClick" Command="{Binding Decrease}"/>
+                                    <MouseBinding MouseAction="RightDoubleClick" Command="{Binding Decrease}"/>
+                                </Grid.InputBindings>
+                            </Grid>
                         </StackPanel>
 
                         <Border BorderThickness="2" Background="Transparent" CornerRadius="10" Margin="0,5,0,0" Width="221" HorizontalAlignment="Left">
