@@ -8,9 +8,8 @@ using System.IO;
 namespace ArkhamOverlay.Services {
     public interface IGame {
         string Name { get; set; }
-
         string Scenario { get; set; }
-
+        string SnapshotDirectory { get; set; }
         IList<EncounterSet> EncounterSets { get; }
     }
 
@@ -23,6 +22,7 @@ namespace ArkhamOverlay.Services {
         public string Name { get; set; }
 
         public string Scenario { get; set; }
+        public string SnapshotDirectory { get; set; }
 
         public IList<string> DeckIds { get; set; }
 
@@ -88,6 +88,7 @@ namespace ArkhamOverlay.Services {
         public static void CopyTo(this IGame fromGame, IGame toGame) {
             toGame.Name = fromGame.Name;
             toGame.Scenario = fromGame.Scenario;
+            toGame.SnapshotDirectory = fromGame.SnapshotDirectory;
             toGame.EncounterSets.Clear();
             foreach (var encounterSet in fromGame.EncounterSets) {
                 toGame.EncounterSets.Add(new EncounterSet(encounterSet));

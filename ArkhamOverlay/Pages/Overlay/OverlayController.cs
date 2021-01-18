@@ -3,8 +3,11 @@ using PageController;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace ArkhamOverlay.Pages.Overlay {
@@ -220,6 +223,18 @@ namespace ArkhamOverlay.Pages.Overlay {
                     var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration, overlayCardType) { CardInstance = cardInstance };
                     overlayCards.AddOverlayCard(newOverlayCard);
                 }
+            }
+        }
+
+        internal void TakeSnapshot() {
+            var overlay = View.Overlay;
+            var renderTargetBitmap = new RenderTargetBitmap(Convert.ToInt32(overlay.Width), Convert.ToInt32(overlay.Height), 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(overlay);
+            var pngImage = new PngBitmapEncoder();
+            pngImage.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+            var fileName = "OverlaySnapshot" + DateTime.Now.ToString("yyddMHHmmss") + ".png";
+            using (Stream fileStream = File.Create(_appData.Game.SnapshotDirectory + "\\" + fileName)) {
+                pngImage.Save(fileStream);
             }
         }
     }

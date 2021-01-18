@@ -4,6 +4,7 @@ using ArkhamOverlay.Pages.Overlay;
 using ArkhamOverlay.Pages.SelectCards;
 using ArkhamOverlay.Services;
 using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -146,6 +147,18 @@ namespace ArkhamOverlay.Pages.Main {
         }
 
         [Command]
+        public void SelectSnapshotDirectory() {
+            var dialog = new CommonOpenFileDialog {
+                InitialDirectory = ViewModel.Game.SnapshotDirectory,
+                IsFolderPicker = true
+            };
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
+                ViewModel.Game.SnapshotDirectory = dialog.FileName;
+            }
+        }
+
+        [Command]
         public void ShowOtherEncounters() {
             ShowSelectCardsWindow(ViewModel.AppData.Game.ScenarioCards, nameof(Configuration.ScenarioCardsPosition));
         }
@@ -220,6 +233,7 @@ namespace ArkhamOverlay.Pages.Main {
 
             _overlayController.Closed += () => {
                 _overlayController = null;
+                ViewModel.OverlayDisplayed = false;
             };
 
             _overlayController.View.LocationChanged += (s, e) => {
@@ -227,6 +241,7 @@ namespace ArkhamOverlay.Pages.Main {
             };
 
             _overlayController.Show();
+            ViewModel.OverlayDisplayed = true;
         }
 
         [Command]
@@ -247,6 +262,11 @@ namespace ArkhamOverlay.Pages.Main {
         [Command]
         public void ResetOverlayColor() {
             ViewModel.Configuration.OverlayColor = ConfigurationService.DefaultBackgroundColor;
+        }
+
+        [Command]
+        public void TakeSnapshot() {
+            _overlayController.TakeSnapshot();
         }
     }
 }
