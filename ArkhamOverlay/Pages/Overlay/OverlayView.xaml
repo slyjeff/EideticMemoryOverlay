@@ -43,7 +43,8 @@
             Margin="{Binding DeckListMargin}"
             Height="{Binding DeckListHeight}"
             ItemsSource="{Binding DeckList}"
-            FontSize="{Binding DeckListFontSize}">
+            FontSize="{Binding DeckListFontSize}"
+            Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibility}}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Orientation="Vertical" />

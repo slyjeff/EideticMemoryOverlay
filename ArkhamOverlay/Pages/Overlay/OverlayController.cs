@@ -80,7 +80,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             ViewModel.DeckListMargin = new Thickness(horizontalMargin, 10, horizontalMargin, 10);
         }
 
-
         private void CalculateMaxHeightForCards() {
             var actAgendaHeight = Math.Min(_configuration.ActAgendaCardHeight,  CalculateMaxHeightForRow(ViewModel.ActAgendaCards));
             var handHeight = Math.Min(_configuration.HandCardHeight, CalculateMaxHeightForRow(ViewModel.HandCards));
@@ -131,7 +130,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-
         private void InitializeSelectableCards(SelectableCards selectableCards) {
             selectableCards.ShowDeckListTriggered += () => ShowDeckListHandler(selectableCards);
             selectableCards.CardVisibilityToggled += ToggleCardVisibilityHandler;
@@ -174,8 +172,15 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public event Action Closed;
 
+        private SelectableCards _currentDisplayedDeckList = null;
         private void ShowDeckListHandler(SelectableCards selectableCards) {
             RemoveAllVisibleCards();
+
+            //it's already displayed- just hide it
+            if (_currentDisplayedDeckList == selectableCards) {
+                ClearDeckList();
+                return;
+            }
 
             var cards = from cardButton in selectableCards.CardButtons.OfType<ShowCardButton>()
                         select cardButton.Card;
@@ -185,23 +190,28 @@ namespace ArkhamOverlay.Pages.Overlay {
                 deckList.Add(new DeckListItem(card));
             }
 
+            _currentDisplayedDeckList = selectableCards;
             ViewModel.DeckList = deckList;
+            ViewModel.ShowDeckList = true;
+        }
+
+        private void ClearDeckList() {
+            ViewModel.ShowDeckList = false;
+            ViewModel.DeckList = null;
+            _currentDisplayedDeckList = null;
         }
 
         private void RemoveAllVisibleCards() {
-            if (ViewModel.ActAgendaCards.Any()) {
-                ViewModel.ActAgendaCards.RemoveOverlayCards(ViewModel.ActAgendaCards.ToArray());
-            }
-
-            if (ViewModel.HandCards.Any()) {
-                ViewModel.HandCards.RemoveOverlayCards(ViewModel.HandCards.ToArray());
-            }
+            ClearActAgendaCardSet();
+            ClearCurrentlyDisplayedHandCardSet();
 
             _appData.Game.ClearAllCards();
         }
 
 
         internal void ToggleCardVisibilityHandler(Card card) {
+            ClearDeckList();
+
             card.IsDisplayedOnOverlay = !card.IsDisplayedOnOverlay;
 
             var overlayCards = GetCardList(card);
@@ -233,6 +243,8 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         private void ToggleActAgendaVisibility() {
+            ClearDeckList();
+
             var cardSet = _appData.Game.ScenarioCards.CardSet;
             if (cardSet.IsDisplayedOnOverlay) {
                 ViewModel.ActAgendaCards.RemoveOverlayCards(ViewModel.ActAgendaCards.ToArray());
@@ -244,25 +256,47 @@ namespace ArkhamOverlay.Pages.Overlay {
             UpdateCardSet(cardSet, ViewModel.ActAgendaCards);
         }
 
-        private void ToggleHandVisibility(CardSet cardSet) {
-            //if there is a current hand being displayed- clear it
-            var currentHandCardSet = ViewModel.CurrentlyDisplayedHandCardSet;
-            if (currentHandCardSet != null) {
-                currentHandCardSet.IsDisplayedOnOverlay = false;
-                ViewModel.CurrentlyDisplayedHandCardSet = null;
 
-                ViewModel.HandCards.RemoveOverlayCards(ViewModel.HandCards.ToArray());
-            }
+        private CardSet _currentlyDisplayedHandCardSet;
+        private void ToggleHandVisibility(CardSet cardSet) {
+            ClearDeckList();
+
+            //if there is a current hand being displayed- clear it
+            var currentHandCardSet = _currentlyDisplayedHandCardSet;
+
+            ClearCurrentlyDisplayedHandCardSet();
 
             //if this hand is the hand that was already set, all we were doing was hiding it
             if (cardSet == currentHandCardSet) {
                 return;
             }
 
-            ViewModel.CurrentlyDisplayedHandCardSet = cardSet;
+            _currentlyDisplayedHandCardSet = cardSet;
             cardSet.IsDisplayedOnOverlay = true;
             UpdateCardSet(cardSet, ViewModel.HandCards);
         }
+
+        private void ClearActAgendaCardSet() {
+            if (!_appData.Game.ScenarioCards.CardSet.IsDisplayedOnOverlay) {
+                return;
+            }
+
+            _appData.Game.ScenarioCards.CardSet.IsDisplayedOnOverlay = false;
+            ViewModel.ActAgendaCards.RemoveOverlayCards(ViewModel.ActAgendaCards.ToArray());
+        }
+
+        private void ClearCurrentlyDisplayedHandCardSet() {
+            if (_currentlyDisplayedHandCardSet == null) {
+                return;
+            }
+
+            _currentlyDisplayedHandCardSet.IsDisplayedOnOverlay = false;
+            _currentlyDisplayedHandCardSet = null;
+
+            ViewModel.HandCards.RemoveOverlayCards(ViewModel.HandCards.ToArray());
+        }
+
+
 
         private void UpdateCardSet(CardSet cardSet, ObservableCollection<OverlayCardViewModel> overlayCards) {
             var overlayCardsToRemove = new List<OverlayCardViewModel>();

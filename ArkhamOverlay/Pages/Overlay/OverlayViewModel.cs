@@ -19,6 +19,7 @@ namespace ArkhamOverlay.Pages.Overlay {
         public virtual double DeckListItemWidth { get; set; }
         public virtual double DeckListHeight { get; set; }
         public virtual Thickness DeckListMargin { get; set; }
+        public virtual bool ShowDeckList { get; set; }
 
         public virtual IList<DeckListItem> DeckList { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> ActAgendaCards { get; set; }
@@ -30,8 +31,6 @@ namespace ArkhamOverlay.Pages.Overlay {
                 return new List<ObservableCollection<OverlayCardViewModel>> { ActAgendaCards, HandCards, EncounterCards, PlayerCards };
             }
         }
-
-        public CardSet CurrentlyDisplayedHandCardSet { get; set; }
     }
 
     public class DeckListItem {
