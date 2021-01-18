@@ -38,35 +38,39 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ItemsControl 
-            Grid.Row="0"
-            Margin="{Binding DeckListMargin}"
-            Height="{Binding DeckListHeight}"
-            ItemsSource="{Binding DeckList}"
-            FontSize="{Binding DeckListFontSize}"
-            Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibility}}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Vertical" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}"
-                               Foreground="{Binding Foreground}"
-                               Width="{Binding DataContext.DeckListItemWidth, RelativeSource={RelativeSource AncestorType=Window}}">
-                        <TextBlock.Effect>
-                            <DropShadowEffect
-                              ShadowDepth="3"
-                              Direction="330"
-                              Color="Black"
-                              Opacity="0.3"
-                             BlurRadius="4"/>
-                        </TextBlock.Effect>
-                    </TextBlock>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <Border Grid.Row="0"
+                Background="White"
+                Margin="{Binding DeckListMargin}"
+                Height="{Binding DeckListHeight}"
+                CornerRadius="10">
+            <ItemsControl 
+                Margin="10"
+                ItemsSource="{Binding DeckList}"
+                FontSize="{Binding DeckListFontSize}"
+                Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibility}}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Vertical" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"
+                                   Foreground="{Binding Foreground}"
+                                   Width="{Binding DataContext.DeckListItemWidth, RelativeSource={RelativeSource AncestorType=Window}}">
+                            <TextBlock.Effect>
+                                <DropShadowEffect
+                                  ShadowDepth="3"
+                                  Direction="330"
+                                  Color="Black"
+                                  Opacity="0.3"
+                                 BlurRadius="4"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
 
         <ItemsControl 
             Grid.Row="0"
