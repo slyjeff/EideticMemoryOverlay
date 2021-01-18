@@ -13,6 +13,7 @@
         Left = "10"
         Background="White">
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <utils:ColorToBrushConverter x:Key="ColorToBrush" />
 
         <Style x:Key="CardImage" TargetType="{x:Type Image}" >
