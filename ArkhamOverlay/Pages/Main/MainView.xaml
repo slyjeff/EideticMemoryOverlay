@@ -158,7 +158,7 @@
             <Button Command="{Binding ShowOverlay}">Show Overlay</Button>
             <Button Margin="10, 0, 0, 0" Command="{Binding ShowAllWindows}">Show All Windows</Button>
             <Button Margin="10, 0, 0, 0" Command="{Binding ClearCards}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Clear Cards</Button>
-            <Button Margin="10, 0, 0, 0" Command="{Binding TakeSnapeshot}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Snapshot</Button>
+            <Button Margin="10, 0, 0, 0" Command="{Binding TakeSnapshot}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Snapshot</Button>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">

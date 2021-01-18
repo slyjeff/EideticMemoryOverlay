@@ -265,7 +265,7 @@ namespace ArkhamOverlay.Pages.Main {
         }
 
         [Command]
-        public void TakeSnapeshot() {
+        public void TakeSnapshot() {
             _overlayController.TakeSnapshot();
         }
     }
