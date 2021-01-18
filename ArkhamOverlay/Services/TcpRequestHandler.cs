@@ -10,6 +10,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
@@ -108,9 +110,12 @@ namespace ArkhamOverlay.Services {
         private void HandleShowDeckList(TcpRequest request) {
             var showDeckListRequest = JsonConvert.DeserializeObject<ShowDeckListRequest>(request.Body);
             var selectableCards = GetDeck(showDeckListRequest.Deck);
-            selectableCards.ShowDeckList();
 
-            SendOkResponse(request.Socket);
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                selectableCards.ShowDeckList();
+
+                SendOkResponse(request.Socket);
+            }));
         }
 
         private void SendActAgendaBarStatus(bool isVisible) {
