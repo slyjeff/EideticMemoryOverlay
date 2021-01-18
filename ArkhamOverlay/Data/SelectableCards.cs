@@ -175,7 +175,6 @@ namespace ArkhamOverlay.Data {
             return sortedCards;
         }
 
-
         internal void ClearCards() {
             HideAllCards();
             CardButtons.Clear();

@@ -18,6 +18,7 @@ namespace ArkhamOverlay.Data {
             Sanity = new Stat("sanity.png");
             Resources = new Stat("resource.png");
             Clues = new Stat("clue.png");
+            Faction = Faction.Other;
 
             configuration.PropertyChanged += (s, e) => {
                 if (e.PropertyName == nameof(Configuration.TrackPlayerStats)) {
@@ -33,6 +34,7 @@ namespace ArkhamOverlay.Data {
         public SelectableCards SelectableCards { get; }
 
         public BitmapImage InvestigatorImage { get; set; }
+        public string InvestigatorCode { get; set; }
 
         public IDictionary<string, int> Slots { get; set; }
 
@@ -50,6 +52,20 @@ namespace ArkhamOverlay.Data {
         public Stat Clues { get; }
         
         public Visibility StatTrackingVisibility { get { return string.IsNullOrEmpty(SelectableCards.Name) || !_configuration.TrackPlayerStats ? Visibility.Collapsed : Visibility.Visible; } }
+        public Brush PlayerNameBrush {
+            get {
+                switch (Faction) {
+                    case Faction.Guardian: return new SolidColorBrush(Colors.DarkBlue);
+                    case Faction.Seeker: return new SolidColorBrush(Colors.DarkGoldenrod);
+                    case Faction.Mystic: return new SolidColorBrush(Colors.Purple);
+                    case Faction.Rogue: return new SolidColorBrush(Colors.DarkGreen);
+                    case Faction.Survivor: return new SolidColorBrush(Colors.DarkRed);
+                    default: return new SolidColorBrush(Colors.Black);
+                }
+            }
+        }
+
+        public Faction Faction { get; set; }
     }
 
     public class Stat : ViewModel {

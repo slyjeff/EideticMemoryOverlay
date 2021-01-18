@@ -152,6 +152,9 @@
       <DependentUpon>OverlayView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Overlay\OverlayViewModel.cs" />
+    <Compile Include="Pages\Overlay\StatDisplay.xaml.cs">
+      <DependentUpon>StatDisplay.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\SelectCards\SelectCardsController.cs" />
     <Compile Include="Pages\SelectCards\SelectCardsView.xaml.cs">
       <DependentUpon>SelectCardsView.xaml</DependentUpon>
@@ -180,6 +183,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Overlay\OverlayView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Overlay\StatDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

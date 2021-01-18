@@ -33,65 +33,71 @@
         Height="{Binding AppData.Configuration.OverlayHeight}" 
         Background="{Binding Path=AppData.Configuration.OverlayColor, Converter={StaticResource ColorToBrush}}"
           x:Name="Overlay">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
 
-        <Border Grid.Row="0"
-                Background="White"
-                Margin="{Binding DeckListMargin}"
-                Height="{Binding DeckListHeight}"
-                CornerRadius="10"                
-                Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibility}}">
+        <DockPanel Grid.Row="0"  LastChildFill="false">
+            <DockPanel DockPanel.Dock="Top" LastChildFill="false">
+                <overlay:StatDisplay DockPanel.Dock="Left"  DataContext="{Binding AppData.Game.Players[0]}">
+                </overlay:StatDisplay>
+
+                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}">
+                </overlay:StatDisplay>
+            </DockPanel>
+
+            <DockPanel DockPanel.Dock="Bottom"  LastChildFill="false">
+                <overlay:StatDisplay  DockPanel.Dock="Left" DataContext="{Binding AppData.Game.Players[2]}">
+                </overlay:StatDisplay>
+
+                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[3]}">
+                </overlay:StatDisplay>
+            </DockPanel>
+        </DockPanel>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Background="White"
+                    Margin="{Binding DeckListMargin}"
+                    Height="{Binding DeckListHeight}"
+                    CornerRadius="10"                
+                    Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibility}}">
+                <ItemsControl 
+                    Margin="10"
+                    FontSize="{Binding DeckListFontSize}"
+                    ItemsSource="{Binding DeckList}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}"
+                                       Foreground="{Binding Foreground}"
+                                       Width="{Binding DataContext.DeckListItemWidth, RelativeSource={RelativeSource AncestorType=Window}}">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect
+                                      ShadowDepth="3"
+                                      Direction="330"
+                                      Color="Black"
+                                      Opacity="0.3"
+                                     BlurRadius="4"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+
             <ItemsControl 
-                Margin="10"
-                FontSize="{Binding DeckListFontSize}"
-                ItemsSource="{Binding DeckList}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Vertical" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}"
-                                   Foreground="{Binding Foreground}"
-                                   Width="{Binding DataContext.DeckListItemWidth, RelativeSource={RelativeSource AncestorType=Window}}">
-                            <TextBlock.Effect>
-                                <DropShadowEffect
-                                  ShadowDepth="3"
-                                  Direction="330"
-                                  Color="Black"
-                                  Opacity="0.3"
-                                 BlurRadius="4"/>
-                            </TextBlock.Effect>
-                        </TextBlock>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
-
-        <ItemsControl 
-            Grid.Row="0"
-            ItemsSource="{Binding ActAgendaCards}"
-            HorizontalAlignment="Center" 
-            VerticalAlignment="Top">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Image Style="{StaticResource CardImage}" Source="{Binding CardImage}" />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-
-        <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Center" >
-            <ItemsControl ItemsSource="{Binding EncounterCards}" HorizontalAlignment="Center">
+                Grid.Row="0"
+                ItemsSource="{Binding ActAgendaCards}"
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Top">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
@@ -103,7 +109,39 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <ItemsControl ItemsSource="{Binding PlayerCards}" HorizontalAlignment="Center">
+
+            <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Center" >
+                <ItemsControl ItemsSource="{Binding EncounterCards}" HorizontalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Image Style="{StaticResource CardImage}" Source="{Binding CardImage}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding PlayerCards}" HorizontalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Image Style="{StaticResource CardImage}" Source="{Binding CardImage}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <ItemsControl 
+                Grid.Row="2"    
+                ItemsSource="{Binding HandCards}"
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Bottom">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
@@ -115,23 +153,6 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </StackPanel>
-
-        <ItemsControl 
-            Grid.Row="2"    
-            ItemsSource="{Binding HandCards}"
-            HorizontalAlignment="Center" 
-            VerticalAlignment="Bottom">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Image Style="{StaticResource CardImage}" Source="{Binding CardImage}" />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        </Grid>
     </Grid>
 </Window>
