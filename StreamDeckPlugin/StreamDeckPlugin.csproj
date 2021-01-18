@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\ShowDeckListAction.cs" />
+    <Compile Include="Actions\ToggleSetAction.cs" />
     <Compile Include="Actions\ToggleActAgendaBarAction.cs" />
     <Compile Include="Actions\ClearCardsAction.cs" />
     <Compile Include="Actions\PageLeftAction.cs" />
@@ -138,8 +139,12 @@
     <Content Include="Icons\Blank.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Icons\clear%402x.png" />
-    <Content Include="Icons\clear.png" />
+    <Content Include="Icons\clear%402x.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\clear.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Icons\left-arrow%402x.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

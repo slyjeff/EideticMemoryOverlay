@@ -16,7 +16,6 @@ namespace ArkhamOverlaySdPlugin.Actions {
                     cardButtonAction.Page--;
                 }
 
-                await cardButtonAction.Clear();
                 await cardButtonAction.GetButtonInfo();
             }
         }

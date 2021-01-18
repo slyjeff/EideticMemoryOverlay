@@ -7,7 +7,8 @@
         public int Index { get; set; }
         public CardButtonType CardButtonType { get; set; }
         public string Name { get; set; }
-        public bool IsVisible { get; set; }
-        public byte[] ImageBytes { get; set; }
+        public bool IsToggled { get; set; }
+        public bool ImageAvailable { get; set; }
+        public bool IsCardInSet { get; set; }
     }
 }

@@ -11,5 +11,7 @@ namespace ArkhamOverlay.Pages.Main {
         public virtual Configuration Configuration { get { return AppData.Configuration; } }
 
         public virtual LoadingStatusService LoadingStatus { get; set; }
+
+        public virtual bool OverlayDisplayed { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
@@ -23,12 +24,16 @@ namespace ArkhamOverlaySdPlugin.Actions {
         private CardSettings _settings = new CardSettings();
         private string _deviceId;
         private ICardInfo _currentCardInfo;
+        private Timer _keyPressTimer = new Timer(700);
+
 
         public CardButtonAction() {
             ListOf.Add(this);
+            _keyPressTimer.Enabled = false;
+            _keyPressTimer.Elapsed += KeyHeldDown;
         }
-
         public int Page { get; set; }
+        public bool ShowCardSet { get; set; }
         public bool IsVisible { get; private set; }
 
         public Deck Deck {
@@ -51,7 +56,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
                     columns = device.Size.Columns;
                 }
 
-                var buttonsPerPage = rows * columns - 3; //3 because the return to parent, left, and right buttons take up three slots
+                var buttonsPerPage = rows * columns - 4; //3 because the return to parent, show hand, left, and right buttons take up four slots
  
                 return (Page * buttonsPerPage) + (_coordinates.Row * columns + _coordinates.Column) - 1;
             }
@@ -70,6 +75,7 @@ namespace ArkhamOverlaySdPlugin.Actions {
             _deviceId = args.Device;
             _settings = args.Payload.GetSettings<CardSettings>();
             Page = 0;
+            ShowCardSet = false;
             IsVisible = true;
 
             //do this for the first cardbutton on the screen- we don't need a million requests going out
@@ -91,36 +97,83 @@ namespace ArkhamOverlaySdPlugin.Actions {
             return Task.CompletedTask;
         }
 
-        protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            var settings = args.Payload.GetSettings<CardSettings>();
-            try {
-                var request = new ClickCardButtonRequest { Deck = settings.Deck.AsDeck(), Index = CardButtonIndex };
-                var response = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
 
-                SetImageAsync(response.AsImage());
-                return SetTitleAsync(TextUtils.WrapTitle(response.Name));
-            } catch {
-                return SetTitleAsync("");
+        private object _keyUpLock = new object();
+        private bool _keyIsDown = false;
+        protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
+            _settings = args.Payload.GetSettings<CardSettings>();
+            _keyIsDown = true;
+
+            _keyPressTimer.Enabled = true;
+
+            return Task.CompletedTask;
+        }
+
+        private void KeyHeldDown(object sender, ElapsedEventArgs e) {
+            lock (_keyUpLock) {
+                if (!_keyIsDown) {
+                    return;
+                }
+                _keyIsDown = false;
+                _keyPressTimer.Enabled = false;
+
+                SendClick(ButtonClick.Right);
+            }
+        }
+
+
+        protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
+            lock (_keyUpLock) {
+                if (!_keyIsDown) {
+                    return Task.CompletedTask;
+                }
+                _keyIsDown = false;
+                _keyPressTimer.Enabled = false;
+
+                _settings = args.Payload.GetSettings<CardSettings>();
+                SendClick(ButtonClick.Left);
+                return Task.CompletedTask;
+            }
+        }
+
+        private void SendClick(ButtonClick click) {
+            var request = new ClickCardButtonRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet, Click = click };
+            StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
+            
+            //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look
+            if (_currentCardInfo != null) {
+                SetTitleAsync(TextUtils.WrapTitle(_currentCardInfo.Name));
             }
         }
 
         public async Task Clear() {
+            if (_currentCardInfo == null) {
+                return;
+            }
+
             _currentCardInfo.CardButtonType = CardButtonType.Unknown;
             _currentCardInfo.Name = string.Empty;
-            _currentCardInfo.IsVisible = false;
-
+            _currentCardInfo.IsToggled = false;
+            
             await SetTitleAsync(string.Empty);
             await SetImageAsync(ImageUtils.BlankImage());
         }
 
         public async Task GetButtonInfo() {
             try {
-                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex };
-                var response = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
+                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet};
+                var cardInfo = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
 
-                await UpdateButtonInfo(response);
+                await UpdateButtonInfo(cardInfo);
             } catch {
             }
+        }
+
+        private Task GetButtonImage() {
+            var request = new ButtonImageRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet };
+            var response = StreamDeckSendSocketService.SendRequest<ButtonImageResponse>(request);
+            ImageUtils.ImageCache[response.Name] = response.Bytes;
+            return Task.CompletedTask;
         }
 
         public async Task UpdateButtonInfo(ICardInfo cardInfo) {
@@ -130,11 +183,15 @@ namespace ArkhamOverlaySdPlugin.Actions {
                 if (_currentCardInfo != null) {
                     if (_currentCardInfo.CardButtonType == cardInfo.CardButtonType
                         && _currentCardInfo.Name == cardInfo.Name
-                        && _currentCardInfo.IsVisible == cardInfo.IsVisible) {
+                        && _currentCardInfo.IsToggled == cardInfo.IsToggled) {
                         return;
                     }
                 }
                 _currentCardInfo = cardInfo;
+
+                if (cardInfo.ImageAvailable && !ImageUtils.ImageCache.ContainsKey(cardInfo.Name)) {
+                    await GetButtonImage();
+                }
 
                 await SetTitleAsync(TextUtils.WrapTitle(cardInfo.Name));
                 await SetImageAsync(cardInfo.AsImage());

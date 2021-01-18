@@ -13,7 +13,6 @@
         Left = "10"
         Background="White">
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <utils:ColorToBrushConverter x:Key="ColorToBrush" />
 
         <Style x:Key="CardImage" TargetType="{x:Type Image}" >
@@ -31,7 +30,8 @@
     </Window.Resources>
     <Grid Width="{Binding AppData.Configuration.OverlayWidth}" 
         Height="{Binding AppData.Configuration.OverlayHeight}" 
-        Background="{Binding Path=AppData.Configuration.OverlayColor, Converter={StaticResource ColorToBrush}}">
+        Background="{Binding Path=AppData.Configuration.OverlayColor, Converter={StaticResource ColorToBrush}}"
+          x:Name="Overlay">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
