@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:data="clr-namespace:ArkhamOverlay.Data" 
-             d:DataContext="{d:DesignInstance Type=data:Player}"
+             xmlns:data="clr-namespace:ArkhamOverlay.Data" xmlns:utils="clr-namespace:ArkhamOverlay.Utils"
+        d:DataContext="{d:DesignInstance Type=data:Player}"
              mc:Ignorable="d" 
              d:DesignHeight="450"
              d:DesignWidth="800"
@@ -38,8 +38,11 @@
             <Setter Property="Source" Value="{Binding Image}"/>
         </Style>
 
-        <Style x:Key="TrackValueText" TargetType="{x:Type TextBlock}">
-            <Setter Property="Foreground" Value="White"/>
+        <Style x:Key="TrackValueText" TargetType="{x:Type utils:OutlinedTextBlock}">
+            <Setter Property="Fill" Value="White"/>
+            <Setter Property="Stroke" Value="Black"/>
+            <Setter Property="StrokeThickness" Value="3"/>
+            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Text" Value="{Binding Value}"/>
@@ -49,31 +52,84 @@
     </Border.Resources>
     <StackPanel Orientation="Vertical">
         <TextBlock Style="{DynamicResource StatText}" />
-        <StackPanel Orientation="Horizontal" Margin="5, 0, 0, 0">
+        <StackPanel Orientation="Horizontal" Margin="2, 0, 0, 0">
             <Grid DataContext="{Binding Health}"
                                   Margin="0,0,10,0"
                                   Visibility="{Binding DataContext.AppData.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                 <Image Style="{DynamicResource TrackValueImage}" />
-                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
             </Grid>
             <Grid DataContext="{Binding Sanity}"
                                   Margin="0,0,10,0"
                                   Visibility="{Binding DataContext.AppData.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                 <Image Style="{DynamicResource TrackValueImage}" />
-                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
             </Grid>
             <Grid DataContext="{Binding Resources}"
                                   Margin="0,0,10,0"
                                   Visibility="{Binding DataContext.AppData.Configuration.TrackResources, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                 <Image Style="{DynamicResource TrackValueImage}" />
-                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
             </Grid>
             <Grid DataContext="{Binding Clues}"
                                   Margin="0,0,10,0"
                                   Visibility="{Binding DataContext.AppData.Configuration.TrackClues, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                 <Image Style="{DynamicResource TrackValueImage}" />
-                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
             </Grid>
         </StackPanel>
     </StackPanel>
+    <!--<StackPanel Orientation="Vertical">
+        <TextBlock Style="{DynamicResource StatText}" />
+        <StackPanel Orientation="Horizontal" Margin="5, 0, 0, 0">
+            <Grid DataContext="{Binding Health}"
+                                  Margin="0,0,10,0"
+                                  Visibility="{Binding DataContext.AppData.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
+                <Image Style="{DynamicResource TrackValueImage}" />
+                <Canvas Margin="14,-4,0,3">
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="1" Canvas.Left="1" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="1" Canvas.Left="5" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="5" Canvas.Left="1" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="5" Canvas.Left="5" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="3" Canvas.Left="3" Foreground="White"/>
+                </Canvas>
+            </Grid>
+            <Grid DataContext="{Binding Sanity}"
+                                  Margin="0,0,10,0"
+                                  Visibility="{Binding DataContext.AppData.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
+                <Image Style="{DynamicResource TrackValueImage}" />
+                <Canvas Margin="14,-4,0,3">
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="1" Canvas.Left="1" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="1" Canvas.Left="5" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="5" Canvas.Left="1" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="5" Canvas.Left="5" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="3" Canvas.Left="3" Foreground="White"/>
+                </Canvas>
+            </Grid>
+            <Grid DataContext="{Binding Resources}"
+                                  Margin="0,0,10,0"
+                                  Visibility="{Binding DataContext.AppData.Configuration.TrackResources, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
+                <Image Style="{DynamicResource TrackValueImage}" />
+                <Canvas Margin="14,-4,0,3">
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="1" Canvas.Left="1" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="1" Canvas.Left="5" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="5" Canvas.Left="1" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="5" Canvas.Left="5" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="3" Canvas.Left="3" Foreground="White"/>
+                </Canvas>
+            </Grid>
+            <Grid DataContext="{Binding Clues}"
+                                  Margin="0,0,10,0"
+                                  Visibility="{Binding DataContext.AppData.Configuration.TrackClues, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
+                <Image Style="{DynamicResource TrackValueImage}" />
+                <Canvas Margin="14,-4,0,3">
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="1" Canvas.Left="1" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="1" Canvas.Left="5" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="5" Canvas.Left="1" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="5" Canvas.Left="5" Foreground="Black"/>
+                    <TextBlock Style="{DynamicResource TrackValueText}" Canvas.Top="3" Canvas.Left="3" Foreground="White"/>
+                </Canvas>
+            </Grid>
+        </StackPanel>
+    </StackPanel>-->
 </Border>

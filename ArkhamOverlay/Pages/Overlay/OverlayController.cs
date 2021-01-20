@@ -77,7 +77,7 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         private void CalculateStatImageSize() {
-            ViewModel.StatImageSize = _appData.Configuration.OverlayHeight / 20;
+            ViewModel.StatImageSize = _appData.Configuration.OverlayHeight / 18;
         }
 
         private void CalculateDeckListItemWidth() {

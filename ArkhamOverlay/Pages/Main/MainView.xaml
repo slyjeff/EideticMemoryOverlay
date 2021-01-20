@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:data="clr-namespace:ArkhamOverlay.Pages.Main" 
+        xmlns:data="clr-namespace:ArkhamOverlay.Pages.Main" xmlns:utils="clr-namespace:ArkhamOverlay.Utils"
         d:DataContext="{d:DesignInstance Type=data:MainViewModel}"
         mc:Ignorable="d"
         Title="Arkham Overlay Configuration"
@@ -36,17 +36,19 @@
             </Style>
 
             <Style x:Key="TrackValueImage" TargetType="{x:Type Image}">
-                <Setter Property="Width" Value="32" />
-                <Setter Property="Height" Value="32" />
+                <Setter Property="Width" Value="36" />
+                <Setter Property="Height" Value="36" />
                 <Setter Property="Source" Value="{Binding Image}"/>
             </Style>
 
-            <Style x:Key="TrackValueText" TargetType="{x:Type TextBlock}">
-                <Setter Property="Foreground" Value="White"/>
+            <Style x:Key="TrackValueText" TargetType="{x:Type utils:OutlinedTextBlock}">
+                <Setter Property="Fill" Value="White"/>
+                <Setter Property="Stroke" Value="Black"/>
+                <Setter Property="StrokeThickness" Value="3"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Setter Property="Text" Value="{Binding Value}"/>
-                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="FontSize" Value="30"/>
                 <Setter Property="Margin" Value="0,0,0,3"/>
             </Style>
 
@@ -140,7 +142,7 @@
                                   Margin="0,0,10,0"
                                   Visibility="{Binding DataContext.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <Image Style="{DynamicResource TrackValueImage}" />
-                                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
                                 <Grid.InputBindings>
                                     <MouseBinding MouseAction="LeftClick" Command="{Binding Increase}"/>
                                     <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding Increase}"/>
@@ -152,7 +154,7 @@
                                   Margin="0,0,10,0"
                                   Visibility="{Binding DataContext.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <Image Style="{DynamicResource TrackValueImage}" />
-                                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
                                 <Grid.InputBindings>
                                     <MouseBinding MouseAction="LeftClick" Command="{Binding Increase}"/>
                                     <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding Increase}"/>
@@ -164,7 +166,7 @@
                                   Margin="0,0,10,0"
                                   Visibility="{Binding DataContext.Configuration.TrackResources, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <Image Style="{DynamicResource TrackValueImage}" />
-                                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
                                 <Grid.InputBindings>
                                     <MouseBinding MouseAction="LeftClick" Command="{Binding Increase}"/>
                                     <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding Increase}"/>
@@ -175,7 +177,7 @@
                             <Grid DataContext="{Binding Clues}"
                                 Visibility="{Binding DataContext.Configuration.TrackClues, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <Image Style="{DynamicResource TrackValueImage}" />
-                                <TextBlock Style="{DynamicResource TrackValueText}"></TextBlock>
+                                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
                                 <Grid.InputBindings>
                                     <MouseBinding MouseAction="LeftClick" Command="{Binding Increase}"/>
                                     <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding Increase}"/>
