@@ -16,10 +16,13 @@
              Visibility ="{Binding StatTrackingVisibility}">
     <Border.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
-        <Style x:Key="StatText" TargetType="{x:Type TextBlock}">
+        <Style x:Key="StatText" TargetType="{x:Type utils:OutlinedTextBlock}">
             <Setter Property="FontSize" Value="{Binding DataContext.OverlayFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
             <Setter Property="Text" Value="{Binding Name}" />
-            <Setter Property="Foreground" Value="{Binding PlayerNameBrush}" />
+            <!--<Setter Property="FontWeight" Value="Bold" />-->
+            <Setter Property="Fill" Value="{Binding PlayerNameBrush}" />
+            <Setter Property="StrokeThickness" Value="4"/>
+            <Setter Property="Stroke" Value="Black"/>
             <Setter Property="Effect">
                 <Setter.Value>
                     <DropShadowEffect
@@ -51,7 +54,7 @@
         </Style>
     </Border.Resources>
     <StackPanel Orientation="Vertical">
-        <TextBlock Style="{DynamicResource StatText}" />
+        <utils:OutlinedTextBlock Style="{DynamicResource StatText}" />
         <StackPanel x:Name="Images"  Orientation="Horizontal" Margin="2, 0, -10, 0">
             <Grid DataContext="{Binding Health}"
                                   Margin="0,0,10,0"

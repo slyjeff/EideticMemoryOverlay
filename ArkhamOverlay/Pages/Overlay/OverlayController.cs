@@ -359,7 +359,7 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         internal void TakeSnapshot() {
-            var fileName = "OverlaySnapshot" + DateTime.Now.ToString("yyddMHHmmss") + ".png";
+            var fileName = _appData.Game.SnapshotDirectory + "OverlaySnapshot" + DateTime.Now.ToString("yyddMHHmmss") + ".png";
             WriteSnapshotToFile(fileName);
         }
 
