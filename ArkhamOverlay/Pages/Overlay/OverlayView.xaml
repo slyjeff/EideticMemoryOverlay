@@ -14,6 +14,8 @@
         Background="White">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <utils:BoolToVisibilityCollapsedConverter x:Key="BoolToVisibilityCollapsed" />
+
         <utils:ColorToBrushConverter x:Key="ColorToBrush" />
 
         <Style x:Key="CardImage" TargetType="{x:Type Image}" >
@@ -34,7 +36,9 @@
         Background="{Binding Path=AppData.Configuration.OverlayColor, Converter={StaticResource ColorToBrush}}"
           x:Name="Overlay">
 
-        <DockPanel Grid.Row="0"  LastChildFill="false">
+        <DockPanel Grid.Row="0"
+                   LastChildFill="false"
+                   Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}">
             <DockPanel DockPanel.Dock="Top" LastChildFill="false">
                 <overlay:StatDisplay DockPanel.Dock="Left"  DataContext="{Binding AppData.Game.Players[0]}" />
                 <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}" ImageAlignment="Right" />
@@ -91,7 +95,8 @@
                 Grid.Row="0"
                 ItemsSource="{Binding ActAgendaCards}"
                 HorizontalAlignment="Center" 
-                VerticalAlignment="Top">
+                VerticalAlignment="Top"
+                Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
@@ -104,7 +109,11 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Center" >
+            <StackPanel
+                Grid.Row="1"
+                Orientation="Vertical"
+                VerticalAlignment="Center"
+                Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}">
                 <ItemsControl ItemsSource="{Binding EncounterCards}" HorizontalAlignment="Center">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -135,7 +144,8 @@
                 Grid.Row="2"    
                 ItemsSource="{Binding HandCards}"
                 HorizontalAlignment="Center" 
-                VerticalAlignment="Bottom">
+                VerticalAlignment="Bottom"
+                Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />

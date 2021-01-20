@@ -211,8 +211,6 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         private SelectableCards _currentDisplayedDeckList = null;
         private void ShowDeckListHandler(SelectableCards selectableCards) {
-            RemoveAllVisibleCards();
-
             //it's already displayed- just hide it
             if (_currentDisplayedDeckList == selectableCards) {
                 ClearDeckList();
@@ -236,13 +234,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             ViewModel.ShowDeckList = false;
             ViewModel.DeckList = null;
             _currentDisplayedDeckList = null;
-        }
-
-        private void RemoveAllVisibleCards() {
-            ClearActAgendaCardSet();
-            ClearCurrentlyDisplayedHandCardSet();
-
-            _appData.Game.ClearAllCards();
         }
 
         internal void ToggleCardVisibilityHandler(Card card) {
@@ -310,15 +301,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             _currentlyDisplayedHandCardSet = cardSet;
             cardSet.IsDisplayedOnOverlay = true;
             UpdateCardSet(cardSet, ViewModel.HandCards);
-        }
-
-        private void ClearActAgendaCardSet() {
-            if (!_appData.Game.ScenarioCards.CardSet.IsDisplayedOnOverlay) {
-                return;
-            }
-
-            _appData.Game.ScenarioCards.CardSet.IsDisplayedOnOverlay = false;
-            ViewModel.ActAgendaCards.RemoveOverlayCards(ViewModel.ActAgendaCards.ToArray());
         }
 
         private void ClearCurrentlyDisplayedHandCardSet() {
