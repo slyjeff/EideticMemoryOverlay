@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.CardButtons;
 using ArkhamOverlay.Data;
+using ArkhamOverlay.Utils;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -349,6 +350,12 @@ namespace ArkhamOverlay.Pages.Overlay {
             //this prevents OBS from getting in a weird state where it tries to read a file that is not there (because we are writing it)
             var tempFileName = Path.GetTempFileName();
             WriteSnapshotToFile(tempFileName);
+
+            //only overwrite the overlay file if there has been a change
+            if (FileCompare.CompareFiles(tempFileName, _appData.Configuration.AutoSnapshotFilePath)) {
+                File.Delete(tempFileName);
+                return;
+            }
 
             try {
                 File.Delete(_appData.Configuration.AutoSnapshotFilePath);
