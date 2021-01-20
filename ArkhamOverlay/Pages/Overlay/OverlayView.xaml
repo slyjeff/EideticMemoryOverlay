@@ -38,6 +38,7 @@
 
         <DockPanel Grid.Row="0"
                    LastChildFill="false"
+                   Margin="0, -5, 0, 10"
                    Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}">
             <DockPanel DockPanel.Dock="Top" LastChildFill="false">
                 <overlay:StatDisplay DockPanel.Dock="Left"  DataContext="{Binding AppData.Game.Players[0]}" />
