@@ -223,6 +223,7 @@ namespace ArkhamOverlay.Utils {
             outlinedTextBlock.InvalidateVisual();
         }
 
+        [Obsolete]
         private void EnsureFormattedText() {
             if (_FormattedText != null) {
                 return;

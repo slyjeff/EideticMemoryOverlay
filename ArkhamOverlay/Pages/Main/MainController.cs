@@ -261,7 +261,18 @@ namespace ArkhamOverlay.Pages.Main {
                 selectCardsWindow.Activate();
             }
         }
-        
+
+        [Command]
+        public void SelectAutoSnapshotFile() {
+            var dialog = new CommonOpenFileDialog {
+                InitialDirectory = ViewModel.Configuration.AutoSnapshotFilePath,
+            };
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
+                ViewModel.Configuration.AutoSnapshotFilePath = dialog.FileName;
+            }
+        }
+
         [Command]
         public void ResetOverlayColor() {
             ViewModel.Configuration.OverlayColor = ConfigurationService.DefaultBackgroundColor;

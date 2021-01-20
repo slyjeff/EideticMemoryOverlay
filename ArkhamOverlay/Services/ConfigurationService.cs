@@ -24,6 +24,8 @@ namespace ArkhamOverlay.Services {
         Point Player3Position { get; set; }
         Point Player4Position { get; set; }
         Point OverlayPosition { get; set; }
+        bool UseAutoSnapshot { get; set; }
+        string AutoSnapshotFilePath { get; set; }
         IList<Pack> Packs { get; }
     }
 
@@ -51,7 +53,8 @@ namespace ArkhamOverlay.Services {
         public Point Player3Position { get; set; }
         public Point Player4Position { get; set; }
         public Point OverlayPosition { get; set; }
-
+        public bool UseAutoSnapshot { get; set; }
+        public string AutoSnapshotFilePath { get; set; }
     }
 
     public class ConfigurationService {
@@ -111,6 +114,8 @@ namespace ArkhamOverlay.Services {
             toConfiguration.Player3Position = fromConfiguration.Player3Position;
             toConfiguration.Player4Position = fromConfiguration.Player4Position;
             toConfiguration.OverlayPosition = fromConfiguration.OverlayPosition;
+            toConfiguration.UseAutoSnapshot = fromConfiguration.UseAutoSnapshot;
+            toConfiguration.AutoSnapshotFilePath= fromConfiguration.AutoSnapshotFilePath;
             toConfiguration.Packs.Clear();
             foreach (var pack in fromConfiguration.Packs) {
                 toConfiguration.Packs.Add(new Pack(pack));

@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace ArkhamOverlay.Utils {
     public class BoolToVisibilityCollapsedConverter : IValueConverter {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
             return ((bool)value) ? Visibility.Collapsed : Visibility.Visible;
         }
 
