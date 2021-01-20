@@ -376,8 +376,12 @@ namespace ArkhamOverlay.Pages.Overlay {
             renderTargetBitmap.Render(overlay);
             var pngImage = new PngBitmapEncoder();
             pngImage.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-            using (var fileStream = File.Create(file)) {
-                pngImage.Save(fileStream);
+            try {
+                using (var fileStream = File.Create(file)) {
+                    pngImage.Save(fileStream);
+                }
+            } catch {
+                //recover from a failure to write without crashing- we'll get it next time
             }
         }
     }
