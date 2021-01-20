@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
 namespace ArkhamOverlay.Utils {
+    //borrowed from here: https://docs.microsoft.com/en-us/troubleshoot/dotnet/csharp/create-file-compare
     public static class FileCompare {
         public static bool CompareFiles(string file1, string file2) {
             int file1byte;
