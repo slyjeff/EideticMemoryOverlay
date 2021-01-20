@@ -7,8 +7,8 @@ using System.Windows;
 
 namespace ArkhamOverlay.Data {
     public class Game : ViewModel, IGame {
-        public Game() {
-            Players = new List<Player> { new Player(1), new Player(2), new Player(3), new Player(4) };
+        public Game(Configuration configuration) {
+            Players = new List<Player> { new Player(configuration, 1), new Player(configuration, 2), new Player(configuration, 3), new Player(configuration, 4) };
             EncounterSets = new List<EncounterSet>();
             ScenarioCards = new SelectableCards(SelectableType.Scenario);
             LocationCards = new SelectableCards(SelectableType.Location);

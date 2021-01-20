@@ -130,6 +130,8 @@
     <Compile Include="Data\SelectableCards.cs" />
     <Compile Include="Data\Player.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="Utils\BoolToVisibilityCollapsedConverter.cs" />
+    <Compile Include="Utils\OutlinedTextBlock.cs" />
     <Compile Include="PageController\Command.cs" />
     <Compile Include="PageController\CommandAttribute.cs" />
     <Compile Include="PageController\Controller.cs" />
@@ -152,6 +154,9 @@
       <DependentUpon>OverlayView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Overlay\OverlayViewModel.cs" />
+    <Compile Include="Pages\Overlay\StatDisplay.xaml.cs">
+      <DependentUpon>StatDisplay.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\SelectCards\SelectCardsController.cs" />
     <Compile Include="Pages\SelectCards\SelectCardsView.xaml.cs">
       <DependentUpon>SelectCardsView.xaml</DependentUpon>
@@ -180,6 +185,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\Overlay\OverlayView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\Overlay\StatDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -232,6 +241,20 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Windows Logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\Clue.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Health.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Resource.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Sanity.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

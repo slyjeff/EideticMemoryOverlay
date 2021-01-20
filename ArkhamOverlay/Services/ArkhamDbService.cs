@@ -18,17 +18,32 @@ namespace ArkhamOverlay.Services {
 
             string url = @"https://arkhamdb.com/api/public/deck/" + player.DeckId;
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            var request = (HttpWebRequest)WebRequest.Create(url);
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream)) {
+            using (var response = (HttpWebResponse)request.GetResponse())
+            using (var stream = response.GetResponseStream())
+            using (var reader = new StreamReader(stream)) {
                 var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
                 player.InvestigatorImage = new BitmapImage(new Uri("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png", UriKind.Absolute));
+                player.InvestigatorCode = arkhamDbDeck.Investigator_Code;
                 player.Slots = arkhamDbDeck.Slots;
                 player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
-                player.OnPlayerChanged();
             }
+
+            var investigatorUrl = @"https://arkhamdb.com/api/public/card/" + player.InvestigatorCode;
+            var investigatorRequest = (HttpWebRequest)WebRequest.Create(investigatorUrl);
+            using (var response = (HttpWebResponse)investigatorRequest.GetResponse())
+            using (var stream = response.GetResponseStream())
+            using (var reader = new StreamReader(stream)) {
+                var arkhamDbCard = JsonConvert.DeserializeObject<ArkhamDbCard>(reader.ReadToEnd());
+
+                if (Enum.TryParse(arkhamDbCard.Faction_Name, ignoreCase: true, out Faction faction)) {
+                    player.Faction = faction;
+                }
+            }
+
+
+            player.OnPlayerChanged();
 
             return;
         }
