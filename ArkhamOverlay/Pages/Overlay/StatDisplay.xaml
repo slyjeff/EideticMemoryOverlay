@@ -41,7 +41,7 @@
         <Style x:Key="TrackValueText" TargetType="{x:Type utils:OutlinedTextBlock}">
             <Setter Property="Fill" Value="White"/>
             <Setter Property="Stroke" Value="Black"/>
-            <Setter Property="StrokeThickness" Value="3"/>
+            <Setter Property="StrokeThickness" Value="4"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -52,7 +52,7 @@
     </Border.Resources>
     <StackPanel Orientation="Vertical">
         <TextBlock Style="{DynamicResource StatText}" />
-        <StackPanel Orientation="Horizontal" Margin="2, 0, 0, 0">
+        <StackPanel x:Name="Images"  Orientation="Horizontal" Margin="2, 0, -10, 0">
             <Grid DataContext="{Binding Health}"
                                   Margin="0,0,10,0"
                                   Visibility="{Binding DataContext.AppData.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">

@@ -37,12 +37,12 @@
         <DockPanel Grid.Row="0"  LastChildFill="false">
             <DockPanel DockPanel.Dock="Top" LastChildFill="false">
                 <overlay:StatDisplay DockPanel.Dock="Left"  DataContext="{Binding AppData.Game.Players[0]}" />
-                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}" />
+                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}" ImageAlignment="Right" />
             </DockPanel>
 
             <DockPanel DockPanel.Dock="Bottom"  LastChildFill="false">
                 <overlay:StatDisplay  DockPanel.Dock="Left" DataContext="{Binding AppData.Game.Players[2]}" />
-                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[3]}" />
+                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[3]}" ImageAlignment="Right"/>
             </DockPanel>
         </DockPanel>
 
