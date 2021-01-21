@@ -19,7 +19,6 @@
         <Style x:Key="StatText" TargetType="{x:Type utils:OutlinedTextBlock}">
             <Setter Property="FontSize" Value="{Binding DataContext.OverlayFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
             <Setter Property="Text" Value="{Binding Name}" />
-            <!--<Setter Property="FontWeight" Value="Bold" />-->
             <Setter Property="Fill" Value="{Binding PlayerNameBrush}" />
             <Setter Property="StrokeThickness" Value="4"/>
             <Setter Property="Stroke" Value="Black"/>
