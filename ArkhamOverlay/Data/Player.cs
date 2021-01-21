@@ -20,6 +20,8 @@ namespace ArkhamOverlay.Data {
             Clues = new Stat("clue.png");
             Faction = Faction.Other;
 
+            Resources.Value = 5;
+
             configuration.PropertyChanged += (s, e) => {
                 if (e.PropertyName == nameof(Configuration.TrackPlayerStats)) {
                     NotifyPropertyChanged(nameof(StatTrackingVisibility));
@@ -59,11 +61,11 @@ namespace ArkhamOverlay.Data {
         public Brush PlayerNameBrush {
             get {
                 switch (Faction) {
-                    case Faction.Guardian: return new SolidColorBrush(Colors.DarkBlue);
+                    case Faction.Guardian: return new SolidColorBrush(Colors.DodgerBlue);
                     case Faction.Seeker: return new SolidColorBrush(Colors.DarkGoldenrod);
-                    case Faction.Mystic: return new SolidColorBrush(Colors.Purple);
-                    case Faction.Rogue: return new SolidColorBrush(Colors.DarkGreen);
-                    case Faction.Survivor: return new SolidColorBrush(Colors.DarkRed);
+                    case Faction.Mystic: return new SolidColorBrush(Colors.MediumPurple);
+                    case Faction.Rogue: return new SolidColorBrush(Colors.MediumSpringGreen);
+                    case Faction.Survivor: return new SolidColorBrush(Colors.Red);
                     default: return new SolidColorBrush(Colors.Black);
                 }
             }

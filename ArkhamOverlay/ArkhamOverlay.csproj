@@ -131,6 +131,7 @@
     <Compile Include="Data\Player.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Utils\BoolToVisibilityCollapsedConverter.cs" />
+    <Compile Include="Utils\FileCompare.cs" />
     <Compile Include="Utils\OutlinedTextBlock.cs" />
     <Compile Include="PageController\Command.cs" />
     <Compile Include="PageController\CommandAttribute.cs" />

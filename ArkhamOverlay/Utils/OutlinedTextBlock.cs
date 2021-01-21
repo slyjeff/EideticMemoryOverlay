@@ -7,6 +7,8 @@ using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.Utils {
+    //taken from this link: https://stackoverflow.com/questions/93650/apply-stroke-to-a-textblock-in-wpf
+
     [ContentProperty("Text")]
     public class OutlinedTextBlock : FrameworkElement {
         private void UpdatePen() {
@@ -223,6 +225,7 @@ namespace ArkhamOverlay.Utils {
             outlinedTextBlock.InvalidateVisual();
         }
 
+        [Obsolete]
         private void EnsureFormattedText() {
             if (_FormattedText != null) {
                 return;
