@@ -42,6 +42,6 @@ namespace ArkhamOverlay.Pages.SelectCards {
 
         public Visibility Visibility { get { return string.IsNullOrEmpty(_player.Name) ? Visibility.Collapsed : Visibility.Visible; } }
 
-        public string Text { get { return "Add card to " + _player.Name; } }
+        public string Text { get { return "Add to " + _player.Name + "'s hand"; } }
     }
 }
