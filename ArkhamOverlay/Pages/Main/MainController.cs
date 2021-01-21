@@ -81,6 +81,7 @@ namespace ArkhamOverlay.Pages.Main {
 
             if (controller == null) {
                 controller = _controllerFactory.CreateController<SelectCardsController>();
+                controller.AppData = ViewModel.AppData;
                 controller.SelectableCards = selectableCards;
                 controller.Left = startingPosition.X == 0 ? left : startingPosition.X;
                 controller.Top = startingPosition.Y == 0 ? top : startingPosition.Y;
