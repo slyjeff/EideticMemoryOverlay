@@ -5,7 +5,8 @@
         GetButtonImage,
         ClickCardButton, 
         ClearAll, 
-        UpdateCardInfo, 
+        UpdateCardInfo,
+        UpdateStatInfo,
         RegisterForUpdates,
         ToggleActAgendaBarRequest,
         ActAgendaBarStatusRequest,
@@ -25,6 +26,8 @@
                     return "ClearAll";
                 case AoTcpRequest.UpdateCardInfo:
                     return "UpdateCardInfo";
+                case AoTcpRequest.UpdateStatInfo:
+                    return "UpdateStatInfo";
                 case AoTcpRequest.RegisterForUpdates:
                     return "RegisterForUpdates";
                 case AoTcpRequest.ToggleActAgendaBarRequest:
@@ -50,6 +53,8 @@
                     return AoTcpRequest.ClearAll;
                 case "UpdateCardInfo":
                     return AoTcpRequest.UpdateCardInfo;
+                case "UpdateStatInfo":
+                    return AoTcpRequest.UpdateStatInfo;
                 case "RegisterForUpdates":
                     return AoTcpRequest.RegisterForUpdates;
                 case "ToggleActAgendaBarRequest":

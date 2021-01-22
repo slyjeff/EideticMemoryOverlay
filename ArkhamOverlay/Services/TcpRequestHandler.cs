@@ -118,6 +118,13 @@ namespace ArkhamOverlay.Services {
                         SendActAgendaBarStatus(game.LocationCards.CardSet.IsDisplayedOnOverlay);
                     };
 
+                    foreach (var player in game.Players) {
+                        player.Health.PropertyChanged += (s, e) => { SendStatInfo(player.Health, GetDeckType(player.SelectableCards), StatType.Health); };
+                        player.Sanity.PropertyChanged += (s, e) => { SendStatInfo(player.Sanity, GetDeckType(player.SelectableCards), StatType.Sanity); };
+                        player.Resources.PropertyChanged += (s, e) => { SendStatInfo(player.Resources, GetDeckType(player.SelectableCards), StatType.Resources); };
+                        player.Clues.PropertyChanged += (s, e) => { SendStatInfo(player.Clues, GetDeckType(player.SelectableCards), StatType.Clues); };
+                    }
+
                     foreach (var selectableCards in game.AllSelectableCards) {
                         selectableCards.ButtonChanged += (button) => {
                             if (button is CardInSetButton cardInSetButton) {
@@ -202,6 +209,16 @@ namespace ArkhamOverlay.Services {
                 IsToggled = button != null && button.IsToggled,
                 ImageAvailable = card?.ButtonImageAsBytes != null,
                 IsCardInSet = true
+            };
+
+            SendStatusToAllRegisteredPorts(request);
+        }
+
+        private void SendStatInfo(Stat stat, Deck deck, StatType statType) {
+            var request = new UpdateStatInfoRequest {
+                Deck = deck,
+                Value = stat.Value,
+                StatType = statType
             };
 
             SendStatusToAllRegisteredPorts(request);

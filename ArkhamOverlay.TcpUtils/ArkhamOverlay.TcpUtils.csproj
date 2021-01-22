@@ -46,6 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AoTcpRequest.cs" />
+    <Compile Include="Requests\UpdateStatInfoRequest.cs" />
+    <Compile Include="StatType.cs" />
     <Compile Include="CardButtonType.cs" />
     <Compile Include="Deck.cs" />
     <Compile Include="ICardInfo.cs" />
