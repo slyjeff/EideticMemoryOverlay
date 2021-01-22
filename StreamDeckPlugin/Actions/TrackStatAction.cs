@@ -17,6 +17,8 @@ namespace StreamDeckPlugin.Actions {
 
         private Timer _keyPressTimer = new Timer(700);
 
+        private int _value { get; set; }
+
         public TrackStatAction(StatType statType) {
             StatType = statType;
             ListOf.Add(this);
@@ -38,7 +40,7 @@ namespace StreamDeckPlugin.Actions {
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<TrackStatSettings>();
-            return Task.CompletedTask;
+            return SetTitleAsync(_value.ToString());
         }
 
         private object _keyUpLock = new object();
@@ -76,7 +78,8 @@ namespace StreamDeckPlugin.Actions {
 
         private void SendStatValueRequest(bool increase) {
             var response = StreamDeckSendSocketService.SendRequest<ChangeStatValueResponse>(new ChangeStatValueRequest { Deck = Deck, StatType = StatType, Increase = increase });
-            SetTitleAsync(response.Value.ToString());
+            _value = response.Value;
+            SetTitleAsync(_value.ToString());
         }
 
 
@@ -87,7 +90,8 @@ namespace StreamDeckPlugin.Actions {
         }
 
         public void UpdateValue(int value) {
-            SetTitleAsync(value.ToString());
+            _value = value;
+            SetTitleAsync(_value.ToString());
         }
     }
 }
