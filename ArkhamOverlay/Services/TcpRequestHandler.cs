@@ -147,12 +147,25 @@ namespace ArkhamOverlay.Services {
                         };
                     }
 
+                    SendAllStats();
+
                     _alreadyRegisteredEvents = true;
                 }
             }
 
             SendOkResponse(request.Socket);
         }
+
+        private void SendAllStats() {
+            var game = _appData.Game;
+            foreach (var player in game.Players) {
+                SendStatInfo(player.Health, GetDeckType(player.SelectableCards), StatType.Health);
+                SendStatInfo(player.Sanity, GetDeckType(player.SelectableCards), StatType.Sanity);
+                SendStatInfo(player.Resources, GetDeckType(player.SelectableCards), StatType.Resources);
+                SendStatInfo(player.Clues, GetDeckType(player.SelectableCards), StatType.Clues);
+            }
+        }
+
 
         private void HandleShowDeckList(TcpRequest request) {
             var showDeckListRequest = JsonConvert.DeserializeObject<ShowDeckListRequest>(request.Body);

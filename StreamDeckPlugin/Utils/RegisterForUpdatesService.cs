@@ -15,18 +15,12 @@ namespace StreamDeckPlugin.Utils {
 
         private void SendRequest(object sender, ElapsedEventArgs e) {
             if (_requestHandler.RequestReceivedRecently) {
-                _requestUpdatesTimer.Interval = 1000 * 30; //we've gotten communication, set the polling to 30 seconds
                 _requestHandler.RequestReceivedRecently = false;
                 return;
             }
 
-            _requestUpdatesTimer.Interval = 1000 * 5; //we haven't heard lately, so start requesting more frequently
-
             var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
             var response = StreamDeckSendSocketService.SendRequest<OkResponse>(request);
-            if (response.Ok) {
-                _requestUpdatesTimer.Interval = 1000 * 30; //once we are connected, set the polling to 30 seconds
-            }
         }
 
         internal void RegisterForUpdates() {
