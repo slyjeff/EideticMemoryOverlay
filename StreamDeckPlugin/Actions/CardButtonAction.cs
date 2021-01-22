@@ -26,7 +26,6 @@ namespace StreamDeckPlugin.Actions {
         private ICardInfo _currentCardInfo;
         private Timer _keyPressTimer = new Timer(700);
 
-
         public CardButtonAction() {
             ListOf.Add(this);
             _keyPressTimer.Enabled = false;
@@ -78,25 +77,13 @@ namespace StreamDeckPlugin.Actions {
             ShowCardSet = false;
             IsVisible = true;
 
-            //do this for the first cardbutton on the screen- we don't need a million requests going out
-            if (CardButtonIndex == 0) {
-                RegisterForButtonUpdates();
-            }
-
             await GetButtonInfo();
-        }
-
-        private void RegisterForButtonUpdates() {
-            //send this every time just to make sure the overlay is aware of us- otherwise we won't get updates
-            var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
-            StreamDeckSendSocketService.SendRequest<OkResponse>(request);
         }
 
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
             IsVisible = false;
             return Task.CompletedTask;
         }
-
 
         private object _keyUpLock = new object();
         private bool _keyIsDown = false;

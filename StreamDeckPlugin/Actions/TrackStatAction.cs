@@ -3,13 +3,21 @@ using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using StreamDeckPlugin.Utils;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace StreamDeckPlugin.Actions {
     public abstract class TrackStatAction : StreamDeckAction {
+        public static IList<TrackStatAction> ListOf = new List<TrackStatAction>();
+
         private TrackStatSettings _settings = new TrackStatSettings();
 
-        protected Deck Deck {
+        public TrackStatAction(StatType statType) {
+            StatType = statType;
+            ListOf.Add(this);
+        }
+
+        public Deck Deck {
             get {
                 if (_settings == null) {
                     return Deck.Player1;
@@ -18,6 +26,8 @@ namespace StreamDeckPlugin.Actions {
                 return _settings.Deck.AsDeck();
             }
         }
+
+        public StatType StatType { get; }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<TrackStatSettings>();
@@ -33,6 +43,10 @@ namespace StreamDeckPlugin.Actions {
             _settings.Deck = args.Payload["deck"].Value<string>();
 
             await SetSettingsAsync(_settings);
+        }
+
+        public void UpdateValue(int value) {
+            SetTitleAsync(value.ToString());
         }
     }
 }

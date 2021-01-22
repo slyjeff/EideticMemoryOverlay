@@ -1,5 +1,7 @@
 ﻿using ArkhamOverlay.TcpUtils;
 using StreamDeckPlugin.Utils;
+using System.Threading;
+using System.Timers;
 
 namespace StreamDeckPlugin {
     class Program {
@@ -9,7 +11,9 @@ namespace StreamDeckPlugin {
             //System.Diagnostics.Debugger.Launch();
 #endif
 
-            new ReceiveSocketService(new TcpRequestHandler()).StartListening(StreamDeckTcpInfo.Port);
+            var requestHandler = new TcpRequestHandler();
+            new ReceiveSocketService(requestHandler).StartListening(StreamDeckTcpInfo.Port);
+            new RegisterForUpdatesService(requestHandler).RegisterForUpdates();
 
             // register actions and connect to the Stream Deck
             SharpDeck.StreamDeckPlugin.Run();
