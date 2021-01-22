@@ -20,7 +20,7 @@ namespace StreamDeckPlugin.Utils {
             }
 
             var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
-            var response = StreamDeckSendSocketService.SendRequest<OkResponse>(request);
+            StreamDeckSendSocketService.SendRequest<OkResponse>(request);
         }
 
         internal void RegisterForUpdates() {

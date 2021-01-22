@@ -46,6 +46,9 @@ namespace ArkhamOverlay.Services {
                 case AoTcpRequest.ShowDeckList:
                     HandleShowDeckList(request);
                     break;
+                case AoTcpRequest.ChangeStatValue:
+                    HandleChangeStatValue(request);
+                    break;
             }
         }
 
@@ -77,6 +80,24 @@ namespace ArkhamOverlay.Services {
                 }
                 SendOkResponse(request.Socket);
             }));
+        }
+
+        private void HandleChangeStatValue(TcpRequest request) {
+            var changeStatValueRequest = JsonConvert.DeserializeObject<ChangeStatValueRequest>(request.Body);
+
+            var player = GetPlayer(changeStatValueRequest.Deck);
+            var stat = GetStat(player, changeStatValueRequest.StatType);
+            if (changeStatValueRequest.Increase) {
+                stat.Increase.Execute(null);
+            } else {
+                stat.Decrease.Execute(null);
+            }
+
+            var response = new ChangeStatValueResponse {
+                Value = stat.Value
+            };
+
+            Send(request.Socket, response.ToString());
         }
 
         private ICardButton GetCardButton(Deck deck, bool cardInSet,  int index) {
@@ -165,7 +186,6 @@ namespace ArkhamOverlay.Services {
                 SendStatInfo(player.Clues, GetDeckType(player.SelectableCards), StatType.Clues);
             }
         }
-
 
         private void HandleShowDeckList(TcpRequest request) {
             var showDeckListRequest = JsonConvert.DeserializeObject<ShowDeckListRequest>(request.Body);
@@ -332,6 +352,36 @@ namespace ArkhamOverlay.Services {
                     return _appData.Game.EncounterDeckCards;
                 default:
                     return _appData.Game.Players[0].SelectableCards;
+            }
+        }
+
+        private Player GetPlayer(Deck deck) {
+            switch (deck) {
+                case Deck.Player1:
+                    return _appData.Game.Players[0];
+                case Deck.Player2:
+                    return _appData.Game.Players[1];
+                case Deck.Player3:
+                    return _appData.Game.Players[2];
+                case Deck.Player4:
+                    return _appData.Game.Players[3];
+                default:
+                    return _appData.Game.Players[0];
+            }
+        }
+
+        private Stat GetStat(Player player, StatType statType) {
+            switch (statType) {
+                case StatType.Health:
+                    return player.Health;
+                case StatType.Sanity:
+                    return player.Sanity;
+                case StatType.Resources:
+                    return player.Resources;
+                case StatType.Clues:
+                    return player.Clues;
+                default:
+                    return player.Health;
             }
         }
 

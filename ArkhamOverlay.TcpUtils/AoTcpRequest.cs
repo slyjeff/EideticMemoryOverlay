@@ -10,7 +10,8 @@
         RegisterForUpdates,
         ToggleActAgendaBarRequest,
         ActAgendaBarStatusRequest,
-        ShowDeckList
+        ShowDeckList,
+        ChangeStatValue,
     };
 
     public static class AoTcpRequestExtensions {
@@ -36,6 +37,8 @@
                     return "ActAgendaBarStatusRequest";
                 case AoTcpRequest.ShowDeckList:
                     return "ShowDeckList";
+                case AoTcpRequest.ChangeStatValue:
+                    return "ChangeStatValue";
                 default:
                     return "Unkown";
             }
@@ -63,6 +66,8 @@
                     return AoTcpRequest.ActAgendaBarStatusRequest;
                 case "ShowDeckList":
                     return AoTcpRequest.ShowDeckList;
+                case "ChangeStatValue":
+                    return AoTcpRequest.ChangeStatValue;
                 default:
                     return AoTcpRequest.Unknown;
             }

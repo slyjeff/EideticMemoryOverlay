@@ -1,4 +1,6 @@
 ﻿using ArkhamOverlay.TcpUtils;
+using ArkhamOverlay.TcpUtils.Requests;
+using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
@@ -35,8 +37,8 @@ namespace StreamDeckPlugin.Actions {
         }
 
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
-            //StreamDeckSendSocketService.SendRequest(new ShowDeckListRequest { Deck = Deck });
-            return Task.CompletedTask;
+            var response = StreamDeckSendSocketService.SendRequest<ChangeStatValueResponse>(new ChangeStatValueRequest { Deck = Deck, StatType = StatType, Increase = true });
+            return SetTitleAsync(response.Value.ToString());
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
