@@ -5,11 +5,13 @@
         GetButtonImage,
         ClickCardButton, 
         ClearAll, 
-        UpdateCardInfo, 
+        UpdateCardInfo,
+        UpdateStatInfo,
         RegisterForUpdates,
         ToggleActAgendaBarRequest,
         ActAgendaBarStatusRequest,
-        ShowDeckList
+        ShowDeckList,
+        ChangeStatValue,
     };
 
     public static class AoTcpRequestExtensions {
@@ -25,6 +27,8 @@
                     return "ClearAll";
                 case AoTcpRequest.UpdateCardInfo:
                     return "UpdateCardInfo";
+                case AoTcpRequest.UpdateStatInfo:
+                    return "UpdateStatInfo";
                 case AoTcpRequest.RegisterForUpdates:
                     return "RegisterForUpdates";
                 case AoTcpRequest.ToggleActAgendaBarRequest:
@@ -33,6 +37,8 @@
                     return "ActAgendaBarStatusRequest";
                 case AoTcpRequest.ShowDeckList:
                     return "ShowDeckList";
+                case AoTcpRequest.ChangeStatValue:
+                    return "ChangeStatValue";
                 default:
                     return "Unkown";
             }
@@ -50,6 +56,8 @@
                     return AoTcpRequest.ClearAll;
                 case "UpdateCardInfo":
                     return AoTcpRequest.UpdateCardInfo;
+                case "UpdateStatInfo":
+                    return AoTcpRequest.UpdateStatInfo;
                 case "RegisterForUpdates":
                     return AoTcpRequest.RegisterForUpdates;
                 case "ToggleActAgendaBarRequest":
@@ -58,6 +66,8 @@
                     return AoTcpRequest.ActAgendaBarStatusRequest;
                 case "ShowDeckList":
                     return AoTcpRequest.ShowDeckList;
+                case "ChangeStatValue":
+                    return AoTcpRequest.ChangeStatValue;
                 default:
                     return AoTcpRequest.Unknown;
             }

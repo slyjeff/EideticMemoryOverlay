@@ -100,6 +100,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\TrackCluesAction.cs" />
+    <Compile Include="Actions\TrackResourcesAction.cs" />
+    <Compile Include="Actions\TrackSanityAction.cs" />
+    <Compile Include="Actions\TrackHealthAction.cs" />
     <Compile Include="Actions\ShowDeckListAction.cs" />
     <Compile Include="Actions\ToggleSetAction.cs" />
     <Compile Include="Actions\ToggleActAgendaBarAction.cs" />
@@ -107,6 +111,8 @@
     <Compile Include="Actions\PageLeftAction.cs" />
     <Compile Include="Actions\PageRightAction.cs" />
     <Compile Include="Actions\CardButtonAction.cs" />
+    <Compile Include="Actions\TrackStatAction.cs" />
+    <Compile Include="Utils\RegisterForUpdatesService.cs" />
     <Compile Include="Utils\RequestHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -114,6 +120,7 @@
     <Compile Include="Utils\ImageUtils.cs" />
     <Compile Include="Utils\StreamDeckTcpInfo.cs" />
     <Compile Include="Utils\TextUtils.cs" />
+    <Compile Include="Utils\TrackStatSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig">
@@ -145,16 +152,40 @@
     <Content Include="Icons\clear.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Icons\Clue%402x.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\Clue.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\Health%402x.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\Health.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Icons\left-arrow%402x.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Icons\left-arrow.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Icons\Resource%402x.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\Resource.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Icons\right-arrow%402x.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Icons\right-arrow.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\Sanity%402x.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Icons\Sanity.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="index.html">

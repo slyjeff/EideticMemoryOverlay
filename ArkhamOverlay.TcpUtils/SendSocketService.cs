@@ -13,30 +13,40 @@ namespace ArkhamOverlay.TcpUtils {
             var remoteEP = new IPEndPoint(ipAddress, port);
 
             var sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            sender.Connect(remoteEP);
             try {
-                var payload = Encoding.ASCII.GetBytes(request.ToString());
+                sender.Connect(remoteEP);
+                try {
+                    var payload = Encoding.ASCII.GetBytes(request.ToString());
 
-                int bytesSent = sender.Send(payload);
+                    int bytesSent = sender.Send(payload);
 
-                var responseData = string.Empty;
+                    var responseData = string.Empty;
 
-                do {
-                    var bytes = new byte[1014];
-                    int bytesRec = sender.Receive(bytes);
-                    responseData += Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                } while (responseData.IndexOf("<EOF>") == -1);
+                    do {
+                        var bytes = new byte[1014];
+                        int bytesRec = sender.Receive(bytes);
+                        responseData += Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                    } while (responseData.IndexOf("<EOF>") == -1);
 
 
-                return responseData.Substring(0, responseData.IndexOf("<EOF>"));
-            } finally {
-                sender.Shutdown(SocketShutdown.Both);
-                sender.Close();
+                    return responseData.Substring(0, responseData.IndexOf("<EOF>"));
+                } finally {
+                    sender.Shutdown(SocketShutdown.Both);
+                    sender.Close();
+                }
+            } catch {
+                //errorr connecting- will happen a lot if the app isn't there
+                return null;
             }
         }
 
         public static T SendRequest<T>(Request request, int port) where T : Response {
-            return JsonConvert.DeserializeObject<T>(SendRequest(request, port));
+            var result = SendRequest(request, port);
+            if (result == null) {
+                return default(T);
+            }
+
+            return JsonConvert.DeserializeObject<T>(result);
         }
     }
 }

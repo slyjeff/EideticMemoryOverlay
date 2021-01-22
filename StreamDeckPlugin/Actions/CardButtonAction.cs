@@ -11,7 +11,7 @@ using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 using StreamDeckPlugin.Utils;
 
-namespace ArkhamOverlaySdPlugin.Actions {
+namespace StreamDeckPlugin.Actions {
     public class CardSettings {
         public string Deck { get; set; }
     }
@@ -25,7 +25,6 @@ namespace ArkhamOverlaySdPlugin.Actions {
         private string _deviceId;
         private ICardInfo _currentCardInfo;
         private Timer _keyPressTimer = new Timer(700);
-
 
         public CardButtonAction() {
             ListOf.Add(this);
@@ -78,25 +77,13 @@ namespace ArkhamOverlaySdPlugin.Actions {
             ShowCardSet = false;
             IsVisible = true;
 
-            //do this for the first cardbutton on the screen- we don't need a million requests going out
-            if (CardButtonIndex == 0) {
-                RegisterForButtonUpdates();
-            }
-
             await GetButtonInfo();
-        }
-
-        private void RegisterForButtonUpdates() {
-            //send this every time just to make sure the overlay is aware of us- otherwise we won't get updates
-            var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
-            StreamDeckSendSocketService.SendRequest<OkResponse>(request);
         }
 
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
             IsVisible = false;
             return Task.CompletedTask;
         }
-
 
         private object _keyUpLock = new object();
         private bool _keyIsDown = false;
@@ -120,7 +107,6 @@ namespace ArkhamOverlaySdPlugin.Actions {
                 SendClick(ButtonClick.Right);
             }
         }
-
 
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
             lock (_keyUpLock) {

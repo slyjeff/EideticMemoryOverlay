@@ -10,7 +10,12 @@ namespace StreamDeckPlugin.Utils {
         }
 
         public static T SendRequest<T>(Request request) where T : Response {
-            return JsonConvert.DeserializeObject<T>(SendRequest(request));
+            var response = SendRequest(request);
+            if (response == null) {
+                return default(T);
+            }
+
+            return JsonConvert.DeserializeObject<T>(response);
         }
     }
 
