@@ -108,7 +108,6 @@ namespace StreamDeckPlugin.Actions {
             }
         }
 
-
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
             lock (_keyUpLock) {
                 if (!_keyIsDown) {
