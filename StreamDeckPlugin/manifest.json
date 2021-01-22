@@ -42,6 +42,45 @@
             ]
         },
         {
+            "Name": "Track Sanity",
+            "UUID": "arkhamoverlay.tracksanity",
+            "Tooltip": "Add Or Subtract Sanity Values",
+            "States": [
+                {
+                    "Name": "AddOrSubtract",
+                    "FontSize": "20",
+                    "Image": "Icons/Sanity",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        },
+        {
+            "Name": "Track Resources",
+            "UUID": "arkhamoverlay.trackresources",
+            "Tooltip": "Add Or Subtract Resource Values",
+            "States": [
+                {
+                    "Name": "AddOrSubtract",
+                    "FontSize": "20",
+                    "Image": "Icons/Resource",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        },
+        {
+            "Name": "Track Clues",
+            "UUID": "arkhamoverlay.trackclues",
+            "Tooltip": "Add Or Subtract Clues Values",
+            "States": [
+                {
+                    "Name": "AddOrSubtract",
+                    "FontSize": "20",
+                    "Image": "Icons/Clue",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        },
+        {
             "Name": "Toggle Act/Agenda Bar",
             "UUID": "arkhamoverlay.toggleactagendabar",
             "Tooltip": "Show or Hide the Act/Agenda Bar",

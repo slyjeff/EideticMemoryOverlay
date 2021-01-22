@@ -11,7 +11,7 @@ using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 using StreamDeckPlugin.Utils;
 
-namespace ArkhamOverlaySdPlugin.Actions {
+namespace StreamDeckPlugin.Actions {
     public class CardSettings {
         public string Deck { get; set; }
     }

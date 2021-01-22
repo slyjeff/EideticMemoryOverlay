@@ -1,23 +1,15 @@
 ﻿using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.TcpUtils.Requests;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
-using SharpDeck.Manifest;
 using StreamDeckPlugin.Utils;
 using System.Threading.Tasks;
 
 namespace StreamDeckPlugin.Actions {
-    public class ShowDeckSettings {
-        public string Deck { get; set; }
-    }
+    public abstract class TrackStatAction : StreamDeckAction {
+        private TrackStatSettings _settings = new TrackStatSettings();
 
-
-    [StreamDeckAction("Show Deck List", "arkhamoverlay.showdecklist")]
-    public class ShowDeckListAction : StreamDeckAction {
-        private ShowDeckSettings _settings = new ShowDeckSettings();
-
-        public Deck Deck {
+        protected Deck Deck {
             get {
                 if (_settings == null) {
                     return Deck.Player1;
@@ -28,12 +20,12 @@ namespace StreamDeckPlugin.Actions {
         }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
-            _settings = args.Payload.GetSettings<ShowDeckSettings>();
+            _settings = args.Payload.GetSettings<TrackStatSettings>();
             return Task.CompletedTask;
         }
 
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
-            StreamDeckSendSocketService.SendRequest(new ShowDeckListRequest { Deck = Deck } );
+            //StreamDeckSendSocketService.SendRequest(new ShowDeckListRequest { Deck = Deck });
             return Task.CompletedTask;
         }
 

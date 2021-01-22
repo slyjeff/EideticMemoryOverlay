@@ -1,8 +1,8 @@
 ﻿using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
-using ArkhamOverlaySdPlugin.Actions;
 using Newtonsoft.Json;
+using StreamDeckPlugin.Actions;
 using System;
 using System.Net.Sockets;
 using System.Text;
