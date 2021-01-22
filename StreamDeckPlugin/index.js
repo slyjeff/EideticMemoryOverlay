@@ -3,6 +3,31 @@ var websocket = null,
     actionInfo = {},
     coordinates;
 
+function isPlayerAction() {
+    if (actionInfo.action === "arkhamoverlay.showdecklist") {
+        return true;
+    }
+
+    if (actionInfo.action === "arkhamoverlay.trackhealth") {
+        return true;
+    }
+
+    if (actionInfo.action === "arkhamoverlay.tracksanity") {
+        return true;
+    }
+
+    if (actionInfo.action === "arkhamoverlay.trackresources") {
+        return true;
+    }
+
+    if (actionInfo.action === "arkhamoverlay.trackclues") {
+        return true;
+    }
+
+    return false;
+}
+
+
 function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
     uuid = inUUID;
     actionInfo = JSON.parse(inActionInfo); // cache the info
@@ -33,7 +58,7 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
         element.value = valueToSelect;
 
         selectPlayerGroup.style.display = "none";
-    } else if (actionInfo.action === "arkhamoverlay.showdecklist") {
+    } else if (isPlayerAction()) {
         //if we have a saved value, initialize the deck drop down
         var valueToSelect = actionInfo.payload.settings['deck'];
         if (!valueToSelect) {
@@ -67,7 +92,7 @@ function sendCardButtonValueToPlugin(value, param) {
 function sendDeckListValueToPlugin(value, param) {
     if (websocket) {
     const json = {
-            "action": "arkhamoverlay.showdecklist",
+            "action": actionInfo.action,
             "event": "sendToPlugin",
             "context": uuid, 
             "payload": {
