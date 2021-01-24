@@ -9,6 +9,7 @@
         Enemy,
         Treachery,
         Location,
+        Investigator,
         Other,
     }
 

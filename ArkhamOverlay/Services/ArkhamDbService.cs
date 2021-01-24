@@ -24,7 +24,7 @@ namespace ArkhamOverlay.Services {
             using (var stream = response.GetResponseStream())
             using (var reader = new StreamReader(stream)) {
                 var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
-                player.InvestigatorImage = new BitmapImage(new Uri("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png", UriKind.Absolute));
+                player.LoadInvestigatorImage("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png");
                 player.InvestigatorCode = arkhamDbDeck.Investigator_Code;
                 player.Slots = arkhamDbDeck.Slots;
                 player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;

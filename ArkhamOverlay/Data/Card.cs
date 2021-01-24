@@ -68,22 +68,8 @@ namespace ArkhamOverlay.Data {
         }
 
         private void CropImage() {
-            var startingPoint = GetCropStartingPoint();
-            ButtonImage = new CroppedBitmap(Image as BitmapImage, new Int32Rect(Convert.ToInt32(startingPoint.X), Convert.ToInt32(startingPoint.Y), 220, 220));
-
-            byte[] bytes = null;
-            var bitmapSource = ButtonImage as BitmapSource;
-
-            if (bitmapSource != null) {
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-
-                using (var stream = new MemoryStream()) {
-                    encoder.Save(stream);
-                    bytes = stream.ToArray();
-                }
-            }
-            ButtonImageAsBytes = bytes;
+            ButtonImage = Image.CropImage(Type);
+            ButtonImageAsBytes = ButtonImage.AsBytes();
         }
 
         private Point GetCropStartingPoint() {
@@ -120,7 +106,6 @@ namespace ArkhamOverlay.Data {
 
         public string ImageSource { get; }
         public ImageSource Image { get; private set; }
-
         public ImageSource ButtonImage { get; private set; }
         public byte[] ButtonImageAsBytes { get; private set; }
 

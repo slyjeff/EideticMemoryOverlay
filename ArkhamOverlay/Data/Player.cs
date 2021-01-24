@@ -1,13 +1,16 @@
-﻿using PageController;
+﻿using ArkhamOverlay.Utils;
+using PageController;
 using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace ArkhamOverlay.Data {
     public class Player : ViewModel {
+        private static readonly Dictionary<string, BitmapImage> CardImageCache = new Dictionary<string, BitmapImage>();
         Configuration _configuration;
 
         public Player(Configuration configuration, int id) {
@@ -29,6 +32,37 @@ namespace ArkhamOverlay.Data {
             };
         }
 
+        internal void LoadInvestigatorImage(string url) {
+            if (Application.Current.Dispatcher.CheckAccess()) {
+                LoadImage(url);
+            } else {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                    LoadImage(url);
+                }));
+            }
+        }
+    
+        private void LoadImage(string url) {
+            if (CardImageCache.ContainsKey(Name)) {
+                InvestigatorImage = CardImageCache[Name];
+                CropImage();
+                return;
+            }
+
+            var bitmapImage = new BitmapImage(new Uri(url, UriKind.Absolute));
+            bitmapImage.DownloadCompleted += (s, e) => {
+                CardImageCache[Name] = bitmapImage;
+                CropImage();
+            };
+            InvestigatorImage = bitmapImage;
+        }
+
+        internal void CropImage() {
+            InvestigatorButtonImage = InvestigatorImage.CropImage(CardType.Investigator);
+            InvestigatorButtonImageAsBytes = InvestigatorButtonImage.AsBytes();
+            NotifyPropertyChanged(nameof(InvestigatorButtonImageAsBytes));
+        }
+
         public int ID { get; }
 
         public string DeckId { get; set; }
@@ -37,12 +71,21 @@ namespace ArkhamOverlay.Data {
 
         public string Name { get { return SelectableCards.Name; } }
 
-        public BitmapImage InvestigatorImage { get; set; }
+        public ImageSource InvestigatorImage { get; set; }
+
+        public ImageSource InvestigatorButtonImage { get; private set; }
+        
+        public byte[] InvestigatorButtonImageAsBytes { get; private set; }
+
         public string InvestigatorCode { get; set; }
 
         public IDictionary<string, int> Slots { get; set; }
 
         public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(SelectableCards.Name) ? Visibility.Hidden : Visibility.Visible; } }
+
+        public void LoadImage() {
+
+        }
 
         public void OnPlayerChanged() {
             NotifyPropertyChanged(nameof(LoadedVisiblity));
