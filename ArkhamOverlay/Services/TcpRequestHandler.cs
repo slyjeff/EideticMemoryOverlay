@@ -144,6 +144,12 @@ namespace ArkhamOverlay.Services {
                         player.Sanity.PropertyChanged += (s, e) => { SendStatInfo(player.Sanity, GetDeckType(player.SelectableCards), StatType.Sanity); };
                         player.Resources.PropertyChanged += (s, e) => { SendStatInfo(player.Resources, GetDeckType(player.SelectableCards), StatType.Resources); };
                         player.Clues.PropertyChanged += (s, e) => { SendStatInfo(player.Clues, GetDeckType(player.SelectableCards), StatType.Clues); };
+
+                        player.PropertyChanged += (s, e) => {
+                            if (e.PropertyName == nameof(Player.InvestigatorButtonImageAsBytes)) {
+                                SendInvestigatorImage(player);
+                            }
+                        };
                     }
 
                     foreach (var selectableCards in game.AllSelectableCards) {
@@ -169,6 +175,7 @@ namespace ArkhamOverlay.Services {
                     }
 
                     SendAllStats();
+                    SendAllInvestigatorImages();
 
                     _alreadyRegisteredEvents = true;
                 }
@@ -184,6 +191,13 @@ namespace ArkhamOverlay.Services {
                 SendStatInfo(player.Sanity, GetDeckType(player.SelectableCards), StatType.Sanity);
                 SendStatInfo(player.Resources, GetDeckType(player.SelectableCards), StatType.Resources);
                 SendStatInfo(player.Clues, GetDeckType(player.SelectableCards), StatType.Clues);
+            }
+        }
+
+        private void SendAllInvestigatorImages() {
+            var game = _appData.Game;
+            foreach (var player in game.Players) {
+                SendInvestigatorImage(player);
             }
         }
 
@@ -252,6 +266,16 @@ namespace ArkhamOverlay.Services {
                 Deck = deck,
                 Value = stat.Value,
                 StatType = statType
+            };
+
+            SendStatusToAllRegisteredPorts(request);
+        }
+
+        private void SendInvestigatorImage(Player player) {
+            var deck = GetDeckType(player.SelectableCards);
+            var request = new UpdateInvestigatorImageRequest {
+                Deck = deck,
+                Bytes = player.InvestigatorButtonImageAsBytes
             };
 
             SendStatusToAllRegisteredPorts(request);
