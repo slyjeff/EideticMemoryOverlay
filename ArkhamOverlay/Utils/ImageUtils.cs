@@ -39,7 +39,7 @@ namespace ArkhamOverlay.Utils {
                 case CardType.Agenda:
                     return new Point(10, 40);
                 case CardType.Investigator:
-                    return new Point(10, 40);
+                    return new Point(10, 50);
                 case CardType.Act:
                     return new Point(190, 40);
                 case CardType.Location:

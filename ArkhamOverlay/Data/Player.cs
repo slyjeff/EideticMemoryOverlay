@@ -45,12 +45,14 @@ namespace ArkhamOverlay.Data {
         private void LoadImage(string url) {
             if (CardImageCache.ContainsKey(Name)) {
                 InvestigatorImage = CardImageCache[Name];
+                NotifyPropertyChanged(nameof(InvestigatorImage));
                 CropImage();
                 return;
             }
 
             var bitmapImage = new BitmapImage(new Uri(url, UriKind.Absolute));
             bitmapImage.DownloadCompleted += (s, e) => {
+                NotifyPropertyChanged(nameof(InvestigatorImage));
                 CardImageCache[Name] = bitmapImage;
                 CropImage();
             };

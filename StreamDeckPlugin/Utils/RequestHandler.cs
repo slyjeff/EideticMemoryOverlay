@@ -22,6 +22,9 @@ namespace StreamDeckPlugin.Utils {
                 case AoTcpRequest.UpdateStatInfo:
                     UpdateStatInfo(request);
                     break;
+                case AoTcpRequest.UpdateInvestigatorImage:
+                    UpdateInvestigatorImage(request);
+                    break;
                 case AoTcpRequest.ActAgendaBarStatusRequest:
                     UpdateActAgendaBarStatus(request);
                     break;
@@ -62,6 +65,19 @@ namespace StreamDeckPlugin.Utils {
             Send(request.Socket, new OkResponse().ToString());
         }
 
+        private void UpdateInvestigatorImage(TcpRequest request) {
+            var updateInvestigatorImageRequest = JsonConvert.DeserializeObject<UpdateInvestigatorImageRequest>(request.Body);
+            if (updateInvestigatorImageRequest == null) {
+                return;
+            }
+
+            foreach (var showDeckListAction in ShowDeckListAction.ListOf) {
+                if (showDeckListAction.Deck == updateInvestigatorImageRequest.Deck) {
+                    showDeckListAction.SetImageAsync(updateInvestigatorImageRequest.Bytes.AsImage());
+                }
+            }
+            Send(request.Socket, new OkResponse().ToString());
+        }
 
         private void UpdateActAgendaBarStatus(TcpRequest request) {
             var actAgendaBarStatusRequest = JsonConvert.DeserializeObject<ActAgendaBarStatusRequest>(request.Body);
