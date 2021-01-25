@@ -1,19 +1,26 @@
 ﻿using ArkhamOverlay.TcpUtils;
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
-using ArkhamOverlaySdPlugin.Actions;
 using Newtonsoft.Json;
+using StreamDeckPlugin.Actions;
 using System;
 using System.Net.Sockets;
 using System.Text;
 
 namespace StreamDeckPlugin.Utils {
-    class TcpRequestHandler : IRequestHandler {
+    public class TcpRequestHandler : IRequestHandler {
+        public bool RequestReceivedRecently { get; set; } 
+
         public void HandleRequest(TcpRequest request) {
+            RequestReceivedRecently = true;
+
             Console.WriteLine("Handling Request: " + request.RequestType.AsString());
             switch (request.RequestType) {
                 case AoTcpRequest.UpdateCardInfo:
                     UpdateCardInfo(request);
+                    break;
+                case AoTcpRequest.UpdateStatInfo:
+                    UpdateStatInfo(request);
                     break;
                 case AoTcpRequest.ActAgendaBarStatusRequest:
                     UpdateActAgendaBarStatus(request);
@@ -39,6 +46,22 @@ namespace StreamDeckPlugin.Utils {
             }
             Send(request.Socket, new OkResponse().ToString());
         }
+
+        private void UpdateStatInfo(TcpRequest request) {
+            var updateStatInfoRequest = JsonConvert.DeserializeObject<UpdateStatInfoRequest>(request.Body);
+            if (updateStatInfoRequest == null) {
+                return;
+            }
+
+            foreach (var trackStatAction in TrackStatAction.ListOf) {
+                if ((trackStatAction.Deck == updateStatInfoRequest.Deck) &&
+                    (trackStatAction.StatType == updateStatInfoRequest.StatType)) { 
+                    trackStatAction.UpdateValue(updateStatInfoRequest.Value);
+                }
+            }
+            Send(request.Socket, new OkResponse().ToString());
+        }
+
 
         private void UpdateActAgendaBarStatus(TcpRequest request) {
             var actAgendaBarStatusRequest = JsonConvert.DeserializeObject<ActAgendaBarStatusRequest>(request.Body);

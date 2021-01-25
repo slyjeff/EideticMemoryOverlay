@@ -5,7 +5,7 @@ using SharpDeck.Manifest;
 using StreamDeckPlugin.Utils;
 using System.Threading.Tasks;
 
-namespace ArkhamOverlaySdPlugin.Actions {
+namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Clear Cards", "arkhamoverlay.clearcards")]
     public class ClearCardsAction : StreamDeckAction {
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {

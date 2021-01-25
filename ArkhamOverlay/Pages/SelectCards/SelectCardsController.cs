@@ -3,6 +3,7 @@ using ArkhamOverlay.Data;
 using ArkhamOverlay.Services;
 using PageController;
 using System;
+using System.Windows.Controls;
 
 namespace ArkhamOverlay.Pages.SelectCards {
     public class SelectCardsController : Controller<SelectCardsView, SelectCardsViewModel> {
@@ -13,6 +14,8 @@ namespace ArkhamOverlay.Pages.SelectCards {
                 Closed?.Invoke();
             };
         }
+
+        public AppData AppData { get; set; }
 
         public event Action Closed;
 
@@ -47,6 +50,15 @@ namespace ArkhamOverlay.Pages.SelectCards {
         [Command]
         public void CardRightClick(ICardButton card) {
             _logger.LogMessage($"Right clicking button {card.Text}");
+            if (card is ShowCardButton showCardButton) {
+                if (showCardButton.Card.Type == CardType.Enemy || showCardButton.Card.Type == CardType.Treachery) {
+                    var contextMenu = View.FindResource("cmSelectPlayer") as ContextMenu;
+                    contextMenu.DataContext = new SelectPlayerMenuViewModel(AppData.Game, showCardButton);
+                    contextMenu.IsOpen = true;
+                    return;
+                }
+            }
+
             card.RightClick();
         }
     }

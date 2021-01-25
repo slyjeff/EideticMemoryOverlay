@@ -3,7 +3,7 @@ using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 
-namespace ArkhamOverlaySdPlugin.Actions {
+namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Page Right", "arkhamoverlay.pageright")]
     public class PageRightAction : StreamDeckAction {
         protected async override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {

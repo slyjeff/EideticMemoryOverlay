@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.CardButtons;
 using ArkhamOverlay.Data;
+using ArkhamOverlay.Utils;
 using ArkhamOverlay.Services;
 using PageController;
 using System;
@@ -16,11 +17,38 @@ namespace ArkhamOverlay.Pages.Overlay {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
         private readonly Configuration _configuration;
+        private readonly DispatcherTimer _autoSnapshotTimer = new DispatcherTimer();
+
+        public double Top { get => View.Top; set => View.Top = value; }
+        public double Left { get => View.Left; set => View.Left = value; }
+
+        public void Close() {
+            _logger.LogMessage("Closing overlay window.");
+            View.Close();
+        }
+
+        public void Activate() {
+            _logger.LogMessage("Activating overlay window.");
+            View.Activate();
+        }
+
+        internal void Show() {
+            _logger.LogMessage("Showing overlay window.");
+            View.Show();
+        }
+
+        public event Action Closed;
 
         public OverlayController(AppData appData, LoggingService loggingService) {
+            ViewModel.AppData = appData;
             _appData = appData;
             _logger = loggingService;
             _configuration = appData.Configuration;
+            _autoSnapshotTimer.Tick += (e, s) => {
+                AutoSnapshot();
+            };
+            _autoSnapshotTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+            _autoSnapshotTimer.IsEnabled = _configuration.UseAutoSnapshot;
 
             _logger.LogMessage("Initializing Overlay Controller.");
 
@@ -30,7 +58,7 @@ namespace ArkhamOverlay.Pages.Overlay {
                 || (e.PropertyName == nameof(Configuration.CardHeight))
                 || (e.PropertyName == nameof(Configuration.ActAgendaCardHeight))
                 || (e.PropertyName == nameof(Configuration.HandCardHeight))) {
-                    CalculateMaxHeightForCards();    
+                    CalculateMaxHeightForCards();
                 }
 
                 if (e.PropertyName == nameof(Configuration.OverlayHeight)) {
@@ -43,6 +71,10 @@ namespace ArkhamOverlay.Pages.Overlay {
                     CalculateDeckListItemWidth();
                     CalculateDeckListMargin();
                 }
+
+                if (e.PropertyName == nameof(Configuration.UseAutoSnapshot)) {
+                    _autoSnapshotTimer.IsEnabled = _configuration.UseAutoSnapshot;
+                };
             };
 
             CalculateDeckListHeight();
@@ -55,13 +87,12 @@ namespace ArkhamOverlay.Pages.Overlay {
                 overlayCards.CollectionChanged += (s, e) => CalculateMaxHeightForCards();
             }
 
-            ViewModel.AppData = appData;
-
             foreach (var selectableCards in appData.Game.AllSelectableCards) {
                 InitializeSelectableCards(selectableCards);
             }
 
             View.Closed += (s, e) => {
+                _autoSnapshotTimer.Stop();
                 foreach (var overlayCards in ViewModel.AllOverlayCards) {
                     foreach (var overlayCard in overlayCards) {
                         overlayCard.Card.IsDisplayedOnOverlay = false;
@@ -198,26 +229,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             };
         }
 
-        public double Top { get => View.Top; set => View.Top = value; }
-        public double Left { get => View.Left; set => View.Left = value; }
-
-        public void Close() {
-            _logger.LogMessage("Closing overlay window.");
-            View.Close();
-        }
-
-        public void Activate() {
-            _logger.LogMessage("Activating overlay window.");
-            View.Activate();
-        }
-
-        internal void Show() {
-            _logger.LogMessage("Showing overlay window.");
-            View.Show();
-        }
-
-        public event Action Closed;
-
         private SelectableCards _currentDisplayedDeckList = null;
         private void ShowDeckListHandler(SelectableCards selectableCards) {
             _logger.LogMessage("Showing deck list in overlay.");
@@ -270,7 +281,6 @@ namespace ArkhamOverlay.Pages.Overlay {
                 overlayCardToReplace.Card.IsDisplayedOnOverlay = false;
                 overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newOverlayCard;
             }
-
         }
 
         private ObservableCollection<OverlayCardViewModel> GetCardList(Card card) {
@@ -329,8 +339,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             ViewModel.HandCards.RemoveOverlayCards(ViewModel.HandCards.ToArray());
         }
 
-
-
         private void UpdateCardSet(CardSet cardSet, ObservableCollection<OverlayCardViewModel> overlayCards) {
             var overlayCardsToRemove = new List<OverlayCardViewModel>();
             foreach (var overlayCard in overlayCards) {
@@ -352,20 +360,44 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
+        private void AutoSnapshot() {
+            //every half second we write a snapshot to a temp file and then try to overwrite the configured file with it
+            //this prevents OBS from getting in a weird state where it tries to read a file that is not there (because we are writing it)
+            var tempFileName = Path.GetTempFileName();
+            WriteSnapshotToFile(tempFileName);
+
+            //only overwrite the overlay file if there has been a change
+            if (FileCompare.CompareFiles(tempFileName, _appData.Configuration.AutoSnapshotFilePath)) {
+                File.Delete(tempFileName);
+                return;
+            }
+
+            try {
+                File.Delete(_appData.Configuration.AutoSnapshotFilePath);
+                File.Move(tempFileName, _appData.Configuration.AutoSnapshotFilePath);
+            } catch {
+                //sometimes we can't write because obs is reading the file- just move on and get it next time
+            }
+        }
+
         internal void TakeSnapshot() {
             _logger.LogMessage("Taking snapshot of overlay window.");
+            var fileName = _appData.Game.SnapshotDirectory + "OverlaySnapshot" + DateTime.Now.ToString("yyddMHHmmss") + ".png";
+            WriteSnapshotToFile(fileName);
+        }
+
+        private void WriteSnapshotToFile(string file) {
+            var overlay = View.Overlay;
+            var renderTargetBitmap = new RenderTargetBitmap(Convert.ToInt32(overlay.Width), Convert.ToInt32(overlay.Height), 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(overlay);
+            var pngImage = new PngBitmapEncoder();
+            pngImage.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
             try {
-                var overlay = View.Overlay;
-                var renderTargetBitmap = new RenderTargetBitmap(Convert.ToInt32(overlay.Width), Convert.ToInt32(overlay.Height), 96, 96, PixelFormats.Pbgra32);
-                renderTargetBitmap.Render(overlay);
-                var pngImage = new PngBitmapEncoder();
-                pngImage.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-                var fileName = "OverlaySnapshot" + DateTime.Now.ToString("yyddMHHmmss") + ".png";
-                using (Stream fileStream = File.Create(_appData.Game.SnapshotDirectory + "\\" + fileName)) {
+                using (var fileStream = File.Create(file)) {
                     pngImage.Save(fileStream);
                 }
-            } catch (Exception ex) {
-                _logger.LogException(ex, "Error saving snapshot of overlay.");
+            } catch {
+                //recover from a failure to write without crashing- we'll get it next time
             }
         }
     }

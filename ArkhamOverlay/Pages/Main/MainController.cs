@@ -87,6 +87,7 @@ namespace ArkhamOverlay.Pages.Main {
 
             if (controller == null) {
                 controller = _controllerFactory.CreateController<SelectCardsController>();
+                controller.AppData = ViewModel.AppData;
                 controller.SelectableCards = selectableCards;
                 controller.Left = startingPosition.X == 0 ? left : startingPosition.X;
                 controller.Top = startingPosition.Y == 0 ? top : startingPosition.Y;
@@ -286,7 +287,18 @@ namespace ArkhamOverlay.Pages.Main {
                 selectCardsWindow.Activate();
             }
         }
-        
+
+        [Command]
+        public void SelectAutoSnapshotFile() {
+            var dialog = new CommonOpenFileDialog {
+                InitialDirectory = ViewModel.Configuration.AutoSnapshotFilePath,
+            };
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
+                ViewModel.Configuration.AutoSnapshotFilePath = dialog.FileName;
+            }
+        }
+
         [Command]
         public void ResetOverlayColor() {
             _logger.LogMessage("Main window: reset overlay color clicked.");

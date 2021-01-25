@@ -7,7 +7,7 @@ using StreamDeckPlugin.Utils;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ArkhamOverlaySdPlugin.Actions {
+namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Toggle Act/Agenda Bar", "arkhamoverlay.toggleactagendabar")]
     public class ToggleActAgendaBarAction : StreamDeckAction {
         public static IList<ToggleActAgendaBarAction> ListOf = new List<ToggleActAgendaBarAction>();

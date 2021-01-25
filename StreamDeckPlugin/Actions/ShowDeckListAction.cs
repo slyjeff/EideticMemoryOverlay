@@ -7,7 +7,7 @@ using SharpDeck.Manifest;
 using StreamDeckPlugin.Utils;
 using System.Threading.Tasks;
 
-namespace ArkhamOverlaySdPlugin.Actions {
+namespace StreamDeckPlugin.Actions {
     public class ShowDeckSettings {
         public string Deck { get; set; }
     }

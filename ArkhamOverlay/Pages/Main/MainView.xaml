@@ -116,7 +116,7 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
             <TextBlock Text="Track Player Values: " />
-            <CheckBox Margin="10, 1, 0, 0" IsChecked="{Binding Configuration.TrackHealthAndSanity}">TrackHealth/Sanity</CheckBox>
+            <CheckBox Margin="10, 1, 0, 0" IsChecked="{Binding Configuration.TrackHealthAndSanity}">Health/Sanity</CheckBox>
             <CheckBox Margin="10, 1, 0, 0" IsChecked="{Binding Configuration.TrackResources}">Resources</CheckBox>
             <CheckBox Margin="10, 1, 0, 0" IsChecked="{Binding Configuration.TrackClues}">Clues</CheckBox>
         </StackPanel>
@@ -234,6 +234,14 @@
             <Button Margin="10, 0, 0, 0" Command="{Binding ClearCards}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Clear Cards</Button>
             <Button Margin="10, 0, 0, 0" Command="{Binding TakeSnapshot}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Snapshot</Button>
         </StackPanel>
+        <StackPanel Orientation="Vertical" Margin="0, 0, 0, 0">
+            <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+                <CheckBox Margin="0, 1, 0, 0" IsChecked="{Binding Configuration.UseAutoSnapshot}">Use Auto Snapshots</CheckBox>
+                <TextBlock Margin="10,0,0,0" Text="Auto Snapshot File:" Visibility="{Binding Configuration.UseAutoSnapshot, Converter={StaticResource BoolToVisibility}}" />
+                <TextBlock Margin="10,0,0,0" Text="{Binding Configuration.AutoSnapshotFilePath}" Visibility="{Binding Configuration.UseAutoSnapshot, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+            <Button Margin="0, 2, 0, 0" Command="{Binding SelectAutoSnapshotFile}" Visibility="{Binding Configuration.UseAutoSnapshot, Converter={StaticResource BoolToVisibility}}">Choose File</Button>
+        </StackPanel>        
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
             <TextBlock Text="Overlay background color:" />
             <xctk:ColorPicker Margin = "10, 0, 0, 0" Name="OverlayColorPicker" SelectedColor="{Binding Configuration.OverlayColor}" />

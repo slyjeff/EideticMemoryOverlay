@@ -88,7 +88,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public int _actAgendaCardHeight;
+        private int _actAgendaCardHeight;
         public int ActAgendaCardHeight {
             get => _actAgendaCardHeight;
             set {
@@ -99,7 +99,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public int _handCardHeight;
+        private int _handCardHeight;
         public int HandCardHeight {
             get => _handCardHeight;
             set {
@@ -121,7 +121,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Point _scenarioCardsPosition = new Point(0, 0);
+        private Point _scenarioCardsPosition = new Point(0, 0);
         public Point ScenarioCardsPosition {
             get => _scenarioCardsPosition;
             set {
@@ -130,7 +130,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Point _locationsPosition = new Point(0, 0);
+        private Point _locationsPosition = new Point(0, 0);
         public Point LocationsPosition {
             get => _locationsPosition;
             set {
@@ -139,7 +139,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Point _encounterCardsPosition = new Point(0, 0);
+        private Point _encounterCardsPosition = new Point(0, 0);
         public Point EncounterCardsPosition {
             get => _encounterCardsPosition;
             set {
@@ -148,7 +148,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Point _player1Position = new Point(0, 0);
+        private Point _player1Position = new Point(0, 0);
         public Point Player1Position {
             get => _player1Position;
             set {
@@ -157,7 +157,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Point _player2Position = new Point(0, 0);
+        private Point _player2Position = new Point(0, 0);
         public Point Player2Position {
             get => _player2Position;
             set {
@@ -166,7 +166,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Point _player3Position = new Point(0, 0);
+        private Point _player3Position = new Point(0, 0);
         public Point Player3Position {
             get => _player3Position;
             set {
@@ -175,7 +175,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Point _player4Position = new Point(0, 0);
+        private Point _player4Position = new Point(0, 0);
         public Point Player4Position {
             get => _player4Position;
             set {
@@ -184,11 +184,31 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Point _overlayPosition = new Point(0, 0);
+        private Point _overlayPosition = new Point(0, 0);
         public Point OverlayPosition {
             get => _overlayPosition;
             set {
                 _overlayPosition = value;
+                OnConfigurationChange();
+            }
+        }
+
+        private bool _useAutoSnapshot = false;
+        public bool UseAutoSnapshot {
+            get => _useAutoSnapshot;
+            set {
+                _useAutoSnapshot = value;
+                NotifyPropertyChanged(nameof(UseAutoSnapshot));
+                OnConfigurationChange();
+            }
+        }
+
+        private string _autoSnapshotFilePath = "overlay.png";
+        public string AutoSnapshotFilePath {
+            get => _autoSnapshotFilePath;
+            set {
+                _autoSnapshotFilePath = value;
+                NotifyPropertyChanged(nameof(AutoSnapshotFilePath));
                 OnConfigurationChange();
             }
         }
