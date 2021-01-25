@@ -12,8 +12,12 @@ namespace StreamDeckPlugin {
 #endif
 
             var requestHandler = new TcpRequestHandler();
-            new ReceiveSocketService(requestHandler).StartListening(StreamDeckTcpInfo.Port);
-            new RegisterForUpdatesService(requestHandler).RegisterForUpdates();
+
+            var receiveSocketService = new ReceiveSocketService(requestHandler);
+            receiveSocketService.StartListening(StreamDeckTcpInfo.Port);
+
+            var registerForUpdatesService = new RegisterForUpdatesService(requestHandler);
+            registerForUpdatesService.RegisterForUpdates();
 
             // register actions and connect to the Stream Deck
             SharpDeck.StreamDeckPlugin.Run();
