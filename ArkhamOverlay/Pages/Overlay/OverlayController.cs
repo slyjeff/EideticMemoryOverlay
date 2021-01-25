@@ -375,8 +375,9 @@ namespace ArkhamOverlay.Pages.Overlay {
             try {
                 File.Delete(_appData.Configuration.AutoSnapshotFilePath);
                 File.Move(tempFileName, _appData.Configuration.AutoSnapshotFilePath);
-            } catch {
+            } catch (Exception ex) {
                 //sometimes we can't write because obs is reading the file- just move on and get it next time
+                _logger.LogException(ex, "Error writing auto snapshot to file.");
             }
         }
 
@@ -396,8 +397,9 @@ namespace ArkhamOverlay.Pages.Overlay {
                 using (var fileStream = File.Create(file)) {
                     pngImage.Save(fileStream);
                 }
-            } catch {
+            } catch (Exception ex) {
                 //recover from a failure to write without crashing- we'll get it next time
+                _logger.LogException(ex, "Error writing snapshot to file.");
             }
         }
     }

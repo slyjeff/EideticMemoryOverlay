@@ -290,6 +290,7 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void SelectAutoSnapshotFile() {
+            _logger.LogMessage("Main window: select auto snapshot file clicked.");
             var dialog = new CommonOpenFileDialog {
                 InitialDirectory = ViewModel.Configuration.AutoSnapshotFilePath,
             };
