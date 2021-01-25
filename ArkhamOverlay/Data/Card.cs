@@ -3,7 +3,6 @@ using ArkhamOverlay.Services;
 using ArkhamOverlay.Utils;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -70,31 +69,6 @@ namespace ArkhamOverlay.Data {
         private void CropImage() {
             ButtonImage = Image.CropImage(Type);
             ButtonImageAsBytes = ButtonImage.AsBytes();
-        }
-
-        private Point GetCropStartingPoint() {
-            switch (Type) {
-                case CardType.Scenario:
-                    return new Point(40, 60);
-                case CardType.Agenda:
-                    return new Point(10, 40);
-                case CardType.Act:
-                    return new Point(190, 40);
-                case CardType.Location:
-                    return new Point(40, 40);
-                case CardType.Enemy:
-                    return new Point(40, 190);
-                case CardType.Treachery:
-                    return new Point(40, 0);
-                case CardType.Asset:
-                    return new Point(40, 40);
-                case CardType.Event:
-                    return new Point(40, 0);
-                case CardType.Skill:
-                    return new Point(40, 40);
-                default:
-                    return new Point(40, 40);
-            }
         }
 
         public string Name { get; }
