@@ -11,10 +11,20 @@ using System.Windows.Media.Imaging;
 
 namespace ArkhamOverlay.Services {
     public class ArkhamDbService {
+
+        private LoggingService _logger;
+
+        public ArkhamDbService(LoggingService loggingService) {
+            _logger = loggingService;
+        }
+
         internal void LoadPlayer(Player player) {
             if (string.IsNullOrEmpty(player.DeckId)) {
+                _logger.LogWarning($"{player.ID} has no deck ID.");
                 return;
             }
+
+            _logger.LogMessage($"Loading deck {player.DeckId} for player {player.ID}.");
 
             string url = @"https://arkhamdb.com/api/public/deck/" + player.DeckId;
 
@@ -30,6 +40,8 @@ namespace ArkhamOverlay.Services {
                 player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
             }
 
+            _logger.LogMessage($"Loading investigator card for player {player.ID}.");
+
             var investigatorUrl = @"https://arkhamdb.com/api/public/card/" + player.InvestigatorCode;
             var investigatorRequest = (HttpWebRequest)WebRequest.Create(investigatorUrl);
             using (var response = (HttpWebResponse)investigatorRequest.GetResponse())
@@ -39,19 +51,23 @@ namespace ArkhamOverlay.Services {
 
                 if (Enum.TryParse(arkhamDbCard.Faction_Name, ignoreCase: true, out Faction faction)) {
                     player.Faction = faction;
+                } else {
+                    _logger.LogWarning($"Could not parse faction {arkhamDbCard.Faction_Name}.");
                 }
             }
 
+            _logger.LogMessage($"Finished loading player {player.ID}.");
 
             player.OnPlayerChanged();
-
-            return;
         }
 
         internal void LoadPlayerCards(Player player) {
             if (player.Slots == null) {
+                _logger.LogWarning($"{player.ID} has no cards in deck.");
                 return;
             }
+
+            _logger.LogMessage($"Loading cards for player {player.ID}.");
 
             player.SelectableCards.Loading = true;
             try {
@@ -69,14 +85,19 @@ namespace ArkhamOverlay.Services {
                 }
                 player.SelectableCards.LoadCards(cards);
             }
-            finally {
+            catch (Exception ex) {
+                _logger.LogException(ex, $"Error loading cards for player {player.ID}.");
+            } finally {
                 player.SelectableCards.Loading = false;
             }
+            _logger.LogMessage($"Finished loading cards for player {player.ID}.");
         }
 
         internal void FindMissingEncounterSets(Configuration configuration) {
             var packsUrl = @"https://arkhamdb.com/api/public/packs/";
             HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(packsUrl);
+
+            _logger.LogMessage("Looking for encounter sets.");
 
             var setsAdded = false;
 
@@ -92,6 +113,8 @@ namespace ArkhamOverlay.Services {
                     }
                 }
             }
+
+            _logger.LogMessage($"Found new encounter sets: {setsAdded}.");
 
             if (setsAdded) {
                 configuration.OnConfigurationChange();
@@ -123,10 +146,13 @@ namespace ArkhamOverlay.Services {
 
             configuration.Packs.Add(newPack);
 
+            _logger.LogMessage($"Added pack {newPack.Name} to encounter sets.");
+
             return true;
         }
 
         internal void LoadEncounterCards(AppData mainViewModel) {
+            _logger.LogMessage("Loading encounter cards.");
             try {
                 mainViewModel.Game.ScenarioCards.Loading = true;
                 mainViewModel.Game.LocationCards.Loading = true;
@@ -170,7 +196,7 @@ namespace ArkhamOverlay.Services {
 
                     foreach (var card in cards) {
                         switch (card.Type) {
-                            case CardType.Scenario: 
+                            case CardType.Scenario:
                                 scenarioCards.Add(card);
                                 break;
                             case CardType.Agenda:
@@ -197,11 +223,14 @@ namespace ArkhamOverlay.Services {
                 mainViewModel.Game.ScenarioCards.LoadCards(scenarioCards);
                 mainViewModel.Game.LocationCards.LoadCards(locations);
                 mainViewModel.Game.EncounterDeckCards.LoadCards(treacheries);
+            } catch (Exception ex) {
+                _logger.LogException(ex, $"Error loading encounter cards.");
             } finally {
                 mainViewModel.Game.ScenarioCards.Loading = false;
                 mainViewModel.Game.LocationCards.Loading = false;
                 mainViewModel.Game.EncounterDeckCards.Loading = false;
             }
+            _logger.LogMessage($"Finished loading encounter cards.");
         }
 
         internal IList<ArkhamDbCard> GetCardsInPack(string packCode) {

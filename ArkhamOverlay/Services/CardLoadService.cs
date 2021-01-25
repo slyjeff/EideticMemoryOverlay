@@ -1,4 +1,5 @@
 ﻿using ArkhamOverlay.Data;
+using System;
 using System.ComponentModel;
 
 namespace ArkhamOverlay.Services {
@@ -6,11 +7,13 @@ namespace ArkhamOverlay.Services {
         private readonly AppData _appData;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly ArkhamDbService _arkhamDbService;
+        private readonly LoggingService _logger;
 
-        public CardLoadService(ArkhamDbService arkhamDbService, AppData appData, LoadingStatusService loadingStatusService) {
+        public CardLoadService(ArkhamDbService arkhamDbService, AppData appData, LoadingStatusService loadingStatusService, LoggingService loggingService) {
             _arkhamDbService = arkhamDbService;
             _appData = appData;
             _loadingStatusService = loadingStatusService;
+            _logger = loggingService;
         }
 
         internal void RegisterEvents() {
@@ -26,11 +29,10 @@ namespace ArkhamOverlay.Services {
                     _arkhamDbService.LoadEncounterCards(_appData);
                     _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
                 }
-                catch {
+                catch (Exception ex) {
+                    _logger.LogException(ex, "Error loading encounter cards.");
                     _loadingStatusService.ReportEncounterCardsStatus(Status.Error);
                 }
-
-                _arkhamDbService.LoadEncounterCards(_appData);
             };
             worker.RunWorkerAsync();
         }
@@ -45,7 +47,8 @@ namespace ArkhamOverlay.Services {
                             _arkhamDbService.LoadPlayerCards(player);
                             _loadingStatusService.ReportPlayerStatus(player.ID, Status.Finished);
                         }
-                        catch {
+                        catch (Exception ex) {
+                            _logger.LogException(ex, $"Error loading player cards for player {player.ID}");
                             _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
                         }
                     }
