@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.CardButtons;
 using ArkhamOverlay.Data;
+using ArkhamOverlay.Services;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -9,16 +10,19 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayController : Controller<OverlayView, OverlayViewModel> {
         private readonly AppData _appData;
+        private readonly LoggingService _logger;
         private readonly Configuration _configuration;
 
-        public OverlayController(AppData appData) {
+        public OverlayController(AppData appData, LoggingService loggingService) {
             _appData = appData;
+            _logger = loggingService;
             _configuration = appData.Configuration;
+
+            _logger.LogMessage("Initializing Overlay Controller.");
 
             _configuration.PropertyChanged += (s, e) => {
                 if ((e.PropertyName == nameof(Configuration.OverlayHeight))
@@ -66,6 +70,8 @@ namespace ArkhamOverlay.Pages.Overlay {
 
                 Closed?.Invoke();
             };
+
+            _logger.LogMessage("Finished initializing Overlay Controller.");
         }
 
         private void CalculateDeckListHeight() {
@@ -196,14 +202,17 @@ namespace ArkhamOverlay.Pages.Overlay {
         public double Left { get => View.Left; set => View.Left = value; }
 
         public void Close() {
+            _logger.LogMessage("Closing overlay window.");
             View.Close();
         }
 
         public void Activate() {
+            _logger.LogMessage("Activating overlay window.");
             View.Activate();
         }
 
         internal void Show() {
+            _logger.LogMessage("Showing overlay window.");
             View.Show();
         }
 
@@ -211,6 +220,7 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         private SelectableCards _currentDisplayedDeckList = null;
         private void ShowDeckListHandler(SelectableCards selectableCards) {
+            _logger.LogMessage("Showing deck list in overlay.");
             //it's already displayed- just hide it
             if (_currentDisplayedDeckList == selectableCards) {
                 ClearDeckList();
@@ -231,12 +241,14 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         private void ClearDeckList() {
+            _logger.LogMessage("Clearing deck list in overlay.");
             ViewModel.ShowDeckList = false;
             ViewModel.DeckList = null;
             _currentDisplayedDeckList = null;
         }
 
         internal void ToggleCardVisibilityHandler(Card card) {
+            _logger.LogMessage($"Showing card {card.Name} in overlay.");
             ClearDeckList();
 
             card.IsDisplayedOnOverlay = !card.IsDisplayedOnOverlay;
@@ -274,18 +286,20 @@ namespace ArkhamOverlay.Pages.Overlay {
 
             var cardSet = _appData.Game.ScenarioCards.CardSet;
             if (cardSet.IsDisplayedOnOverlay) {
+                _logger.LogMessage($"Hiding act/agenda in overlay.");
                 ViewModel.ActAgendaCards.RemoveOverlayCards(ViewModel.ActAgendaCards.ToArray());
                 cardSet.IsDisplayedOnOverlay = false;
-                return;
-            }
-
-            cardSet.IsDisplayedOnOverlay = true;
-            UpdateCardSet(cardSet, ViewModel.ActAgendaCards);
+            } else {
+                _logger.LogMessage($"Showing act/agenda in overlay.");
+                cardSet.IsDisplayedOnOverlay = true;
+                UpdateCardSet(cardSet, ViewModel.ActAgendaCards);
+            }            
         }
 
 
         private CardSet _currentlyDisplayedHandCardSet;
         private void ToggleHandVisibility(CardSet cardSet) {
+            _logger.LogMessage($"Toggling hand in overlay.");
             ClearDeckList();
 
             //if there is a current hand being displayed- clear it
@@ -295,12 +309,13 @@ namespace ArkhamOverlay.Pages.Overlay {
 
             //if this hand is the hand that was already set, all we were doing was hiding it
             if (cardSet == currentHandCardSet) {
-                return;
+                _logger.LogMessage($"Hiding hand in overlay.");
+            } else {
+                _logger.LogMessage($"Showing new hand in overlay.");
+                _currentlyDisplayedHandCardSet = cardSet;
+                cardSet.IsDisplayedOnOverlay = true;
+                UpdateCardSet(cardSet, ViewModel.HandCards);
             }
-
-            _currentlyDisplayedHandCardSet = cardSet;
-            cardSet.IsDisplayedOnOverlay = true;
-            UpdateCardSet(cardSet, ViewModel.HandCards);
         }
 
         private void ClearCurrentlyDisplayedHandCardSet() {
@@ -338,14 +353,19 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         internal void TakeSnapshot() {
-            var overlay = View.Overlay;
-            var renderTargetBitmap = new RenderTargetBitmap(Convert.ToInt32(overlay.Width), Convert.ToInt32(overlay.Height), 96, 96, PixelFormats.Pbgra32);
-            renderTargetBitmap.Render(overlay);
-            var pngImage = new PngBitmapEncoder();
-            pngImage.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-            var fileName = "OverlaySnapshot" + DateTime.Now.ToString("yyddMHHmmss") + ".png";
-            using (Stream fileStream = File.Create(_appData.Game.SnapshotDirectory + "\\" + fileName)) {
-                pngImage.Save(fileStream);
+            _logger.LogMessage("Taking snapshot of overlay window.");
+            try {
+                var overlay = View.Overlay;
+                var renderTargetBitmap = new RenderTargetBitmap(Convert.ToInt32(overlay.Width), Convert.ToInt32(overlay.Height), 96, 96, PixelFormats.Pbgra32);
+                renderTargetBitmap.Render(overlay);
+                var pngImage = new PngBitmapEncoder();
+                pngImage.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+                var fileName = "OverlaySnapshot" + DateTime.Now.ToString("yyddMHHmmss") + ".png";
+                using (Stream fileStream = File.Create(_appData.Game.SnapshotDirectory + "\\" + fileName)) {
+                    pngImage.Save(fileStream);
+                }
+            } catch (Exception ex) {
+                _logger.LogException(ex, "Error saving snapshot of overlay.");
             }
         }
     }

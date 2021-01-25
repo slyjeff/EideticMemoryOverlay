@@ -1,4 +1,5 @@
 ﻿using ArkhamOverlay.Data;
+using ArkhamOverlay.Services;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -7,10 +8,12 @@ using System.Linq;
 namespace ArkhamOverlay.Pages.ChooseEncounters {
     public class ChooseEncountersController : Controller<ChooseEncountersView, ChooseEncountersViewModel> {
         private readonly AppData _appData;
+        private readonly LoggingService _logger;
         private readonly IList<SelectableEncounterSet> _selectableEncounterSets = new List<SelectableEncounterSet>();
 
-        public ChooseEncountersController(AppData appData) {
+        public ChooseEncountersController(AppData appData, LoggingService loggingService) {
             _appData = appData;
+            _logger = loggingService;
             foreach (var pack in appData.Configuration.Packs) {
                 var cycle = GetCyle(pack);
 
@@ -38,12 +41,14 @@ namespace ArkhamOverlay.Pages.ChooseEncounters {
         }
 
         internal void ShowDialog() {
+            _logger.LogMessage("Showing encounter selection dialog.");
             View.ShowDialog();
         }
 
 
         [Command]
         public void Ok() {
+            _logger.LogMessage("User confirmed encounter selection.");
             var encounterSets = new List<EncounterSet>();
             foreach (var encounterSet in _selectableEncounterSets) {
                 if (encounterSet.IsSelected) {
@@ -57,6 +62,7 @@ namespace ArkhamOverlay.Pages.ChooseEncounters {
 
         [Command]
         public void Cancel() {
+            _logger.LogMessage("User cancelled encounter selection.");
             View.Close();
         }
     }
