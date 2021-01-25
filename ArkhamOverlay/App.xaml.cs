@@ -48,11 +48,11 @@ namespace ArkhamOverlay {
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e) {
             if(_loggingService != null) {
-                _loggingService.LogException(e.Exception, "Unhandled exception");
+                _loggingService.LogException(e.Exception, "Unhandled exception occured.");
             }
 
-            // TODO: Handle inner exception
-            MessageBox.Show("An unhandled exception just occurred: " + e.Exception.Message, "Exception Sample", MessageBoxButton.OK, MessageBoxImage.Warning);
+            var exceptionMessage = e.Exception.InnerException == null ? e.Exception.Message : e.Exception.InnerException.Message;
+            MessageBox.Show($"An unhandled exception just occurred: {exceptionMessage}", "Arkham Overlay", MessageBoxButton.OK, MessageBoxImage.Warning);
             e.Handled = true;
         }
     }
