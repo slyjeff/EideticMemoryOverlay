@@ -6,11 +6,9 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace ArkhamOverlay.Data {
-    public class Player : ViewModel {
-        private static readonly Dictionary<string, BitmapImage> CardImageCache = new Dictionary<string, BitmapImage>();
+    public class Player : ViewModel, IHasImageButton {
         Configuration _configuration;
 
         public Player(Configuration configuration, int id) {
@@ -32,39 +30,6 @@ namespace ArkhamOverlay.Data {
             };
         }
 
-        internal void LoadInvestigatorImage(string url) {
-            if (Application.Current.Dispatcher.CheckAccess()) {
-                LoadImage(url);
-            } else {
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                    LoadImage(url);
-                }));
-            }
-        }
-    
-        private void LoadImage(string url) {
-            if (CardImageCache.ContainsKey(Name)) {
-                InvestigatorImage = CardImageCache[Name];
-                NotifyPropertyChanged(nameof(InvestigatorImage));
-                CropImage();
-                return;
-            }
-
-            var bitmapImage = new BitmapImage(new Uri(url, UriKind.Absolute));
-            bitmapImage.DownloadCompleted += (s, e) => {
-                NotifyPropertyChanged(nameof(InvestigatorImage));
-                CardImageCache[Name] = bitmapImage;
-                CropImage();
-            };
-            InvestigatorImage = bitmapImage;
-        }
-
-        internal void CropImage() {
-            InvestigatorButtonImage = InvestigatorImage.CropImage(CardType.Investigator);
-            InvestigatorButtonImageAsBytes = InvestigatorButtonImage.AsBytes();
-            NotifyPropertyChanged(nameof(InvestigatorButtonImageAsBytes));
-        }
-
         public int ID { get; }
 
         public string DeckId { get; set; }
@@ -73,11 +38,34 @@ namespace ArkhamOverlay.Data {
 
         public string Name { get { return SelectableCards.Name; } }
 
-        public ImageSource InvestigatorImage { get; set; }
+        CardType IHasImageButton.ImageCardType { get { return CardType.Investigator; } }
 
-        public ImageSource InvestigatorButtonImage { get; private set; }
-        
-        public byte[] InvestigatorButtonImageAsBytes { get; private set; }
+        private ImageSource _image;
+        public ImageSource Image { 
+            get => _image; 
+            set {
+                _image = value;
+                NotifyPropertyChanged(nameof(Image));
+            }
+        }
+
+        private ImageSource _buttonImage;
+        public ImageSource ButtonImage {
+            get => _buttonImage;
+            set {
+                _buttonImage = value;
+                NotifyPropertyChanged(nameof(ButtonImage));
+            }
+        }
+
+        private byte[] _buttonImageAsBytes;
+        public byte[] ButtonImageAsBytes {
+            get => _buttonImageAsBytes;
+            set {
+                _buttonImageAsBytes = value;
+                NotifyPropertyChanged(nameof(ButtonImageAsBytes));
+            }
+        }
 
         public string InvestigatorCode { get; set; }
 
@@ -85,13 +73,8 @@ namespace ArkhamOverlay.Data {
 
         public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(SelectableCards.Name) ? Visibility.Hidden : Visibility.Visible; } }
 
-        public void LoadImage() {
-
-        }
-
         public void OnPlayerChanged() {
             NotifyPropertyChanged(nameof(LoadedVisiblity));
-            NotifyPropertyChanged(nameof(InvestigatorImage));
             NotifyPropertyChanged(nameof(Name));
             NotifyPropertyChanged(nameof(PlayerNameBrush));
             NotifyPropertyChanged(nameof(StatTrackingVisibility));

@@ -133,6 +133,7 @@
     <Compile Include="Pages\SelectCards\SelectPlayerMenuViewModel.cs" />
     <Compile Include="Utils\BoolToVisibilityCollapsedConverter.cs" />
     <Compile Include="Utils\FileCompare.cs" />
+    <Compile Include="Utils\IHasImageButton.cs" />
     <Compile Include="Utils\OutlinedTextBlock.cs" />
     <Compile Include="PageController\Command.cs" />
     <Compile Include="PageController\CommandAttribute.cs" />

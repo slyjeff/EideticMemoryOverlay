@@ -1,13 +1,13 @@
 ﻿using ArkhamOverlay.CardButtons;
 using ArkhamOverlay.Data;
 using ArkhamOverlay.Pages.Main;
+using ArkhamOverlay.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Windows.Media.Imaging;
 
 namespace ArkhamOverlay.Services {
     public class ArkhamDbService {
@@ -27,7 +27,7 @@ namespace ArkhamOverlay.Services {
                 player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
                 player.InvestigatorCode = arkhamDbDeck.Investigator_Code;
                 player.Slots = arkhamDbDeck.Slots;
-                player.LoadInvestigatorImage("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png");
+                player.LoadImage("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png");
             }
 
             var investigatorUrl = @"https://arkhamdb.com/api/public/card/" + player.InvestigatorCode;

@@ -146,7 +146,7 @@ namespace ArkhamOverlay.Services {
                         player.Clues.PropertyChanged += (s, e) => { SendStatInfo(player.Clues, GetDeckType(player.SelectableCards), StatType.Clues); };
 
                         player.PropertyChanged += (s, e) => {
-                            if (e.PropertyName == nameof(Player.InvestigatorButtonImageAsBytes)) {
+                            if (e.PropertyName == nameof(Player.ButtonImageAsBytes)) {
                                 SendInvestigatorImage(player);
                             }
                         };
@@ -275,7 +275,7 @@ namespace ArkhamOverlay.Services {
             var deck = GetDeckType(player.SelectableCards);
             var request = new UpdateInvestigatorImageRequest {
                 Deck = deck,
-                Bytes = player.InvestigatorButtonImageAsBytes
+                Bytes = player.ButtonImageAsBytes
             };
 
             SendStatusToAllRegisteredPorts(request);
