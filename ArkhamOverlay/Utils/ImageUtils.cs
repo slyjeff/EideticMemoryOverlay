@@ -59,6 +59,7 @@ namespace ArkhamOverlay.Utils {
             }
         }
 
+        // TODO: return a blank image instead of a null if image is not a bitmap source
         public static byte[] AsBytes(this ImageSource image) {
             byte[] bytes = null;
 
