@@ -37,6 +37,17 @@ namespace StreamDeckPlugin.Utils {
             return "data:image/png;base64," + imageString;
         }
 
+        public static string AsImage(this byte[] bytes) {
+            var bitmap = CreateCardArtBitmap(bytes);
+
+            var converter = new ImageConverter();
+            var converted = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
+            var imageString = Convert.ToBase64String(converted);
+
+            return "data:image/png;base64," + imageString;
+        }
+
+
         private static void DrawSelected(Bitmap bitmap) {
             var pen = new Pen(Color.Goldenrod, 16);
             using (Graphics G = Graphics.FromImage(bitmap)) {
@@ -91,7 +102,7 @@ namespace StreamDeckPlugin.Utils {
             return bitmap;
         }
 
-        public static Bitmap CreateCardArtBitmap(byte[] bytes) {
+        private static Bitmap CreateCardArtBitmap(byte[] bytes) {
             Bitmap bitmap;
             using (var stream = new MemoryStream(bytes)) {
                 bitmap = new Bitmap(stream);

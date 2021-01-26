@@ -7,6 +7,7 @@
         ClearAll, 
         UpdateCardInfo,
         UpdateStatInfo,
+        UpdateInvestigatorImage,
         RegisterForUpdates,
         ToggleActAgendaBarRequest,
         ActAgendaBarStatusRequest,
@@ -29,6 +30,8 @@
                     return "UpdateCardInfo";
                 case AoTcpRequest.UpdateStatInfo:
                     return "UpdateStatInfo";
+                case AoTcpRequest.UpdateInvestigatorImage:
+                    return "UpdateInvestigatorImage";
                 case AoTcpRequest.RegisterForUpdates:
                     return "RegisterForUpdates";
                 case AoTcpRequest.ToggleActAgendaBarRequest:
@@ -58,6 +61,8 @@
                     return AoTcpRequest.UpdateCardInfo;
                 case "UpdateStatInfo":
                     return AoTcpRequest.UpdateStatInfo;
+                case "UpdateInvestigatorImage":
+                    return AoTcpRequest.UpdateInvestigatorImage;
                 case "RegisterForUpdates":
                     return AoTcpRequest.RegisterForUpdates;
                 case "ToggleActAgendaBarRequest":

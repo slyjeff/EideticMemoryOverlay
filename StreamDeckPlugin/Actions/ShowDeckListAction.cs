@@ -5,6 +5,7 @@ using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 using StreamDeckPlugin.Utils;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace StreamDeckPlugin.Actions {
@@ -15,7 +16,13 @@ namespace StreamDeckPlugin.Actions {
 
     [StreamDeckAction("Show Deck List", "arkhamoverlay.showdecklist")]
     public class ShowDeckListAction : StreamDeckAction {
+        public static IList<ShowDeckListAction> ListOf = new List<ShowDeckListAction>();
+
         private ShowDeckSettings _settings = new ShowDeckSettings();
+
+        public ShowDeckListAction() {
+            ListOf.Add(this);
+        }
 
         public Deck Deck {
             get {

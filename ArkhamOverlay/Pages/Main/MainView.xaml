@@ -199,7 +199,7 @@
                             </Border.Style>
                             <Image Width="217" 
                                     Height="155.369"
-                                Source="{Binding InvestigatorImage}">
+                                Source="{Binding Image}">
                                 <Image.Clip>
                                     <RectangleGeometry RadiusX="10"
                                             RadiusY="10"

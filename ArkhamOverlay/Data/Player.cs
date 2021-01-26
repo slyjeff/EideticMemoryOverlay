@@ -1,4 +1,5 @@
-﻿using PageController;
+﻿using ArkhamOverlay.Utils;
+using PageController;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -7,7 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace ArkhamOverlay.Data {
-    public class Player : ViewModel {
+    public class Player : ViewModel, IHasImageButton {
         Configuration _configuration;
 
         public Player(Configuration configuration, int id) {
@@ -37,7 +38,35 @@ namespace ArkhamOverlay.Data {
 
         public string Name { get { return SelectableCards.Name; } }
 
-        public BitmapImage InvestigatorImage { get; set; }
+        CardType IHasImageButton.ImageCardType { get { return CardType.Investigator; } }
+
+        private ImageSource _image;
+        public ImageSource Image { 
+            get => _image; 
+            set {
+                _image = value;
+                NotifyPropertyChanged(nameof(Image));
+            }
+        }
+
+        private ImageSource _buttonImage;
+        public ImageSource ButtonImage {
+            get => _buttonImage;
+            set {
+                _buttonImage = value;
+                NotifyPropertyChanged(nameof(ButtonImage));
+            }
+        }
+
+        private byte[] _buttonImageAsBytes;
+        public byte[] ButtonImageAsBytes {
+            get => _buttonImageAsBytes;
+            set {
+                _buttonImageAsBytes = value;
+                NotifyPropertyChanged(nameof(ButtonImageAsBytes));
+            }
+        }
+
         public string InvestigatorCode { get; set; }
 
         public IDictionary<string, int> Slots { get; set; }
@@ -46,7 +75,6 @@ namespace ArkhamOverlay.Data {
 
         public void OnPlayerChanged() {
             NotifyPropertyChanged(nameof(LoadedVisiblity));
-            NotifyPropertyChanged(nameof(InvestigatorImage));
             NotifyPropertyChanged(nameof(Name));
             NotifyPropertyChanged(nameof(PlayerNameBrush));
             NotifyPropertyChanged(nameof(StatTrackingVisibility));
