@@ -27,6 +27,7 @@ namespace ArkhamOverlay.Services {
         Point OverlayPosition { get; set; }
         bool UseAutoSnapshot { get; set; }
         string AutoSnapshotFilePath { get; set; }
+        string LocalImagesDirectory { get; set; }
         IList<Pack> Packs { get; }
     }
 
@@ -56,6 +57,7 @@ namespace ArkhamOverlay.Services {
         public Point OverlayPosition { get; set; }
         public bool UseAutoSnapshot { get; set; }
         public string AutoSnapshotFilePath { get; set; }
+        public string LocalImagesDirectory { get; set; }
     }
 
     public class ConfigurationService {
@@ -129,6 +131,7 @@ namespace ArkhamOverlay.Services {
             toConfiguration.OverlayPosition = fromConfiguration.OverlayPosition;
             toConfiguration.UseAutoSnapshot = fromConfiguration.UseAutoSnapshot;
             toConfiguration.AutoSnapshotFilePath= fromConfiguration.AutoSnapshotFilePath;
+            toConfiguration.LocalImagesDirectory = fromConfiguration.LocalImagesDirectory;
             toConfiguration.Packs.Clear();
             foreach (var pack in fromConfiguration.Packs) {
                 toConfiguration.Packs.Add(new Pack(pack));
