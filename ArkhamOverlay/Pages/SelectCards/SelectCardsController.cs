@@ -1,12 +1,15 @@
 ﻿using ArkhamOverlay.CardButtons;
 using ArkhamOverlay.Data;
+using ArkhamOverlay.Services;
 using PageController;
 using System;
 using System.Windows.Controls;
 
 namespace ArkhamOverlay.Pages.SelectCards {
     public class SelectCardsController : Controller<SelectCardsView, SelectCardsViewModel> {
-        public SelectCardsController() {
+        private readonly LoggingService _logger;
+        public SelectCardsController(LoggingService loggingService) {
+            _logger = loggingService;
             View.Closed += (s, e) => {
                 Closed?.Invoke();
             };
@@ -19,14 +22,17 @@ namespace ArkhamOverlay.Pages.SelectCards {
         public ISelectableCards SelectableCards { get => ViewModel.SelectableCards; set => ViewModel.SelectableCards = value; }
 
         internal void Close() {
+            _logger.LogMessage($"Closing Select Cards Window {ViewModel.SelectableCards.Name}");
             View.Close();
         }
 
         internal void Activate() {
+            _logger.LogMessage($"Activating Select Cards Window {ViewModel.SelectableCards.Name}");
             View.Activate();
         }
 
         internal void Show() {
+            _logger.LogMessage($"Showing Select Cards Window {ViewModel.SelectableCards.Name}");
             View.Show();
         }
 
@@ -37,11 +43,13 @@ namespace ArkhamOverlay.Pages.SelectCards {
 
         [Command]
         public void CardLeftClick(ICardButton card) {
+            _logger.LogMessage($"Left clicking button {card.Text}");
             card.LeftClick();
         }
 
         [Command]
         public void CardRightClick(ICardButton card) {
+            _logger.LogMessage($"Right clicking button {card.Text}");
             if (card is ShowCardButton showCardButton) {
                 if (showCardButton.Card.Type == CardType.Enemy || showCardButton.Card.Type == CardType.Treachery) {
                     var contextMenu = View.FindResource("cmSelectPlayer") as ContextMenu;

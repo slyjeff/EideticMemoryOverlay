@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.Data;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
@@ -61,11 +62,15 @@ namespace ArkhamOverlay.Services {
         public static Color DefaultBackgroundColor = (Color)ColorConverter.ConvertFromString("#00B164");
 
         private readonly Configuration _configuration;
-        public ConfigurationService(AppData appData) {
+        private readonly LoggingService _logger;
+
+        public ConfigurationService(AppData appData, LoggingService loggingService) {
             _configuration = appData.Configuration;
+            _logger = loggingService;
         }
 
         public void Load() {
+            _logger.LogMessage("Loading configuration");
             var configuration = new ConfigurationFile {
                 OverlayColor = DefaultBackgroundColor,
                 OverlayWidth = 1228,
@@ -76,11 +81,15 @@ namespace ArkhamOverlay.Services {
             };
 
             if (File.Exists("Config.json")) {
+                _logger.LogMessage("Found configuration file.");
                 try {
                     configuration = JsonConvert.DeserializeObject<ConfigurationFile>(File.ReadAllText("Config.json"));
-                } catch {
+                } catch (Exception ex) {
                     // if there's an error, we don't care- just use the default configuration
+                    _logger.LogException(ex, "Error reading configuration file.");
                 }
+            } else {
+                _logger.LogMessage("No configuration file found");
             }
             configuration.CopyTo(_configuration);
 
@@ -88,10 +97,14 @@ namespace ArkhamOverlay.Services {
         }
 
         private void Save() {
+            _logger.LogMessage("Saving configuration to file.");
             var configurationFile = new ConfigurationFile();
             _configuration.CopyTo(configurationFile);
-
-            File.WriteAllText("Config.json", JsonConvert.SerializeObject(configurationFile));
+            try {
+                File.WriteAllText("Config.json", JsonConvert.SerializeObject(configurationFile));
+            } catch (Exception ex) {
+                _logger.LogException(ex, "Error saving configuration to file.");
+            }
         }
     }
 

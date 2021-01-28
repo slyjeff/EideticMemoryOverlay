@@ -17,13 +17,15 @@ using System.Windows.Threading;
 namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
         private readonly AppData _appData;
+        private readonly LoggingService _logger;
 
-        public TcpRequestHandler(AppData viewModel) {
+        public TcpRequestHandler(AppData viewModel, LoggingService loggingService) {
             _appData = viewModel;
+            _logger = loggingService;
         }
 
         public void HandleRequest(TcpRequest request) {
-            Console.WriteLine("Handling Request: " + request.RequestType.AsString());
+            _logger.LogMessage($"Handling Request: {request.RequestType.AsString()}");
             switch (request.RequestType) {
                 case AoTcpRequest.ClearAll:
                     HandleClearAll(request);
@@ -53,12 +55,14 @@ namespace ArkhamOverlay.Services {
         }
 
         private void HandleGetCardInfo(TcpRequest request) {
+            _logger.LogMessage("Handling card info request");
             var getCardInfoRequest = JsonConvert.DeserializeObject<GetCardInfoRequest>(request.Body);
             var cardButton = GetCardButton(getCardInfoRequest.Deck, getCardInfoRequest.FromCardSet, getCardInfoRequest.Index);
             SendCardInfoResponse(request.Socket, cardButton);
         }
 
         private void HandleGetButtonImage(TcpRequest request) {
+            _logger.LogMessage("Handling button image request");
             var buttonImageRequest = JsonConvert.DeserializeObject<ButtonImageRequest>(request.Body);
             var cardButton = GetCardButton(buttonImageRequest.Deck, buttonImageRequest.FromCardSet, buttonImageRequest.Index);
             SendButtonImageResponse(request.Socket, cardButton as ShowCardButton);
@@ -66,6 +70,7 @@ namespace ArkhamOverlay.Services {
 
         private void HandleClick(TcpRequest request) {
             var clickCardButtonRequest = JsonConvert.DeserializeObject<ClickCardButtonRequest>(request.Body);
+            _logger.LogMessage($"Handling {clickCardButtonRequest.Click} request");
             var cardButton = GetCardButton(clickCardButtonRequest.Deck, clickCardButtonRequest.FromCardSet, clickCardButtonRequest.Index);
             if (cardButton == null) {
                 SendOkResponse(request.Socket);
@@ -109,6 +114,7 @@ namespace ArkhamOverlay.Services {
         }
 
         private void HandleClearAll(TcpRequest request) {
+            _logger.LogMessage("Handling clear all request");
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
                 _appData.Game.ClearAllCards();
                 SendOkResponse(request.Socket);
@@ -116,6 +122,7 @@ namespace ArkhamOverlay.Services {
         }
 
         private void HandleToggleActAgendaBar(TcpRequest request) {
+            _logger.LogMessage("Handling toggle act/agenda bar request");
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
                 _appData.Game.ScenarioCards.ToggleCardSetVisibility();
                 SendOkResponse(request.Socket);
@@ -127,6 +134,7 @@ namespace ArkhamOverlay.Services {
 
         private object _registerLock = new object();
         private void HandleRegisterForUpdates(TcpRequest request) {
+            _logger.LogMessage("Handling register for update request");
             var registerForUpdatesRequest = JsonConvert.DeserializeObject<RegisterForUpdatesRequest>(request.Body);
             if (!_updatePorts.Contains(registerForUpdatesRequest.Port)) {
                 _updatePorts.Add(registerForUpdatesRequest.Port);
@@ -202,6 +210,7 @@ namespace ArkhamOverlay.Services {
         }
 
         private void HandleShowDeckList(TcpRequest request) {
+            _logger.LogMessage("Handling show deck list request");
             var showDeckListRequest = JsonConvert.DeserializeObject<ShowDeckListRequest>(request.Body);
             var selectableCards = GetDeck(showDeckListRequest.Deck);
 
@@ -284,6 +293,7 @@ namespace ArkhamOverlay.Services {
         private void SendStatusToAllRegisteredPorts(Request request) {
             //if no one is listening, don't speak!
             if (!_updatePorts.Any()) {
+                _logger.LogMessage("No ports to send status to.");
                 return;
             }
 
@@ -293,8 +303,10 @@ namespace ArkhamOverlay.Services {
                 foreach (var port in _updatePorts.ToList()) {
                     try {
                         SendSocketService.SendRequest(request, port);
-                    } catch {
+                        _logger.LogMessage($"Sent request to port {port}.");
+                    } catch (Exception ex) {
                         //this clearly is not cool- stop trying to talk
+                        _logger.LogException(ex, $"Error sending status to port {port}.");
                         portsToRemove.Add(port);
                     }
                 }
@@ -308,25 +320,30 @@ namespace ArkhamOverlay.Services {
 
         private Deck GetDeckType(SelectableCards selectableCards) {
             var game = _appData.Game;
-            if (selectableCards == game.ScenarioCards) {
-                return Deck.Scenario;
+            switch(selectableCards.Type) {
+                case SelectableType.Scenario:
+                    return Deck.Scenario;
+                case SelectableType.Encounter:
+                    return Deck.EncounterDeck;
+                case SelectableType.Location:
+                    return Deck.Locations;
+                case SelectableType.Player:
+                    if (selectableCards == game.Players[0].SelectableCards) {
+                        return Deck.Player1;
+                    } else if (selectableCards == game.Players[1].SelectableCards) {
+                        return Deck.Player2;
+                    } else if (selectableCards == game.Players[2].SelectableCards) {
+                        return Deck.Player3;
+                    } else if (selectableCards == game.Players[3].SelectableCards) {
+                        return Deck.Player4;
+                    } else {
+                        _logger.LogWarning($"Unrecognized SelectableCards player: {selectableCards.Name}.");
+                        return Deck.Player1;
+                    }
+                default:
+                    _logger.LogWarning($"Unrecognized SelectableCards: {selectableCards.Name}.");
+                    return Deck.Player1;
             }
-            if (selectableCards == game.LocationCards) {
-                return Deck.Locations;
-            }
-            if (selectableCards == game.EncounterDeckCards) {
-                return Deck.EncounterDeck;
-            }
-            if (selectableCards == game.Players[0].SelectableCards) {
-                return Deck.Player1;
-            }
-            if (selectableCards == game.Players[1].SelectableCards) {
-                return Deck.Player2;
-            }
-            if (selectableCards == game.Players[2].SelectableCards) {
-                return Deck.Player3;
-            }
-            return Deck.Player4;
         }
 
         private void SendCardInfoResponse(Socket socket, ICardButton cardButton) {
@@ -438,11 +455,15 @@ namespace ArkhamOverlay.Services {
             }
         }
 
-        private static void Send(Socket socket, string data) {
+        private void Send(Socket socket, string data) {
             var byteData = Encoding.ASCII.GetBytes(data);
 
             // Begin sending the data to the remote device.  
-            socket.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), socket);
+            try {
+                socket.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), socket);
+            } catch (Exception ex) {
+                _logger.LogException(ex, "Error sending message to remote server");
+            }
         }
 
         private static void SendCallback(IAsyncResult ar) {
@@ -450,12 +471,14 @@ namespace ArkhamOverlay.Services {
                 var socket = (Socket)ar.AsyncState;
 
                 var bytesSent = socket.EndSend(ar);
+                // TODO: Log this
                 Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
                 socket.Shutdown(SocketShutdown.Both);
                 socket.Close();
-            } catch (Exception e) {
-                Console.WriteLine(e.ToString());
+            } catch (Exception ex) {
+                // TODO: Log exception
+                Console.WriteLine(ex.ToString());
             }
         }
 

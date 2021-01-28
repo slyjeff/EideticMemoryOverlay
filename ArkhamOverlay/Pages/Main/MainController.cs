@@ -16,23 +16,27 @@ using System.Windows.Threading;
 namespace ArkhamOverlay.Pages.Main {
     public class MainController : Controller<MainView, MainViewModel> {
         private OverlayController _overlayController;
-        private readonly ArkhamDbService _arkhamDbService = new ArkhamDbService();
+        private readonly ArkhamDbService _arkhamDbService;
         private readonly IList<SelectCardsController> _selectCardsControllers = new List<SelectCardsController>();
 
         private readonly GameFileService _gameFileService;
         private readonly IControllerFactory _controllerFactory;
         private readonly LoadingStatusService _loadingStatusService;
+        private readonly LoggingService _logger;
 
-        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, LoadingStatusService loadingStatusService) {
+        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, ArkhamDbService arkhamDbService, LoadingStatusService loadingStatusService, LoggingService loggingService) {
             ViewModel.AppData = appData;
 
             _gameFileService = gameFileService;
             _controllerFactory = controllerFactory;
+            _arkhamDbService = arkhamDbService;
             _loadingStatusService = loadingStatusService;
+            _logger = loggingService;
 
             LoadEncounterSets();
 
             View.Closed += (s, e) => {
+                _logger.LogMessage("Closing main window.");
                 ClearPlayerCardsWindows();
 
                 if (_overlayController != null) {
@@ -44,6 +48,7 @@ namespace ArkhamOverlay.Pages.Main {
         private void LoadEncounterSets() {
             var worker = new BackgroundWorker();
             worker.DoWork += (x, y) => {
+                _logger.LogMessage("Main window loading encounter sets.");
                 _loadingStatusService.ReportEncounterCardsStatus(Status.LoadingDeck);
                 _arkhamDbService.FindMissingEncounterSets(ViewModel.AppData.Configuration);
                 _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
@@ -58,6 +63,7 @@ namespace ArkhamOverlay.Pages.Main {
         }
 
         private void ShowSelectCardsWindow(ISelectableCards selectableCards, string startingPositionConfigName) {
+            _logger.LogMessage($"Showing select card window: {selectableCards.Name}.");
             var left = View.Left + View.Width + 10;
             var width = (double)836;
             var top = View.Top;
@@ -101,6 +107,7 @@ namespace ArkhamOverlay.Pages.Main {
             if (!controller.SelectableCards.Loading) {
                 controller.Show();
             } else {
+                _logger.LogMessage($"Delayed showing select card window: {selectableCards.Name}.");
                 ShowSelectCardsWindowWhenFinishedLoading(controller);
             }
         }
@@ -115,6 +122,7 @@ namespace ArkhamOverlay.Pages.Main {
                     return;
                 }
 
+                _logger.LogMessage($"Showing select card window after delay: {selectCardsController.SelectableCards.Name}.");
                 timer.Stop();
                 selectCardsController.Show();
             };
@@ -129,17 +137,21 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void SaveGame() {
-            _gameFileService.Save(ViewModel.AppData.Game.Name + ".json");
+            var fileName = ViewModel.AppData.Game.Name + ".json";
+            _logger.LogMessage($"Main window: saving game to {fileName}.");
+            _gameFileService.Save(fileName);
         }
 
         [Command]
         public void LoadGame() {
+            _logger.LogMessage("Main window: load game clicked.");
             var dialog = new OpenFileDialog {
                 DefaultExt = "json",
                 InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
             };
 
             if (dialog.ShowDialog() == true) {
+                _logger.LogMessage($"Main window: loading game from {dialog.FileName}.");
                 _gameFileService.Load(dialog.FileName);
                 ClearPlayerCardsWindows();
             }
@@ -147,39 +159,46 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void SetEncounterSets() {
+            _logger.LogMessage("Main window: set encounter sets clicked.");
             var chooseEncounters = _controllerFactory.CreateController<ChooseEncountersController>();
             chooseEncounters.ShowDialog();
         }
 
         [Command]
         public void SelectSnapshotDirectory() {
+            _logger.LogMessage("Main window: select snapshot directory clicked.");
             var dialog = new CommonOpenFileDialog {
                 InitialDirectory = ViewModel.Game.SnapshotDirectory,
                 IsFolderPicker = true
             };
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
+                _logger.LogMessage($"Main window: new snapshot directory: {dialog.FileName}.");
                 ViewModel.Game.SnapshotDirectory = dialog.FileName;
             }
         }
 
         [Command]
         public void ShowOtherEncounters() {
+            _logger.LogMessage("Main window: show scenario cards clicked.");
             ShowSelectCardsWindow(ViewModel.AppData.Game.ScenarioCards, nameof(Configuration.ScenarioCardsPosition));
         }
 
         [Command]
         public void ShowLocations() {
+            _logger.LogMessage("Main window: location cards clicked.");
             ShowSelectCardsWindow(ViewModel.AppData.Game.LocationCards, nameof(Configuration.LocationsPosition));
         }
 
         [Command]
         public void ShowEncounterDeck() {
+            _logger.LogMessage("Main window: show encounter cards clicked.");
             ShowSelectCardsWindow(ViewModel.AppData.Game.EncounterDeckCards, nameof(Configuration.EncounterCardsPosition));
         }
 
         [Command]
         public void Refresh(Player player) {
+            _logger.LogMessage($"Main window: refresh player {player.ID} cards clicked.");
             if (!string.IsNullOrEmpty(player.DeckId)) {
                 try {
                     _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingDeck);
@@ -198,7 +217,8 @@ namespace ArkhamOverlay.Pages.Main {
                     };
                     worker.RunWorkerAsync();
                 }
-                catch {
+                catch (Exception ex) {
+                    _logger.LogException(ex, $"Main window: error refreshing player {player.ID} cards.");
                     _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
                 }
             }
@@ -206,6 +226,7 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void PlayerSelected(SelectableCards selectableCards) {
+            _logger.LogMessage($"Main window: player selected: {selectableCards.Name}.");
             var startingPositionProperty = string.Empty;
             if (ViewModel.Game.Players[0].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player1Position); }
             else if (ViewModel.Game.Players[1].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player2Position); }
@@ -217,11 +238,13 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void ShowDeckList(SelectableCards selectableCards) {
+            _logger.LogMessage("Main window: show deck list clicked.");
             selectableCards.ShowDeckList();
         }
 
         [Command]
         public void ShowOverlay() {
+            _logger.LogMessage("Main window: show overlay clicked.");
             if (_overlayController != null) {
                 _overlayController.Activate();
                 return;
@@ -250,11 +273,13 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void ClearCards() {
+            _logger.LogMessage("Main window: clear all cards clicked.");
             ViewModel.AppData.Game.ClearAllCards();
         }
 
         [Command]
         public void ShowAllWindows() {
+            _logger.LogMessage("Main window: show all windows clicked.");
             if (_overlayController != null) {
                 _overlayController.Activate();
             }
@@ -265,6 +290,7 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void SelectAutoSnapshotFile() {
+            _logger.LogMessage("Main window: select auto snapshot file clicked.");
             var dialog = new CommonOpenFileDialog {
                 InitialDirectory = ViewModel.Configuration.AutoSnapshotFilePath,
             };
@@ -276,11 +302,13 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void ResetOverlayColor() {
+            _logger.LogMessage("Main window: reset overlay color clicked.");
             ViewModel.Configuration.OverlayColor = ConfigurationService.DefaultBackgroundColor;
         }
 
         [Command]
         public void TakeSnapshot() {
+            _logger.LogMessage("Main window: take snapshot clicked.");
             _overlayController.TakeSnapshot();
         }
     }

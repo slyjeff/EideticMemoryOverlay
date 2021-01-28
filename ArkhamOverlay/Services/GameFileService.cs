@@ -33,14 +33,17 @@ namespace ArkhamOverlay.Services {
         private AppData _appData;
         private readonly ArkhamDbService _arkhamDbService;
         private readonly LoadingStatusService _loadingStatusService;
+        private readonly LoggingService _logger;
 
-        public GameFileService(AppData appData, ArkhamDbService arkhamDbService, LoadingStatusService loadingStatusService) {
+        public GameFileService(AppData appData, ArkhamDbService arkhamDbService, LoadingStatusService loadingStatusService, LoggingService loggingService) {
             _appData = appData;
             _arkhamDbService = arkhamDbService;
             _loadingStatusService = loadingStatusService;
+            _logger = loggingService;
         }
 
         internal void Load(string fileName) {
+            _logger.LogMessage($"Loading game from file {fileName}.");
             if (File.Exists(fileName)) {
                 try {
                     var gameFile = JsonConvert.DeserializeObject<GameFile>(File.ReadAllText(fileName));
@@ -55,32 +58,41 @@ namespace ArkhamOverlay.Services {
                         game.Players[index].DeckId = gameFile.DeckIds[index];
                         if (!string.IsNullOrEmpty(game.Players[index].DeckId)) {
                             try {
+                                _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.LoadingCards);
                                 _arkhamDbService.LoadPlayer(game.Players[index]);
                             }
-                            catch {
+                            catch (Exception ex) {
+                                _logger.LogException(ex, $"Error loading player {game.Players[index].ID}.");
                                 _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.Error);
                             }
                         }
                     }
 
                     game.OnPlayersChanged();
-
                     _appData.OnGameChanged();
-                } catch {
+                    _logger.LogMessage($"Finished reading game file: {fileName}.");
+                } catch (Exception ex) {
                     // if there's an error, we don't care- just use the existing game
+                    _logger.LogException(ex, $"Error reading game file: {fileName}.");
                 }
             }
         }
 
         internal void Save(string fileName) {
+            _logger.LogMessage($"Saving game file: {fileName}.");
             var gameFile = new GameFile();
             _appData.Game.CopyTo(gameFile);
             foreach (var player in _appData.Game.Players) {
                 gameFile.DeckIds.Add(player.DeckId);
             }
 
-            File.WriteAllText(fileName, JsonConvert.SerializeObject(gameFile));
-            File.WriteAllText("LastSaved.json", JsonConvert.SerializeObject(gameFile));
+            try {
+                File.WriteAllText(fileName, JsonConvert.SerializeObject(gameFile));
+                File.WriteAllText("LastSaved.json", JsonConvert.SerializeObject(gameFile));
+                _logger.LogMessage($"Finished writing to game file: {fileName}.");
+            } catch (Exception ex) {
+                _logger.LogException(ex, $"Error saving game file: {fileName}.");
+            }
         }
     }
 
