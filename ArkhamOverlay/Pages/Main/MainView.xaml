@@ -71,6 +71,7 @@
                 <TextBox Margin ="10, 0, 0, 0" Text="{Binding Game.Name, Mode=TwoWay}" Width="200" />
                 <Button Margin="10, 0, 0, 0" Command="{Binding SaveGame}">Save</Button>
                 <Button Margin="10, 0, 0, 0" Command="{Binding LoadGame}">Load</Button>
+                <Button Margin="10, 0, 0, 0" Command="{Binding LocalImages}">Manage Local Images</Button>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0" Grid.Row="1" Grid.Column="0">
