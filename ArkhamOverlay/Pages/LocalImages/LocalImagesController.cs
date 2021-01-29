@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using PageController;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -42,7 +43,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
                 }
                 ViewModel.Packs = packs;
             } catch (Exception e) {
-                _logger.LogError(e.Message);
+                _logger.LogException(e, "Error loading packs");
             }
         }
 
@@ -64,7 +65,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
                         WriteManifest();
                     };
                 } catch (Exception e) {
-                    _logger.LogError(e.Message);
+                    _logger.LogException(e, "Error loading pack manifest");
                 }
             }
 
@@ -72,7 +73,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
         }
 
         private LocalCard LoadCard(LocalPack pack, string filePath) {
-            if (string.Compare(Path.GetExtension(filePath), ".json", StringComparison.InvariantCulture) == 0) {
+            if (string.Equals(Path.GetExtension(filePath), ".json", StringComparison.InvariantCulture)) {
                 return null;
             }
 
@@ -82,12 +83,13 @@ namespace ArkhamOverlay.Pages.LocalImages {
             }
             
             try {
-                var card = pack.Cards.FirstOrDefault(x => string.Compare(x.FilePath, filePath, StringComparison.InvariantCulture) == 0);
+                var card = pack.Cards.FirstOrDefault(x => string.Equals(x.FilePath, filePath, StringComparison.InvariantCulture));
                 if (card == null) {
                     card = new LocalCard(filePath);
                     card.PropertyChanged += (s, e) => {
                         WriteManifest();
                     };
+                    pack.Cards.Add(card);
                 }
 
                 LoadCardImages(card);
@@ -132,7 +134,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
 
         internal void ReadManifest(PackManifest manifest, LocalPack pack) {
             pack.Name = manifest.Name;
-            var localCards = new List<LocalCard>();
+            var localCards = new ObservableCollection<LocalCard>();
             foreach (var card in manifest.Cards) {
                 if (File.Exists(card.FilePath)) {
                     var localCard = new LocalCard(card.FilePath) {
@@ -164,7 +166,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
                 var manifest = new PackManifest(pack);
                 File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
             } catch (Exception e) {
-                _logger.LogError(e.Message);
+                _logger.LogException(e, "Error writing manifest");
             }
         }
 
@@ -181,7 +183,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
                     LoadCard(pack, file); 
                 }
             } catch (Exception e) {
-                _logger.LogError(e.Message);
+                _logger.LogException(e, "Error loading images");
             }
         }
 

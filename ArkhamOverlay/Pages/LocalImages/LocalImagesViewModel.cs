@@ -1,6 +1,7 @@
 ﻿using ArkhamOverlay.Data;
 using PageController;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
@@ -35,7 +36,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
         public LocalPack(string directory) {
             Directory = directory;
             Name = Path.GetFileName(directory);
-            Cards = new List<LocalCard>();
+            Cards = new ObservableCollection<LocalCard>();
         }
 
         public virtual string Directory { get; }
@@ -61,7 +62,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
 
         public virtual bool IsCardSelected { get { return SelectedCard != null; } }
 
-        public virtual List<LocalCard> Cards { get; set; }
+        public virtual ObservableCollection<LocalCard> Cards { get; set; }
     }
 
     public class LocalCard : ViewModel {
