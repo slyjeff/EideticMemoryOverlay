@@ -90,6 +90,8 @@ namespace ArkhamOverlay.Services {
         private void HandleChangeStatValue(TcpRequest request) {
             var changeStatValueRequest = JsonConvert.DeserializeObject<ChangeStatValueRequest>(request.Body);
 
+            _logger.LogMessage($"Handling Change Stat Value request");
+
             var player = GetPlayer(changeStatValueRequest.Deck);
             var stat = GetStat(player, changeStatValueRequest.StatType);
             if (changeStatValueRequest.Increase) {
@@ -222,6 +224,8 @@ namespace ArkhamOverlay.Services {
         }
 
         private void SendActAgendaBarStatus(bool isVisible) {
+            _logger.LogMessage("Sending act/agenda bar status");
+
             var request = new ActAgendaBarStatusRequest {
                 IsVisible = isVisible
             };
@@ -229,6 +233,8 @@ namespace ArkhamOverlay.Services {
         }
 
         private void SendButtonInfoUpdate(ICardButton button, SelectableCards selectableCards) {
+            _logger.LogMessage("Sending button info update");
+
             Card card = null;
             if (button is CardImageButton cardImageButton) {
                 card = cardImageButton.Card;
@@ -271,6 +277,8 @@ namespace ArkhamOverlay.Services {
         }
 
         private void SendStatInfo(Stat stat, Deck deck, StatType statType) {
+            _logger.LogMessage("Sending stat info");
+
             var request = new UpdateStatInfoRequest {
                 Deck = deck,
                 Value = stat.Value,
@@ -281,6 +289,8 @@ namespace ArkhamOverlay.Services {
         }
 
         private void SendInvestigatorImage(Player player) {
+            _logger.LogMessage("Sending Investigator Image");
+
             var deck = GetDeckType(player.SelectableCards);
             var request = new UpdateInvestigatorImageRequest {
                 Deck = deck,
