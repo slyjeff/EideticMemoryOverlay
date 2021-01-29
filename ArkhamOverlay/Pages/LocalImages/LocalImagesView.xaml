@@ -12,13 +12,29 @@
             <Setter Property="HorizontalAlignment" Value="Left" />
             <Setter Property="Padding" Value="10, 3, 10, 5" />
         </Style>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
     </Window.Resources>
-    <DockPanel>
+    <DockPanel LastChildFill="true">
         <StackPanel Orientation="Horizontal" Margin="5, 0, 0, 10" DockPanel.Dock="Top">
             <TextBlock Text="Local Images Directory:" Margin="0, 4, 0, 0" />
             <TextBlock Margin="5,4,0,0"  Text="{Binding Configuration.LocalImagesDirectory}" />
             <Button Margin="10, 0, 0, 0" Command="{Binding SelectDirectory}">Choose Directory</Button>
         </StackPanel>
-        <ListView ItemsSource="{Binding Packs}" DockPanel.Dock="Left"/>
+        <ListView ItemsSource="{Binding Packs}" 
+                  DockPanel.Dock="Left"
+                  Margin="5, 0, 0, 5"
+                  SelectedItem="{Binding SelectedPack, Mode=OneWayToSource}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <DockPanel DockPanel.Dock="Top" LastChildFill="true" Visibility="{Binding IsPackSelected, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="Pack Name:" Margin="10, 0, 0, 0" DockPanel.Dock="Left" />
+            <TextBox Margin="5,0,10,0" Text="{Binding SelectedPack.Name, Mode=TwoWay}" />
+        </DockPanel>
+        <ItemsControl />
     </DockPanel>
 </Window>

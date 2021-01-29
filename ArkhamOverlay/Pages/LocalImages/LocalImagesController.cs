@@ -43,12 +43,15 @@ namespace ArkhamOverlay.Pages.LocalImages {
 
         private LocalPack LoadPack(string directory) {
             var pack = new LocalPack(directory);
+            pack.PropertyChanged += (s, e) => {
+                PackChanged(pack);
+            };
 
-            var manifestPath = directory + "Manifest.json";
+            var manifestPath = directory + "\\Manifest.json";
             if (File.Exists(manifestPath)) {
                 try {
                     _logger.LogMessage($"Loading pack manifest {manifestPath}.");
-                    var data = JsonConvert.DeserializeObject<PackManifest>(File.ReadAllText(directory + "Manifest.json"));
+                    var data = JsonConvert.DeserializeObject<PackManifest>(File.ReadAllText(manifestPath));
                     pack.Name = data.Name;
                 } catch (Exception e) {
                     _logger.LogMessage(e.Message);
@@ -56,6 +59,23 @@ namespace ArkhamOverlay.Pages.LocalImages {
             }
 
             return pack;
+        }
+
+        private void PackChanged(LocalPack pack) {
+            var manifestPath = pack.Directory + "\\Manifest.json";
+            _logger.LogMessage($"saving pack manifest {manifestPath}.");
+
+            try {
+                var manifest = new PackManifest(pack);
+                File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
+            } catch (Exception e) {
+                _logger.LogMessage(e.Message);
+            }
+        }
+
+        [PropertyChanged]
+        public void SelectedPackChanged() {
+            ViewModel.IsPackSelected = ViewModel.SelectedPack != null;
         }
 
         [Command]

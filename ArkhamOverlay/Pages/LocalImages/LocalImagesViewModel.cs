@@ -1,6 +1,6 @@
 ﻿using ArkhamOverlay.Data;
-using Newtonsoft.Json;
 using PageController;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -12,7 +12,11 @@ namespace ArkhamOverlay.Pages.LocalImages {
 
         public virtual Configuration Configuration { get; set; }
 
-        public IList<LocalPack> Packs { get; set; }
+        public virtual IList<LocalPack> Packs { get; set; }
+
+        public virtual LocalPack SelectedPack { get; set; }
+
+        public virtual bool IsPackSelected { get; set; }
     }
 
     public class LocalPack : ViewModel {
@@ -21,7 +25,15 @@ namespace ArkhamOverlay.Pages.LocalImages {
             Name = Path.GetFileName(directory);
         }
 
-        public virtual string Name { get; set; }
+        private string _name;
+        public virtual string Name {
+            get => _name;
+            set {
+                _name = value;
+                NotifyPropertyChanged(nameof(Name));
+            }
+        }
+
         public virtual string Directory { get; }
 
         public override string ToString() {

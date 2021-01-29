@@ -51,7 +51,6 @@
                 <Setter Property="FontSize" Value="30"/>
                 <Setter Property="Margin" Value="0,0,0,3"/>
             </Style>
-
             
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         </StackPanel.Resources>
