@@ -7,6 +7,7 @@ using PageController;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -41,47 +42,36 @@ namespace ArkhamOverlay.Pages.LocalImages {
                 }
                 ViewModel.Packs = packs;
             } catch (Exception e) {
-                _logger.LogMessage(e.Message);
+                _logger.LogError(e.Message);
             }
         }
 
         private LocalPack LoadPack(string directory) {
             var pack = new LocalPack(directory);
-            pack.PropertyChanged += (s, e) => {
-                if (e.PropertyName == nameof(LocalPack.SelectedCard) || e.PropertyName == nameof(LocalPack.IsCardSelected)) {
-                    return;
-                }
-
-                PackChanged(pack);
-            };
 
             var manifestPath = directory + "\\Manifest.json";
             if (File.Exists(manifestPath)) {
                 try {
                     _logger.LogMessage($"Loading pack manifest {manifestPath}.");
-                    var data = JsonConvert.DeserializeObject<PackManifest>(File.ReadAllText(manifestPath));
-                    pack.Name = data.Name;
+                    var manifest = JsonConvert.DeserializeObject<PackManifest>(File.ReadAllText(manifestPath));
+                    ReadManifest(manifest, pack);
+
+                    pack.PropertyChanged += (s, e) => {
+                        if (e.PropertyName == nameof(LocalPack.SelectedCard) || e.PropertyName == nameof(LocalPack.IsCardSelected)) {
+                            return;
+                        }
+
+                        WriteManifest();
+                    };
                 } catch (Exception e) {
-                    _logger.LogMessage(e.Message);
+                    _logger.LogError(e.Message);
                 }
             }
 
             return pack;
         }
 
-        private void PackChanged(LocalPack pack) {
-            var manifestPath = pack.Directory + "\\Manifest.json";
-            _logger.LogMessage($"saving pack manifest {manifestPath}.");
-
-            try {
-                var manifest = new PackManifest(pack);
-                File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
-            } catch (Exception e) {
-                _logger.LogMessage(e.Message);
-            }
-        }
-
-        private LocalCard LoadCard(string filePath) {
+        private LocalCard LoadCard(LocalPack pack, string filePath) {
             if (string.Compare(Path.GetExtension(filePath), ".json", StringComparison.InvariantCulture) == 0) {
                 return null;
             }
@@ -92,36 +82,89 @@ namespace ArkhamOverlay.Pages.LocalImages {
             }
             
             try {
-                var card = new LocalCard(filePath);
-
-                card.FrontThumbnail = ShellFile.FromFilePath(filePath).Thumbnail.BitmapSource;
-
-                var isHorizontal = card.FrontThumbnail.Width > card.FrontThumbnail.Width;
-
-                var image = new BitmapImage();
-                image.BeginInit();
-
-                // Set properties.
-                image.CacheOption = BitmapCacheOption.OnDemand;
-                image.CreateOptions = BitmapCreateOptions.DelayCreation;
-                if (isHorizontal) {
-                    image.DecodePixelWidth = 400;
-                } else {
-                    image.DecodePixelHeight = 400;
+                var card = pack.Cards.FirstOrDefault(x => string.Compare(x.FilePath, filePath, StringComparison.InvariantCulture) == 0);
+                if (card == null) {
+                    card = new LocalCard(filePath);
+                    card.PropertyChanged += (s, e) => {
+                        WriteManifest();
+                    };
                 }
-                image.UriSource = new Uri(filePath, UriKind.Absolute);
-                image.EndInit();
-                card.Image = image;
 
-                var cardBackPath = Path.GetDirectoryName(filePath) + "\\" + Path.GetFileNameWithoutExtension(filePath) + "-back" + Path.GetExtension(filePath);
-                if (File.Exists(cardBackPath)) {
-                    card.BackThumbnail = ShellFile.FromFilePath(cardBackPath).Thumbnail.BitmapSource;
-                }
+                LoadCardImages(card);
 
                 return card;
             } catch {
                 //this isn't an image- that's completely valid, we just ignore it and move on
                 return null;
+            }
+        }
+
+        private void LoadCardImages(LocalCard card) {
+            if (card.Image != null) {
+                return;
+            }
+
+            card.FrontThumbnail = ShellFile.FromFilePath(card.FilePath).Thumbnail.BitmapSource;
+
+            var isHorizontal = card.FrontThumbnail.Width > card.FrontThumbnail.Width;
+
+            var image = new BitmapImage();
+            image.BeginInit();
+
+            // Set properties.
+            image.CacheOption = BitmapCacheOption.OnDemand;
+            image.CreateOptions = BitmapCreateOptions.DelayCreation;
+            if (isHorizontal) {
+                image.DecodePixelWidth = 400;
+            } else {
+                image.DecodePixelHeight = 400;
+            }
+            image.UriSource = new Uri(card.FilePath, UriKind.Absolute);
+            image.EndInit();
+            card.Image = image;
+
+            var cardBackPath = Path.GetDirectoryName(card.FilePath) + "\\" + Path.GetFileNameWithoutExtension(card.FilePath) + "-back" + Path.GetExtension(card.FilePath);
+            if (File.Exists(cardBackPath)) {
+                card.BackThumbnail = ShellFile.FromFilePath(cardBackPath).Thumbnail.BitmapSource;
+                card.HasBack = true;
+            }
+        }
+
+        internal void ReadManifest(PackManifest manifest, LocalPack pack) {
+            pack.Name = manifest.Name;
+            var localCards = new List<LocalCard>();
+            foreach (var card in manifest.Cards) {
+                if (File.Exists(card.FilePath)) {
+                    var localCard = new LocalCard(card.FilePath) {
+                        CardType = card.CardType,
+                        Name = card.Name,
+                        HasBack = card.HasBack
+                    };
+
+                    localCard.PropertyChanged += (s, e) => {
+                        WriteManifest();
+                    };
+
+                    localCards.Add(localCard);
+                }
+            }
+            pack.Cards = localCards;
+        }
+
+        public void WriteManifest() {
+            var pack = ViewModel.SelectedPack;
+            if (pack == null) {
+                _logger.LogError("Attempting to write manifest with no pack select");
+                return;
+            }
+
+            var manifestPath = pack.Directory + "\\Manifest.json";
+            _logger.LogMessage($"Writing manifest {manifestPath}.");
+            try {
+                var manifest = new PackManifest(pack);
+                File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
+            } catch (Exception e) {
+                _logger.LogError(e.Message);
             }
         }
 
@@ -134,16 +177,11 @@ namespace ArkhamOverlay.Pages.LocalImages {
 
             _logger.LogMessage($"Loading images from directory {pack.Directory}.");
             try {
-                var cards = new List<LocalCard>();
                 foreach (var file in Directory.GetFiles(pack.Directory)) {
-                    var card = LoadCard(file); 
-                    if (card != null) {
-                        cards.Add(card);
-                    }
+                    LoadCard(pack, file); 
                 }
-                pack.Cards = cards;
             } catch (Exception e) {
-                _logger.LogMessage(e.Message);
+                _logger.LogError(e.Message);
             }
         }
 

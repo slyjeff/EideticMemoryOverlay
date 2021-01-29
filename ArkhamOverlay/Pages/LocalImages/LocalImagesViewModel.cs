@@ -90,6 +90,8 @@ namespace ArkhamOverlay.Pages.LocalImages {
             }
         }
 
+        public virtual bool HasBack { get; set; }
+
         public virtual ImageSource Image { get; set; }
         public virtual ImageSource FrontThumbnail { get; set; }
         public virtual ImageSource BackThumbnail { get; set; }
