@@ -37,8 +37,6 @@ namespace ArkhamOverlay.Services {
                     var cards = _arkhamDbService.LoadEncounterCards();
                     cards.AddRange(_localCardsService.LoadEncounterCards());
 
-                    _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
-
                     var scenarioCards = new List<Card>();
                     var agendas = new List<Card>();
                     var acts = new List<Card>();
@@ -71,6 +69,8 @@ namespace ArkhamOverlay.Services {
 
                     scenarioCards.AddRange(agendas);
                     scenarioCards.AddRange(acts);
+
+                    _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
 
                     _appData.Game.ScenarioCards.LoadCards(scenarioCards);
                     _appData.Game.LocationCards.LoadCards(locations);

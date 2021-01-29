@@ -26,7 +26,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox Margin="0, 0, 10, 0" Content="{Binding EncounterSet.Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                                <CheckBox Margin="0, 0, 10, 0" Content="{Binding Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

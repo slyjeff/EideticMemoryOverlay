@@ -32,7 +32,6 @@ namespace ArkhamOverlay.Pages.LocalImages {
         private void LoadPacks() {
             if (!Directory.Exists(_appData.Configuration.LocalImagesDirectory)) {
                 _logger.LogMessage($"Directory '{_appData.Configuration.LocalImagesDirectory}' not found.");
-
             }
 
             var packs = new List<LocalPack>();
@@ -54,7 +53,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
             if (File.Exists(manifestPath)) {
                 try {
                     _logger.LogMessage($"Loading pack manifest {manifestPath}.");
-                    var manifest = JsonConvert.DeserializeObject<PackManifest>(File.ReadAllText(manifestPath));
+                    var manifest = JsonConvert.DeserializeObject<LocalPackManifest>(File.ReadAllText(manifestPath));
                     ReadManifest(manifest, pack);
 
                     pack.PropertyChanged += (s, e) => {
@@ -132,7 +131,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
             }
         }
 
-        internal void ReadManifest(PackManifest manifest, LocalPack pack) {
+        internal void ReadManifest(LocalPackManifest manifest, LocalPack pack) {
             pack.Name = manifest.Name;
             var localCards = new ObservableCollection<LocalCard>();
             foreach (var card in manifest.Cards) {
@@ -163,7 +162,20 @@ namespace ArkhamOverlay.Pages.LocalImages {
             var manifestPath = pack.Directory + "\\Manifest.json";
             _logger.LogMessage($"Writing manifest {manifestPath}.");
             try {
-                var manifest = new PackManifest(pack);
+                var manifest = new LocalPackManifest {
+                    Name = pack.Name,
+                    Cards = new List<LocalManifestCard>()
+                };
+
+                foreach (var card in pack.Cards) {
+                manifest.Cards.Add(new LocalManifestCard {
+                        FilePath = card.FilePath,
+                        Name = card.Name,
+                        CardType = card.CardType,
+                        HasBack = card.HasBack
+                    });
+                }
+
                 File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
             } catch (Exception e) {
                 _logger.LogException(e, "Error writing manifest");

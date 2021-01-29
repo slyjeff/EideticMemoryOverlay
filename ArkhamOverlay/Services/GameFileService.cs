@@ -11,11 +11,13 @@ namespace ArkhamOverlay.Services {
         string Scenario { get; set; }
         string SnapshotDirectory { get; set; }
         IList<EncounterSet> EncounterSets { get; }
+        IList<string> LocalPacks { get; }
     }
 
     public class GameFile : IGame {
         public GameFile() {
             EncounterSets = new List<EncounterSet>();
+            LocalPacks = new List<string>();
             DeckIds = new List<string>();
         }
 
@@ -27,10 +29,12 @@ namespace ArkhamOverlay.Services {
         public IList<string> DeckIds { get; set; }
 
         public IList<EncounterSet> EncounterSets { get; set; }
+
+        public IList<string> LocalPacks { get; set; }
     }
 
     public class GameFileService {
-        private AppData _appData;
+        private readonly AppData _appData;
         private readonly ArkhamDbService _arkhamDbService;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
@@ -101,9 +105,15 @@ namespace ArkhamOverlay.Services {
             toGame.Name = fromGame.Name;
             toGame.Scenario = fromGame.Scenario;
             toGame.SnapshotDirectory = fromGame.SnapshotDirectory;
+
             toGame.EncounterSets.Clear();
             foreach (var encounterSet in fromGame.EncounterSets) {
                 toGame.EncounterSets.Add(new EncounterSet(encounterSet));
+            }
+
+            toGame.LocalPacks.Clear();
+            foreach (var localPack in fromGame.LocalPacks) {
+                toGame.LocalPacks.Add(localPack);
             }
         }
     }
