@@ -71,6 +71,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
                 _appData.Configuration.LocalImagesDirectory = dialog.FileName;
                 LoadPacks();
             }
+            View.Activate();
         }
     }
 }
