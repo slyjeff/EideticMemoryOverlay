@@ -13,11 +13,12 @@
             <Setter Property="Padding" Value="10, 3, 10, 5" />
         </Style>
     </Window.Resources>
-    <StackPanel Orientation="Vertical">
-        <StackPanel Orientation="Horizontal" Margin="5, 0, 0, 0">
-            <TextBlock Text="Snapshot Directory:" Margin="0, 4, 0, 0" />
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" Margin="5, 0, 0, 10" DockPanel.Dock="Top">
+            <TextBlock Text="Local Images Directory:" Margin="0, 4, 0, 0" />
             <TextBlock Margin="5,4,0,0"  Text="{Binding Configuration.LocalImagesDirectory}" />
             <Button Margin="10, 0, 0, 0" Command="{Binding SelectDirectory}">Choose Directory</Button>
         </StackPanel>
-    </StackPanel>
+        <ListView ItemsSource="{Binding Packs}" DockPanel.Dock="Left"/>
+    </DockPanel>
 </Window>

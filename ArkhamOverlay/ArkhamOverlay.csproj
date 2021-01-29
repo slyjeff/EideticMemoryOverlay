@@ -143,6 +143,7 @@
       <DependentUpon>LocalImagesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\LocalImages\LocalImagesViewModel.cs" />
+    <Compile Include="Pages\LocalImages\PackManifest.cs" />
     <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Pages\SelectCards\SelectPlayerMenuViewModel.cs" />
     <Compile Include="Utils\BoolToVisibilityCollapsedConverter.cs" />
