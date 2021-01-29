@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.Data;
 using ArkhamOverlay.Services;
+using ArkhamOverlay.Utils;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.WindowsAPICodePack.Shell;
 using Newtonsoft.Json;
@@ -107,22 +108,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
 
             card.FrontThumbnail = ShellFile.FromFilePath(card.FilePath).Thumbnail.BitmapSource;
 
-            var isHorizontal = card.FrontThumbnail.Width > card.FrontThumbnail.Width;
-
-            var image = new BitmapImage();
-            image.BeginInit();
-
-            // Set properties.
-            image.CacheOption = BitmapCacheOption.OnDemand;
-            image.CreateOptions = BitmapCreateOptions.DelayCreation;
-            if (isHorizontal) {
-                image.DecodePixelWidth = 400;
-            } else {
-                image.DecodePixelHeight = 400;
-            }
-            image.UriSource = new Uri(card.FilePath, UriKind.Absolute);
-            image.EndInit();
-            card.Image = image;
+            card.Image = ImageUtils.LoadLocalImage(card.FilePath);
 
             var cardBackPath = Path.GetDirectoryName(card.FilePath) + "\\" + Path.GetFileNameWithoutExtension(card.FilePath) + "-back" + Path.GetExtension(card.FilePath);
             if (File.Exists(cardBackPath)) {

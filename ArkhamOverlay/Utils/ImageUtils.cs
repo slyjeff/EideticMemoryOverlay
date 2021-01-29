@@ -75,5 +75,28 @@ namespace ArkhamOverlay.Utils {
             return bytes;
         }
 
+        public static BitmapImage LoadLocalImage(string path) {
+            var bitmapImage = new BitmapImage(new Uri(path, UriKind.Absolute));
+            var isHorizontal = (bitmapImage.Width > bitmapImage.Height);
+
+            var resizedImage = new BitmapImage();
+            resizedImage.BeginInit();
+
+            // Set properties.
+            resizedImage.CacheOption = BitmapCacheOption.OnDemand;
+            resizedImage.CreateOptions = BitmapCreateOptions.DelayCreation;
+            if (isHorizontal) {
+                resizedImage.DecodePixelWidth = 418;
+                resizedImage.DecodePixelHeight = 300;
+            } else {
+                resizedImage.DecodePixelHeight = 418;
+                resizedImage.DecodePixelWidth = 300;
+            }
+            resizedImage.UriSource = new Uri(path, UriKind.Absolute);
+            resizedImage.EndInit();
+
+            return resizedImage;
+        }
+
     }
 }
