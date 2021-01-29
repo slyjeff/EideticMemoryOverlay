@@ -3,6 +3,7 @@ using PageController;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Media;
 
 namespace ArkhamOverlay.Pages.LocalImages {
     public class LocalImagesViewModel : ViewModel {
@@ -23,6 +24,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
         public LocalPack(string directory) {
             Directory = directory;
             Name = Path.GetFileName(directory);
+            Cards = new List<LocalCard>();
         }
 
         private string _name;
@@ -36,8 +38,23 @@ namespace ArkhamOverlay.Pages.LocalImages {
 
         public virtual string Directory { get; }
 
+        public virtual List<LocalCard> Cards { get; set; }
+
         public override string ToString() {
             return Name;
         }
+    }
+
+    public class LocalCard : ViewModel {
+        public LocalCard(string path) {
+            FilePath = path;
+            Name = Path.GetFileNameWithoutExtension(path);
+        }
+
+        public virtual string FilePath { get; }
+
+        public virtual string Name { get; set; }
+        public virtual ImageSource FrontImage { get; set; }
+        public virtual ImageSource BackImage { get; set; }
     }
 }
