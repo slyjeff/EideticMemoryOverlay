@@ -33,25 +33,52 @@
         </ListView>
         <DockPanel DockPanel.Dock="Top" LastChildFill="true" Visibility="{Binding IsPackSelected, Converter={StaticResource BoolToVisibility}}">
             <TextBlock Text="Pack Name:" Margin="10, 0, 0, 0" DockPanel.Dock="Left" />
-            <TextBox Margin="5,0,5,0" Text="{Binding SelectedPack.Name, Mode=TwoWay}" />
+            <TextBox Margin="5,0,10,0" Text="{Binding SelectedPack.Name, Mode=TwoWay}" />
         </DockPanel>
-        <ListView ItemsSource="{Binding SelectedPack.Cards}" Margin="10, 10, 5, 5">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Vertical">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="{Binding FrontImage}" MaxHeight="100" MaxWidth="100"/>
-                            <Image Source="{Binding BackImage}" MaxHeight="100" MaxWidth="100"/>
+        <DockPanel LastChildFill="true"  Visibility="{Binding IsPackSelected, Converter={StaticResource BoolToVisibility}}">
+            <Grid DockPanel.Dock="Right" Visibility="{Binding SelectedPack.IsCardSelected, Converter={StaticResource BoolToVisibility}}" Margin="5, 10, 5, 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Card Name:" Margin="0, 0, 10, 10"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Margin="5,0,5,10" Text="{Binding SelectedPack.SelectedCard.Name, Mode=TwoWay}" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Card Type:" Margin="0, 0, 10, 0"/>
+                <ComboBox Grid.Row="1" Grid.Column="1"  Margin="5,0,5,0" ItemsSource="{Binding CardTypes}" SelectedItem="{Binding SelectedPack.SelectedCard.CardType, Mode=TwoWay}" />
+                <Image 
+                    Grid.Row="2" 
+                    Grid.Column="0" 
+                    Grid.ColumnSpan="2" 
+                    MaxHeight="400" 
+                    MaxWidth="400" 
+                    Source="{Binding SelectedPack.SelectedCard.Image}" />
+            </Grid>
+            <ListView ItemsSource="{Binding SelectedPack.Cards}"
+                        Margin="10, 10, 5, 5"
+                        SelectedItem="{Binding SelectedPack.SelectedCard, Mode=TwoWay}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding FrontThumbnail}" MaxHeight="100" MaxWidth="100"/>
+                                <Image Source="{Binding BackThumbnail}" MaxHeight="100" MaxWidth="100"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-            <ListView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"></WrapPanel>
-                </ItemsPanelTemplate>
-            </ListView.ItemsPanel>
-        </ListView>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"></WrapPanel>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+            </ListView>
+        </DockPanel>
     </DockPanel>
 </Window>

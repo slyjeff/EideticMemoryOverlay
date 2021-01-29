@@ -7,6 +7,8 @@ using PageController;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace ArkhamOverlay.Pages.LocalImages {
     public class LocalImagesController : Controller<LocalImagesView, LocalImagesViewModel> {
@@ -46,6 +48,10 @@ namespace ArkhamOverlay.Pages.LocalImages {
         private LocalPack LoadPack(string directory) {
             var pack = new LocalPack(directory);
             pack.PropertyChanged += (s, e) => {
+                if (e.PropertyName == nameof(LocalPack.SelectedCard) || e.PropertyName == nameof(LocalPack.IsCardSelected)) {
+                    return;
+                }
+
                 PackChanged(pack);
             };
 
@@ -87,10 +93,29 @@ namespace ArkhamOverlay.Pages.LocalImages {
             
             try {
                 var card = new LocalCard(filePath);
-                card.FrontImage = ShellFile.FromFilePath(filePath).Thumbnail.BitmapSource;
+
+                card.FrontThumbnail = ShellFile.FromFilePath(filePath).Thumbnail.BitmapSource;
+
+                var isHorizontal = card.FrontThumbnail.Width > card.FrontThumbnail.Width;
+
+                var image = new BitmapImage();
+                image.BeginInit();
+
+                // Set properties.
+                image.CacheOption = BitmapCacheOption.OnDemand;
+                image.CreateOptions = BitmapCreateOptions.DelayCreation;
+                if (isHorizontal) {
+                    image.DecodePixelWidth = 400;
+                } else {
+                    image.DecodePixelHeight = 400;
+                }
+                image.UriSource = new Uri(filePath, UriKind.Absolute);
+                image.EndInit();
+                card.Image = image;
+
                 var cardBackPath = Path.GetDirectoryName(filePath) + "\\" + Path.GetFileNameWithoutExtension(filePath) + "-back" + Path.GetExtension(filePath);
                 if (File.Exists(cardBackPath)) {
-                    card.BackImage = ShellFile.FromFilePath(cardBackPath).Thumbnail.BitmapSource;
+                    card.BackThumbnail = ShellFile.FromFilePath(cardBackPath).Thumbnail.BitmapSource;
                 }
 
                 return card;
@@ -100,12 +125,9 @@ namespace ArkhamOverlay.Pages.LocalImages {
             }
         }
 
-
         [PropertyChanged]
         public void SelectedPackChanged() {
             var pack = ViewModel.SelectedPack;
-
-            ViewModel.IsPackSelected = pack != null;
             if (pack == null) {
                 return;
             }
