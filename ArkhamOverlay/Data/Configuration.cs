@@ -47,6 +47,15 @@ namespace ArkhamOverlay.Data {
             }
         }
 
+        private bool _seperateStatSnapshots;
+        public bool SeperateStatSnapshots {
+            get => _seperateStatSnapshots;
+            set {
+                _seperateStatSnapshots = value;
+                OnConfigurationChange();
+            }
+        }
+
         private Color _overlayColor;
         public Color OverlayColor {
             get => _overlayColor;

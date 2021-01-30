@@ -11,6 +11,7 @@ namespace ArkhamOverlay.Services {
         bool TrackHealthAndSanity { get; set; }
         bool TrackResources { get; set; }
         bool TrackClues { get; set; }
+        bool SeperateStatSnapshots { get; set; }
         Color OverlayColor { get; set; }
         int OverlayHeight { get; set; }
         int OverlayWidth { get; set; }
@@ -39,6 +40,7 @@ namespace ArkhamOverlay.Services {
         public bool TrackHealthAndSanity { get; set; }
         public bool TrackResources { get; set; }
         public bool TrackClues { get; set; }
+        public bool SeperateStatSnapshots { get; set; }
         public Color OverlayColor { get; set; }
         public int OverlayHeight { get; set; }
         public int OverlayWidth { get; set; }
@@ -115,6 +117,7 @@ namespace ArkhamOverlay.Services {
             toConfiguration.TrackHealthAndSanity = fromConfiguration.TrackHealthAndSanity;
             toConfiguration.TrackResources = fromConfiguration.TrackResources;
             toConfiguration.TrackClues = fromConfiguration.TrackClues;
+            toConfiguration.SeperateStatSnapshots = fromConfiguration.SeperateStatSnapshots;
             toConfiguration.OverlayColor = fromConfiguration.OverlayColor;
             toConfiguration.OverlayHeight = fromConfiguration.OverlayHeight;
             toConfiguration.OverlayWidth = fromConfiguration.OverlayWidth;
