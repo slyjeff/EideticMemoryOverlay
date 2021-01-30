@@ -38,20 +38,20 @@
 
         <DockPanel Grid.Row="0"
                    LastChildFill="false"
-                   Margin="0, -5, 0, 10"
-                   Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}">
-            <DockPanel DockPanel.Dock="Top" LastChildFill="false">
+                   Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}"
+                   x:Name="Stats">
+            <DockPanel DockPanel.Dock="Top" LastChildFill="false" Margin="0, -5, 0, 0">
                 <overlay:StatDisplay DockPanel.Dock="Left"  DataContext="{Binding AppData.Game.Players[0]}" />
                 <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}" ImageAlignment="Right" />
             </DockPanel>
 
-            <DockPanel DockPanel.Dock="Bottom"  LastChildFill="false">
+            <DockPanel DockPanel.Dock="Bottom"  LastChildFill="false"  Margin="0, -5, 0, 10">
                 <overlay:StatDisplay  DockPanel.Dock="Left" DataContext="{Binding AppData.Game.Players[2]}" />
                 <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[3]}" ImageAlignment="Right"/>
             </DockPanel>
         </DockPanel>
 
-        <Grid>
+        <Grid x:Name="Cards">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>

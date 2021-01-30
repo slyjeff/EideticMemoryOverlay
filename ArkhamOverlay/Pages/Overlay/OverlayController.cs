@@ -384,14 +384,24 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         internal void TakeSnapshot() {
             _logger.LogMessage("Taking snapshot of overlay window.");
-            var fileName = _appData.Game.SnapshotDirectory + "OverlaySnapshot" + DateTime.Now.ToString("yyddMHHmmss") + ".png";
-            WriteSnapshotToFile(fileName);
+
+            var timeStamp = DateTime.Now.ToString("yyddMHHmmss");
+
+            if (_appData.Configuration.SeperateStatSnapshots) {
+                WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}.png", View.Cards);
+                WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}-Stats.png", View.Stats);
+            } else {
+                WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}.png");
+            }
         }
 
-        private void WriteSnapshotToFile(string file) {
-            var overlay = View.Overlay;
-            var renderTargetBitmap = new RenderTargetBitmap(Convert.ToInt32(overlay.Width), Convert.ToInt32(overlay.Height), 96, 96, PixelFormats.Pbgra32);
-            renderTargetBitmap.Render(overlay);
+        private void WriteSnapshotToFile(string file, FrameworkElement controlToSnapshot = null) {
+            if (controlToSnapshot == null) {
+                controlToSnapshot = View.Overlay;
+            }
+            
+            var renderTargetBitmap = new RenderTargetBitmap(Convert.ToInt32(controlToSnapshot.ActualWidth), Convert.ToInt32(controlToSnapshot.ActualHeight), 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(controlToSnapshot);
             var pngImage = new PngBitmapEncoder();
             pngImage.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
             try {

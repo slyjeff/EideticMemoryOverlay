@@ -233,6 +233,7 @@
             <Button Margin="10, 0, 0, 0" Command="{Binding ShowAllWindows}">Show All Windows</Button>
             <Button Margin="10, 0, 0, 0" Command="{Binding ClearCards}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Clear Cards</Button>
             <Button Margin="10, 0, 0, 0" Command="{Binding TakeSnapshot}" Visibility="{Binding OverlayDisplayed, Converter={StaticResource BoolToVisibility}}">Snapshot</Button>
+            <CheckBox Margin="10, 1, 0, 0" IsChecked="{Binding Configuration.SeperateStatSnapshots}">Seperate Stat Snapshots</CheckBox>
         </StackPanel>
         <StackPanel Orientation="Vertical" Margin="0, 0, 0, 0">
             <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
