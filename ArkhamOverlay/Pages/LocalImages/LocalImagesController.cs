@@ -24,6 +24,10 @@ namespace ArkhamOverlay.Pages.LocalImages {
             ViewModel.Configuration = appData.Configuration;
 
             LoadPacks();
+
+            View.Closed += (s, e) => {
+                appData.Game.OnEncounterSetsChanged();
+            };
         }
 
         internal void ShowView() {

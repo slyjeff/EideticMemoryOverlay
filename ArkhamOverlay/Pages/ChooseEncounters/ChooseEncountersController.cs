@@ -68,7 +68,6 @@ namespace ArkhamOverlay.Pages.ChooseEncounters {
                 }
             }
             _appData.Game.EncounterSets = encounterSets;
-            _appData.Game.OnEncounterSetsChanged();
 
             var localPacks = new List<string>();
             foreach (var localPackManifest in _selectableLocalPackManifests) {
@@ -77,6 +76,7 @@ namespace ArkhamOverlay.Pages.ChooseEncounters {
                 }
             }
             _appData.Game.LocalPacks = localPacks;
+            _appData.Game.OnEncounterSetsChanged();
 
             View.Close();
         }

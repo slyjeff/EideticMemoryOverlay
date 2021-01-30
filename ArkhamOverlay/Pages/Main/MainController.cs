@@ -163,6 +163,8 @@ namespace ArkhamOverlay.Pages.Main {
             _logger.LogMessage("Main window: manage local images clicked.");
             var controller = _controllerFactory.CreateController<LocalImagesController>();
             controller.ShowView();
+            //reload
+
         }
 
         [Command]
