@@ -88,7 +88,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
             try {
                 var card = pack.Cards.FirstOrDefault(x => string.Equals(x.FilePath, filePath, StringComparison.InvariantCulture));
                 if (card == null) {
-                    card = new LocalCard(filePath);
+                    card = new LocalCard { FilePath = filePath } ;
                     card.PropertyChanged += (s, e) => {
                         WriteManifest();
                     };
@@ -125,11 +125,8 @@ namespace ArkhamOverlay.Pages.LocalImages {
             var localCards = new ObservableCollection<LocalCard>();
             foreach (var card in manifest.Cards) {
                 if (File.Exists(card.FilePath)) {
-                    var localCard = new LocalCard(card.FilePath) {
-                        CardType = card.CardType,
-                        Name = card.Name,
-                        HasBack = card.HasBack
-                    };
+                    var localCard = new LocalCard();
+                    card.CopyTo(localCard);
 
                     localCard.PropertyChanged += (s, e) => {
                         WriteManifest();
@@ -157,12 +154,9 @@ namespace ArkhamOverlay.Pages.LocalImages {
                 };
 
                 foreach (var card in pack.Cards) {
-                manifest.Cards.Add(new LocalManifestCard {
-                        FilePath = card.FilePath,
-                        Name = card.Name,
-                        CardType = card.CardType,
-                        HasBack = card.HasBack
-                    });
+                    var localManifestCard = new LocalManifestCard();
+                    card.CopyTo(localManifestCard);
+                    manifest.Cards.Add(localManifestCard);
                 }
 
                 File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));

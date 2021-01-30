@@ -1,6 +1,4 @@
-﻿using ArkhamOverlay.CardButtons;
-using ArkhamOverlay.Data;
-using ArkhamOverlay.Pages.Main;
+﻿using ArkhamOverlay.Data;
 using ArkhamOverlay.Utils;
 using Newtonsoft.Json;
 using System;
