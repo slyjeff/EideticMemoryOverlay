@@ -65,13 +65,17 @@ namespace ArkhamOverlay.Pages.LocalImages {
         public virtual ObservableCollection<LocalCard> Cards { get; set; }
     }
 
-    public class LocalCard : ViewModel {
-        public LocalCard(string path) {
-            FilePath = path;
-            Name = Path.GetFileNameWithoutExtension(path);
+    public class LocalCard : ViewModel, ILocalCard {
+        private string _filePath;
+        public virtual string FilePath {
+            get => _filePath; 
+            set {
+                _filePath = value;
+                if (string.IsNullOrEmpty(Name)) {
+                    Name = Path.GetFileNameWithoutExtension(_filePath);
+                }
+            }
         }
-
-        public virtual string FilePath { get; }
 
         private string _name;
         public virtual string Name{
@@ -91,12 +95,20 @@ namespace ArkhamOverlay.Pages.LocalImages {
             }
         }
 
+        private string _arkhamDbId;
+        public virtual string ArkhamDbId {
+            get => _arkhamDbId;
+            set {
+                _arkhamDbId = value;
+                NotifyPropertyChanged(nameof(ArkhamDbId));
+            }
+        }
+
         public virtual bool HasBack { get; set; }
 
         public virtual ImageSource Image { get; set; }
         public virtual ImageSource FrontThumbnail { get; set; }
         public virtual ImageSource BackThumbnail { get; set; }
-
         public Rect ClipRect { get; set; }
     }
 }

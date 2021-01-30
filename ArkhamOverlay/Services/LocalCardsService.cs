@@ -7,6 +7,8 @@ using System.Linq;
 
 namespace ArkhamOverlay.Services {
     public class LocalCardsService {
+        private static IList<LocalPackManifest> _cachedManifests = null;
+
         private readonly AppData _appData;
         private readonly LoggingService _logger;
 
@@ -40,6 +42,10 @@ namespace ArkhamOverlay.Services {
         }
 
         public IList<LocalPackManifest> GetLocalPackManifests() {
+            if (_cachedManifests != null) {
+                return _cachedManifests;
+            }
+
             var manifests = new List<LocalPackManifest>();
 
             if (!Directory.Exists(_appData.Configuration.LocalImagesDirectory)) {
@@ -54,11 +60,32 @@ namespace ArkhamOverlay.Services {
                         manifests.Add(JsonConvert.DeserializeObject<LocalPackManifest>(File.ReadAllText(manifestPath)));
                     }
                 }
+                _cachedManifests = manifests;
             } catch (Exception e) {
                 _logger.LogException(e, "Error loading local pack manifests");
             }
 
             return manifests;
+        }
+
+        internal LocalManifestCard GetCardById(string ArkhamDbId) {
+            if (string.IsNullOrEmpty(ArkhamDbId)) {
+                return null;
+            }
+
+            foreach (var manifest in GetLocalPackManifests()) {
+                foreach (var card in manifest.Cards) {
+                    if (card.ArkhamDbId == ArkhamDbId) {
+                        return card;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public void InvalidateManifestCache() {
+            _cachedManifests = null;
         }
     }
 }

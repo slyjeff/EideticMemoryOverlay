@@ -1,6 +1,4 @@
-﻿using ArkhamOverlay.CardButtons;
-using ArkhamOverlay.Data;
-using ArkhamOverlay.Pages.Main;
+﻿using ArkhamOverlay.Data;
 using ArkhamOverlay.Utils;
 using Newtonsoft.Json;
 using System;
@@ -13,10 +11,12 @@ namespace ArkhamOverlay.Services {
     public class ArkhamDbService {
         private readonly LoggingService _logger;
         private readonly AppData _appData;
+        private readonly LocalCardsService _localCardsService;
 
-        public ArkhamDbService(LoggingService loggingService, AppData appData) {
+        public ArkhamDbService(LoggingService loggingService, AppData appData, LocalCardsService localCardsService) {
             _logger = loggingService;
             _appData = appData;
+            _localCardsService = localCardsService;
         }
 
         internal void LoadPlayer(Player player) {
@@ -38,7 +38,12 @@ namespace ArkhamOverlay.Services {
                 player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
                 player.InvestigatorCode = arkhamDbDeck.Investigator_Code;
                 player.Slots = arkhamDbDeck.Slots;
-                player.LoadImage("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png");
+                var localCard = _localCardsService.GetCardById(arkhamDbDeck.Investigator_Code);
+                if (localCard != null) {
+                    player.LoadImage(localCard.FilePath);
+                } else {
+                    player.LoadImage("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png");
+                }
             }
 
             _logger.LogMessage($"Loading investigator card for player {player.ID}.");
@@ -81,6 +86,7 @@ namespace ArkhamOverlay.Services {
                     using (Stream cardStream = cardRsponse.GetResponseStream())
                     using (StreamReader cardReader = new StreamReader(cardStream)) {
                         var arkhamDbCard = JsonConvert.DeserializeObject<ArkhamDbCard>(cardReader.ReadToEnd());
+                        CheckForLocalImages(arkhamDbCard);
                         cards.Add(new Card(arkhamDbCard, slot.Value, true));
                     }
                 }
@@ -92,6 +98,19 @@ namespace ArkhamOverlay.Services {
                 player.SelectableCards.Loading = false;
             }
             _logger.LogMessage($"Finished loading cards for player {player.ID}.");
+        }
+
+        private void CheckForLocalImages(ArkhamDbCard arkhamDbCard) {
+            var localCard = _localCardsService.GetCardById(arkhamDbCard.Code);
+            if (localCard != null) {
+                arkhamDbCard.ImageSrc = localCard.FilePath;
+                if (localCard.HasBack) {
+                    arkhamDbCard.BackImageSrc = localCard.BackFilePath;
+                }
+            } else {
+                if (!string.IsNullOrEmpty(arkhamDbCard.ImageSrc)) arkhamDbCard.ImageSrc = "https://arkhamdb.com/" + arkhamDbCard.ImageSrc;
+                if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) arkhamDbCard.ImageSrc = "https://arkhamdb.com/" + arkhamDbCard.BackImageSrc;
+            }
         }
 
         internal void FindMissingEncounterSets(Configuration configuration) {
@@ -172,6 +191,8 @@ namespace ArkhamOverlay.Services {
                     if (!_appData.Game.IsEncounterSetSelected(arkhamDbCard.Encounter_Code)) {
                         continue;
                     }
+
+                    CheckForLocalImages(arkhamDbCard);
 
                     var newCard = new Card(arkhamDbCard, 1, false);
                     cards.Add(newCard);
