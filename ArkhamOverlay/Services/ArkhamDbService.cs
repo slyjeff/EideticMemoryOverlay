@@ -154,6 +154,7 @@ namespace ArkhamOverlay.Services {
 
         internal List<Card> LoadEncounterCards() {
             var packsToLoad = new List<Pack>();
+            // TODO: pass in list of packs to load and remove dependency on appdata
             foreach (var pack in _appData.Configuration.Packs) {
                 foreach (var encounterSet in pack.EncounterSets) {
                     if (_appData.Game.IsEncounterSetSelected(encounterSet.Code)) {

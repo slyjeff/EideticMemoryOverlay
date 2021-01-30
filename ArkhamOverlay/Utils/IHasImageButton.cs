@@ -28,31 +28,39 @@ namespace ArkhamOverlay.Utils {
         }
 
         private static void DoLoadImage(IHasImageButton hasImageButton, string location) {
-            if (CardImageCache.ContainsKey(hasImageButton.Name)) {
-                hasImageButton.Image = CardImageCache[hasImageButton.Name];
-                CropImage(hasImageButton);
-                return;
-            }
-
-            var uri = new Uri(location, UriKind.Absolute);
-            if (uri.IsFile) {
-                var localImage = ImageUtils.LoadLocalImage(uri);
-                hasImageButton.Image = localImage;
-                CardImageCache[hasImageButton.Name] = localImage;
-                CropImage(hasImageButton);
-            } else {
-                var bitmapImage = new BitmapImage(uri);
-                bitmapImage.DownloadCompleted += (s, e) => {
-                    CardImageCache[hasImageButton.Name] = bitmapImage;
+            try {
+                if (CardImageCache.ContainsKey(hasImageButton.Name)) {
+                    hasImageButton.Image = CardImageCache[hasImageButton.Name];
                     CropImage(hasImageButton);
-                };
-                hasImageButton.Image = bitmapImage;
+                    return;
+                }
+
+                var uri = new Uri(location, UriKind.Absolute);
+                if (uri.IsFile) {
+                    var localImage = ImageUtils.LoadLocalImage(uri);
+                    hasImageButton.Image = localImage;
+                    CardImageCache[hasImageButton.Name] = localImage;
+                    CropImage(hasImageButton);
+                } else {
+                    var bitmapImage = new BitmapImage(uri);
+                    bitmapImage.DownloadCompleted += (s, e) => {
+                        CardImageCache[hasImageButton.Name] = bitmapImage;
+                        CropImage(hasImageButton);
+                    };
+                    hasImageButton.Image = bitmapImage;
+                }
+            } catch {
+                //todo: add logging, which means changing this from an extention method into a service
             }
         }
 
         internal static void CropImage(IHasImageButton hasImageButton) {
-            hasImageButton.ButtonImage = hasImageButton.Image.CropImage(hasImageButton.ImageCardType);
-            hasImageButton.ButtonImageAsBytes = hasImageButton.ButtonImage.AsBytes();
+            try {
+                hasImageButton.ButtonImage = hasImageButton.Image.CropImage(hasImageButton.ImageCardType);
+                hasImageButton.ButtonImageAsBytes = hasImageButton.ButtonImage.AsBytes();
+            } catch {
+                //todo: add logging, which means changing this from an extention method into a service
+            }
         }
     }
 }
