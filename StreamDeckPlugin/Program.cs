@@ -13,6 +13,7 @@ namespace StreamDeckPlugin {
 
             var requestHandler = new TcpRequestHandler();
 
+            //keep references or garbage collection will clean this up and we'll stop receiving events
             var receiveSocketService = new ReceiveSocketService(requestHandler);
             receiveSocketService.StartListening(StreamDeckTcpInfo.Port);
 
