@@ -111,7 +111,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
 
             card.FrontThumbnail = ShellFile.FromFilePath(card.FilePath).Thumbnail.BitmapSource;
 
-            card.Image = ImageUtils.LoadLocalImage(card.FilePath);
+            card.Image = ImageUtils.LoadLocalImage(new Uri(card.FilePath, UriKind.Absolute));
 
             var cardBackPath = Path.GetDirectoryName(card.FilePath) + "\\" + Path.GetFileNameWithoutExtension(card.FilePath) + "-back" + Path.GetExtension(card.FilePath);
             if (File.Exists(cardBackPath)) {

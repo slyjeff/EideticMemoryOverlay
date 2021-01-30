@@ -27,25 +27,26 @@ namespace ArkhamOverlay.Utils {
             }
         }
 
-        private static void DoLoadImage(IHasImageButton hasImageButton, string uri) {
+        private static void DoLoadImage(IHasImageButton hasImageButton, string location) {
             if (CardImageCache.ContainsKey(hasImageButton.Name)) {
                 hasImageButton.Image = CardImageCache[hasImageButton.Name];
                 CropImage(hasImageButton);
                 return;
             }
 
-            if (uri.StartsWith("http")) {
-                var bitmapImage = new BitmapImage(new Uri(uri, UriKind.Absolute));
+            var uri = new Uri(location, UriKind.Absolute);
+            if (uri.IsFile) {
+                var localImage = ImageUtils.LoadLocalImage(uri);
+                hasImageButton.Image = localImage;
+                CardImageCache[hasImageButton.Name] = localImage;
+                CropImage(hasImageButton);
+            } else {
+                var bitmapImage = new BitmapImage(uri);
                 bitmapImage.DownloadCompleted += (s, e) => {
                     CardImageCache[hasImageButton.Name] = bitmapImage;
                     CropImage(hasImageButton);
                 };
                 hasImageButton.Image = bitmapImage;
-            } else {
-                var localImage = ImageUtils.LoadLocalImage(uri);
-                hasImageButton.Image = localImage;
-                CardImageCache[hasImageButton.Name] = localImage;
-                CropImage(hasImageButton);
             }
         }
 

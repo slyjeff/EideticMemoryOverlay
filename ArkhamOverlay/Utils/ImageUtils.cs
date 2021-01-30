@@ -75,8 +75,8 @@ namespace ArkhamOverlay.Utils {
             return bytes;
         }
 
-        public static BitmapImage LoadLocalImage(string path) {
-            var bitmapImage = new BitmapImage(new Uri(path, UriKind.Absolute));
+        public static BitmapImage LoadLocalImage(Uri uri) {
+            var bitmapImage = new BitmapImage(uri);
             var isHorizontal = (bitmapImage.Width > bitmapImage.Height);
 
             var resizedImage = new BitmapImage();
@@ -92,7 +92,7 @@ namespace ArkhamOverlay.Utils {
                 resizedImage.DecodePixelHeight = 418;
                 resizedImage.DecodePixelWidth = 300;
             }
-            resizedImage.UriSource = new Uri(path, UriKind.Absolute);
+            resizedImage.UriSource = uri;
             resizedImage.EndInit();
 
             return resizedImage;
