@@ -13,7 +13,7 @@ namespace ArkhamOverlay.Data {
         public Card() {
         }
 
-        public Card(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false) {
+        public Card(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false, bool isBonded = false) {
             Code = arkhamDbCard.Code;
             Count = count;
             Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")";
@@ -23,6 +23,7 @@ namespace ArkhamOverlay.Data {
             Type = GetCardType(arkhamDbCard.Type_Code);
             ImageSource = cardBack ? arkhamDbCard.BackImageSrc : arkhamDbCard.ImageSrc;
             IsPlayerCard = isPlayerCard;
+            IsBonded = isBonded;
             if (cardBack) {
                 Name += " (Back)";
             }
@@ -65,6 +66,7 @@ namespace ArkhamOverlay.Data {
         public ImageSource Image { get; set; }
         public ImageSource ButtonImage { get; set; }
         public byte[] ButtonImageAsBytes { get; set; }
+        public bool IsBonded { get; }
 
         public CardType Type { get; }
         
