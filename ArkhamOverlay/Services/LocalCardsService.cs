@@ -18,22 +18,22 @@ namespace ArkhamOverlay.Services {
         public List<Card> LoadEncounterCards() {
             var cards = new List<Card>();
 
-            try {
-                foreach (var manifest in GetLocalPackManifests()) {
-                    if (!_appData.Game.LocalPacks.Any(x => string.Equals(x, manifest.Name, StringComparison.InvariantCulture))) {
-                        continue;
-                    }
+            foreach (var manifest in GetLocalPackManifests()) {
+                if (!_appData.Game.LocalPacks.Any(x => string.Equals(x, manifest.Name, StringComparison.InvariantCulture))) {
+                    continue;
+                }
 
-                    _logger.LogMessage($"Loading Local Cards from {manifest.Name}.");
-                    foreach (var card in manifest.Cards) {
+                _logger.LogMessage($"Loading Local Cards from {manifest.Name}.");
+                foreach (var card in manifest.Cards) {
+                    try {
                         cards.Add(new Card(card, false));
                         if (card.HasBack) {
                             cards.Add(new Card(card, true));
                         }
+                    } catch (Exception e) {
+                        _logger.LogException(e, "Error loading local cards");
                     }
                 }
-            } catch (Exception e) {
-                _logger.LogException(e, "Error loading local cards");
             }
 
             return cards;
