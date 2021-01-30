@@ -213,6 +213,16 @@ namespace ArkhamOverlay.Data {
             }
         }
 
+        private string _localImagesDirectory;
+        public string LocalImagesDirectory {
+            get => _localImagesDirectory;
+            set {
+                _localImagesDirectory = value;
+                NotifyPropertyChanged(nameof(LocalImagesDirectory));
+                OnConfigurationChange();
+            }
+        }
+
         public event Action ConfigurationChanged;
         public void OnConfigurationChange() {
             ConfigurationChanged?.Invoke();

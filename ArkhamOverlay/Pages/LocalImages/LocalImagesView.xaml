@@ -1,0 +1,84 @@
+﻿<Window x:Class="ArkhamOverlay.Pages.LocalImages.LocalImagesView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ArkhamOverlay.Pages.LocalImages"
+        mc:Ignorable="d"
+        Title="Manage Local Images" Height="800" Width="1200">
+    <Window.Resources>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="Padding" Value="10, 3, 10, 5" />
+        </Style>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </Window.Resources>
+    <DockPanel LastChildFill="true">
+        <StackPanel Orientation="Horizontal" Margin="5, 0, 0, 10" DockPanel.Dock="Top">
+            <TextBlock Text="Local Images Directory:" Margin="0, 4, 0, 0" />
+            <TextBlock Margin="5,4,0,0"  Text="{Binding Configuration.LocalImagesDirectory}" />
+            <Button Margin="10, 0, 0, 0" Command="{Binding SelectDirectory}">Choose Directory</Button>
+        </StackPanel>
+        <ListView ItemsSource="{Binding Packs}" 
+                  DockPanel.Dock="Left"
+                  Margin="5, 0, 0, 5"
+                  SelectedItem="{Binding SelectedPack, Mode=OneWayToSource}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <DockPanel DockPanel.Dock="Top" LastChildFill="true" Visibility="{Binding IsPackSelected, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="Pack Name:" Margin="10, 0, 0, 0" DockPanel.Dock="Left" />
+            <TextBox Margin="5,0,10,0" Text="{Binding SelectedPack.Name, Mode=TwoWay}" />
+        </DockPanel>
+        <DockPanel LastChildFill="true"  Visibility="{Binding IsPackSelected, Converter={StaticResource BoolToVisibility}}">
+            <Grid DockPanel.Dock="Right" Visibility="{Binding SelectedPack.IsCardSelected, Converter={StaticResource BoolToVisibility}}" Margin="5, 10, 5, 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Card Name:" Margin="0, 0, 10, 10"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Margin="5,0,5,10" Text="{Binding SelectedPack.SelectedCard.Name, Mode=TwoWay}" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Card Type:" Margin="0, 0, 10, 0"/>
+                <ComboBox Grid.Row="1" Grid.Column="1"  Margin="5,0,5,0" ItemsSource="{Binding CardTypes}" SelectedItem="{Binding SelectedPack.SelectedCard.CardType, Mode=TwoWay}" />
+                <Image 
+                    Grid.Row="2" 
+                    Grid.Column="0" 
+                    Grid.ColumnSpan="2" 
+                    MaxHeight="400" 
+                    MaxWidth="400" 
+                    Source="{Binding SelectedPack.SelectedCard.Image}" />
+            </Grid>
+            <ListView ItemsSource="{Binding SelectedPack.Cards}"
+                        Margin="10, 10, 5, 5"
+                        SelectedItem="{Binding SelectedPack.SelectedCard, Mode=TwoWay}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding FrontThumbnail}" MaxHeight="100" MaxWidth="100"/>
+                                <Image Source="{Binding BackThumbnail}" MaxHeight="100" MaxWidth="100"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"></WrapPanel>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+            </ListView>
+        </DockPanel>
+    </DockPanel>
+</Window>

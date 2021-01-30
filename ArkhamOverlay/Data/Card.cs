@@ -3,6 +3,7 @@ using ArkhamOverlay.Services;
 using ArkhamOverlay.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -12,8 +13,6 @@ namespace ArkhamOverlay.Data {
     public delegate void CardToggledEvent(ICardButton card);
 
     public class Card : IHasImageButton {
-        private static readonly Dictionary<string, BitmapImage> CardImageCache = new Dictionary<string, BitmapImage>();
-
         public Card() {
         }
 
@@ -38,13 +37,33 @@ namespace ArkhamOverlay.Data {
             this.LoadImage("https://arkhamdb.com/" + ImageSource);
         }
 
+        public Card(LocalManifestCard localCard, bool cardBack) {
+            Code = "";
+            Count = 1;
+            Name = localCard.Name;
+            NameWithoutXp = localCard.Name;
+            Xp = 0;
+            Faction = Faction.Other;
+            Type = (CardType)Enum.Parse(typeof(CardType), localCard.CardType);
+            ImageSource = cardBack ? Path.GetDirectoryName(localCard.FilePath) + "\\" + Path.GetFileNameWithoutExtension(localCard.FilePath) + "-back" + Path.GetExtension(localCard.FilePath) : localCard.FilePath;
+            IsPlayerCard = false;
+            if (cardBack) {
+                Name += " (Back)";
+            }
+
+            //stometimes if we are closing, this will be null and we can just bail
+            if (Application.Current == null) {
+                return;
+            }
+            this.LoadImage(ImageSource);
+        }
+
         public string Name { get; }
         public string NameWithoutXp { get; }
         public int Xp { get; }
         public string Code { get; }
         public Faction Faction { get; set; }
         public int Count { get; set; }
-
         public string ImageSource { get; }
         public ImageSource Image { get; set; }
         public ImageSource ButtonImage { get; set; }

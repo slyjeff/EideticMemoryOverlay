@@ -10,26 +10,38 @@ namespace ArkhamOverlay.Pages.ChooseEncounters {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
         private readonly IList<SelectableEncounterSet> _selectableEncounterSets = new List<SelectableEncounterSet>();
+        private readonly IList<SelectableLocalPackManifest> _selectableLocalPackManifests = new List<SelectableLocalPackManifest>();
 
-        public ChooseEncountersController(AppData appData, LoggingService loggingService) {
+        public ChooseEncountersController(AppData appData, LoggingService loggingService, LocalCardsService localCardsService) {
             _appData = appData;
             _logger = loggingService;
             foreach (var pack in appData.Configuration.Packs) {
                 var cycle = GetCyle(pack);
 
                 foreach (var encounterSet in pack.EncounterSets) {
-                    var selectableEncounterSet = new SelectableEncounterSet(encounterSet);
+                    var selectableEncounterSet = new SelectableEncounterSet(encounterSet) {
+                        IsSelected = appData.Game.EncounterSets.Any(x => x.Code == encounterSet.Code)
+                    };
 
                     cycle.EncounterSets.Add(selectableEncounterSet);
                     _selectableEncounterSets.Add(selectableEncounterSet);
                 }
             }
 
-            foreach (var encounterSet in appData.Game.EncounterSets) {
-                var selectableEncounterSet = _selectableEncounterSets.FirstOrDefault(x => x.EncounterSet.Code == encounterSet.Code);
-                if (selectableEncounterSet != null) {
-                    selectableEncounterSet.IsSelected = true;
-                }
+            var manifests = localCardsService.GetLocalPackManifests();
+            if (!manifests.Any()) {
+                return;
+            }
+
+            var localCycle = new SelectableEncounterCycle();
+            ViewModel.Cycles.Add(localCycle);
+            foreach (var manifest in localCardsService.GetLocalPackManifests()) {
+                var selectableLocalPackManifest = new SelectableLocalPackManifest(manifest) {
+                    IsSelected = _appData.Game.LocalPacks.Any(x => string.Equals(x, manifest.Name, StringComparison.InvariantCulture))
+                };
+
+                _selectableLocalPackManifests.Add(selectableLocalPackManifest);
+                localCycle.EncounterSets.Add(selectableLocalPackManifest);
             }
         }
 
@@ -56,7 +68,16 @@ namespace ArkhamOverlay.Pages.ChooseEncounters {
                 }
             }
             _appData.Game.EncounterSets = encounterSets;
+
+            var localPacks = new List<string>();
+            foreach (var localPackManifest in _selectableLocalPackManifests) {
+                if (localPackManifest.IsSelected) {
+                    localPacks.Add(localPackManifest.Manifest.Name);
+                }
+            }
+            _appData.Game.LocalPacks = localPacks;
             _appData.Game.OnEncounterSetsChanged();
+
             View.Close();
         }
 

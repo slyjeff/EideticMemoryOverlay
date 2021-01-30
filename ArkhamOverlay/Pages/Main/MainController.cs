@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.Data;
 using ArkhamOverlay.Pages.ChooseEncounters;
+using ArkhamOverlay.Pages.LocalImages;
 using ArkhamOverlay.Pages.Overlay;
 using ArkhamOverlay.Pages.SelectCards;
 using ArkhamOverlay.Services;
@@ -155,6 +156,15 @@ namespace ArkhamOverlay.Pages.Main {
                 _gameFileService.Load(dialog.FileName);
                 ClearPlayerCardsWindows();
             }
+        }
+
+        [Command]
+        public void LocalImages() {
+            _logger.LogMessage("Main window: manage local images clicked.");
+            var controller = _controllerFactory.CreateController<LocalImagesController>();
+            controller.ShowView();
+            //reload
+
         }
 
         [Command]

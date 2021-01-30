@@ -11,11 +11,12 @@ using System.Net;
 
 namespace ArkhamOverlay.Services {
     public class ArkhamDbService {
+        private readonly LoggingService _logger;
+        private readonly AppData _appData;
 
-        private LoggingService _logger;
-
-        public ArkhamDbService(LoggingService loggingService) {
+        public ArkhamDbService(LoggingService loggingService, AppData appData) {
             _logger = loggingService;
+            _appData = appData;
         }
 
         internal void LoadPlayer(Player player) {
@@ -151,86 +152,39 @@ namespace ArkhamOverlay.Services {
             return true;
         }
 
-        internal void LoadEncounterCards(AppData mainViewModel) {
-            _logger.LogMessage("Loading encounter cards.");
-            try {
-                mainViewModel.Game.ScenarioCards.Loading = true;
-                mainViewModel.Game.LocationCards.Loading = true;
-                mainViewModel.Game.EncounterDeckCards.Loading = true;
-
-                var packsToLoad = new List<Pack>();
-                foreach (var pack in mainViewModel.Configuration.Packs) {
-                    foreach (var encounterSet in pack.EncounterSets) {
-                        if (mainViewModel.Game.IsEncounterSetSelected(encounterSet.Code)) {
-                            packsToLoad.Add(pack);
-                            break;
-                        }
+        internal List<Card> LoadEncounterCards() {
+            var packsToLoad = new List<Pack>();
+            // TODO: pass in list of packs to load and remove dependency on appdata
+            foreach (var pack in _appData.Configuration.Packs) {
+                foreach (var encounterSet in pack.EncounterSets) {
+                    if (_appData.Game.IsEncounterSetSelected(encounterSet.Code)) {
+                        packsToLoad.Add(pack);
+                        break;
                     }
                 }
-
-                var scenarioCards = new List<Card>();
-                var agendas = new List<Card>();
-                var acts = new List<Card>();
-                var locations = new List<Card>();
-                var treacheries = new List<Card>();
-                var enemies = new List<Card>();
-
-                foreach (var pack in packsToLoad) {
-                    var arkhamDbCards = GetCardsInPack(pack.Code);
-                    var cards = new List<Card>();
-
-                    foreach (var arkhamDbCard in arkhamDbCards) {
-                        if (!mainViewModel.Game.IsEncounterSetSelected(arkhamDbCard.Encounter_Code)) {
-                            continue;
-                        }
-
-                        var newCard = new Card(arkhamDbCard, 1, false);
-                        cards.Add(newCard);
-                        if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) {
-                            var newCardBack = new Card(arkhamDbCard, 1, false, true);
-                            newCard.FlipSideCard = newCardBack;
-                            newCardBack.FlipSideCard = newCard;
-                            cards.Add(newCardBack);
-                        }
-                    }
-
-                    foreach (var card in cards) {
-                        switch (card.Type) {
-                            case CardType.Scenario:
-                                scenarioCards.Add(card);
-                                break;
-                            case CardType.Agenda:
-                                agendas.Add(card);
-                                break;
-                            case CardType.Act:
-                                acts.Add(card);
-                                break;
-                            case CardType.Location:
-                                locations.Add(card);
-                                break;
-                            case CardType.Treachery:
-                            case CardType.Enemy:
-                                treacheries.Add(card);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-
-                scenarioCards.AddRange(agendas);
-                scenarioCards.AddRange(acts);
-                mainViewModel.Game.ScenarioCards.LoadCards(scenarioCards);
-                mainViewModel.Game.LocationCards.LoadCards(locations);
-                mainViewModel.Game.EncounterDeckCards.LoadCards(treacheries);
-            } catch (Exception ex) {
-                _logger.LogException(ex, $"Error loading encounter cards.");
-            } finally {
-                mainViewModel.Game.ScenarioCards.Loading = false;
-                mainViewModel.Game.LocationCards.Loading = false;
-                mainViewModel.Game.EncounterDeckCards.Loading = false;
             }
-            _logger.LogMessage($"Finished loading encounter cards.");
+
+            var cards = new List<Card>();
+            foreach (var pack in packsToLoad) {
+                var arkhamDbCards = GetCardsInPack(pack.Code);
+
+                foreach (var arkhamDbCard in arkhamDbCards) {
+                    if (!_appData.Game.IsEncounterSetSelected(arkhamDbCard.Encounter_Code)) {
+                        continue;
+                    }
+
+                    var newCard = new Card(arkhamDbCard, 1, false);
+                    cards.Add(newCard);
+                    if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) {
+                        var newCardBack = new Card(arkhamDbCard, 1, false, true);
+                        newCard.FlipSideCard = newCardBack;
+                        newCardBack.FlipSideCard = newCard;
+                        cards.Add(newCardBack);
+                    }
+                }
+            }
+
+            return cards;
         }
 
         internal IList<ArkhamDbCard> GetCardsInPack(string packCode) {

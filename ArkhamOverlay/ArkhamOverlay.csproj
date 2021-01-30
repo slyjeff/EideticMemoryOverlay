@@ -138,6 +138,13 @@
     <Compile Include="Data\SelectableCards.cs" />
     <Compile Include="Data\Player.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="Pages\LocalImages\LocalImagesController.cs" />
+    <Compile Include="Pages\LocalImages\LocalImagesView.xaml.cs">
+      <DependentUpon>LocalImagesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\LocalImages\LocalImagesViewModel.cs" />
+    <Compile Include="Data\LocalPackManifest.cs" />
+    <Compile Include="Services\LocalCardsService.cs" />
     <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Pages\SelectCards\SelectPlayerMenuViewModel.cs" />
     <Compile Include="Utils\BoolToVisibilityCollapsedConverter.cs" />
@@ -193,6 +200,10 @@
     <Compile Include="Utils\ColorToBrushConverter.cs" />
     <Compile Include="Utils\ImageUtils.cs" />
     <Page Include="Pages\ChooseEncounters\ChooseEncountersView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\LocalImages\LocalImagesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
