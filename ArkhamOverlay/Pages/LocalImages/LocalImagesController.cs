@@ -16,7 +16,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
 
-        public LocalImagesController(AppData appData, LoggingService logger) {
+        public LocalImagesController(AppData appData, LoggingService logger, LocalCardsService localCardsService) {
             _appData = appData;
             _logger = logger;
             ViewModel.Configuration = appData.Configuration;
@@ -24,6 +24,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
             LoadPacks();
 
             View.Closed += (s, e) => {
+                localCardsService.InvalidateManifestCache();
                 appData.Game.OnEncounterSetsChanged();
             };
         }

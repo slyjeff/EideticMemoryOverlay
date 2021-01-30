@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace ArkhamOverlay.Data {
     public class LocalPackManifest {
@@ -25,6 +26,12 @@ namespace ArkhamOverlay.Data {
         public bool HasBack { get; set; }
         public string CardType { get; set; }
         public string ArkhamDbId { get; set; }
+
+        public string BackFilePath { 
+            get {
+                return Path.GetDirectoryName(FilePath) + "\\" + Path.GetFileNameWithoutExtension(FilePath) + "-back" + Path.GetExtension(FilePath);
+            } 
+        }
     }
 
     public static class LocalCardExtensions {

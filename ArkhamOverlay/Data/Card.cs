@@ -2,12 +2,9 @@
 using ArkhamOverlay.Services;
 using ArkhamOverlay.Utils;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace ArkhamOverlay.Data {
     public delegate void CardToggledEvent(ICardButton card);
@@ -34,7 +31,7 @@ namespace ArkhamOverlay.Data {
             if (Application.Current == null) {
                 return;
             }
-            this.LoadImage("https://arkhamdb.com/" + ImageSource);
+            this.LoadImage(ImageSource);
         }
 
         public Card(LocalManifestCard localCard, bool cardBack) {
@@ -45,7 +42,7 @@ namespace ArkhamOverlay.Data {
             Xp = 0;
             Faction = Faction.Other;
             Type = (CardType)Enum.Parse(typeof(CardType), localCard.CardType);
-            ImageSource = cardBack ? Path.GetDirectoryName(localCard.FilePath) + "\\" + Path.GetFileNameWithoutExtension(localCard.FilePath) + "-back" + Path.GetExtension(localCard.FilePath) : localCard.FilePath;
+            ImageSource = cardBack ? localCard.BackFilePath : localCard.FilePath;
             IsPlayerCard = false;
             if (cardBack) {
                 Name += " (Back)";
