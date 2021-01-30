@@ -10,8 +10,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace ArkhamOverlay.Pages.LocalImages {
     public class LocalImagesController : Controller<LocalImagesView, LocalImagesViewModel> {
@@ -37,6 +35,7 @@ namespace ArkhamOverlay.Pages.LocalImages {
         private void LoadPacks() {
             if (!Directory.Exists(_appData.Configuration.LocalImagesDirectory)) {
                 _logger.LogMessage($"Directory '{_appData.Configuration.LocalImagesDirectory}' not found.");
+                return;
             }
 
             var packs = new List<LocalPack>();
