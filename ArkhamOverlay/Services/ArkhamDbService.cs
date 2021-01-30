@@ -235,23 +235,20 @@ namespace ArkhamOverlay.Services {
             }
 
             public void Initialize() {
-                if (!initialized) {
-                    lock (syncObject) {
-                        if (!initialized) {
-                            try {
-                                var cardsURL = @"https://arkhamdb.com/api/public/cards/";
-                                HttpWebRequest cardsRequest = (HttpWebRequest)WebRequest.Create(cardsURL);
+                lock (syncObject) {
+                    if (!initialized) {
+                        try {
+                            var cardsURL = @"https://arkhamdb.com/api/public/cards/";
+                            HttpWebRequest cardsRequest = (HttpWebRequest)WebRequest.Create(cardsURL);
 
-                                using (HttpWebResponse cardRsponse = (HttpWebResponse)cardsRequest.GetResponse())
-                                using (Stream cardStream = cardRsponse.GetResponseStream())
-                                using (StreamReader cardReader = new StreamReader(cardStream)) {
-                                    allCards = JsonConvert.DeserializeObject<List<ArkhamDbFullCard>>(cardReader.ReadToEnd());
-                                    initialized = true;
-                                }
+                            using (HttpWebResponse cardRsponse = (HttpWebResponse)cardsRequest.GetResponse())
+                            using (Stream cardStream = cardRsponse.GetResponseStream())
+                            using (StreamReader cardReader = new StreamReader(cardStream)) {
+                                allCards = JsonConvert.DeserializeObject<List<ArkhamDbFullCard>>(cardReader.ReadToEnd());
+                                initialized = true;
                             }
-                            catch {
-                                // Best effort attempt, do nothing if it fails.
-                            }
+                        } catch {
+                            // Best effort attempt, do nothing if it fails.
                         }
                     }
                 }
