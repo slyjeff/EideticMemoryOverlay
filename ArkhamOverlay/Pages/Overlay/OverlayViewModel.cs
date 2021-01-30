@@ -36,12 +36,21 @@ namespace ArkhamOverlay.Pages.Overlay {
 
     public class DeckListItem {
         private Card _card;
+        private string _name;
+
         public DeckListItem(Card card) {
             _card = card;
         }
 
+        public DeckListItem(string name) {
+            _name = name;
+        }
+
         public string Name { 
             get {
+                if(!string.IsNullOrEmpty(_name)) {
+                    return _name;
+                }
                 var name = _card.NameWithoutXp;
                 for (var x = 0; x < _card.Xp; x++) {
                     name += "•";
@@ -52,7 +61,11 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         public Brush Foreground { 
-            get { 
+            get {
+                if (_card == null) {
+                    return new SolidColorBrush(Colors.Black);
+                }
+
                 switch (_card.Faction) {
                     case Faction.Guardian: return new SolidColorBrush(Colors.DarkBlue);
                     case Faction.Seeker: return new SolidColorBrush(Colors.DarkGoldenrod);

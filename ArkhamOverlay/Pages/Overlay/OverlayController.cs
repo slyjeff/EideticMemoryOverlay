@@ -243,7 +243,13 @@ namespace ArkhamOverlay.Pages.Overlay {
                         select cardButton.Card;
 
             var deckList = new List<DeckListItem>();
-            foreach (var card in cards) {
+            foreach (var card in cards.Where(c => !c.IsBonded)) {
+                deckList.Add(new DeckListItem(card));
+            }
+
+            deckList.Add(new DeckListItem("Bonded Cards"));
+
+            foreach (var card in cards.Where(c => c.IsBonded)) {
                 deckList.Add(new DeckListItem(card));
             }
 
