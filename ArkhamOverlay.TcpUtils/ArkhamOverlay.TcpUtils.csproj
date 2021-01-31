@@ -49,6 +49,7 @@
     <Compile Include="Requests\StatValueRequest.cs" />
     <Compile Include="Requests\SnapshotRequest.cs" />
     <Compile Include="Requests\ChangeStatValueRequest.cs" />
+    <Compile Include="Requests\GetInvestigatorImageRequest.cs" />
     <Compile Include="Requests\UpdateInvestigatorImageRequest.cs" />
     <Compile Include="Requests\UpdateStatInfoRequest.cs" />
     <Compile Include="Responses\ChangeStatValueResponse.cs" />

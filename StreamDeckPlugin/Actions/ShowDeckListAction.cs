@@ -36,6 +36,9 @@ namespace StreamDeckPlugin.Actions {
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<ShowDeckSettings>();
+
+            StreamDeckSendSocketService.SendRequest(new GetInvestigatorImageRequest { Deck = Deck });
+
             return Task.CompletedTask;
         }
 
