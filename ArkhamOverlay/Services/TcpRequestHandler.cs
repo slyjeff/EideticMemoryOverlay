@@ -50,11 +50,17 @@ namespace ArkhamOverlay.Services {
                 case AoTcpRequest.ShowDeckList:
                     HandleShowDeckList(request);
                     break;
+                case AoTcpRequest.StatValue:
+                    HandleRequestStatValue(request);
+                    break;
                 case AoTcpRequest.ChangeStatValue:
                     HandleChangeStatValue(request);
                     break;
                 case AoTcpRequest.Snapshot:
                     HandleSnapshotRequest(request);
+                    break;
+                case AoTcpRequest.GetInvestigatorImage:
+                    HandleGetInvesigatorImageRequest(request);
                     break;
             }
         }
@@ -92,6 +98,21 @@ namespace ArkhamOverlay.Services {
             }));
         }
 
+        private void HandleRequestStatValue(TcpRequest request) {
+            var statValueRequest = JsonConvert.DeserializeObject<StatValueRequest>(request.Body);
+
+            _logger.LogMessage($"Handling Stat Value request");
+
+            var player = GetPlayer(statValueRequest.Deck);
+            var stat = GetStat(player, statValueRequest.StatType);
+
+            var response = new StatValueResponse {
+                Value = stat.Value
+            };
+
+            Send(request.Socket, response.ToString());
+        }
+
         private void HandleChangeStatValue(TcpRequest request) {
             var changeStatValueRequest = JsonConvert.DeserializeObject<ChangeStatValueRequest>(request.Body);
 
@@ -105,7 +126,7 @@ namespace ArkhamOverlay.Services {
                 stat.Decrease.Execute(null);
             }
 
-            var response = new ChangeStatValueResponse {
+            var response = new StatValueResponse {
                 Value = stat.Value
             };
 
@@ -232,6 +253,15 @@ namespace ArkhamOverlay.Services {
             _logger.LogMessage("Handling snapshot request");
             _actionRequestService.TakeSnapshot();
             SendOkResponse(request.Socket);
+        }
+
+        private void HandleGetInvesigatorImageRequest(TcpRequest request) {
+            _logger.LogMessage("Handling get invetsigator image request");
+            SendOkResponse(request.Socket);
+
+            var getInvestigatorImageRequest = JsonConvert.DeserializeObject<GetInvestigatorImageRequest>(request.Body);
+            var player = GetPlayer(getInvestigatorImageRequest.Deck);
+            SendInvestigatorImage(player);
         }
 
         private void SendActAgendaBarStatus(bool isVisible) {

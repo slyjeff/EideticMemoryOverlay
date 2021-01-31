@@ -40,6 +40,9 @@ namespace StreamDeckPlugin.Actions {
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<TrackStatSettings>();
+
+            var response = StreamDeckSendSocketService.SendRequest<StatValueResponse>(new StatValueRequest { Deck = Deck, StatType = StatType });
+            _value = response.Value;
             return SetTitleAsync(_value.ToString());
         }
 
@@ -77,11 +80,10 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void SendStatValueRequest(bool increase) {
-            var response = StreamDeckSendSocketService.SendRequest<ChangeStatValueResponse>(new ChangeStatValueRequest { Deck = Deck, StatType = StatType, Increase = increase });
+            var response = StreamDeckSendSocketService.SendRequest<StatValueResponse>(new ChangeStatValueRequest { Deck = Deck, StatType = StatType, Increase = increase });
             _value = response.Value;
             SetTitleAsync(_value.ToString());
         }
-
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();

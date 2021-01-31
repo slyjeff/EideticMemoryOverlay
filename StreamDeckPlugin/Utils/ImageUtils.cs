@@ -38,7 +38,9 @@ namespace StreamDeckPlugin.Utils {
         }
 
         public static string AsImage(this byte[] bytes) {
-            var bitmap = CreateCardArtBitmap(bytes);
+            var bitmap = (bytes == null)
+                ? CreateSolidBackgroundBitmap(CardButtonType.Action)
+                : CreateCardArtBitmap(bytes);
 
             var converter = new ImageConverter();
             var converted = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));

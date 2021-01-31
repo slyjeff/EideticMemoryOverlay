@@ -12,8 +12,10 @@
         ToggleActAgendaBarRequest,
         ActAgendaBarStatusRequest,
         ShowDeckList,
+        StatValue,
         ChangeStatValue,
         Snapshot,
+        GetInvestigatorImage
     };
 
     public static class AoTcpRequestExtensions {
@@ -41,10 +43,14 @@
                     return "ActAgendaBarStatusRequest";
                 case AoTcpRequest.ShowDeckList:
                     return "ShowDeckList";
+                case AoTcpRequest.StatValue:
+                    return "StatValue";
                 case AoTcpRequest.ChangeStatValue:
                     return "ChangeStatValue";
                 case AoTcpRequest.Snapshot:
                     return "Snapshot";
+                case AoTcpRequest.GetInvestigatorImage:
+                    return "GetInvestigatorImage";
                 default:
                     return "Unkown";
             }
@@ -74,10 +80,14 @@
                     return AoTcpRequest.ActAgendaBarStatusRequest;
                 case "ShowDeckList":
                     return AoTcpRequest.ShowDeckList;
+                case "StatValue":
+                    return AoTcpRequest.StatValue;
                 case "ChangeStatValue":
                     return AoTcpRequest.ChangeStatValue;
                 case "Snapshot":
                     return AoTcpRequest.Snapshot;
+                case "GetInvestigatorImage":
+                    return AoTcpRequest.GetInvestigatorImage;
                 default:
                     return AoTcpRequest.Unknown;
             }
