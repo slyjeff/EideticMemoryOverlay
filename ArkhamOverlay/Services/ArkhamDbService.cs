@@ -77,7 +77,7 @@ namespace ArkhamOverlay.Services {
                     CheckForLocalImages(arkhamDbCard);
                     cards.Add(new Card(arkhamDbCard, slot.Value, true));
                     var bondedCards = LocalCardCache.Instance.GetBondedCards(arkhamDbCard);
-                    cards.AddRange(bondedCards.Select(c => new Card(c.Key, c.Value, isPlayerCard:true, isBonded:true)));
+                    cards.AddRange(bondedCards.Select(c => new Card(CheckForLocalImages(c.Key), c.Value, isPlayerCard:true, isBonded:true)));
                 }
                 player.SelectableCards.LoadCards(cards);
             }
@@ -89,7 +89,7 @@ namespace ArkhamOverlay.Services {
             _logger.LogMessage($"Finished loading cards for player {player.ID}.");
         }
 
-        private void CheckForLocalImages(ArkhamDbCard arkhamDbCard) {
+        private ArkhamDbCard CheckForLocalImages(ArkhamDbCard arkhamDbCard) {
             var localCard = _localCardsService.GetCardById(arkhamDbCard.Code);
             if (localCard != null) {
                 arkhamDbCard.ImageSrc = localCard.FilePath;
@@ -100,6 +100,8 @@ namespace ArkhamOverlay.Services {
                 if (!string.IsNullOrEmpty(arkhamDbCard.ImageSrc)) arkhamDbCard.ImageSrc = "https://arkhamdb.com/" + arkhamDbCard.ImageSrc;
                 if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) arkhamDbCard.ImageSrc = "https://arkhamdb.com/" + arkhamDbCard.BackImageSrc;
             }
+
+            return arkhamDbCard;
         }
 
         internal void FindMissingEncounterSets(Configuration configuration) {
