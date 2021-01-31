@@ -12,6 +12,7 @@
         ToggleActAgendaBarRequest,
         ActAgendaBarStatusRequest,
         ShowDeckList,
+        StatValue,
         ChangeStatValue,
         Snapshot,
     };
@@ -41,6 +42,8 @@
                     return "ActAgendaBarStatusRequest";
                 case AoTcpRequest.ShowDeckList:
                     return "ShowDeckList";
+                case AoTcpRequest.StatValue:
+                    return "StatValue";
                 case AoTcpRequest.ChangeStatValue:
                     return "ChangeStatValue";
                 case AoTcpRequest.Snapshot:
@@ -74,6 +77,8 @@
                     return AoTcpRequest.ActAgendaBarStatusRequest;
                 case "ShowDeckList":
                     return AoTcpRequest.ShowDeckList;
+                case "StatValue":
+                    return AoTcpRequest.StatValue;
                 case "ChangeStatValue":
                     return AoTcpRequest.ChangeStatValue;
                 case "Snapshot":
