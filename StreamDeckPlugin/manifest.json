@@ -4,6 +4,18 @@
     "Author": "Jeff Sylvester",
     "Actions": [
         {
+            "Name": "Take Snapshot",
+            "UUID": "arkhamoverlay.takesnapshot",
+            "Tooltip": "Take Snapshot",
+            "States": [
+                {
+                    "FontSize": "9",
+                    "Image": "Icons/Snapshot",
+                    "TitleAlignment": "middle"
+                }
+            ]
+        },
+        {
             "Name": "Clear Cards",
             "UUID": "arkhamoverlay.clearcards",
             "Tooltip": "Clear All Card From Arkham Overlay",
