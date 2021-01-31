@@ -24,8 +24,9 @@ namespace ArkhamOverlay.Pages.Main {
         private readonly IControllerFactory _controllerFactory;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
+        private readonly IActionRequestService _actionRequestService;
 
-        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, ArkhamDbService arkhamDbService, LoadingStatusService loadingStatusService, LoggingService loggingService) {
+        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, ArkhamDbService arkhamDbService, LoadingStatusService loadingStatusService, LoggingService loggingService, IActionRequestService actionRequestService) {
             ViewModel.AppData = appData;
 
             _gameFileService = gameFileService;
@@ -33,6 +34,7 @@ namespace ArkhamOverlay.Pages.Main {
             _arkhamDbService = arkhamDbService;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
+            _actionRequestService = actionRequestService;
 
             LoadEncounterSets();
 
@@ -319,7 +321,7 @@ namespace ArkhamOverlay.Pages.Main {
         [Command]
         public void TakeSnapshot() {
             _logger.LogMessage("Main window: take snapshot clicked.");
-            _overlayController.TakeSnapshot();
+            _actionRequestService.TakeSnapshot();
         }
     }
 }

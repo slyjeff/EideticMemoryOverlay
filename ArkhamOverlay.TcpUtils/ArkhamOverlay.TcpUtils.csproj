@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AoTcpRequest.cs" />
+    <Compile Include="Requests\SnapshotRequest.cs" />
     <Compile Include="Requests\ChangeStatValueRequest.cs" />
     <Compile Include="Requests\UpdateInvestigatorImageRequest.cs" />
     <Compile Include="Requests\UpdateStatInfoRequest.cs" />

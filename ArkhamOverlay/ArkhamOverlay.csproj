@@ -144,6 +144,7 @@
     </Compile>
     <Compile Include="Pages\LocalImages\LocalImagesViewModel.cs" />
     <Compile Include="Data\LocalPackManifest.cs" />
+    <Compile Include="Services\ActionService.cs" />
     <Compile Include="Services\LocalCardsService.cs" />
     <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Pages\SelectCards\SelectPlayerMenuViewModel.cs" />

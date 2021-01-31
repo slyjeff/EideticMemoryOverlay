@@ -22,12 +22,15 @@ namespace ArkhamOverlay {
             PageControllerConfiguration.PageDependencyResolver = new StructureMapDependencyResolver(container);
 
             _loggingService = new LoggingService();
+            var eventService = new ActionService();
 
             container.Configure(x => {
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
                 x.For<AppData>().Use(new AppData());
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
                 x.For<LoggingService>().Use(_loggingService);
+                x.For<IActionRequestService>().Use(eventService);
+                x.For<IActionNotificationService>().Use(eventService);
             });
 
             var cardLoadService = container.GetInstance<CardLoadService>();
