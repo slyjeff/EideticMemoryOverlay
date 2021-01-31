@@ -18,10 +18,12 @@ namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
+        private readonly IActionRequestService _actionRequestService;
 
-        public TcpRequestHandler(AppData viewModel, LoggingService loggingService) {
+        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, IActionRequestService actionRequestService) {
             _appData = viewModel;
             _logger = loggingService;
+            _actionRequestService = actionRequestService;
         }
 
         public void HandleRequest(TcpRequest request) {
@@ -50,6 +52,9 @@ namespace ArkhamOverlay.Services {
                     break;
                 case AoTcpRequest.ChangeStatValue:
                     HandleChangeStatValue(request);
+                    break;
+                case AoTcpRequest.Snapshot:
+                    HandleSnapshotRequest(request);
                     break;
             }
         }
@@ -221,6 +226,12 @@ namespace ArkhamOverlay.Services {
 
                 SendOkResponse(request.Socket);
             }));
+        }
+
+        private void HandleSnapshotRequest(TcpRequest request) {
+            _logger.LogMessage("Handling snapshot request");
+            _actionRequestService.TakeSnapshot();
+            SendOkResponse(request.Socket);
         }
 
         private void SendActAgendaBarStatus(bool isVisible) {
