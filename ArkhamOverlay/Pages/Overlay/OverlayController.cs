@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using System.Diagnostics;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayController : Controller<OverlayView, OverlayViewModel> {
@@ -40,7 +41,7 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public event Action Closed;
 
-        public OverlayController(AppData appData, LoggingService loggingService) {
+        public OverlayController(AppData appData, LoggingService loggingService, IActionNotificationService actionNotificationService) {
             ViewModel.AppData = appData;
             _appData = appData;
             _logger = loggingService;
@@ -52,6 +53,8 @@ namespace ArkhamOverlay.Pages.Overlay {
             _autoSnapshotTimer.IsEnabled = _configuration.UseAutoSnapshot;
 
             _logger.LogMessage("Initializing Overlay Controller.");
+
+            actionNotificationService.SnapshotRequested += TakeSnapshot;
 
             _configuration.PropertyChanged += (s, e) => {
                 if ((e.PropertyName == nameof(Configuration.OverlayHeight))
@@ -398,6 +401,12 @@ namespace ArkhamOverlay.Pages.Overlay {
                 WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}-Stats.png", View.Stats);
             } else {
                 WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}.png");
+            }
+
+            try {
+                Process.Start(_appData.Game.SnapshotDirectory);
+            } catch (Exception e) {
+                _logger.LogException(e, "Error opening snapshot directory");
             }
         }
 
