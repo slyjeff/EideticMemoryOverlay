@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace ArkhamOverlay.Services {
     public interface IActionRequestService {
@@ -13,7 +15,13 @@ namespace ArkhamOverlay.Services {
         public event Action SnapshotRequested;
 
         public void TakeSnapshot() {
-            SnapshotRequested?.Invoke();
+            if (Application.Current.Dispatcher.CheckAccess()) {
+                SnapshotRequested?.Invoke();
+            } else {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                    SnapshotRequested?.Invoke();
+                }));
+            }
         }
     }
 }
