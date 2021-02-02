@@ -3,12 +3,19 @@ using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json;
 using StreamDeckPlugin.Actions;
+using StreamDeckPlugin.Services;
 using System;
 using System.Net.Sockets;
 using System.Text;
 
 namespace StreamDeckPlugin.Utils {
     public class TcpRequestHandler : IRequestHandler {
+        private readonly IDynamicActionService _dynamicActionService;
+
+        public TcpRequestHandler(IDynamicActionService dynamicActionService) {
+            _dynamicActionService = dynamicActionService;
+        }
+
         public bool RequestReceivedRecently { get; set; } 
 
         public void HandleRequest(TcpRequest request) {
@@ -33,19 +40,9 @@ namespace StreamDeckPlugin.Utils {
 
         private void UpdateCardInfo(TcpRequest request) {
             var updateCardInfoRequest = JsonConvert.DeserializeObject<UpdateCardInfoRequest>(request.Body);
-            if (updateCardInfoRequest == null) {
-                return;
-            }
-
-            foreach (var cardButtonAction in CardButtonAction.ListOf) {
-                if ((cardButtonAction.Deck == updateCardInfoRequest.Deck) &&
-                    (cardButtonAction.CardButtonIndex == updateCardInfoRequest.Index) &&
-                    cardButtonAction.IsVisible && 
-                    cardButtonAction.ShowCardSet == updateCardInfoRequest.IsCardInSet) {
-#pragma warning disable CS4014 
-                    cardButtonAction.UpdateButtonInfo(updateCardInfoRequest);
-#pragma warning restore CS4014 
-                }
+            if (updateCardInfoRequest != null) {
+                var mode = updateCardInfoRequest.IsCardInSet ? DynamicActionMode.Set : DynamicActionMode.Pool;
+                _dynamicActionService.UpdateDynamicAction(updateCardInfoRequest.Deck, updateCardInfoRequest.Index, mode, updateCardInfoRequest);
             }
             Send(request.Socket, new OkResponse().ToString());
         }
@@ -73,7 +70,7 @@ namespace StreamDeckPlugin.Utils {
 
             foreach (var showDeckListAction in ShowDeckListAction.ListOf) {
                 if (showDeckListAction.Deck == updateInvestigatorImageRequest.Deck) {
-                    showDeckListAction.SetImageAsync(updateInvestigatorImageRequest.Bytes.AsImage());
+                    showDeckListAction.SetImageAsync(ImageUtils.CreateStreamdeckImage(updateInvestigatorImageRequest.Bytes));
                 }
             }
             Send(request.Socket, new OkResponse().ToString());

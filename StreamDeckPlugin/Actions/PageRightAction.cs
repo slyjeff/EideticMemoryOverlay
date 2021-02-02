@@ -6,15 +6,15 @@ using SharpDeck.Manifest;
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Page Right", "arkhamoverlay.pageright")]
     public class PageRightAction : StreamDeckAction {
-        protected async override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
+        protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
             foreach (var cardButtonAction in CardButtonAction.ListOf) {
                 if (!cardButtonAction.IsVisible) {
                     continue;
                 }
 
-                cardButtonAction.Page++;
-                await cardButtonAction.GetButtonInfo();
+                cardButtonAction.NextPage();
             }
+            return Task.CompletedTask;
         }
     }
 }

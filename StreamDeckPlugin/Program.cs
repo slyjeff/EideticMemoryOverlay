@@ -1,23 +1,37 @@
 ﻿using ArkhamOverlay.TcpUtils;
+using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
-using System.Threading;
-using System.Timers;
 
 namespace StreamDeckPlugin {
     class Program {
         public static void Main(string[] args) {
 #if DEBUG
             // optional, but recommended
-            //System.Diagnostics.Debugger.Launch();
+            System.Diagnostics.Debugger.Launch();
 #endif
+            var container = new StructureMap.Container(x => {
+                x.Scan(y => {
+                    y.TheCallingAssembly();
+                    y.WithDefaultConventions();
+                });
+            });
 
-            var requestHandler = new TcpRequestHandler();
+            container.Configure(x => {
+                x.For<IDynamicActionService>().Use<DynamicActionService>().Singleton();
+                x.For<ISendSocketService>().Use<StreamDeckSendSocketService>().Singleton();
+                x.For<IImageService>().Use<ImageService>().Singleton();
+                x.For<IRequestHandler>().Use<TcpRequestHandler>();
+                x.For<IReceiveSocketService>().Use<ReceiveSocketService>();
+                x.For<IRegisterForUpdatesService>().Use<RegisterForUpdatesService>();
+            });
+
+            ServiceLocator.Container = container;
 
             //keep references or garbage collection will clean this up and we'll stop receiving events
-            var receiveSocketService = new ReceiveSocketService(requestHandler);
+            var receiveSocketService = container.GetInstance<IReceiveSocketService>();
             receiveSocketService.StartListening(StreamDeckTcpInfo.Port);
 
-            var registerForUpdatesService = new RegisterForUpdatesService(requestHandler);
+            var registerForUpdatesService = container.GetInstance<IRegisterForUpdatesService>();
             registerForUpdatesService.RegisterForUpdates();
 
             // register actions and connect to the Stream Deck

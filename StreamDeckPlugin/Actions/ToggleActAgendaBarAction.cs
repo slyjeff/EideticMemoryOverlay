@@ -3,6 +3,7 @@ using ArkhamOverlay.TcpUtils.Responses;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
+using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Toggle Act/Agenda Bar", "arkhamoverlay.toggleactagendabar")]
     public class ToggleActAgendaBarAction : StreamDeckAction {
         public static IList<ToggleActAgendaBarAction> ListOf = new List<ToggleActAgendaBarAction>();
+        private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
 
         public ToggleActAgendaBarAction() {
             ListOf.Add(this);
@@ -19,13 +21,13 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             //make sure the overlay app aware of us- otherwise we won't get updates
             var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
-            StreamDeckSendSocketService.SendRequest<OkResponse>(request);
+            _sendSocketService.SendRequest<OkResponse>(request);
 
             return Task.CompletedTask;
         }
 
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
-            StreamDeckSendSocketService.SendRequest<OkResponse>(new ToggleActAgendaBarRequest());
+            _sendSocketService.SendRequest<OkResponse>(new ToggleActAgendaBarRequest());
             return Task.CompletedTask;
         }
 

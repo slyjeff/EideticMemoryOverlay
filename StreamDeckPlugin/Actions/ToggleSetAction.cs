@@ -6,17 +6,16 @@ using SharpDeck.Manifest;
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Toggle Set", "arkhamoverlay.toggleset")]
     public class ToggleSetAction : StreamDeckAction {
-        protected async override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
+        protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
             foreach (var cardButtonAction in CardButtonAction.ListOf) {
                 if (!cardButtonAction.IsVisible) {
                     continue;
                 }
 
-                cardButtonAction.Page = 0;
-                cardButtonAction.ShowCardSet = !cardButtonAction.ShowCardSet;
-
-                await cardButtonAction.GetButtonInfo();
+                cardButtonAction.SetMode(cardButtonAction.Mode == Services.DynamicActionMode.Pool ? Services.DynamicActionMode.Set : Services.DynamicActionMode.Pool);
             }
+            
+            return Task.CompletedTask;
         }
     }
 }

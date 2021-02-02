@@ -6,6 +6,10 @@ using System.Text;
 using System.Threading;
 
 namespace ArkhamOverlay.TcpUtils {
+    public interface IReceiveSocketService {
+        void StartListening(int port);
+    }
+
     public interface IRequestHandler {
         void HandleRequest(TcpRequest tcpRequest);
     }
@@ -40,7 +44,7 @@ namespace ArkhamOverlay.TcpUtils {
         public Socket Socket { get; }
     }
 
-    public class ReceiveSocketService {
+    public class ReceiveSocketService : IReceiveSocketService {
         private readonly IRequestHandler _requestHandler;
 
         public ReceiveSocketService(IRequestHandler requestHandler) {

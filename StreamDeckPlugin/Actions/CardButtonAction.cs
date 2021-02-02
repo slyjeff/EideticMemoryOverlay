@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
+using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
@@ -20,20 +21,28 @@ namespace StreamDeckPlugin.Actions {
     public class CardButtonAction : StreamDeckAction<CardSettings> {
         public static IList<CardButtonAction> ListOf = new List<CardButtonAction>();
 
+        private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
+        private readonly IDynamicActionService _dynamicActionService = ServiceLocator.GetService<IDynamicActionService>();
+        private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
+
         private Coordinates _coordinates = new Coordinates();
         private CardSettings _settings = new CardSettings();
+
         private string _deviceId;
-        private ICardInfo _currentCardInfo;
         private Timer _keyPressTimer = new Timer(700);
+        private string _lastSetTitle;
+        private int _page;
+
+        public bool IsVisible { get; private set; }
+
 
         public CardButtonAction() {
             ListOf.Add(this);
             _keyPressTimer.Enabled = false;
             _keyPressTimer.Elapsed += KeyHeldDown;
         }
-        public int Page { get; set; }
-        public bool ShowCardSet { get; set; }
-        public bool IsVisible { get; private set; }
+
+        public DynamicActionMode Mode { get; private set; } 
 
         public Deck Deck {
             get {
@@ -45,7 +54,7 @@ namespace StreamDeckPlugin.Actions {
             }
         }
 
-        public int CardButtonIndex {
+        public int Index {
             get {
                 var rows = 4;
                 var columns = 16;
@@ -56,32 +65,37 @@ namespace StreamDeckPlugin.Actions {
                 }
 
                 var buttonsPerPage = rows * columns - 4; //3 because the return to parent, show hand, left, and right buttons take up four slots
- 
-                return (Page * buttonsPerPage) + (_coordinates.Row * columns + _coordinates.Column) - 1;
+
+                return (_page * buttonsPerPage) + (_coordinates.Row * columns + _coordinates.Column) - 1;
             }
         }
 
-        protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
-            _settings.Deck = args.Payload["deck"].Value<string>();
-            
-            await SetSettingsAsync(_settings);
-
-            await GetButtonInfo();
-        }
-
-        protected async override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
+        protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _coordinates = args.Payload.Coordinates;
             _deviceId = args.Device;
             _settings = args.Payload.GetSettings<CardSettings>();
-            Page = 0;
-            ShowCardSet = false;
             IsVisible = true;
 
-            await GetButtonInfo();
+            _dynamicActionService.DynamicActionChanged += DynamicActionChanged;
+
+            SetMode(DynamicActionMode.Pool);
+ 
+            return Task.CompletedTask;
         }
 
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
+            _dynamicActionService.DynamicActionChanged -= DynamicActionChanged;
             IsVisible = false;
+            return Task.CompletedTask;
+        }
+
+        protected override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
+            _settings.Deck = args.Payload["deck"].Value<string>();
+
+            SetSettingsAsync(_settings);
+
+            GetButtonInfo();
+
             return Task.CompletedTask;
         }
 
@@ -118,69 +132,97 @@ namespace StreamDeckPlugin.Actions {
 
                 _settings = args.Payload.GetSettings<CardSettings>();
                 SendClick(ButtonClick.Left);
+
+
                 return Task.CompletedTask;
             }
         }
 
         private void SendClick(ButtonClick click) {
-            var request = new ClickCardButtonRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet, Click = click };
-            StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
-            
-            //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look
-            if (_currentCardInfo != null) {
-                SetTitleAsync(TextUtils.WrapTitle(_currentCardInfo.Name));
-            }
+            var request = new ClickCardButtonRequest { Deck = _settings.Deck.AsDeck(), Index = Index, FromCardSet = Mode == DynamicActionMode.Set, Click = click };
+            _sendSocketService.SendRequest<CardInfoResponse>(request);
+
+            //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
+            SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
         }
 
-        public async Task Clear() {
-            if (_currentCardInfo == null) {
+        private void GetButtonInfo() {
+            var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = Index, FromCardSet = Mode == DynamicActionMode.Set};
+            var cardInfo = _sendSocketService.SendRequest<CardInfoResponse>(request);
+
+            _dynamicActionService.UpdateDynamicAction(Deck, Index, Mode, cardInfo);
+        }
+
+        private bool DynamicActionMatchesButton(IDynamicAction dynamicAction) {
+            return (dynamicAction.Deck == Deck && dynamicAction.Index == Index && dynamicAction.Mode == Mode);
+        }
+
+        private void DynamicActionChanged(IDynamicAction dynamicAction) {
+            //we don't know anything about ourselves yet, so we can't really respond to changes
+            if (_deviceId == null) {
                 return;
             }
 
-            _currentCardInfo.CardButtonType = CardButtonType.Unknown;
-            _currentCardInfo.Name = string.Empty;
-            _currentCardInfo.IsToggled = false;
-            
-            await SetTitleAsync(string.Empty);
-            await SetImageAsync(ImageUtils.BlankImage());
-        }
-
-        public async Task GetButtonInfo() {
-            try {
-                var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet};
-                var cardInfo = StreamDeckSendSocketService.SendRequest<CardInfoResponse>(request);
-
-                await UpdateButtonInfo(cardInfo);
-            } catch {
+            if (!DynamicActionMatchesButton(dynamicAction)) {
+                return;
             }
+
+            UpdateButtonDisplay(dynamicAction);
         }
 
-        private Task GetButtonImage() {
-            var request = new ButtonImageRequest { Deck = _settings.Deck.AsDeck(), Index = CardButtonIndex, FromCardSet = ShowCardSet };
-            var response = StreamDeckSendSocketService.SendRequest<ButtonImageResponse>(request);
-            ImageUtils.ImageCache[response.Name] = response.Bytes;
-            return Task.CompletedTask;
+        private void ImageLoaded(IDynamicAction dynamicAction) {
+            if (!DynamicActionMatchesButton(dynamicAction)) {
+                return;
+            }
+
+            _imageService.ImageLoaded -= ImageLoaded;
+            SetImageAsync(_imageService.GetImage(dynamicAction));
         }
 
-        public async Task UpdateButtonInfo(ICardInfo cardInfo) {
-            if (string.IsNullOrEmpty(cardInfo.Name)) {
-                await Clear();
+        public void SetMode(DynamicActionMode mode) {
+            _page = 0;
+            Mode = mode;
+
+            UpdateButtonToNewDynamicAction();
+        }
+
+        public void NextPage() {
+            _page++;
+
+            UpdateButtonToNewDynamicAction();
+        }
+
+        public void PreviousPage() {
+            if (_page == 0) {
+                return;
+            }
+            _page--;
+
+            UpdateButtonToNewDynamicAction();
+        }
+
+        private void UpdateButtonToNewDynamicAction() {
+            var dynamicAction = _dynamicActionService.GetDynamicAction(Deck, Index, Mode);
+            if (dynamicAction == null) {
+                SetTitleAsync(string.Empty);
+                SetImageAsync(string.Empty);
+
+                GetButtonInfo();
+                return;
+            }
+            UpdateButtonDisplay(dynamicAction);
+        }
+
+        private void UpdateButtonDisplay(IDynamicAction dynamicAction) {
+            _lastSetTitle = dynamicAction.Text;
+            SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
+
+            if (!dynamicAction.IsImageAvailable) {
+                SetImageAsync(string.Empty);
+            } else if (_imageService.HasImage(dynamicAction)) {
+                SetImageAsync(_imageService.GetImage(dynamicAction));
             } else {
-                if (_currentCardInfo != null) {
-                    if (_currentCardInfo.CardButtonType == cardInfo.CardButtonType
-                        && _currentCardInfo.Name == cardInfo.Name
-                        && _currentCardInfo.IsToggled == cardInfo.IsToggled) {
-                        return;
-                    }
-                }
-                _currentCardInfo = cardInfo;
-
-                if (cardInfo.ImageAvailable && !ImageUtils.ImageCache.ContainsKey(cardInfo.Name)) {
-                    await GetButtonImage();
-                }
-
-                await SetTitleAsync(TextUtils.WrapTitle(cardInfo.Name));
-                await SetImageAsync(cardInfo.AsImage());
+                _imageService.ImageLoaded += ImageLoaded;
             }
         }
     }

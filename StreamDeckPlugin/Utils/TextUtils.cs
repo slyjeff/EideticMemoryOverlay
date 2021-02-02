@@ -3,6 +3,10 @@
 namespace StreamDeckPlugin.Utils {
     public static class TextUtils {
         public static string WrapTitle(string title) {
+            if (string.IsNullOrEmpty(title)) {
+                return string.Empty;
+            }
+
             string[] words = title.Split(' ');
 
             var newSentence = new StringBuilder();

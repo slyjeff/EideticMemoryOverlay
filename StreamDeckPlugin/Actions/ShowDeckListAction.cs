@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
+using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace StreamDeckPlugin.Actions {
     public class ShowDeckListAction : StreamDeckAction {
         public static IList<ShowDeckListAction> ListOf = new List<ShowDeckListAction>();
 
+        private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
         private ShowDeckSettings _settings = new ShowDeckSettings();
 
         public ShowDeckListAction() {
@@ -37,13 +39,13 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<ShowDeckSettings>();
 
-            StreamDeckSendSocketService.SendRequest(new GetInvestigatorImageRequest { Deck = Deck });
+            _sendSocketService.SendRequest(new GetInvestigatorImageRequest { Deck = Deck });
 
             return Task.CompletedTask;
         }
 
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
-            StreamDeckSendSocketService.SendRequest(new ShowDeckListRequest { Deck = Deck } );
+            _sendSocketService.SendRequest(new ShowDeckListRequest { Deck = Deck } );
             return Task.CompletedTask;
         }
 
