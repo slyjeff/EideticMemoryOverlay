@@ -293,6 +293,12 @@ namespace ArkhamOverlay.Services {
                 IsCardInSet = false
             };
 
+            //this sometimes happen when a button isn't in a list yet (on create)
+            ///TODO: there's probably a cleaner way
+            if (request.Index == -1) {
+                return;               
+            }
+
             SendStatusToAllRegisteredPorts(request);
         }
 
@@ -313,6 +319,12 @@ namespace ArkhamOverlay.Services {
                 ImageAvailable = card?.ButtonImageAsBytes != null,
                 IsCardInSet = true
             };
+
+            //this sometimes happen when a button isn't in a list yet (on create)
+            ///TODO: there's probably a cleaner way
+            if (request.Index == -1) {
+                return;
+            }
 
             SendStatusToAllRegisteredPorts(request);
         }
