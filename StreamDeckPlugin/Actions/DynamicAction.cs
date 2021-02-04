@@ -16,8 +16,6 @@ using StreamDeckPlugin.Utils;
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
     public class DynamicAction : StreamDeckAction<ActionWithDeckSettings> {
-        public static IList<DynamicAction> ListOf = new List<DynamicAction>();
-
         private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
         private readonly IDynamicActionInfoStore _dynamicActionInfoService = ServiceLocator.GetService<IDynamicActionInfoStore>();
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
@@ -35,7 +33,6 @@ namespace StreamDeckPlugin.Actions {
 
 
         public DynamicAction() {
-            ListOf.Add(this);
             _keyPressTimer.Enabled = false;
             _keyPressTimer.Elapsed += KeyHeldDown;
         }
@@ -74,8 +71,9 @@ namespace StreamDeckPlugin.Actions {
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
             IsVisible = true;
 
-
             _eventBus.Subscribe(DynamicActionChanged);
+            _eventBus.Subscribe(PageChanged);
+            _eventBus.Subscribe(ModeToggled);
 
             SetMode(DynamicActionMode.Pool);
  
@@ -83,6 +81,8 @@ namespace StreamDeckPlugin.Actions {
         }
 
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
+            _eventBus.Subscribe(ModeToggled);
+            _eventBus.Subscribe(PageChanged);
             _eventBus.Unsubscribe(DynamicActionChanged);
             IsVisible = false;
             return Task.CompletedTask;
@@ -171,6 +171,23 @@ namespace StreamDeckPlugin.Actions {
             UpdateButtonDisplay(dynamicActionInfo);
         }
 
+        private void PageChanged(PageChanged pageChangedEvent) {
+            if (pageChangedEvent.Direction == ChangePageDirection.Next) {
+                _page++;
+            } else {
+                if (_page == 0) {
+                    return;
+                }
+                _page--;
+            }
+
+            UpdateButtonToNewDynamicAction();
+        }
+
+        private void ModeToggled(ModeToggled modeToggledEvent) {
+            SetMode(Mode == DynamicActionMode.Pool ? DynamicActionMode.Set : DynamicActionMode.Pool);
+        }
+
         private void ImageLoaded(IDynamicActionInfo dynamicActionInfo) {
             if (!DynamicActionMatchesButton(dynamicActionInfo)) {
                 return;
@@ -183,21 +200,6 @@ namespace StreamDeckPlugin.Actions {
         public void SetMode(DynamicActionMode mode) {
             _page = 0;
             Mode = mode;
-
-            UpdateButtonToNewDynamicAction();
-        }
-
-        public void NextPage() {
-            _page++;
-
-            UpdateButtonToNewDynamicAction();
-        }
-
-        public void PreviousPage() {
-            if (_page == 0) {
-                return;
-            }
-            _page--;
 
             UpdateButtonToNewDynamicAction();
         }

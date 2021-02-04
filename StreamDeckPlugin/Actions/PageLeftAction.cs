@@ -2,18 +2,17 @@
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
+using StreamDeckPlugin.Events;
+using StreamDeckPlugin.Services;
+using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Page Left", "arkhamoverlay.pageleft")]
     public class PageLeftAction : StreamDeckAction {
-        protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            foreach (var dynamicAction in DynamicAction.ListOf) {
-                if (!dynamicAction.IsVisible) {
-                    continue;
-                }
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
 
-                dynamicAction.PreviousPage();
-            }
+        protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
+            _eventBus.ChangePage(ChangePageDirection.Previous);
             return Task.CompletedTask;
         }
     }
