@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
+using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Utils;
 using System;
 using System.Collections.Generic;
@@ -19,14 +20,14 @@ namespace StreamDeckPlugin.Services {
         public static IImageService Service { get; private set; }
         public event Action<IDynamicActionInfo> ImageLoaded;
 
-        public ImageService(IDynamicActionInfoStore dynamicActionService, ISendSocketService sendSocketService) {
+        public ImageService(IEventBus eventBus, ISendSocketService sendSocketService) {
             if (Service != null) {
                 throw new Exception("Only one instance of Service may be created");
             }
 
             Service = this;
 
-            dynamicActionService.DynamicActionChanged += DynamicActionChanged;
+            eventBus.OnDynamicActionInfoChanged(DynamicActionChanged);
             _sendSocketService = sendSocketService;
         }
 

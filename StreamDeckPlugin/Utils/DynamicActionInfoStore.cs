@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.TcpUtils;
-using System;
+using StreamDeckPlugin.Events;
+using StreamDeckPlugin.Services;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,14 +10,17 @@ namespace StreamDeckPlugin.Utils {
     public interface IDynamicActionInfoStore {
         void UpdateDynamicAction(Deck deck, int index, DynamicActionMode mode, ICardInfo cardInfo);
         IDynamicActionInfo GetDynamicActionInfo(Deck deck, int cardButtonIndex, DynamicActionMode mode);
-        event Action<IDynamicActionInfo> DynamicActionChanged;
     }
 
     public class DynamicActionInfoStore : IDynamicActionInfoStore {
         private readonly object _cacheLock = new object();
         private readonly IList<DynamicActionInfo> _dynamicActionInfoList = new List<DynamicActionInfo>();
 
-        public event Action<IDynamicActionInfo> DynamicActionChanged;
+        private readonly IEventBus _eventBus;
+
+        public DynamicActionInfoStore(IEventBus eventBus) {
+            _eventBus = eventBus;
+        }
 
         public IDynamicActionInfo GetDynamicActionInfo(Deck deck, int index, DynamicActionMode mode) {
             lock (_cacheLock) {
@@ -28,8 +32,7 @@ namespace StreamDeckPlugin.Utils {
             lock (_cacheLock) {
                 var dynamicActionInfo = _dynamicActionInfoList.FirstOrDefault(x => x.Deck == deck && x.Index == index && x.Mode == mode);
                 if (dynamicActionInfo == null) {
-                    var hasChanges =
-                        dynamicActionInfo = new DynamicActionInfo(deck, index, mode, cardInfo.Name, cardInfo.ImageAvailable);
+                    dynamicActionInfo = new DynamicActionInfo(deck, index, mode, cardInfo.Name, cardInfo.ImageAvailable);
                     _dynamicActionInfoList.Add(dynamicActionInfo);
                 } else if (!dynamicActionInfo.CardInfoHasChanged(cardInfo)) {
                     return;
@@ -37,7 +40,7 @@ namespace StreamDeckPlugin.Utils {
 
                 dynamicActionInfo.UpdateFromCardInfo(cardInfo);
 
-                DynamicActionChanged?.Invoke(dynamicActionInfo);
+                _eventBus.DynamicActionInfoChanged(dynamicActionInfo);
             }
         }
     }

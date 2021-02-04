@@ -17,6 +17,7 @@ namespace StreamDeckPlugin {
             });
 
             container.Configure(x => {
+                x.For<IEventBus>().Use<EventBus>().Singleton();
                 x.For<IDynamicActionInfoStore>().Use<DynamicActionInfoStore>().Singleton();
                 x.For<ISendSocketService>().Use<StreamDeckSendSocketService>().Singleton();
                 x.For<IImageService>().Use<ImageService>().Singleton();

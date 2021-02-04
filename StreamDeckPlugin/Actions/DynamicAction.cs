@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
+using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 
@@ -19,6 +20,7 @@ namespace StreamDeckPlugin.Actions {
 
         private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
         private readonly IDynamicActionInfoStore _dynamicActionInfoService = ServiceLocator.GetService<IDynamicActionInfoStore>();
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
 
         private Coordinates _coordinates = new Coordinates();
@@ -72,7 +74,8 @@ namespace StreamDeckPlugin.Actions {
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
             IsVisible = true;
 
-            _dynamicActionInfoService.DynamicActionChanged += DynamicActionChanged;
+
+            _eventBus.Subscribe(DynamicActionChanged);
 
             SetMode(DynamicActionMode.Pool);
  
@@ -80,7 +83,7 @@ namespace StreamDeckPlugin.Actions {
         }
 
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
-            _dynamicActionInfoService.DynamicActionChanged -= DynamicActionChanged;
+            _eventBus.Unsubscribe(DynamicActionChanged);
             IsVisible = false;
             return Task.CompletedTask;
         }
@@ -153,11 +156,13 @@ namespace StreamDeckPlugin.Actions {
             return (dynamicActionInfo.Deck == Deck && dynamicActionInfo.Index == Index && dynamicActionInfo.Mode == Mode);
         }
 
-        private void DynamicActionChanged(IDynamicActionInfo dynamicActionInfo) {
+        private void DynamicActionChanged(DynamicActionInfoChanged dynamicActionInfoChangedEvent) {
             //we don't know anything about ourselves yet, so we can't really respond to changes
             if (_deviceId == null) {
                 return;
             }
+
+            var dynamicActionInfo = dynamicActionInfoChangedEvent.DynamicActionInfo;
 
             if (!DynamicActionMatchesButton(dynamicActionInfo)) {
                 return;
