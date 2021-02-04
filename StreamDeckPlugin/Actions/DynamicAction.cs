@@ -18,7 +18,7 @@ namespace StreamDeckPlugin.Actions {
         public static IList<DynamicAction> ListOf = new List<DynamicAction>();
 
         private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
-        private readonly IDynamicActionInfoService _dynamicActionInfoService = ServiceLocator.GetService<IDynamicActionInfoService>();
+        private readonly IDynamicActionInfoStore _dynamicActionInfoService = ServiceLocator.GetService<IDynamicActionInfoStore>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
 
         private Coordinates _coordinates = new Coordinates();

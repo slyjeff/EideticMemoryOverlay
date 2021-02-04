@@ -19,7 +19,7 @@ namespace StreamDeckPlugin.Services {
         public static IImageService Service { get; private set; }
         public event Action<IDynamicActionInfo> ImageLoaded;
 
-        public ImageService(IDynamicActionInfoService dynamicActionService, ISendSocketService sendSocketService) {
+        public ImageService(IDynamicActionInfoStore dynamicActionService, ISendSocketService sendSocketService) {
             if (Service != null) {
                 throw new Exception("Only one instance of Service may be created");
             }

@@ -3,16 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StreamDeckPlugin.Services {
+namespace StreamDeckPlugin.Utils {
     public enum DynamicActionMode { Pool, Set }
 
-    public interface IDynamicActionInfoService {
+    public interface IDynamicActionInfoStore {
         void UpdateDynamicAction(Deck deck, int index, DynamicActionMode mode, ICardInfo cardInfo);
         IDynamicActionInfo GetDynamicActionInfo(Deck deck, int cardButtonIndex, DynamicActionMode mode);
         event Action<IDynamicActionInfo> DynamicActionChanged;
     }
 
-    public class DynamicActionInfoService : IDynamicActionInfoService {
+    public class DynamicActionInfoStore : IDynamicActionInfoStore {
         private readonly object _cacheLock = new object();
         private readonly IList<DynamicActionInfo> _dynamicActionInfoList = new List<DynamicActionInfo>();
 

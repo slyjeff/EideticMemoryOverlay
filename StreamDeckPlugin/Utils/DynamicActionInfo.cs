@@ -1,6 +1,6 @@
 ﻿using ArkhamOverlay.TcpUtils;
 
-namespace StreamDeckPlugin.Services {
+namespace StreamDeckPlugin.Utils {
     public interface IDynamicActionInfo {
         Deck Deck { get; }
         int Index { get; }

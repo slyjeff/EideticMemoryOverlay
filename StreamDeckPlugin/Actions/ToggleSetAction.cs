@@ -2,6 +2,7 @@
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
+using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Toggle Set", "arkhamoverlay.toggleset")]
@@ -12,7 +13,7 @@ namespace StreamDeckPlugin.Actions {
                     continue;
                 }
 
-                dynamicAction.SetMode(dynamicAction.Mode == Services.DynamicActionMode.Pool ? Services.DynamicActionMode.Set : Services.DynamicActionMode.Pool);
+                dynamicAction.SetMode(dynamicAction.Mode == DynamicActionMode.Pool ? DynamicActionMode.Set : DynamicActionMode.Pool);
             }
             
             return Task.CompletedTask;

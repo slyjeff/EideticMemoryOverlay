@@ -117,8 +117,8 @@
     <Compile Include="Actions\PageLeftAction.cs" />
     <Compile Include="Actions\PageRightAction.cs" />
     <Compile Include="Actions\TrackStatAction.cs" />
-    <Compile Include="Services\DynamicActionInfoService.cs" />
-    <Compile Include="Services\DynamicActionInfo.cs" />
+    <Compile Include="Utils\DynamicActionInfoStore.cs" />
+    <Compile Include="Utils\DynamicActionInfo.cs" />
     <Compile Include="Services\ImageService.cs" />
     <Compile Include="Utils\RegisterForUpdatesService.cs" />
     <Compile Include="Utils\RequestHandler.cs" />
