@@ -117,6 +117,7 @@
     <Compile Include="Actions\PageLeftAction.cs" />
     <Compile Include="Actions\PageRightAction.cs" />
     <Compile Include="Actions\TrackStatAction.cs" />
+    <Compile Include="Events\InvestigatorImageUpdated.cs" />
     <Compile Include="Events\ModeToggled.cs" />
     <Compile Include="Events\PageChanged.cs" />
     <Compile Include="Events\DynamicActionInfoChanged.cs" />

@@ -3,6 +3,7 @@ using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json;
 using StreamDeckPlugin.Actions;
+using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using System;
 using System.Net.Sockets;
@@ -11,9 +12,11 @@ using System.Text;
 namespace StreamDeckPlugin.Utils {
     public class TcpRequestHandler : IRequestHandler {
         private readonly IDynamicActionInfoStore _dynamicActionService;
+        private readonly IEventBus _eventBus;
 
-        public TcpRequestHandler(IDynamicActionInfoStore dynamicActionService) {
+        public TcpRequestHandler(IDynamicActionInfoStore dynamicActionService, IEventBus eventBus) {
             _dynamicActionService = dynamicActionService;
+            _eventBus = eventBus;
         }
 
         public bool RequestReceivedRecently { get; set; } 
@@ -64,15 +67,10 @@ namespace StreamDeckPlugin.Utils {
 
         private void UpdateInvestigatorImage(TcpRequest request) {
             var updateInvestigatorImageRequest = JsonConvert.DeserializeObject<UpdateInvestigatorImageRequest>(request.Body);
-            if (updateInvestigatorImageRequest == null) {
-                return;
+            if (updateInvestigatorImageRequest != null) {
+                _eventBus.UpdateInvestigatorImage(updateInvestigatorImageRequest.Deck, updateInvestigatorImageRequest.Bytes);
             }
 
-            foreach (var showDeckListAction in ShowDeckListAction.ListOf) {
-                if (showDeckListAction.Deck == updateInvestigatorImageRequest.Deck) {
-                    showDeckListAction.SetImageAsync(ImageUtils.CreateStreamdeckImage(updateInvestigatorImageRequest.Bytes));
-                }
-            }
             Send(request.Socket, new OkResponse().ToString());
         }
 

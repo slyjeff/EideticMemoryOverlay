@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
+using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 using System.Collections.Generic;
@@ -17,13 +18,16 @@ namespace StreamDeckPlugin.Actions {
 
     [StreamDeckAction("Show Deck List", "arkhamoverlay.showdecklist")]
     public class ShowDeckListAction : StreamDeckAction {
-        public static IList<ShowDeckListAction> ListOf = new List<ShowDeckListAction>();
-
         private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
-        private ShowDeckSettings _settings = new ShowDeckSettings();
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
+        private ActionWithDeckSettings _settings = new ActionWithDeckSettings();
 
         public ShowDeckListAction() {
-            ListOf.Add(this);
+            _eventBus.OnInvestigatorImageUpdated((deck, bytes) => {
+                if (deck == Deck) {
+                    SetImageAsync(ImageUtils.CreateStreamdeckImage(bytes));
+                }
+            });
         }
 
         public Deck Deck {
@@ -37,7 +41,7 @@ namespace StreamDeckPlugin.Actions {
         }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
-            _settings = args.Payload.GetSettings<ShowDeckSettings>();
+            _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
 
             _sendSocketService.SendRequest(new GetInvestigatorImageRequest { Deck = Deck });
 
