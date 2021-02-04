@@ -33,7 +33,7 @@ namespace StreamDeckPlugin.Utils {
 
     static class DynamicActionInfoExtensions {
         static internal bool CardInfoHasChanged(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {
-            return (dynamicActionInfo.Text != cardInfo.Name) || (dynamicActionInfo.IsToggled == cardInfo.IsToggled);
+            return (dynamicActionInfo.Text != cardInfo.Name) || (dynamicActionInfo.IsToggled != cardInfo.IsToggled);
         }
 
         static internal void UpdateFromCardInfo(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {

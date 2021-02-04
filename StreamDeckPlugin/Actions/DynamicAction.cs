@@ -29,9 +29,6 @@ namespace StreamDeckPlugin.Actions {
         private string _lastSetTitle;
         private int _page;
 
-        public bool IsVisible { get; private set; }
-
-
         public DynamicAction() {
             _keyPressTimer.Enabled = false;
             _keyPressTimer.Elapsed += KeyHeldDown;
@@ -69,8 +66,7 @@ namespace StreamDeckPlugin.Actions {
             _coordinates = args.Payload.Coordinates;
             _deviceId = args.Device;
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-            IsVisible = true;
-
+            
             _eventBus.Subscribe(DynamicActionChanged);
             _eventBus.Subscribe(PageChanged);
             _eventBus.Subscribe(ModeToggled);
@@ -81,10 +77,9 @@ namespace StreamDeckPlugin.Actions {
         }
 
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
-            _eventBus.Subscribe(ModeToggled);
-            _eventBus.Subscribe(PageChanged);
+            _eventBus.Unsubscribe(ModeToggled);
+            _eventBus.Unsubscribe(PageChanged);
             _eventBus.Unsubscribe(DynamicActionChanged);
-            IsVisible = false;
             return Task.CompletedTask;
         }
 
