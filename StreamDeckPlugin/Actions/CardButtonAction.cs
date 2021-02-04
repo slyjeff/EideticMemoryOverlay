@@ -22,7 +22,7 @@ namespace StreamDeckPlugin.Actions {
         public static IList<CardButtonAction> ListOf = new List<CardButtonAction>();
 
         private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
-        private readonly IDynamicActionService _dynamicActionService = ServiceLocator.GetService<IDynamicActionService>();
+        private readonly IDynamicActionInfoService _dynamicActionInfoService = ServiceLocator.GetService<IDynamicActionInfoService>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
 
         private Coordinates _coordinates = new Coordinates();
@@ -76,7 +76,7 @@ namespace StreamDeckPlugin.Actions {
             _settings = args.Payload.GetSettings<CardSettings>();
             IsVisible = true;
 
-            _dynamicActionService.DynamicActionChanged += DynamicActionChanged;
+            _dynamicActionInfoService.DynamicActionChanged += DynamicActionChanged;
 
             SetMode(DynamicActionMode.Pool);
  
@@ -84,7 +84,7 @@ namespace StreamDeckPlugin.Actions {
         }
 
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
-            _dynamicActionService.DynamicActionChanged -= DynamicActionChanged;
+            _dynamicActionInfoService.DynamicActionChanged -= DynamicActionChanged;
             IsVisible = false;
             return Task.CompletedTask;
         }
@@ -150,33 +150,33 @@ namespace StreamDeckPlugin.Actions {
             var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = Index, FromCardSet = Mode == DynamicActionMode.Set};
             var cardInfo = _sendSocketService.SendRequest<CardInfoResponse>(request);
 
-            _dynamicActionService.UpdateDynamicAction(Deck, Index, Mode, cardInfo);
+            _dynamicActionInfoService.UpdateDynamicAction(Deck, Index, Mode, cardInfo);
         }
 
-        private bool DynamicActionMatchesButton(IDynamicAction dynamicAction) {
-            return (dynamicAction.Deck == Deck && dynamicAction.Index == Index && dynamicAction.Mode == Mode);
+        private bool DynamicActionMatchesButton(IDynamicActionInfo dynamicActionInfo) {
+            return (dynamicActionInfo.Deck == Deck && dynamicActionInfo.Index == Index && dynamicActionInfo.Mode == Mode);
         }
 
-        private void DynamicActionChanged(IDynamicAction dynamicAction) {
+        private void DynamicActionChanged(IDynamicActionInfo dynamicActionInfo) {
             //we don't know anything about ourselves yet, so we can't really respond to changes
             if (_deviceId == null) {
                 return;
             }
 
-            if (!DynamicActionMatchesButton(dynamicAction)) {
+            if (!DynamicActionMatchesButton(dynamicActionInfo)) {
                 return;
             }
 
-            UpdateButtonDisplay(dynamicAction);
+            UpdateButtonDisplay(dynamicActionInfo);
         }
 
-        private void ImageLoaded(IDynamicAction dynamicAction) {
-            if (!DynamicActionMatchesButton(dynamicAction)) {
+        private void ImageLoaded(IDynamicActionInfo dynamicActionInfo) {
+            if (!DynamicActionMatchesButton(dynamicActionInfo)) {
                 return;
             }
 
             _imageService.ImageLoaded -= ImageLoaded;
-            SetImageAsync(_imageService.GetImage(dynamicAction));
+            SetImageAsync(_imageService.GetImage(dynamicActionInfo));
         }
 
         public void SetMode(DynamicActionMode mode) {
@@ -202,25 +202,25 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void UpdateButtonToNewDynamicAction() {
-            var dynamicAction = _dynamicActionService.GetDynamicAction(Deck, Index, Mode);
-            if (dynamicAction == null) {
+            var dynamicActionInfo = _dynamicActionInfoService.GetDynamicActionInfo(Deck, Index, Mode);
+            if (dynamicActionInfo == null) {
                 SetTitleAsync(string.Empty);
                 SetImageAsync(string.Empty);
 
                 GetButtonInfo();
                 return;
             }
-            UpdateButtonDisplay(dynamicAction);
+            UpdateButtonDisplay(dynamicActionInfo);
         }
 
-        private void UpdateButtonDisplay(IDynamicAction dynamicAction) {
-            _lastSetTitle = dynamicAction.Text;
+        private void UpdateButtonDisplay(IDynamicActionInfo dynamicActionInfo) {
+            _lastSetTitle = dynamicActionInfo.Text;
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
 
-            if (!dynamicAction.IsImageAvailable) {
+            if (!dynamicActionInfo.IsImageAvailable) {
                 SetImageAsync(string.Empty);
-            } else if (_imageService.HasImage(dynamicAction)) {
-                SetImageAsync(_imageService.GetImage(dynamicAction));
+            } else if (_imageService.HasImage(dynamicActionInfo)) {
+                SetImageAsync(_imageService.GetImage(dynamicActionInfo));
             } else {
                 _imageService.ImageLoaded += ImageLoaded;
             }

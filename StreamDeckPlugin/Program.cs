@@ -7,7 +7,7 @@ namespace StreamDeckPlugin {
         public static void Main(string[] args) {
 #if DEBUG
             // optional, but recommended
-            System.Diagnostics.Debugger.Launch();
+            //System.Diagnostics.Debugger.Launch();
 #endif
             var container = new StructureMap.Container(x => {
                 x.Scan(y => {
@@ -17,7 +17,7 @@ namespace StreamDeckPlugin {
             });
 
             container.Configure(x => {
-                x.For<IDynamicActionService>().Use<DynamicActionService>().Singleton();
+                x.For<IDynamicActionInfoService>().Use<DynamicActionInfoService>().Singleton();
                 x.For<ISendSocketService>().Use<StreamDeckSendSocketService>().Singleton();
                 x.For<IImageService>().Use<ImageService>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();

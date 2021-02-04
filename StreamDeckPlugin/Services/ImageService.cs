@@ -8,9 +8,9 @@ using System.ComponentModel;
 
 namespace StreamDeckPlugin.Services {
     public interface IImageService {
-        event Action<IDynamicAction> ImageLoaded;
-        string GetImage(IDynamicAction dynamicAction);
-        bool HasImage(IDynamicAction dynamicAction);
+        event Action<IDynamicActionInfo> ImageLoaded;
+        string GetImage(IDynamicActionInfo dynamicActionInfo);
+        bool HasImage(IDynamicActionInfo dynamicActionInfo);
     }
 
     public class ImageService : IImageService{
@@ -18,9 +18,9 @@ namespace StreamDeckPlugin.Services {
         private readonly ISendSocketService _sendSocketService;
 
         public static IImageService Service { get; private set; }
-        public event Action<IDynamicAction> ImageLoaded;
+        public event Action<IDynamicActionInfo> ImageLoaded;
 
-        public ImageService(IDynamicActionService dynamicActionService, ISendSocketService sendSocketService) {
+        public ImageService(IDynamicActionInfoService dynamicActionService, ISendSocketService sendSocketService) {
             if (Service != null) {
                 throw new Exception("Only one instance of Service may be created");
             }
@@ -31,38 +31,38 @@ namespace StreamDeckPlugin.Services {
             _sendSocketService = sendSocketService;
         }
 
-        private void DynamicActionChanged(IDynamicAction dynamicAction) {
-            if (!dynamicAction.IsImageAvailable) {
+        private void DynamicActionChanged(IDynamicActionInfo dynamicActionInfo) {
+            if (!dynamicActionInfo.IsImageAvailable) {
                 return;
             }
             
-            if (HasImage(dynamicAction)) {
+            if (HasImage(dynamicActionInfo)) {
                 return;
             }
 
             var worker = new BackgroundWorker();
             worker.DoWork += (x, y) => {
-                var request = new ButtonImageRequest { Deck = dynamicAction.Deck, Index = dynamicAction.Index, FromCardSet = dynamicAction.Mode == DynamicActionMode.Set };
+                var request = new ButtonImageRequest { Deck = dynamicActionInfo.Deck, Index = dynamicActionInfo.Index, FromCardSet = dynamicActionInfo.Mode == DynamicActionMode.Set };
                 var response = _sendSocketService.SendRequest<ButtonImageResponse>(request);
                 ImageCache[response.Name] = response.Bytes;
-                ImageLoaded?.Invoke(dynamicAction);
+                ImageLoaded?.Invoke(dynamicActionInfo);
             };
             worker.RunWorkerAsync();
         }
 
-        public string GetImage(IDynamicAction dynamicAction) {
+        public string GetImage(IDynamicActionInfo dynamicAction) {
             var imageBytes = dynamicAction.ImageId != null && ImageCache.ContainsKey(dynamicAction.ImageId) ? ImageCache[dynamicAction.ImageId] : null;
 
             return ImageUtils.CreateStreamdeckImage(imageBytes, dynamicAction.IsToggled);
         }
 
-        public bool HasImage(IDynamicAction dynamicAction) {
+        public bool HasImage(IDynamicActionInfo dynamicActionInfo) {
             //we "have" a null image because we'll just make a blank bitmap;
-            if (dynamicAction.ImageId == null) {
+            if (dynamicActionInfo.ImageId == null) {
                 return true;
             }
 
-            return ImageCache.ContainsKey(dynamicAction.ImageId);
+            return ImageCache.ContainsKey(dynamicActionInfo.ImageId);
         }
     }
 }

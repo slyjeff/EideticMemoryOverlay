@@ -10,9 +10,9 @@ using System.Text;
 
 namespace StreamDeckPlugin.Utils {
     public class TcpRequestHandler : IRequestHandler {
-        private readonly IDynamicActionService _dynamicActionService;
+        private readonly IDynamicActionInfoService _dynamicActionService;
 
-        public TcpRequestHandler(IDynamicActionService dynamicActionService) {
+        public TcpRequestHandler(IDynamicActionInfoService dynamicActionService) {
             _dynamicActionService = dynamicActionService;
         }
 
