@@ -4,16 +4,15 @@ using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
+using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
 
 namespace StreamDeckPlugin.Actions {
     public abstract class TrackStatAction : StreamDeckAction {
-        public static IList<TrackStatAction> ListOf = new List<TrackStatAction>();
-
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
         private TrackStatSettings _settings = new TrackStatSettings();
 
@@ -23,7 +22,13 @@ namespace StreamDeckPlugin.Actions {
 
         public TrackStatAction(StatType statType) {
             StatType = statType;
-            ListOf.Add(this);
+
+            _eventBus.OnStatUpdated((deck, type, value) => {
+                if (deck == Deck && type == StatType) {
+                    UpdateValue(value);
+                }
+            });
+
             _keyPressTimer.Enabled = false;
             _keyPressTimer.Elapsed += KeyHeldDown;
         }

@@ -52,16 +52,10 @@ namespace StreamDeckPlugin.Utils {
 
         private void UpdateStatInfo(TcpRequest request) {
             var updateStatInfoRequest = JsonConvert.DeserializeObject<UpdateStatInfoRequest>(request.Body);
-            if (updateStatInfoRequest == null) {
-                return;
+            if (updateStatInfoRequest != null) {
+                _eventBus.StatUpdated(updateStatInfoRequest.Deck, updateStatInfoRequest.StatType, updateStatInfoRequest.Value);
             }
 
-            foreach (var trackStatAction in TrackStatAction.ListOf) {
-                if ((trackStatAction.Deck == updateStatInfoRequest.Deck) &&
-                    (trackStatAction.StatType == updateStatInfoRequest.StatType)) { 
-                    trackStatAction.UpdateValue(updateStatInfoRequest.Value);
-                }
-            }
             Send(request.Socket, new OkResponse().ToString());
         }
 
