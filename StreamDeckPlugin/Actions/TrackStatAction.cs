@@ -44,6 +44,9 @@ namespace StreamDeckPlugin.Actions {
             _settings = args.Payload.GetSettings<TrackStatSettings>();
 
             var response = _sendSocketService.SendRequest<StatValueResponse>(new StatValueRequest { Deck = Deck, StatType = StatType });
+            if (response == null) {
+                return Task.CompletedTask;
+            }
             _value = response.Value;
             return SetTitleAsync(_value.ToString());
         }

@@ -32,7 +32,7 @@ namespace StreamDeckPlugin.Utils {
             lock (_cacheLock) {
                 var dynamicActionInfo = _dynamicActionInfoList.FirstOrDefault(x => x.Deck == deck && x.Index == index && x.Mode == mode);
                 if (dynamicActionInfo == null) {
-                    dynamicActionInfo = new DynamicActionInfo(deck, index, mode, cardInfo.Name, cardInfo.ImageAvailable);
+                    dynamicActionInfo = new DynamicActionInfo(deck, index, mode);
                     _dynamicActionInfoList.Add(dynamicActionInfo);
                 } else if (!dynamicActionInfo.CardInfoHasChanged(cardInfo)) {
                     return;
