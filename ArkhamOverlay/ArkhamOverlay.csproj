@@ -85,6 +85,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
@@ -127,6 +128,7 @@
     </ApplicationDefinition>
     <Compile Include="CardButtons\CardImageButton.cs" />
     <Compile Include="CardButtons\CardInSetButton.cs" />
+    <Compile Include="CardButtons\IHasImageButton.cs" />
     <Compile Include="CardButtons\ShowCardButton.cs" />
     <Compile Include="CardButtons\ShowSetButton.cs" />
     <Compile Include="Data\AppData.cs" />
@@ -145,6 +147,7 @@
     <Compile Include="Pages\LocalImages\LocalImagesViewModel.cs" />
     <Compile Include="Data\LocalPackManifest.cs" />
     <Compile Include="Services\ActionService.cs" />
+    <Compile Include="Services\Cache\CardImageCache.cs" />
     <Compile Include="Services\LocalCardsService.cs" />
     <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Pages\SelectCards\SelectPlayerMenuViewModel.cs" />
@@ -280,5 +283,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
