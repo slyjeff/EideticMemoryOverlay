@@ -16,15 +16,13 @@ namespace StreamDeckPlugin.Services {
         private readonly IDictionary<Type, object> _subscriptionList = new Dictionary<Type, object>();
 
         public void Publish<T>(T eventToPublish) where T : IEvent {
-            lock (_subscriptionListLock) {
-                var key = typeof(T);
-                if (!_subscriptionList.ContainsKey(key)) {
-                    return;
-                }
-
-                var subscriptions = (Action<T>)_subscriptionList[key];
-                subscriptions?.Invoke(eventToPublish);
+            var key = typeof(T);
+            if (!_subscriptionList.ContainsKey(key)) {
+                return;
             }
+
+            var subscriptions = (Action<T>)_subscriptionList[key];
+            subscriptions?.Invoke(eventToPublish);
         }
 
         public void Subscribe<T>(Action<T> callback) where T : IEvent {
