@@ -28,19 +28,16 @@ namespace StreamDeckPlugin.Utils {
             lock (_cacheLock) {
                 var dynamicActionInfo = _dynamicActionInfoList.FirstOrDefault(x => x.Deck == deck && x.Index == index && x.Mode == mode);
                 if (dynamicActionInfo == null) {
-                    dynamicActionInfo = new DynamicActionInfo(deck, index, mode);
+                    var hasChanges =
+                        dynamicActionInfo = new DynamicActionInfo(deck, index, mode, cardInfo.Name, cardInfo.ImageAvailable);
                     _dynamicActionInfoList.Add(dynamicActionInfo);
+                } else if (!dynamicActionInfo.CardInfoHasChanged(cardInfo)) {
+                    return;
                 }
 
-                dynamicActionInfo.ImageId = cardInfo.Name;
-                dynamicActionInfo.Text = cardInfo.Name;
-                dynamicActionInfo.IsImageAvailable = cardInfo.ImageAvailable;
-                dynamicActionInfo.IsToggled = cardInfo.IsToggled;
+                dynamicActionInfo.UpdateFromCardInfo(cardInfo);
 
-                if (dynamicActionInfo.IsChanged) {
-                    dynamicActionInfo.IsChanged = false;
-                    DynamicActionChanged?.Invoke(dynamicActionInfo);
-                }
+                DynamicActionChanged?.Invoke(dynamicActionInfo);
             }
         }
     }

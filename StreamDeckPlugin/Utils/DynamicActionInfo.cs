@@ -1,80 +1,44 @@
 ﻿using ArkhamOverlay.TcpUtils;
+using System;
+using System.Collections.Generic;
 
 namespace StreamDeckPlugin.Utils {
     public interface IDynamicActionInfo {
         Deck Deck { get; }
         int Index { get; }
         DynamicActionMode Mode { get; }
-        string ImageId { get; set; }
+        bool IsImageAvailable { get; }
+        string ImageId { get; }
         string Text { get; set; }
-        bool IsImageAvailable { get; set; }
         bool IsToggled { get; set; }
     }
 
     public class DynamicActionInfo : IDynamicActionInfo {
-        public DynamicActionInfo(Deck deck, int index, DynamicActionMode mode) {
+        public DynamicActionInfo(Deck deck, int index, DynamicActionMode mode, string imageId, bool isImageAvailable) {
             Deck = deck;
             Index = index;
             Mode = mode;
+            ImageId = imageId;
+            IsImageAvailable = isImageAvailable;
         }
 
         public Deck Deck { get; }
         public int Index { get; }
         public DynamicActionMode Mode { get; }
-
-        public bool IsChanged = true;
-
-        private string _imageId;
-        public string ImageId {
-            get => _imageId;
-            set {
-                if (_imageId == value) {
-                    return;
-                }
-
-                _imageId = value;
-                IsChanged = true;
-            }
-        }
-
-        private string _text;
-        public string Text {
-            get => _text;
-            set {
-                if (_text == value) {
-                    return;
-                }
-
-                _text = value;
-                IsChanged = true;
-            }
-        }
-
-        private bool _isImageAvailable;
-        public bool IsImageAvailable {
-            get => _isImageAvailable;
-            set {
-                if (_isImageAvailable == value) {
-                    return;
-                }
-
-                _isImageAvailable = value;
-                IsChanged = true;
-            }
-        }
-
-        private bool _isToggled;
-        public bool IsToggled {
-            get => _isToggled;
-            set {
-                if (_isToggled == value) {
-                    return;
-                }
-
-                _isToggled = value;
-                IsChanged = true;
-            }
-        }
+        public string ImageId { get; }
+        public bool IsImageAvailable { get; }
+        public string Text { get; set; }
+        public bool IsToggled { get; set; }
     }
 
+    static class DynamicActionInfoExtensions {
+        static internal bool CardInfoHasChanged(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {
+            return (dynamicActionInfo.Text != cardInfo.Name) || (dynamicActionInfo.IsToggled == cardInfo.IsToggled);
+        }
+
+        static internal void UpdateFromCardInfo(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {
+            dynamicActionInfo.Text = cardInfo.Name;
+            dynamicActionInfo.IsToggled = cardInfo.IsToggled;
+        }
+    }
 }
