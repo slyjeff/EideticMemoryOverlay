@@ -7,12 +7,12 @@ namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Page Left", "arkhamoverlay.pageleft")]
     public class PageLeftAction : StreamDeckAction {
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            foreach (var cardButtonAction in CardButtonAction.ListOf) {
-                if (!cardButtonAction.IsVisible) {
+            foreach (var dynamicAction in DynamicAction.ListOf) {
+                if (!dynamicAction.IsVisible) {
                     continue;
                 }
 
-                cardButtonAction.PreviousPage();
+                dynamicAction.PreviousPage();
             }
             return Task.CompletedTask;
         }

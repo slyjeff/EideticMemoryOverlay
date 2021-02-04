@@ -47,7 +47,7 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
     let selectDeckGroup = document.getElementById('selectDeckGroup');
     let selectPlayerGroup = document.getElementById('selectPlayerGroup');
 
-    if (actionInfo.action === "arkhamoverlay.cardbutton") {
+    if (actionInfo.action === "arkhamoverlay.dynamicaction") {
         //if we have a saved value, initialize the deck drop down
         var valueToSelect = actionInfo.payload.settings['deck'];
         if (!valueToSelect) {
@@ -78,7 +78,7 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
 function sendCardButtonValueToPlugin(value, param) {
     if (websocket) {
     const json = {
-            "action": "arkhamoverlay.cardbutton",
+            "action": "arkhamoverlay.dynamicaction",
             "event": "sendToPlugin",
             "context": uuid, 
             "payload": {

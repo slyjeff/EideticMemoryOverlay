@@ -7,12 +7,12 @@ namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Toggle Set", "arkhamoverlay.toggleset")]
     public class ToggleSetAction : StreamDeckAction {
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            foreach (var cardButtonAction in CardButtonAction.ListOf) {
-                if (!cardButtonAction.IsVisible) {
+            foreach (var dynamicAction in DynamicAction.ListOf) {
+                if (!dynamicAction.IsVisible) {
                     continue;
                 }
 
-                cardButtonAction.SetMode(cardButtonAction.Mode == Services.DynamicActionMode.Pool ? Services.DynamicActionMode.Set : Services.DynamicActionMode.Pool);
+                dynamicAction.SetMode(dynamicAction.Mode == Services.DynamicActionMode.Pool ? Services.DynamicActionMode.Set : Services.DynamicActionMode.Pool);
             }
             
             return Task.CompletedTask;

@@ -103,6 +103,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\ActionWithDeckSettings.cs" />
+    <Compile Include="Actions\DynamicAction.cs" />
     <Compile Include="Actions\TakeSnapshotAction.cs" />
     <Compile Include="Actions\TrackCluesAction.cs" />
     <Compile Include="Actions\TrackResourcesAction.cs" />
@@ -114,7 +116,6 @@
     <Compile Include="Actions\ClearCardsAction.cs" />
     <Compile Include="Actions\PageLeftAction.cs" />
     <Compile Include="Actions\PageRightAction.cs" />
-    <Compile Include="Actions\CardButtonAction.cs" />
     <Compile Include="Actions\TrackStatAction.cs" />
     <Compile Include="Services\DynamicActionInfoService.cs" />
     <Compile Include="Services\DynamicActionInfo.cs" />

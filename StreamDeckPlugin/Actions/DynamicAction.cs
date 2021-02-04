@@ -13,20 +13,16 @@ using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
-    public class CardSettings {
-        public string Deck { get; set; }
-    }
-
-    [StreamDeckAction("Card Button", "arkhamoverlay.cardbutton")]
-    public class CardButtonAction : StreamDeckAction<CardSettings> {
-        public static IList<CardButtonAction> ListOf = new List<CardButtonAction>();
+    [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
+    public class DynamicAction : StreamDeckAction<ActionWithDeckSettings> {
+        public static IList<DynamicAction> ListOf = new List<DynamicAction>();
 
         private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
         private readonly IDynamicActionInfoService _dynamicActionInfoService = ServiceLocator.GetService<IDynamicActionInfoService>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
 
         private Coordinates _coordinates = new Coordinates();
-        private CardSettings _settings = new CardSettings();
+        private ActionWithDeckSettings _settings = new ActionWithDeckSettings();
 
         private string _deviceId;
         private Timer _keyPressTimer = new Timer(700);
@@ -36,7 +32,7 @@ namespace StreamDeckPlugin.Actions {
         public bool IsVisible { get; private set; }
 
 
-        public CardButtonAction() {
+        public DynamicAction() {
             ListOf.Add(this);
             _keyPressTimer.Enabled = false;
             _keyPressTimer.Elapsed += KeyHeldDown;
@@ -73,7 +69,7 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _coordinates = args.Payload.Coordinates;
             _deviceId = args.Device;
-            _settings = args.Payload.GetSettings<CardSettings>();
+            _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
             IsVisible = true;
 
             _dynamicActionInfoService.DynamicActionChanged += DynamicActionChanged;
@@ -102,7 +98,7 @@ namespace StreamDeckPlugin.Actions {
         private object _keyUpLock = new object();
         private bool _keyIsDown = false;
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            _settings = args.Payload.GetSettings<CardSettings>();
+            _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
             _keyIsDown = true;
 
             _keyPressTimer.Enabled = true;
@@ -130,7 +126,7 @@ namespace StreamDeckPlugin.Actions {
                 _keyIsDown = false;
                 _keyPressTimer.Enabled = false;
 
-                _settings = args.Payload.GetSettings<CardSettings>();
+                _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
                 SendClick(ButtonClick.Left);
 
 
