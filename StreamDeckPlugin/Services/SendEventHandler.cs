@@ -6,19 +6,18 @@ using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Services {
-    public interface ISendSocketService {
-        string SendRequest(Request request);
-        T SendRequest<T>(Request request) where T : Response;
+    public interface ISendEventHandler {
     }
 
-    public class StreamDeckSendSocketService : ISendSocketService {
+    public class SendEventHandler : ISendEventHandler {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
         private readonly IEventBus _eventBus;
 
-        public StreamDeckSendSocketService(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore) {
+        public SendEventHandler(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore) {
             _eventBus = eventBus;
             _dynamicActionInfoStore = dynamicActionInfoStore;
 
+            eventBus.OnRegisterForUpdates(RegisterForUpdates);
             eventBus.OnClearAllCards(ClearAllCards);
             eventBus.OnGetButtonInfo(GetCardInfo);
             eventBus.OnDynamicButtonClicked(DynamicButtonClicked);
@@ -30,11 +29,11 @@ namespace StreamDeckPlugin.Services {
             eventBus.OnGetButtonImage(GetButtonImage);
         }
 
-        public string SendRequest(Request request) {
+        private string SendRequest(Request request) {
             return SendSocketService.SendRequest(request, TcpInfo.ArkhamOverlayPort);
         }
 
-        public T SendRequest<T>(Request request) where T : Response {
+        private T SendRequest<T>(Request request) where T : Response {
             var response = SendRequest(request);
             if (response == null) {
                 return default(T);
@@ -44,6 +43,10 @@ namespace StreamDeckPlugin.Services {
         }
 
         #region Event Handlers
+        public void RegisterForUpdates() {
+            var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
+            SendRequest<OkResponse>(request);
+        }
 
         public void ClearAllCards() {
             SendRequest(new ClearAllCardsRequest());

@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
+using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using System.Timers;
 
@@ -11,11 +12,11 @@ namespace StreamDeckPlugin.Utils {
     public class RegisterForUpdatesService : IRegisterForUpdatesService {
         private readonly Timer _requestUpdatesTimer = new Timer(1000 * 5); //request every 5 seconds
         private readonly TcpRequestHandler _requestHandler;
-        private readonly ISendSocketService _sendSocketService;
+        private readonly IEventBus _eventBus;
 
-        public RegisterForUpdatesService(TcpRequestHandler requestHandler, ISendSocketService sendSocketService) {
+        public RegisterForUpdatesService(TcpRequestHandler requestHandler, IEventBus eventBus) {
             _requestHandler = requestHandler;
-            _sendSocketService = sendSocketService;
+            _eventBus = eventBus;
             _requestUpdatesTimer.Enabled = false;
             _requestUpdatesTimer.Elapsed += SendRequest;
         }
@@ -26,8 +27,7 @@ namespace StreamDeckPlugin.Utils {
                 return;
             }
 
-            var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
-            _sendSocketService.SendRequest<OkResponse>(request);
+            _eventBus.RegisterForUpdates();
         }
 
         public void RegisterForUpdates() {

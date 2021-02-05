@@ -19,7 +19,7 @@ namespace StreamDeckPlugin {
             container.Configure(x => {
                 x.For<IEventBus>().Use<EventBus>().Singleton();
                 x.For<IDynamicActionInfoStore>().Use<DynamicActionInfoStore>().Singleton();
-                x.For<ISendSocketService>().Use<StreamDeckSendSocketService>().Singleton();
+                x.For<ISendEventHandler>().Use<SendEventHandler>().Singleton();
                 x.For<IImageService>().Use<ImageService>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
                 x.For<IReceiveSocketService>().Use<ReceiveSocketService>();
@@ -29,6 +29,7 @@ namespace StreamDeckPlugin {
             ServiceLocator.Container = container;
 
             //keep references or garbage collection will clean this up and we'll stop receiving events
+            var sendEventHandler = container.GetInstance<ISendEventHandler>();
             var receiveSocketService = container.GetInstance<IReceiveSocketService>();
             receiveSocketService.StartListening(StreamDeckTcpInfo.Port);
 

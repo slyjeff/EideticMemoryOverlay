@@ -2,7 +2,6 @@
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json;
-using StreamDeckPlugin.Actions;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using System;

@@ -118,6 +118,7 @@
     <Compile Include="Actions\TrackStatAction.cs" />
     <Compile Include="Events\ChangeStatValue.cs" />
     <Compile Include="Events\ButtonImageReceived.cs" />
+    <Compile Include="Events\RegisterForUpdates.cs" />
     <Compile Include="Events\GetButtonImage.cs" />
     <Compile Include="Events\GetStatValue.cs" />
     <Compile Include="Events\ImageLoaded.cs" />
@@ -140,7 +141,7 @@
     <Compile Include="Utils\RequestHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\StreamDeckSendSocketService.cs" />
+    <Compile Include="Services\SendEventHandler.cs" />
     <Compile Include="Utils\ImageUtils.cs" />
     <Compile Include="Utils\ServiceLocator.cs" />
     <Compile Include="Utils\StreamDeckTcpInfo.cs" />
