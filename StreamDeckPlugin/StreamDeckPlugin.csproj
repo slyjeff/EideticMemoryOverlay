@@ -133,10 +133,10 @@
     <Compile Include="Events\StatUpdated.cs" />
     <Compile Include="Events\PageChanged.cs" />
     <Compile Include="Events\DynamicActionInfoChanged.cs" />
-    <Compile Include="Utils\DynamicActionInfoStore.cs" />
-    <Compile Include="Utils\DynamicActionInfo.cs" />
+    <Compile Include="Services\DynamicActionInfo.cs" />
     <Compile Include="Services\ImageService.cs" />
     <Compile Include="Services\EventBus.cs" />
+    <Compile Include="Services\DynamicActionInfoStore.cs" />
     <Compile Include="Utils\RegisterForUpdatesService.cs" />
     <Compile Include="Utils\RequestHandler.cs" />
     <Compile Include="Program.cs" />

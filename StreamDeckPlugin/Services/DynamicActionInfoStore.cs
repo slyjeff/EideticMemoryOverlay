@@ -1,10 +1,9 @@
 ﻿using ArkhamOverlay.TcpUtils;
 using StreamDeckPlugin.Events;
-using StreamDeckPlugin.Services;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StreamDeckPlugin.Utils {
+namespace StreamDeckPlugin.Services {
     public enum DynamicActionMode { Pool, Set }
 
     public interface IDynamicActionInfoStore {

@@ -1,8 +1,6 @@
 ﻿using ArkhamOverlay.TcpUtils;
-using System;
-using System.Collections.Generic;
 
-namespace StreamDeckPlugin.Utils {
+namespace StreamDeckPlugin.Services {
     public interface IDynamicActionInfo {
         Deck Deck { get; }
         int Index { get; }
@@ -31,10 +29,10 @@ namespace StreamDeckPlugin.Utils {
 
     static class DynamicActionInfoExtensions {
         static internal bool CardInfoHasChanged(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {
-            return (dynamicActionInfo.Text != cardInfo.Name) 
-                || (dynamicActionInfo.IsToggled != cardInfo.IsToggled)
-                || (dynamicActionInfo.ImageId != cardInfo.Name)
-                || (dynamicActionInfo.IsImageAvailable != cardInfo.ImageAvailable);
+            return dynamicActionInfo.Text != cardInfo.Name
+                || dynamicActionInfo.IsToggled != cardInfo.IsToggled
+                || dynamicActionInfo.ImageId != cardInfo.Name
+                || dynamicActionInfo.IsImageAvailable != cardInfo.ImageAvailable;
         }
 
         static internal void UpdateFromCardInfo(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {
