@@ -42,7 +42,7 @@ namespace StreamDeckPlugin.Utils {
             var updateCardInfoRequest = JsonConvert.DeserializeObject<UpdateCardInfoRequest>(request.Body);
             if (updateCardInfoRequest != null) {
                 var mode = updateCardInfoRequest.IsCardInSet ? DynamicActionMode.Set : DynamicActionMode.Pool;
-                _dynamicActionService.UpdateDynamicAction(updateCardInfoRequest.Deck, updateCardInfoRequest.Index, mode, updateCardInfoRequest);
+                _dynamicActionService.UpdateDynamicActionInfo(updateCardInfoRequest.Deck, updateCardInfoRequest.Index, mode, updateCardInfoRequest);
             }
             Send(request.Socket, new OkResponse().ToString());
         }

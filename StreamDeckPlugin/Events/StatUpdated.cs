@@ -21,7 +21,7 @@ namespace StreamDeckPlugin.Events {
         }
 
         public static void OnStatUpdated(this IEventBus eventBus, Action<Deck, StatType, int> action) {
-            eventBus.Subscribe<StatUpdated>((statUpdated) => action?.Invoke(statUpdated.Deck, statUpdated.StatType, statUpdated.Value));
+            eventBus.Subscribe<StatUpdated>(x => action?.Invoke(x.Deck, x.StatType, x.Value));
         }
     }
 }

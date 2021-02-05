@@ -17,7 +17,7 @@ namespace StreamDeckPlugin.Events {
         }
 
         public static void OnDynamicActionInfoChanged(this IEventBus eventBus, Action<IDynamicActionInfo> action) {
-            eventBus.Subscribe<DynamicActionInfoChanged>((dynamicActionInfoChanged) => action?.Invoke(dynamicActionInfoChanged.DynamicActionInfo));
+            eventBus.Subscribe<DynamicActionInfoChanged>(x => action?.Invoke(x.DynamicActionInfo));
         }
 
         public static void Subscribe(this IEventBus eventBus, Action<DynamicActionInfoChanged> action) {

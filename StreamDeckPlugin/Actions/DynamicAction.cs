@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using System.Timers;
 using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.TcpUtils.Requests;
-using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
@@ -15,8 +13,7 @@ using StreamDeckPlugin.Utils;
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
     public class DynamicAction : StreamDeckAction<ActionWithDeckSettings> {
-        private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
-        private readonly IDynamicActionInfoStore _dynamicActionInfoService = ServiceLocator.GetService<IDynamicActionInfoStore>();
+        private readonly IDynamicActionInfoStore _dynamicActionInfoStore = ServiceLocator.GetService<IDynamicActionInfoStore>();
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
 
@@ -111,7 +108,7 @@ namespace StreamDeckPlugin.Actions {
                 _keyIsDown = false;
                 _keyPressTimer.Enabled = false;
 
-                SendClick(ButtonClick.Right);
+                SendClick(false);
             }
         }
 
@@ -124,26 +121,21 @@ namespace StreamDeckPlugin.Actions {
                 _keyPressTimer.Enabled = false;
 
                 _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-                SendClick(ButtonClick.Left);
-
+                SendClick(true);
 
                 return Task.CompletedTask;
             }
         }
 
-        private void SendClick(ButtonClick click) {
-            var request = new ClickCardButtonRequest { Deck = _settings.Deck.AsDeck(), Index = Index, FromCardSet = Mode == DynamicActionMode.Set, Click = click };
-            _sendSocketService.SendRequest<CardInfoResponse>(request);
+        private void SendClick(bool isLeftClick) {
+            _eventBus.DynamicButtonClick(Deck, Index, Mode, isLeftClick);
 
             //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
         }
 
         private void GetButtonInfo() {
-            var request = new GetCardInfoRequest { Deck = _settings.Deck.AsDeck(), Index = Index, FromCardSet = Mode == DynamicActionMode.Set};
-            var cardInfo = _sendSocketService.SendRequest<CardInfoResponse>(request);
-
-            _dynamicActionInfoService.UpdateDynamicAction(Deck, Index, Mode, cardInfo);
+            _eventBus.GetButtonInfo(Deck, Index, Mode);
         }
 
         private bool DynamicActionMatchesButton(IDynamicActionInfo dynamicActionInfo) {
@@ -199,7 +191,7 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void UpdateButtonToNewDynamicAction() {
-            var dynamicActionInfo = _dynamicActionInfoService.GetDynamicActionInfo(Deck, Index, Mode);
+            var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(Deck, Index, Mode);
             if (dynamicActionInfo == null) {
                 SetTitleAsync(string.Empty);
                 SetImageAsync(string.Empty);

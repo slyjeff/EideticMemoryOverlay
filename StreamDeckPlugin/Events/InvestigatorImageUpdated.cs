@@ -19,7 +19,7 @@ namespace StreamDeckPlugin.Events {
         }
 
         public static void OnInvestigatorImageUpdated(this IEventBus eventBus, Action<Deck, byte[]> action) {
-            eventBus.Subscribe<InvestigatorImageUpdated>((investigatorImageUpdated) => action?.Invoke(investigatorImageUpdated.Deck, investigatorImageUpdated.Bytes));
+            eventBus.Subscribe<InvestigatorImageUpdated>(x => action?.Invoke(x.Deck, x.Bytes));
         }
     }
 }

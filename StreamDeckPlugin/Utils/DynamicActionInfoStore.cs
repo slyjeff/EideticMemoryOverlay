@@ -8,7 +8,7 @@ namespace StreamDeckPlugin.Utils {
     public enum DynamicActionMode { Pool, Set }
 
     public interface IDynamicActionInfoStore {
-        void UpdateDynamicAction(Deck deck, int index, DynamicActionMode mode, ICardInfo cardInfo);
+        void UpdateDynamicActionInfo(Deck deck, int index, DynamicActionMode mode, ICardInfo cardInfo);
         IDynamicActionInfo GetDynamicActionInfo(Deck deck, int cardButtonIndex, DynamicActionMode mode);
     }
 
@@ -28,7 +28,7 @@ namespace StreamDeckPlugin.Utils {
             }
         }
 
-        public void UpdateDynamicAction(Deck deck, int index, DynamicActionMode mode, ICardInfo cardInfo) {
+        public void UpdateDynamicActionInfo(Deck deck, int index, DynamicActionMode mode, ICardInfo cardInfo) {
             lock (_cacheLock) {
                 var dynamicActionInfo = _dynamicActionInfoList.FirstOrDefault(x => x.Deck == deck && x.Index == index && x.Mode == mode);
                 if (dynamicActionInfo == null) {
