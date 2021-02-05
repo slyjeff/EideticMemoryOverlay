@@ -19,7 +19,7 @@ namespace StreamDeckPlugin.Services {
 
         public DynamicActionInfoStore(IEventBus eventBus) {
             _eventBus = eventBus;
-            eventBus.OnImageLoaded(ImageLoaded);
+            eventBus.SubscribeToImageLoadedEvent(ImageLoaded);
         }
 
         public IDynamicActionInfo GetDynamicActionInfo(Deck deck, int index, DynamicActionMode mode) {
@@ -44,9 +44,9 @@ namespace StreamDeckPlugin.Services {
             }
         }
 
-        private void ImageLoaded(string imageId) {
+        private void ImageLoaded(ImageLoadedEvent imageLoadedEvent) {
             var dynamicActionInfoWithImageItems = from dynamicActionInfo in _dynamicActionInfoList
-                                                  where dynamicActionInfo.ImageId == imageId
+                                                  where dynamicActionInfo.ImageId == imageLoadedEvent.ImageId
                                                   select dynamicActionInfo;
 
             foreach (var dynamicActionInfo in dynamicActionInfoWithImageItems) {

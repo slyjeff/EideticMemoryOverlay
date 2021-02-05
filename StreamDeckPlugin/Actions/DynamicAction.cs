@@ -63,9 +63,9 @@ namespace StreamDeckPlugin.Actions {
             _deviceId = args.Device;
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
             
-            _eventBus.Subscribe(DynamicActionChanged);
-            _eventBus.Subscribe(PageChanged);
-            _eventBus.Subscribe(ModeToggled);
+            _eventBus.SubscribeToDynamicActionInfoChangedEvent(DynamicActionChanged);
+            _eventBus.SubscribeToPageChangedEvent(PageChanged);
+            _eventBus.SubscribeToModeToggledEvent(ModeToggled);
 
             SetMode(DynamicActionMode.Pool);
  
@@ -73,9 +73,9 @@ namespace StreamDeckPlugin.Actions {
         }
 
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
-            _eventBus.Unsubscribe(ModeToggled);
-            _eventBus.Unsubscribe(PageChanged);
-            _eventBus.Unsubscribe(DynamicActionChanged);
+            _eventBus.UnsubscribeFromModeToggledEvent(ModeToggled);
+            _eventBus.UnsubscribeFromPageChangedEvent(PageChanged);
+            _eventBus.UnsubscribeFromDynamicActionInfoChangedEvent(DynamicActionChanged);
             return Task.CompletedTask;
         }
 
@@ -128,21 +128,21 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void SendClick(bool isLeftClick) {
-            _eventBus.DynamicButtonClick(Deck, Index, Mode, isLeftClick);
+            _eventBus.PublicDynamicButtonClickRequest(Deck, Index, Mode, isLeftClick);
 
             //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
         }
 
         private void GetButtonInfo() {
-            _eventBus.GetButtonInfo(Deck, Index, Mode);
+            _eventBus.PublicGetButtonInfoRequest(Deck, Index, Mode);
         }
 
         private bool DynamicActionMatchesButton(IDynamicActionInfo dynamicActionInfo) {
             return (dynamicActionInfo.Deck == Deck && dynamicActionInfo.Index == Index && dynamicActionInfo.Mode == Mode);
         }
 
-        private void DynamicActionChanged(DynamicActionInfoChanged dynamicActionInfoChangedEvent) {
+        private void DynamicActionChanged(DynamicActionInfoChangedEvent dynamicActionInfoChangedEvent) {
             //we don't know anything about ourselves yet, so we can't really respond to changes
             if (_deviceId == null) {
                 return;
@@ -157,7 +157,7 @@ namespace StreamDeckPlugin.Actions {
             UpdateButtonDisplay(dynamicActionInfo);
         }
 
-        private void PageChanged(PageChanged pageChangedEvent) {
+        private void PageChanged(PageChangedEvent pageChangedEvent) {
             if (pageChangedEvent.Direction == ChangePageDirection.Next) {
                 _page++;
             } else {
@@ -170,7 +170,7 @@ namespace StreamDeckPlugin.Actions {
             UpdateButtonToNewDynamicAction();
         }
 
-        private void ModeToggled(ModeToggled modeToggledEvent) {
+        private void ModeToggled(ModeToggledEvent modeToggledEvent) {
             SetMode(Mode == DynamicActionMode.Pool ? DynamicActionMode.Set : DynamicActionMode.Pool);
         }
 

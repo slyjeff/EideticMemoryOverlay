@@ -7,6 +7,7 @@ using SharpDeck.Manifest;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
+using System;
 using System.Threading.Tasks;
 
 namespace StreamDeckPlugin.Actions {
@@ -21,11 +22,13 @@ namespace StreamDeckPlugin.Actions {
         private ActionWithDeckSettings _settings = new ActionWithDeckSettings();
 
         public ShowDeckListAction() {
-            _eventBus.OnInvestigatorImageUpdated((deck, bytes) => {
-                if (deck == Deck) {
-                    SetImageAsync(ImageUtils.CreateStreamdeckImage(bytes));
-                }
-            });
+            _eventBus.SubscribeToInvestigatorImageUpdatedEvent(InvestigatorImageUpdated);
+        }
+
+        private void InvestigatorImageUpdated(InvestigatorImageUpdatedEvent investigatorImageUpdatedEvent) {
+            if (investigatorImageUpdatedEvent.Deck == Deck) {
+                SetImageAsync(ImageUtils.CreateStreamdeckImage(investigatorImageUpdatedEvent.Bytes));
+            }
         }
 
         public Deck Deck {
@@ -41,20 +44,20 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
 
-            _eventBus.GetInvestigatorImage(Deck);
+            _eventBus.PublishGetInvestigatorImageRequest(Deck);
 
             return Task.CompletedTask;
         }
 
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
-            _eventBus.ShowDeckList(Deck);
+            _eventBus.PublishShowDeckListRequest(Deck);
             return Task.CompletedTask;
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
 
-            _eventBus.GetInvestigatorImage(Deck);
+            _eventBus.PublishGetInvestigatorImageRequest(Deck);
 
             await SetSettingsAsync(_settings);
         }

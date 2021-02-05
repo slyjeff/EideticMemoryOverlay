@@ -19,16 +19,16 @@ namespace StreamDeckPlugin.Services {
             _dynamicActionInfoStore = dynamicActionInfoStore;
             _imageService = imageService;
 
-            eventBus.OnRegisterForUpdates(RegisterForUpdates);
-            eventBus.OnClearAllCards(ClearAllCards);
-            eventBus.OnGetButtonInfo(GetCardInfo);
-            eventBus.OnDynamicButtonClicked(DynamicButtonClicked);
-            eventBus.OnGetInvestigatorImage(GetInvestigatorImage);
-            eventBus.OnShowDeckList(ShowDeckList);
-            eventBus.OnTakeSnapshot(TakeSnapshot);
-            eventBus.OnGetStatValue(GetStatValue);
-            eventBus.OnChangeStatValue(ChangeStatValue);
-            eventBus.OnGetButtonImage(GetButtonImage);
+            eventBus.SubscribeToRegisterForUpdatesRequest(RegisterForUpdates);
+            eventBus.SubscribeToClearAllCardsRequest(ClearAllCards);
+            eventBus.SubscribeToGetButtonInfoRequest(GetCardInfo);
+            eventBus.SubscribeToDynamicButtonClickRequest(DynamicButtonClicked);
+            eventBus.SubscribeToGetInvestigatorImageRequest(GetInvestigatorImage);
+            eventBus.SubscribeToShowDeckListRequest(ShowDeckList);
+            eventBus.SubscribeToTakeSnapshotRequest(TakeSnapshot);
+            eventBus.SubscribeToGetStatValueRequest(GetStatValue);
+            eventBus.SubscribeToStatValueRequest(ChangeStatValue);
+            eventBus.SubscribeToGetButtonImageRequest(GetButtonImage);
         }
 
         private string SendRequest(Request request) {
@@ -45,33 +45,33 @@ namespace StreamDeckPlugin.Services {
         }
 
         #region Event Handlers
-        public void RegisterForUpdates() {
-            var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
+        public void RegisterForUpdates(Events.RegisterForUpdatesRequest registerForUpdatesRequest) {
+            var request = new ArkhamOverlay.TcpUtils.Requests.RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
             SendRequest<OkResponse>(request);
         }
 
-        public void ClearAllCards() {
-            SendRequest(new ClearAllCardsRequest());
+        public void ClearAllCards(Events.ClearAllCardsRequest clearAllCardsRequest) {
+            SendRequest(new ArkhamOverlay.TcpUtils.Requests.ClearAllCardsRequest());
         }
 
-        private void GetCardInfo(Deck deck, int index, DynamicActionMode mode) {
+        private void GetCardInfo(GetButtonInfoRequest getButtonInfoRequest) {
             var request = new GetCardInfoRequest {
-                Deck = deck,
-                Index = index,
-                FromCardSet = mode == DynamicActionMode.Set,
+                Deck = getButtonInfoRequest.Deck,
+                Index = getButtonInfoRequest.Index,
+                FromCardSet = getButtonInfoRequest.Mode == DynamicActionMode.Set,
             };
 
             var response = SendRequest<CardInfoResponse>(request);
             if (response != null) {
-                _dynamicActionInfoStore.UpdateDynamicActionInfo(deck, index, mode, response);
+                _dynamicActionInfoStore.UpdateDynamicActionInfo(getButtonInfoRequest.Deck, getButtonInfoRequest.Index, getButtonInfoRequest.Mode, response);
             }
         }
 
-        private void GetButtonImage(Deck deck, int index, DynamicActionMode mode) {
+        private void GetButtonImage(GetButtonImageRequest getButtonImageRequest) {
             var request = new ButtonImageRequest {
-                Deck = deck,
-                Index = index,
-                FromCardSet = mode == DynamicActionMode.Set,
+                Deck = getButtonImageRequest.Deck,
+                Index = getButtonImageRequest.Index,
+                FromCardSet = getButtonImageRequest.Mode == DynamicActionMode.Set,
             };
 
             var response = SendRequest<ButtonImageResponse>(request);
@@ -80,44 +80,44 @@ namespace StreamDeckPlugin.Services {
             }
         }
 
-        private void DynamicButtonClicked(Deck deck, int index, DynamicActionMode mode, bool isLeftClick) {
+        private void DynamicButtonClicked(DynamicButtonClickRequest dynamicButtonClickRequest) {
             var request = new ClickCardButtonRequest {
-                Deck = deck, 
-                Index = index, 
-                FromCardSet = mode == DynamicActionMode.Set, 
-                Click = isLeftClick ? ButtonClick.Left : ButtonClick.Right
+                Deck = dynamicButtonClickRequest.Deck, 
+                Index = dynamicButtonClickRequest.Index, 
+                FromCardSet = dynamicButtonClickRequest.Mode == DynamicActionMode.Set, 
+                Click = dynamicButtonClickRequest.IsLeftClick ? ButtonClick.Left : ButtonClick.Right
             };
             SendRequest(request);
         }
 
-        private void GetInvestigatorImage(Deck deck) {
-            SendRequest(new GetInvestigatorImageRequest { Deck = deck });
+        private void GetInvestigatorImage(Events.GetInvestigatorImageRequest getInvestigatorImageRequest) {
+            SendRequest(new ArkhamOverlay.TcpUtils.Requests.GetInvestigatorImageRequest { Deck = getInvestigatorImageRequest.Deck });
         }
 
-        private void ShowDeckList(Deck deck) {
-            SendRequest(new ShowDeckListRequest { Deck = deck });
+        private void ShowDeckList(Events.ShowDeckListRequest showDeckListRequest) {
+            SendRequest(new ArkhamOverlay.TcpUtils.Requests.ShowDeckListRequest { Deck = showDeckListRequest.Deck });
         }
 
-        private void TakeSnapshot() {
+        private void TakeSnapshot(TakeSnapshotRequest takeSnapshotRequest) {
             SendRequest(new SnapshotRequest());
         }
 
-        private void GetStatValue(Deck deck, StatType statType) {
-            var response = SendRequest<StatValueResponse>(new StatValueRequest { Deck = deck, StatType = statType });
+        private void GetStatValue(GetStatValueRequest getStatValueRequest) {
+            var response = SendRequest<StatValueResponse>(new StatValueRequest { Deck = getStatValueRequest.Deck, StatType = getStatValueRequest.StatType });
             if (response == null) {
                 return;
             }
 
-            _eventBus.StatUpdated(deck, statType, response.Value);
+            _eventBus.PublishStatUpdatedEvent(getStatValueRequest.Deck, getStatValueRequest.StatType, response.Value);
         }
 
-        private void ChangeStatValue(Deck deck, StatType statType, bool increase) {
-            var response = SendRequest<StatValueResponse>(new ChangeStatValueRequest { Deck = deck, StatType = statType, Increase = increase });
+        private void ChangeStatValue(Events.ChangeStatValueRequest changeStatValueRequest) {
+            var response = SendRequest<StatValueResponse>(new ArkhamOverlay.TcpUtils.Requests.ChangeStatValueRequest { Deck = changeStatValueRequest.Deck, StatType = changeStatValueRequest.StatType, Increase = changeStatValueRequest.Increase });
             if (response == null) {
                 return;
             }
 
-            _eventBus.StatUpdated(deck, statType, response.Value);
+            _eventBus.PublishStatUpdatedEvent(changeStatValueRequest.Deck, changeStatValueRequest.StatType, response.Value);
         }
 
         #endregion

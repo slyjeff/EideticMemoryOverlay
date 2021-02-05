@@ -12,7 +12,7 @@ namespace StreamDeckPlugin.Actions {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
 
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            _eventBus.ToggleMode();
+            _eventBus.PublishModeToggledEvent();
             return Task.CompletedTask;
         }
     }

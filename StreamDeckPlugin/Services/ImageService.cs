@@ -20,10 +20,11 @@ namespace StreamDeckPlugin.Services {
 
         public ImageService(IEventBus eventBus) {
             _eventBus = eventBus;
-            eventBus.OnDynamicActionInfoChanged(DynamicActionChanged);
+            eventBus.SubscribeToDynamicActionInfoChangedEvent(DynamicActionChanged);
         }
 
-        private void DynamicActionChanged(IDynamicActionInfo dynamicActionInfo) {
+        private void DynamicActionChanged(DynamicActionInfoChangedEvent dynamicActionInfoChangedEvent) {
+            var dynamicActionInfo = dynamicActionInfoChangedEvent.DynamicActionInfo;
             if (!dynamicActionInfo.IsImageAvailable) {
                 return;
             }
@@ -32,12 +33,12 @@ namespace StreamDeckPlugin.Services {
                 return;
             }
 
-            _eventBus.GetButtonImage(dynamicActionInfo.Deck, dynamicActionInfo.Index, dynamicActionInfo.Mode);
+            _eventBus.PublishGetButtonImageRequest(dynamicActionInfo.Deck, dynamicActionInfo.Index, dynamicActionInfo.Mode);
         }
 
         public void UpdateButtonImage(string imageId, byte[] bytes) {
             _imageCache[imageId] = bytes;
-            _eventBus.ImageLoaded(imageId);
+            _eventBus.PublicImageLoadedEvent(imageId);
         }
 
         public string GetImage(IDynamicActionInfo dynamicAction) {

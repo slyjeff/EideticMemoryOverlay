@@ -11,7 +11,7 @@ namespace StreamDeckPlugin.Actions {
     public class TakeSnapshotAction : StreamDeckAction {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            _eventBus.TakeSnapshot();
+            _eventBus.PublishTakeSnapshotRequest();
             return Task.CompletedTask;
         }
     }

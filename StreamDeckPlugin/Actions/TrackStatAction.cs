@@ -5,6 +5,7 @@ using SharpDeck.Events.Received;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
+using System;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -20,14 +21,16 @@ namespace StreamDeckPlugin.Actions {
         public TrackStatAction(StatType statType) {
             StatType = statType;
 
-            _eventBus.OnStatUpdated((deck, type, value) => {
-                if (deck == Deck && type == StatType) {
-                    UpdateValue(value);
-                }
-            });
+            _eventBus.SubscribeToStatUpdatedEvent(StatUpdated);
 
             _keyPressTimer.Enabled = false;
             _keyPressTimer.Elapsed += KeyHeldDown;
+        }
+
+        private void StatUpdated(StatUpdatedEvent statUpdatedEvent) {
+            if (statUpdatedEvent.Deck == Deck && statUpdatedEvent.StatType == StatType) {
+                UpdateValue(statUpdatedEvent.Value);
+            }
         }
 
         public Deck Deck {
@@ -45,7 +48,7 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<TrackStatSettings>();
 
-            _eventBus.GetStatValue(Deck, StatType);
+            _eventBus.PublishGetStatValueRequest(Deck, StatType);
 
             return SetTitleAsync(_value.ToString());
         }
@@ -84,13 +87,13 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void SendStatValueRequest(bool increase) {
-            _eventBus.ChangeStatValue(Deck, StatType, increase);
+            _eventBus.PublicChangeStatValueRequest(Deck, StatType, increase);
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
 
-            _eventBus.GetStatValue(Deck, StatType);
+            _eventBus.PublishGetStatValueRequest(Deck, StatType);
 
             await SetSettingsAsync(_settings);
         }

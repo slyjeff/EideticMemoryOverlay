@@ -49,7 +49,7 @@ namespace StreamDeckPlugin.Utils {
         private void UpdateStatInfo(TcpRequest request) {
             var updateStatInfoRequest = JsonConvert.DeserializeObject<UpdateStatInfoRequest>(request.Body);
             if (updateStatInfoRequest != null) {
-                _eventBus.StatUpdated(updateStatInfoRequest.Deck, updateStatInfoRequest.StatType, updateStatInfoRequest.Value);
+                _eventBus.PublishStatUpdatedEvent(updateStatInfoRequest.Deck, updateStatInfoRequest.StatType, updateStatInfoRequest.Value);
             }
 
             Send(request.Socket, new OkResponse().ToString());
@@ -58,7 +58,7 @@ namespace StreamDeckPlugin.Utils {
         private void UpdateInvestigatorImage(TcpRequest request) {
             var updateInvestigatorImageRequest = JsonConvert.DeserializeObject<UpdateInvestigatorImageRequest>(request.Body);
             if (updateInvestigatorImageRequest != null) {
-                _eventBus.UpdateInvestigatorImage(updateInvestigatorImageRequest.Deck, updateInvestigatorImageRequest.Bytes);
+                _eventBus.PublishInvestigatorImageUpdatedEvent(updateInvestigatorImageRequest.Deck, updateInvestigatorImageRequest.Bytes);
             }
 
             Send(request.Socket, new OkResponse().ToString());
