@@ -27,6 +27,7 @@ namespace StreamDeckPlugin.Services {
             eventBus.OnTakeSnapshot(TakeSnapshot);
             eventBus.OnGetStatValue(GetStatValue);
             eventBus.OnChangeStatValue(ChangeStatValue);
+            eventBus.OnGetButtonImage(GetButtonImage);
         }
 
         public string SendRequest(Request request) {
@@ -99,6 +100,19 @@ namespace StreamDeckPlugin.Services {
             }
 
             _eventBus.StatUpdated(deck, statType, response.Value);
+        }
+
+        private void GetButtonImage(Deck deck, int index, DynamicActionMode mode) {
+            var request = new ButtonImageRequest {
+                Deck = deck,
+                Index = index,
+                FromCardSet = mode == DynamicActionMode.Set,
+            };
+
+            var response = SendRequest<ButtonImageResponse>(request);
+            if (response != null) {
+                _eventBus.ButtonImageReceived(response.Name, response.Bytes);
+            }
         }
 
         #endregion

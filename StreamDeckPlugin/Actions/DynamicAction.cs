@@ -174,15 +174,6 @@ namespace StreamDeckPlugin.Actions {
             SetMode(Mode == DynamicActionMode.Pool ? DynamicActionMode.Set : DynamicActionMode.Pool);
         }
 
-        private void ImageLoaded(IDynamicActionInfo dynamicActionInfo) {
-            if (!DynamicActionMatchesButton(dynamicActionInfo)) {
-                return;
-            }
-
-            _imageService.ImageLoaded -= ImageLoaded;
-            SetImageAsync(_imageService.GetImage(dynamicActionInfo));
-        }
-
         public void SetMode(DynamicActionMode mode) {
             _page = 0;
             Mode = mode;
@@ -206,12 +197,10 @@ namespace StreamDeckPlugin.Actions {
             _lastSetTitle = dynamicActionInfo.Text;
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
 
-            if (!dynamicActionInfo.IsImageAvailable) {
-                SetImageAsync(string.Empty);
-            } else if (_imageService.HasImage(dynamicActionInfo)) {
+            if (_imageService.HasImage(dynamicActionInfo.ImageId)) {
                 SetImageAsync(_imageService.GetImage(dynamicActionInfo));
             } else {
-                _imageService.ImageLoaded += ImageLoaded;
+                SetImageAsync(string.Empty);
             }
         }
     }
