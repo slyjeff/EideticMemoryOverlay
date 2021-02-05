@@ -22,6 +22,7 @@ namespace StreamDeckPlugin.Services {
             eventBus.OnDynamicButtonClicked(DynamicButtonClicked);
             eventBus.OnGetInvestigatorImage(GetInvestigatorImage);
             eventBus.OnShowDeckList(ShowDeckList);
+            eventBus.OnTakeSnapshot(TakeSnapshot);
         }
 
         public string SendRequest(Request request) {
@@ -72,6 +73,10 @@ namespace StreamDeckPlugin.Services {
 
         private void ShowDeckList(Deck deck) {
             SendRequest(new ShowDeckListRequest { Deck = deck });
+        }
+
+        private void TakeSnapshot() {
+            SendRequest(new SnapshotRequest());
         }
 
         #endregion

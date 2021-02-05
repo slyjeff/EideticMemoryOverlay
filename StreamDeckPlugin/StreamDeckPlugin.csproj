@@ -116,6 +116,7 @@
     <Compile Include="Actions\PageLeftAction.cs" />
     <Compile Include="Actions\PageRightAction.cs" />
     <Compile Include="Actions\TrackStatAction.cs" />
+    <Compile Include="Events\TakeSnapshot.cs" />
     <Compile Include="Events\GetInvestigatorImage.cs" />
     <Compile Include="Events\ShowDeckList.cs" />
     <Compile Include="Events\GetButtonInfo.cs" />
