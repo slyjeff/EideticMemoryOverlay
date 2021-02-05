@@ -1,6 +1,4 @@
 ﻿using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.TcpUtils.Requests;
-using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
@@ -13,7 +11,6 @@ using System.Timers;
 namespace StreamDeckPlugin.Actions {
     public abstract class TrackStatAction : StreamDeckAction {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
-        private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
         private TrackStatSettings _settings = new TrackStatSettings();
 
         private Timer _keyPressTimer = new Timer(700);
@@ -48,11 +45,8 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<TrackStatSettings>();
 
-            var response = _sendSocketService.SendRequest<StatValueResponse>(new StatValueRequest { Deck = Deck, StatType = StatType });
-            if (response == null) {
-                return Task.CompletedTask;
-            }
-            _value = response.Value;
+            _eventBus.GetStatValue(Deck, StatType);
+
             return SetTitleAsync(_value.ToString());
         }
 
@@ -90,13 +84,13 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void SendStatValueRequest(bool increase) {
-            var response = _sendSocketService.SendRequest<StatValueResponse>(new ChangeStatValueRequest { Deck = Deck, StatType = StatType, Increase = increase });
-            _value = response.Value;
-            SetTitleAsync(_value.ToString());
+            _eventBus.ChangeStatValue(Deck, StatType, increase);
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
+
+            _eventBus.GetStatValue(Deck, StatType);
 
             await SetSettingsAsync(_settings);
         }

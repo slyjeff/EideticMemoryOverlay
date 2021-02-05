@@ -13,8 +13,10 @@ namespace StreamDeckPlugin.Services {
 
     public class StreamDeckSendSocketService : ISendSocketService {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
+        private readonly IEventBus _eventBus;
 
         public StreamDeckSendSocketService(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore) {
+            _eventBus = eventBus;
             _dynamicActionInfoStore = dynamicActionInfoStore;
 
             eventBus.OnClearAllCards(ClearAllCards);
@@ -23,6 +25,8 @@ namespace StreamDeckPlugin.Services {
             eventBus.OnGetInvestigatorImage(GetInvestigatorImage);
             eventBus.OnShowDeckList(ShowDeckList);
             eventBus.OnTakeSnapshot(TakeSnapshot);
+            eventBus.OnGetStatValue(GetStatValue);
+            eventBus.OnChangeStatValue(ChangeStatValue);
         }
 
         public string SendRequest(Request request) {
@@ -77,6 +81,24 @@ namespace StreamDeckPlugin.Services {
 
         private void TakeSnapshot() {
             SendRequest(new SnapshotRequest());
+        }
+
+        private void GetStatValue(Deck deck, StatType statType) {
+            var response = SendRequest<StatValueResponse>(new StatValueRequest { Deck = deck, StatType = statType });
+            if (response == null) {
+                return;
+            }
+
+            _eventBus.StatUpdated(deck, statType, response.Value);
+        }
+
+        private void ChangeStatValue(Deck deck, StatType statType, bool increase) {
+            var response = SendRequest<StatValueResponse>(new ChangeStatValueRequest { Deck = deck, StatType = statType, Increase = increase });
+            if (response == null) {
+                return;
+            }
+
+            _eventBus.StatUpdated(deck, statType, response.Value);
         }
 
         #endregion
