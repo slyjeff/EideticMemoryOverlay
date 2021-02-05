@@ -2,7 +2,7 @@
 using ArkhamOverlay.TcpUtils.Requests;
 using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json;
-using System;
+using StreamDeckPlugin.Events;
 
 namespace StreamDeckPlugin.Services {
     public interface ISendSocketService {
@@ -11,14 +11,9 @@ namespace StreamDeckPlugin.Services {
     }
 
     public class StreamDeckSendSocketService : ISendSocketService {
-        public static ISendSocketService Service { get; private set; }
 
-        public StreamDeckSendSocketService() {
-            if (Service != null) {
-                throw new Exception("Only one instance of Service may be created");
-            }
-
-            Service = this;
+        public StreamDeckSendSocketService(IEventBus eventBus) {
+            eventBus.OnClearAllCards(ClearAllCards);
         }
 
         public string SendRequest(Request request) {
@@ -33,6 +28,13 @@ namespace StreamDeckPlugin.Services {
 
             return JsonConvert.DeserializeObject<T>(response);
         }
-    }
 
+        #region Event Handlers
+
+        public void ClearAllCards() {
+            SendRequest(new ClearAllCardsRequest());
+        }
+
+        #endregion
+    }
 }
