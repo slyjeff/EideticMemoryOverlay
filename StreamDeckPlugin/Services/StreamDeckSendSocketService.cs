@@ -20,6 +20,8 @@ namespace StreamDeckPlugin.Services {
             eventBus.OnClearAllCards(ClearAllCards);
             eventBus.OnGetButtonInfo(GetCardInfo);
             eventBus.OnDynamicButtonClicked(DynamicButtonClicked);
+            eventBus.OnGetInvestigatorImage(GetInvestigatorImage);
+            eventBus.OnShowDeckList(ShowDeckList);
         }
 
         public string SendRequest(Request request) {
@@ -62,6 +64,14 @@ namespace StreamDeckPlugin.Services {
                 Click = isLeftClick ? ButtonClick.Left : ButtonClick.Right
             };
             SendRequest(request);
+        }
+
+        private void GetInvestigatorImage(Deck deck) {
+            SendRequest(new GetInvestigatorImageRequest { Deck = deck });
+        }
+
+        private void ShowDeckList(Deck deck) {
+            SendRequest(new ShowDeckListRequest { Deck = deck });
         }
 
         #endregion

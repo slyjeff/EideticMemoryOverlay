@@ -17,7 +17,6 @@ namespace StreamDeckPlugin.Actions {
 
     [StreamDeckAction("Show Deck List", "arkhamoverlay.showdecklist")]
     public class ShowDeckListAction : StreamDeckAction {
-        private readonly ISendSocketService _sendSocketService = ServiceLocator.GetService<ISendSocketService>();
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private ActionWithDeckSettings _settings = new ActionWithDeckSettings();
 
@@ -42,18 +41,20 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
 
-            _sendSocketService.SendRequest(new GetInvestigatorImageRequest { Deck = Deck });
+            _eventBus.GetInvestigatorImage(Deck);
 
             return Task.CompletedTask;
         }
 
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
-            _sendSocketService.SendRequest(new ShowDeckListRequest { Deck = Deck } );
+            _eventBus.ShowDeckList(Deck);
             return Task.CompletedTask;
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
+
+            _eventBus.GetInvestigatorImage(Deck);
 
             await SetSettingsAsync(_settings);
         }
