@@ -10,7 +10,6 @@
         UpdateInvestigatorImage,
         RegisterForUpdates,
         ToggleActAgendaBarRequest,
-        ActAgendaBarStatusRequest,
         ShowDeckList,
         StatValue,
         ChangeStatValue,
@@ -39,8 +38,6 @@
                     return "RegisterForUpdates";
                 case AoTcpRequest.ToggleActAgendaBarRequest:
                     return "ToggleActAgendaBarRequest";
-                case AoTcpRequest.ActAgendaBarStatusRequest:
-                    return "ActAgendaBarStatusRequest";
                 case AoTcpRequest.ShowDeckList:
                     return "ShowDeckList";
                 case AoTcpRequest.StatValue:
@@ -76,8 +73,6 @@
                     return AoTcpRequest.RegisterForUpdates;
                 case "ToggleActAgendaBarRequest":
                     return AoTcpRequest.ToggleActAgendaBarRequest;
-                case "ActAgendaBarStatusRequest":
-                    return AoTcpRequest.ActAgendaBarStatusRequest;
                 case "ShowDeckList":
                     return AoTcpRequest.ShowDeckList;
                 case "StatValue":

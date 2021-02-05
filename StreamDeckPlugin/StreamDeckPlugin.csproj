@@ -112,7 +112,6 @@
     <Compile Include="Actions\TrackHealthAction.cs" />
     <Compile Include="Actions\ShowDeckListAction.cs" />
     <Compile Include="Actions\ToggleSetAction.cs" />
-    <Compile Include="Actions\ToggleActAgendaBarAction.cs" />
     <Compile Include="Actions\ClearCardsAction.cs" />
     <Compile Include="Actions\PageLeftAction.cs" />
     <Compile Include="Actions\PageRightAction.cs" />

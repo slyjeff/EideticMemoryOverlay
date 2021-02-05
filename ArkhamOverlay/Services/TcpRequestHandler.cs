@@ -171,10 +171,6 @@ namespace ArkhamOverlay.Services {
             lock(_registerLock) {
                 if (!_alreadyRegisteredEvents) {
                     var game = _appData.Game;
-                    game.LocationCards.CardSet.Buttons.CollectionChanged += (s, e) => {
-                        SendActAgendaBarStatus(game.LocationCards.CardSet.IsDisplayedOnOverlay);
-                    };
-
                     foreach (var player in game.Players) {
                         player.Health.PropertyChanged += (s, e) => { SendStatInfo(player.Health, GetDeckType(player.SelectableCards), StatType.Health); };
                         player.Sanity.PropertyChanged += (s, e) => { SendStatInfo(player.Sanity, GetDeckType(player.SelectableCards), StatType.Sanity); };
@@ -262,15 +258,6 @@ namespace ArkhamOverlay.Services {
             var getInvestigatorImageRequest = JsonConvert.DeserializeObject<GetInvestigatorImageRequest>(request.Body);
             var player = GetPlayer(getInvestigatorImageRequest.Deck);
             SendInvestigatorImage(player);
-        }
-
-        private void SendActAgendaBarStatus(bool isVisible) {
-            _logger.LogMessage("Sending act/agenda bar status");
-
-            var request = new ActAgendaBarStatusRequest {
-                IsVisible = isVisible
-            };
-            SendStatusToAllRegisteredPorts(request);
         }
 
         private void SendButtonInfoUpdate(ICardButton button, SelectableCards selectableCards) {
