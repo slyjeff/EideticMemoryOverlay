@@ -8,9 +8,10 @@ namespace StreamDeckPlugin.Services {
         event Action<IDynamicActionInfo> ImageLoaded;
         string GetImage(IDynamicActionInfo dynamicActionInfo);
         bool HasImage(string imageId);
+        void UpdateButtonImage(string name, byte[] bytes);
     }
 
-    public class ImageService : IImageService{
+    public class ImageService : IImageService {
         private static IDictionary<string, byte[]> _imageCache = new Dictionary<string, byte[]>();
 
         private readonly IEventBus _eventBus;
@@ -20,7 +21,6 @@ namespace StreamDeckPlugin.Services {
         public ImageService(IEventBus eventBus) {
             _eventBus = eventBus;
             eventBus.OnDynamicActionInfoChanged(DynamicActionChanged);
-            eventBus.OnButtonImageReceived(ButtonImageReceived);
         }
 
         private void DynamicActionChanged(IDynamicActionInfo dynamicActionInfo) {
@@ -35,7 +35,7 @@ namespace StreamDeckPlugin.Services {
             _eventBus.GetButtonImage(dynamicActionInfo.Deck, dynamicActionInfo.Index, dynamicActionInfo.Mode);
         }
 
-        private void ButtonImageReceived(string imageId, byte[] bytes) {
+        public void UpdateButtonImage(string imageId, byte[] bytes) {
             _imageCache[imageId] = bytes;
             _eventBus.ImageLoaded(imageId);
         }

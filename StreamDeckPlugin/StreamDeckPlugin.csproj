@@ -117,7 +117,6 @@
     <Compile Include="Actions\PageRightAction.cs" />
     <Compile Include="Actions\TrackStatAction.cs" />
     <Compile Include="Events\ChangeStatValue.cs" />
-    <Compile Include="Events\ButtonImageReceived.cs" />
     <Compile Include="Events\RegisterForUpdates.cs" />
     <Compile Include="Events\GetButtonImage.cs" />
     <Compile Include="Events\GetStatValue.cs" />

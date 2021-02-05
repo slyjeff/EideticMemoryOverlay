@@ -10,12 +10,14 @@ namespace StreamDeckPlugin.Services {
     }
 
     public class SendEventHandler : ISendEventHandler {
-        private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
         private readonly IEventBus _eventBus;
+        private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
+        private readonly IImageService _imageService;
 
-        public SendEventHandler(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore) {
+        public SendEventHandler(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore, IImageService imageService) {
             _eventBus = eventBus;
             _dynamicActionInfoStore = dynamicActionInfoStore;
+            _imageService = imageService;
 
             eventBus.OnRegisterForUpdates(RegisterForUpdates);
             eventBus.OnClearAllCards(ClearAllCards);
@@ -65,6 +67,19 @@ namespace StreamDeckPlugin.Services {
             }
         }
 
+        private void GetButtonImage(Deck deck, int index, DynamicActionMode mode) {
+            var request = new ButtonImageRequest {
+                Deck = deck,
+                Index = index,
+                FromCardSet = mode == DynamicActionMode.Set,
+            };
+
+            var response = SendRequest<ButtonImageResponse>(request);
+            if (response != null) {
+                _imageService.UpdateButtonImage(response.Name, response.Bytes);
+            }
+        }
+
         private void DynamicButtonClicked(Deck deck, int index, DynamicActionMode mode, bool isLeftClick) {
             var request = new ClickCardButtonRequest {
                 Deck = deck, 
@@ -103,19 +118,6 @@ namespace StreamDeckPlugin.Services {
             }
 
             _eventBus.StatUpdated(deck, statType, response.Value);
-        }
-
-        private void GetButtonImage(Deck deck, int index, DynamicActionMode mode) {
-            var request = new ButtonImageRequest {
-                Deck = deck,
-                Index = index,
-                FromCardSet = mode == DynamicActionMode.Set,
-            };
-
-            var response = SendRequest<ButtonImageResponse>(request);
-            if (response != null) {
-                _eventBus.ButtonImageReceived(response.Name, response.Bytes);
-            }
         }
 
         #endregion
