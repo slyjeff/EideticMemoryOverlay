@@ -111,7 +111,7 @@ namespace ArkhamOverlay.Services {
                 }
             } else {
                 if (!string.IsNullOrEmpty(arkhamDbCard.ImageSrc)) arkhamDbCard.ImageSrc = "https://arkhamdb.com/" + arkhamDbCard.ImageSrc;
-                if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) arkhamDbCard.ImageSrc = "https://arkhamdb.com/" + arkhamDbCard.BackImageSrc;
+                if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) arkhamDbCard.BackImageSrc = "https://arkhamdb.com/" + arkhamDbCard.BackImageSrc;
             }
 
             return arkhamDbCard;

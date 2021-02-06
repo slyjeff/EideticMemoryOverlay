@@ -18,6 +18,10 @@ namespace ArkhamOverlay.Utils {
         private static readonly Dictionary<string, BitmapImage> CardImageCache = new Dictionary<string, BitmapImage>();
 
         public static void LoadImage(this IHasImageButton hasImageButton, string url) {
+            if (string.IsNullOrEmpty(url)) {
+                return;
+            }
+
             if (Application.Current.Dispatcher.CheckAccess()) {
                 DoLoadImage(hasImageButton, url);
             } else {
