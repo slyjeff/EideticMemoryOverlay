@@ -40,7 +40,7 @@ namespace StreamDeckPlugin.Services {
 
                 dynamicActionInfo.UpdateFromCardInfo(cardInfo);
 
-                _eventBus.DynamicActionInfoChanged(dynamicActionInfo);
+                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
             }
         }
 
@@ -50,7 +50,7 @@ namespace StreamDeckPlugin.Services {
                                                   select dynamicActionInfo;
 
             foreach (var dynamicActionInfo in dynamicActionInfoWithImageItems) {
-                _eventBus.DynamicActionInfoChanged(dynamicActionInfo);
+                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
             }
         }
     }

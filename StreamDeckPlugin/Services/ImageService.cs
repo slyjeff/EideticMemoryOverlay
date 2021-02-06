@@ -38,7 +38,7 @@ namespace StreamDeckPlugin.Services {
 
         public void UpdateButtonImage(string imageId, byte[] bytes) {
             _imageCache[imageId] = bytes;
-            _eventBus.PublicImageLoadedEvent(imageId);
+            _eventBus.PublishImageLoadedEvent(imageId);
         }
 
         public string GetImage(IDynamicActionInfo dynamicAction) {

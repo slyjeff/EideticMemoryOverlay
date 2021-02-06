@@ -16,7 +16,7 @@ namespace StreamDeckPlugin.Events {
     }
 
     public static class ChangeStatValueRequestExtensions {
-        public static void PublicChangeStatValueRequest(this IEventBus eventBus, Deck deck, StatType statType, bool increase) {
+        public static void PublishChangeStatValueRequest(this IEventBus eventBus, Deck deck, StatType statType, bool increase) {
             eventBus.Publish(new ChangeStatValueRequest(deck, statType, increase));
         }
 

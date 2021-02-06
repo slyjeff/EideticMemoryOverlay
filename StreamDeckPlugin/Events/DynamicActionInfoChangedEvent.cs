@@ -11,7 +11,7 @@ namespace StreamDeckPlugin.Events {
     }
 
     public static class DynamicActionInfoChangedEventExtensions {
-        public static void DynamicActionInfoChanged(this IEventBus eventBus, IDynamicActionInfo dynamicActionInfo) {
+        public static void PublishDynamicActionInfoChanged(this IEventBus eventBus, IDynamicActionInfo dynamicActionInfo) {
             eventBus.Publish(new DynamicActionInfoChangedEvent(dynamicActionInfo));
         }
 

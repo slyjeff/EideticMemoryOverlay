@@ -6,7 +6,7 @@ namespace StreamDeckPlugin.Events {
     }
 
     public static class ClearAllCardsRequestExtensions {
-        public static void PublicClearAllCardsRequest(this IEventBus eventBus) {
+        public static void PublishClearAllCardsRequest(this IEventBus eventBus) {
             eventBus.Publish(new ClearAllCardsRequest());
         }
 

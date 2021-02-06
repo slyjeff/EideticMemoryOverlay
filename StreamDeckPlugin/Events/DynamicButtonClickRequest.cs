@@ -18,7 +18,7 @@ namespace StreamDeckPlugin.Events {
     }
 
     public static class DynamicButtonClickExtensions {
-        public static void PublicDynamicButtonClickRequest(this IEventBus eventBus, Deck deck, int index, DynamicActionMode mode, bool isLeftClick) {
+        public static void PublishDynamicButtonClickRequest(this IEventBus eventBus, Deck deck, int index, DynamicActionMode mode, bool isLeftClick) {
             eventBus.Publish(new DynamicButtonClickRequest(deck, index, mode, isLeftClick));
         }
 

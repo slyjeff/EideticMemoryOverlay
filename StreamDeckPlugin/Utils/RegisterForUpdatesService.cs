@@ -27,7 +27,7 @@ namespace StreamDeckPlugin.Utils {
                 return;
             }
 
-            _eventBus.RegisterForUpdates();
+            _eventBus.PublishRegisterForUpdatesRequest();
         }
 
         public void RegisterForUpdates() {

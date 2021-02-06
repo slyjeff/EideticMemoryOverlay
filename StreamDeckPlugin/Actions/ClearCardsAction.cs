@@ -11,7 +11,7 @@ namespace StreamDeckPlugin.Actions {
     public class ClearCardsAction : StreamDeckAction {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            _eventBus.PublicClearAllCardsRequest();
+            _eventBus.PublishClearAllCardsRequest();
             return Task.CompletedTask;
         }
     }

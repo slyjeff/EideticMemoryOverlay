@@ -11,7 +11,7 @@ namespace StreamDeckPlugin.Events {
     }
 
     public static class ImageLoadedEventExtensions {
-        public static void PublicImageLoadedEvent(this IEventBus eventBus, string imageId) {
+        public static void PublishImageLoadedEvent(this IEventBus eventBus, string imageId) {
             eventBus.Publish(new ImageLoadedEvent(imageId));
         }
 

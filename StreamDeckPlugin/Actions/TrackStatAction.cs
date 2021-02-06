@@ -87,7 +87,7 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void SendStatValueRequest(bool increase) {
-            _eventBus.PublicChangeStatValueRequest(Deck, StatType, increase);
+            _eventBus.PublishChangeStatValueRequest(Deck, StatType, increase);
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {

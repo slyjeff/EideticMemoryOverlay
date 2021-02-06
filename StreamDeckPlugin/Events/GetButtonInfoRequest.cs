@@ -16,7 +16,7 @@ namespace StreamDeckPlugin.Events {
     }
 
     public static class GetButtonInfoRequestExtensions {
-        public static void PublicGetButtonInfoRequest(this IEventBus eventBus, Deck deck, int index, DynamicActionMode mode) {
+        public static void PublishGetButtonInfoRequest(this IEventBus eventBus, Deck deck, int index, DynamicActionMode mode) {
             eventBus.Publish(new GetButtonInfoRequest(deck, index, mode));
         }
 

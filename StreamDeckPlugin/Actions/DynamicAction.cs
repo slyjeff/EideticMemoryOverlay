@@ -128,14 +128,14 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void SendClick(bool isLeftClick) {
-            _eventBus.PublicDynamicButtonClickRequest(Deck, Index, Mode, isLeftClick);
+            _eventBus.PublishDynamicButtonClickRequest(Deck, Index, Mode, isLeftClick);
 
             //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
         }
 
         private void GetButtonInfo() {
-            _eventBus.PublicGetButtonInfoRequest(Deck, Index, Mode);
+            _eventBus.PublishGetButtonInfoRequest(Deck, Index, Mode);
         }
 
         private bool DynamicActionMatchesButton(IDynamicActionInfo dynamicActionInfo) {
