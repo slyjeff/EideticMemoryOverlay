@@ -4,8 +4,10 @@ using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
+using StreamDeckPlugin.Events;
+using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 
 namespace StreamDeckPlugin.Actions {
@@ -16,12 +18,17 @@ namespace StreamDeckPlugin.Actions {
 
     [StreamDeckAction("Show Deck List", "arkhamoverlay.showdecklist")]
     public class ShowDeckListAction : StreamDeckAction {
-        public static IList<ShowDeckListAction> ListOf = new List<ShowDeckListAction>();
-
-        private ShowDeckSettings _settings = new ShowDeckSettings();
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
+        private ActionWithDeckSettings _settings = new ActionWithDeckSettings();
 
         public ShowDeckListAction() {
-            ListOf.Add(this);
+            _eventBus.SubscribeToInvestigatorImageUpdatedEvent(InvestigatorImageUpdated);
+        }
+
+        private void InvestigatorImageUpdated(InvestigatorImageUpdatedEvent investigatorImageUpdatedEvent) {
+            if (investigatorImageUpdatedEvent.Deck == Deck) {
+                SetImageAsync(ImageUtils.CreateStreamdeckImage(investigatorImageUpdatedEvent.Bytes));
+            }
         }
 
         public Deck Deck {
@@ -35,20 +42,22 @@ namespace StreamDeckPlugin.Actions {
         }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
-            _settings = args.Payload.GetSettings<ShowDeckSettings>();
+            _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
 
-            StreamDeckSendSocketService.SendRequest(new GetInvestigatorImageRequest { Deck = Deck });
+            _eventBus.PublishGetInvestigatorImageRequest(Deck);
 
             return Task.CompletedTask;
         }
 
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
-            StreamDeckSendSocketService.SendRequest(new ShowDeckListRequest { Deck = Deck } );
+            _eventBus.PublishShowDeckListRequest(Deck);
             return Task.CompletedTask;
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
+
+            _eventBus.PublishGetInvestigatorImageRequest(Deck);
 
             await SetSettingsAsync(_settings);
         }

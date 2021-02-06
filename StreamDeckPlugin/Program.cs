@@ -1,24 +1,40 @@
 ﻿using ArkhamOverlay.TcpUtils;
+using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
-using System.Threading;
-using System.Timers;
 
 namespace StreamDeckPlugin {
     class Program {
         public static void Main(string[] args) {
 #if DEBUG
             // optional, but recommended
-            //System.Diagnostics.Debugger.Launch();
+            System.Diagnostics.Debugger.Launch();
 #endif
+            var container = new StructureMap.Container(x => {
+                x.Scan(y => {
+                    y.TheCallingAssembly();
+                    y.WithDefaultConventions();
+                });
+            });
 
-            var requestHandler = new TcpRequestHandler();
+            container.Configure(x => {
+                x.For<IEventBus>().Use<EventBus>().Singleton();
+                x.For<IDynamicActionInfoStore>().Use<DynamicActionInfoStore>().Singleton();
+                x.For<ISendEventHandler>().Use<SendEventHandler>().Singleton();
+                x.For<IImageService>().Use<ImageService>().Singleton();
+                x.For<IRequestHandler>().Use<TcpRequestHandler>();
+                x.For<IReceiveSocketService>().Use<ReceiveSocketService>();
+                x.For<IEstablishConnectionToUiService>().Use<EstablishConnectionToUiService>();
+            });
+
+            ServiceLocator.Container = container;
 
             //keep references or garbage collection will clean this up and we'll stop receiving events
-            var receiveSocketService = new ReceiveSocketService(requestHandler);
+            var sendEventHandler = container.GetInstance<ISendEventHandler>();
+            var receiveSocketService = container.GetInstance<IReceiveSocketService>();
             receiveSocketService.StartListening(StreamDeckTcpInfo.Port);
 
-            var registerForUpdatesService = new RegisterForUpdatesService(requestHandler);
-            registerForUpdatesService.RegisterForUpdates();
+            var establishConnectionToUiService = container.GetInstance<IEstablishConnectionToUiService>();
+            establishConnectionToUiService.AttemptToEstablishConnection();
 
             // register actions and connect to the Stream Deck
             SharpDeck.StreamDeckPlugin.Run();

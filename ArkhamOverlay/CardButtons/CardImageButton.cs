@@ -9,6 +9,7 @@ namespace ArkhamOverlay.CardButtons {
 
             Card = card;
             Text = card.Name;
+            IsToggled = card.IsDisplayedOnOverlay;
 
             card.IsDisplayedOnOverlayChanged += (isDisplayedOnOverlay) => { 
                 IsToggled = isDisplayedOnOverlay;
