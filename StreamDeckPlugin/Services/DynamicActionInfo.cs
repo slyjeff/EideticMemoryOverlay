@@ -1,10 +1,13 @@
 ﻿using ArkhamOverlay.TcpUtils;
 
 namespace StreamDeckPlugin.Services {
-    public interface IDynamicActionInfo {
+    public interface IDynamicActionInfoContext {
         Deck Deck { get; }
         int Index { get; }
         DynamicActionMode Mode { get; }
+    }
+
+    public interface IDynamicActionInfo : IDynamicActionInfoContext {
         bool IsImageAvailable { get; set; }
         string ImageId { get; set; }
         string Text { get; set; }
@@ -28,6 +31,10 @@ namespace StreamDeckPlugin.Services {
     }
 
     static class DynamicActionInfoExtensions {
+        public static bool HasSameContext(this IDynamicActionInfoContext a, IDynamicActionInfoContext b) {
+            return a.Deck == b.Deck && a.Index == b.Index && a.Mode == b.Mode;
+        }
+
         static internal bool CardInfoHasChanged(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {
             return dynamicActionInfo.Text != cardInfo.Name
                 || dynamicActionInfo.IsToggled != cardInfo.IsToggled

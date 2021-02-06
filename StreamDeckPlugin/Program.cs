@@ -7,7 +7,7 @@ namespace StreamDeckPlugin {
         public static void Main(string[] args) {
 #if DEBUG
             // optional, but recommended
-            //System.Diagnostics.Debugger.Launch();
+            System.Diagnostics.Debugger.Launch();
 #endif
             var container = new StructureMap.Container(x => {
                 x.Scan(y => {

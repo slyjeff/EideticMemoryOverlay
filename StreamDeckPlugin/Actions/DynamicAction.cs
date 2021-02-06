@@ -12,7 +12,7 @@ using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
-    public class DynamicAction : StreamDeckAction<ActionWithDeckSettings> {
+    public class DynamicAction : StreamDeckAction<ActionWithDeckSettings>, IDynamicActionInfoContext {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore = ServiceLocator.GetService<IDynamicActionInfoStore>();
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
@@ -108,7 +108,7 @@ namespace StreamDeckPlugin.Actions {
                 _keyIsDown = false;
                 _keyPressTimer.Enabled = false;
 
-                SendClick(false);
+                SendClick(isLeftClick: false);
             }
         }
 
@@ -121,7 +121,7 @@ namespace StreamDeckPlugin.Actions {
                 _keyPressTimer.Enabled = false;
 
                 _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-                SendClick(true);
+                SendClick(isLeftClick: true);
 
                 return Task.CompletedTask;
             }
@@ -150,7 +150,7 @@ namespace StreamDeckPlugin.Actions {
 
             var dynamicActionInfo = dynamicActionInfoChangedEvent.DynamicActionInfo;
 
-            if (!DynamicActionMatchesButton(dynamicActionInfo)) {
+            if (!dynamicActionInfo.HasSameContext(this)) {
                 return;
             }
 
@@ -200,8 +200,12 @@ namespace StreamDeckPlugin.Actions {
             if (_imageService.HasImage(dynamicActionInfo.ImageId)) {
                 SetImageAsync(_imageService.GetImage(dynamicActionInfo));
             } else {
-                SetImageAsync(string.Empty);
+                ClearImage();
             }
+        }
+
+        private void ClearImage() {
+            SetImageAsync(string.Empty);
         }
     }
 }
