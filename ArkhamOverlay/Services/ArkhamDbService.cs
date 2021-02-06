@@ -12,11 +12,13 @@ namespace ArkhamOverlay.Services {
         private readonly LoggingService _logger;
         private readonly AppData _appData;
         private readonly LocalCardsService _localCardsService;
+        private readonly CardImageService _cardImageService;
 
-        public ArkhamDbService(LoggingService loggingService, AppData appData, LocalCardsService localCardsService) {
+        public ArkhamDbService(LoggingService loggingService, AppData appData, LocalCardsService localCardsService, CardImageService cardImageService) {
             _logger = loggingService;
             _appData = appData;
             _localCardsService = localCardsService;
+            _cardImageService = cardImageService;
         }
 
         internal void LoadPlayer(Player player) {
@@ -40,9 +42,9 @@ namespace ArkhamOverlay.Services {
                 player.Slots = arkhamDbDeck.Slots;
                 var localCard = _localCardsService.GetCardById(arkhamDbDeck.Investigator_Code);
                 if (localCard != null) {
-                    player.LoadImage(localCard.FilePath);
+                    _cardImageService.LoadImage(player, localCard.FilePath);
                 } else {
-                    player.LoadImage("https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png");
+                    _cardImageService.LoadImage(player, "https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png");
                 }
             }
 

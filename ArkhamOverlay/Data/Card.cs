@@ -2,7 +2,6 @@
 using ArkhamOverlay.Services;
 using ArkhamOverlay.Utils;
 using System;
-using System.IO;
 using System.Windows;
 using System.Windows.Media;
 
@@ -32,7 +31,9 @@ namespace ArkhamOverlay.Data {
             if (Application.Current == null) {
                 return;
             }
-            this.LoadImage(ImageSource);
+
+            var cardImageService = ServiceLocator.GetService<CardImageService>();
+            cardImageService.LoadImage(this, ImageSource);
         }
 
         public Card(LocalManifestCard localCard, bool cardBack) {
@@ -53,7 +54,9 @@ namespace ArkhamOverlay.Data {
             if (Application.Current == null) {
                 return;
             }
-            this.LoadImage(ImageSource);
+
+            var cardImageService = ServiceLocator.GetService<CardImageService>();
+            cardImageService.LoadImage(this, ImageSource);
         }
 
         public string Name { get; }
@@ -70,7 +73,7 @@ namespace ArkhamOverlay.Data {
 
         public CardType Type { get; }
         
-        CardType IHasImageButton.ImageCardType { get { return Type; } }
+        public CardType ImageCardType { get { return Type; } }
 
         public Color CardColor {
             get {
