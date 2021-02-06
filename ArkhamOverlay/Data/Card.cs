@@ -59,7 +59,7 @@ namespace ArkhamOverlay.Data {
         public string Code { get; }
         public Faction Faction { get; set; }
         public int Count { get; set; }
-        public string ImageSource { get; }
+        public string ImageSource { get; set; }
         public ImageSource Image { get; set; }
         public ImageSource ButtonImage { get; set; }
         public byte[] ButtonImageAsBytes { get; set; }

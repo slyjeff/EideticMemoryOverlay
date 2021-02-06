@@ -16,21 +16,21 @@ namespace ArkhamOverlay.Services {
             _logger = loggingService;
         }
 
-        public void LoadImage(IHasImageButton hasImageButton, string imageLocation) {
-            if (string.IsNullOrEmpty(imageLocation)) {
+        public void LoadImage(IHasImageButton hasImageButton) {
+            if (string.IsNullOrEmpty(hasImageButton.ImageSource)) {
                 return;
             }
 
             if (Application.Current.Dispatcher.CheckAccess()) {
-                DoLoadImage(hasImageButton, imageLocation);
+                DoLoadImage(hasImageButton);
             } else {
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                    DoLoadImage(hasImageButton, imageLocation);
+                    DoLoadImage(hasImageButton);
                 }));
             }
         }
 
-        private void DoLoadImage(IHasImageButton hasImageButton, string location) {
+        private void DoLoadImage(IHasImageButton hasImageButton) {
             try {
                 _logger.LogMessage($"Loading image for button {hasImageButton.Name}");
 
@@ -47,7 +47,7 @@ namespace ArkhamOverlay.Services {
                     return;
                 }
 
-                var uri = new Uri(location, UriKind.Absolute);
+                var uri = new Uri(hasImageButton.ImageSource, UriKind.Absolute);
                 if (uri.IsFile) {
                     var localImage = ImageUtils.LoadLocalImage(uri);
                     hasImageButton.Image = localImage;

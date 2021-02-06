@@ -40,6 +40,8 @@ namespace ArkhamOverlay.Data {
 
         CardType IHasImageButton.ImageCardType { get { return CardType.Investigator; } }
 
+        public string ImageSource { get; set; }
+
         private ImageSource _image;
         public ImageSource Image { 
             get => _image; 

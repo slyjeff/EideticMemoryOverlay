@@ -99,10 +99,12 @@ namespace ArkhamOverlay.Services {
 
             var localCard = _localCardsService.GetCardById(arkhamDbDeck.Investigator_Code);
             if (localCard != null) {
-                _cardImageService.LoadImage(player, localCard.FilePath);
+                player.ImageSource = localCard.FilePath;
             } else {
-                _cardImageService.LoadImage(player, playerCard.ImageSrc);
+                player.ImageSource = localCard.FilePath;
             }
+
+            _cardImageService.LoadImage(player);
 
             if (Enum.TryParse(playerCard.Faction_Name, ignoreCase: true, out Faction faction)) {
                 player.Faction = faction;
@@ -229,7 +231,7 @@ namespace ArkhamOverlay.Services {
 
                         var card = new Card(arkhamDbCard, slot.Value, true);
 
-                        _cardImageService.LoadImage(card, card.ImageSource);
+                        _cardImageService.LoadImage(card);
 
                         cards.Add(card);
 
@@ -251,7 +253,7 @@ namespace ArkhamOverlay.Services {
                                     }
 
                                     var bondedCard = new Card(bondedArkhamDbCard, bondedCardInfo.Count, isPlayerCard: true, isBonded: true);
-                                    _cardImageService.LoadImage(bondedCard, bondedCard.ImageSource);
+                                    _cardImageService.LoadImage(bondedCard);
                                     cards.Add(bondedCard);
                                 } else {
                                     _logger.LogError($"Could not find player {player.ID} bonded card: {bondedCardInfo.Code}, bonded to: {slot.Key}");
@@ -307,11 +309,11 @@ namespace ArkhamOverlay.Services {
                     }
 
                     var newCard = new Card(arkhamDbCard, 1, isPlayerCard: false);
-                    _cardImageService.LoadImage(newCard, newCard.ImageSource);
+                    _cardImageService.LoadImage(newCard);
                     cards.Add(newCard);
                     if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) {
                         var newCardBack = new Card(arkhamDbCard, 1, isPlayerCard: false, cardBack: true);
-                        _cardImageService.LoadImage(newCardBack, newCardBack.ImageSource);
+                        _cardImageService.LoadImage(newCardBack);
                         newCard.FlipSideCard = newCardBack;
                         newCardBack.FlipSideCard = newCard;
                         cards.Add(newCardBack);
@@ -320,12 +322,12 @@ namespace ArkhamOverlay.Services {
 
                 foreach (var localCard in localCards) {
                     var newLocalCard = new Card(localCard, false);
-                    _cardImageService.LoadImage(newLocalCard, newLocalCard.ImageSource);
+                    _cardImageService.LoadImage(newLocalCard);
                     cards.Add(newLocalCard);
 
                     if (localCard.HasBack) {
                         var newLocalCardBack = new Card(localCard, true);
-                        _cardImageService.LoadImage(newLocalCardBack, newLocalCardBack.ImageSource);
+                        _cardImageService.LoadImage(newLocalCardBack);
                         cards.Add(newLocalCardBack);
                     }
                 }
