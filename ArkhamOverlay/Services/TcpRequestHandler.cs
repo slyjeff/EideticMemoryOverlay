@@ -171,10 +171,6 @@ namespace ArkhamOverlay.Services {
             lock(_registerLock) {
                 if (!_alreadyRegisteredEvents) {
                     var game = _appData.Game;
-                    game.LocationCards.CardSet.Buttons.CollectionChanged += (s, e) => {
-                        SendActAgendaBarStatus(game.LocationCards.CardSet.IsDisplayedOnOverlay);
-                    };
-
                     foreach (var player in game.Players) {
                         player.Health.PropertyChanged += (s, e) => { SendStatInfo(player.Health, GetDeckType(player.SelectableCards), StatType.Health); };
                         player.Sanity.PropertyChanged += (s, e) => { SendStatInfo(player.Sanity, GetDeckType(player.SelectableCards), StatType.Sanity); };
@@ -264,15 +260,6 @@ namespace ArkhamOverlay.Services {
             SendInvestigatorImage(player);
         }
 
-        private void SendActAgendaBarStatus(bool isVisible) {
-            _logger.LogMessage("Sending act/agenda bar status");
-
-            var request = new ActAgendaBarStatusRequest {
-                IsVisible = isVisible
-            };
-            SendStatusToAllRegisteredPorts(request);
-        }
-
         private void SendButtonInfoUpdate(ICardButton button, SelectableCards selectableCards) {
             _logger.LogMessage("Sending button info update");
 
@@ -292,6 +279,12 @@ namespace ArkhamOverlay.Services {
                 ImageAvailable = card?.ButtonImageAsBytes != null,
                 IsCardInSet = false
             };
+
+            //this sometimes happen when a button isn't in a list yet (on create)
+            ///TODO: there's probably a cleaner way
+            if (request.Index == -1) {
+                return;               
+            }
 
             SendStatusToAllRegisteredPorts(request);
         }
@@ -313,6 +306,12 @@ namespace ArkhamOverlay.Services {
                 ImageAvailable = card?.ButtonImageAsBytes != null,
                 IsCardInSet = true
             };
+
+            //this sometimes happen when a button isn't in a list yet (on create)
+            ///TODO: there's probably a cleaner way
+            if (request.Index == -1) {
+                return;
+            }
 
             SendStatusToAllRegisteredPorts(request);
         }

@@ -1,18 +1,14 @@
-﻿using ArkhamOverlay.TcpUtils;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 
 namespace StreamDeckPlugin.Utils {
     public static class ImageUtils {
-        public static IDictionary<string, byte[]> ImageCache = new Dictionary<string, byte[]>();
-
         const int ImageHeightAndWidth = 220;
 
         public static string BlankImage() {
-            var bitmap = CreateSolidBackgroundBitmap(CardButtonType.Action);
+            var bitmap = CreateSolidBackgroundBitmap(Color.Black);
 
             var converter = new ImageConverter();
             var converted = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
@@ -21,13 +17,13 @@ namespace StreamDeckPlugin.Utils {
             return "data:image/png;base64," + imageString;
         }
 
-        public static string AsImage(this ICardInfo cardInfo) {
-            var bitmap = ImageCache.ContainsKey(cardInfo.Name)
-                       ? CreateCardArtBitmap(ImageCache[cardInfo.Name])
-                       : CreateSolidBackgroundBitmap(cardInfo.CardButtonType);
+        public static string CreateStreamdeckImage(byte[] bytes, bool isToggled = false) {
+            var bitmap = (bytes == null)
+                ? CreateSolidBackgroundBitmap(Color.Black)
+                : CreateImageFromBytes(bytes);
 
-            if (cardInfo.IsToggled) {
-                DrawSelected(bitmap);
+            if (isToggled) {
+                ImageUtils.DrawSelectedRingOnImage(bitmap);
             }
 
             var converter = new ImageConverter();
@@ -37,20 +33,7 @@ namespace StreamDeckPlugin.Utils {
             return "data:image/png;base64," + imageString;
         }
 
-        public static string AsImage(this byte[] bytes) {
-            var bitmap = (bytes == null)
-                ? CreateSolidBackgroundBitmap(CardButtonType.Action)
-                : CreateCardArtBitmap(bytes);
-
-            var converter = new ImageConverter();
-            var converted = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
-            var imageString = Convert.ToBase64String(converted);
-
-            return "data:image/png;base64," + imageString;
-        }
-
-
-        private static void DrawSelected(Bitmap bitmap) {
+        public static void DrawSelectedRingOnImage(Bitmap bitmap) {
             var pen = new Pen(Color.Goldenrod, 16);
             using (Graphics G = Graphics.FromImage(bitmap)) {
                 G.DrawRoundedRectangle(pen, new Rectangle(0, 0, ImageHeightAndWidth, ImageHeightAndWidth), 30);
@@ -93,18 +76,21 @@ namespace StreamDeckPlugin.Utils {
             }
         }
 
-
-        private static Bitmap CreateSolidBackgroundBitmap(CardButtonType cardButtonType) {
+        private static Bitmap CreateSolidBackgroundBitmap(Color color) {
             var bitmap = new Bitmap(ImageHeightAndWidth, ImageHeightAndWidth);
             using (var gfx = Graphics.FromImage(bitmap)) {
-                var brush = new SolidBrush(cardButtonType.AsColor());
+                var brush = new SolidBrush(color);
                 gfx.FillRectangle(brush, 0, 0, ImageHeightAndWidth, ImageHeightAndWidth);
             }
 
             return bitmap;
         }
 
-        private static Bitmap CreateCardArtBitmap(byte[] bytes) {
+        private static Bitmap CreateImageFromBytes(byte[] bytes) {
+            if (bytes == null) {
+                return CreateSolidBackgroundBitmap(Color.Black);
+            }
+
             Bitmap bitmap;
             using (var stream = new MemoryStream(bytes)) {
                 bitmap = new Bitmap(stream);

@@ -1,18 +1,17 @@
 ﻿using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.TcpUtils.Requests;
-using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
+using StreamDeckPlugin.Events;
+using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 using System.Timers;
 
 namespace StreamDeckPlugin.Actions {
     public abstract class TrackStatAction : StreamDeckAction {
-        public static IList<TrackStatAction> ListOf = new List<TrackStatAction>();
-
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private TrackStatSettings _settings = new TrackStatSettings();
 
         private Timer _keyPressTimer = new Timer(700);
@@ -21,9 +20,17 @@ namespace StreamDeckPlugin.Actions {
 
         public TrackStatAction(StatType statType) {
             StatType = statType;
-            ListOf.Add(this);
+
+            _eventBus.SubscribeToStatUpdatedEvent(StatUpdated);
+
             _keyPressTimer.Enabled = false;
             _keyPressTimer.Elapsed += KeyHeldDown;
+        }
+
+        private void StatUpdated(StatUpdatedEvent statUpdatedEvent) {
+            if (statUpdatedEvent.Deck == Deck && statUpdatedEvent.StatType == StatType) {
+                UpdateValue(statUpdatedEvent.Value);
+            }
         }
 
         public Deck Deck {
@@ -41,8 +48,8 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<TrackStatSettings>();
 
-            var response = StreamDeckSendSocketService.SendRequest<StatValueResponse>(new StatValueRequest { Deck = Deck, StatType = StatType });
-            _value = response.Value;
+            _eventBus.PublishGetStatValueRequest(Deck, StatType);
+
             return SetTitleAsync(_value.ToString());
         }
 
@@ -80,13 +87,13 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void SendStatValueRequest(bool increase) {
-            var response = StreamDeckSendSocketService.SendRequest<StatValueResponse>(new ChangeStatValueRequest { Deck = Deck, StatType = StatType, Increase = increase });
-            _value = response.Value;
-            SetTitleAsync(_value.ToString());
+            _eventBus.PublishChangeStatValueRequest(Deck, StatType, increase);
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
+
+            _eventBus.PublishGetStatValueRequest(Deck, StatType);
 
             await SetSettingsAsync(_settings);
         }

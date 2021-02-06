@@ -112,8 +112,8 @@
             ]
         },
         {
-            "Name": "Card Button",
-            "UUID": "arkhamoverlay.cardbutton",
+            "Name": "Dynamic Action",
+            "UUID": "arkhamoverlay.dynamicaction",
             "Tooltip": "Take the contextual action based on grid location and deck",
             "States": [
                 {

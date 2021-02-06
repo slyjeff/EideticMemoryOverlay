@@ -2,21 +2,18 @@
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
+using StreamDeckPlugin.Events;
+using StreamDeckPlugin.Services;
+using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Toggle Set", "arkhamoverlay.toggleset")]
     public class ToggleSetAction : StreamDeckAction {
-        protected async override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
-            foreach (var cardButtonAction in CardButtonAction.ListOf) {
-                if (!cardButtonAction.IsVisible) {
-                    continue;
-                }
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
 
-                cardButtonAction.Page = 0;
-                cardButtonAction.ShowCardSet = !cardButtonAction.ShowCardSet;
-
-                await cardButtonAction.GetButtonInfo();
-            }
+        protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
+            _eventBus.PublishModeToggledEvent();
+            return Task.CompletedTask;
         }
     }
 }
