@@ -101,7 +101,7 @@ namespace ArkhamOverlay.Services {
             if (localCard != null) {
                 player.ImageSource = localCard.FilePath;
             } else {
-                player.ImageSource = localCard.FilePath;
+                player.ImageSource = playerCard.ImageSrc;
             }
 
             _cardImageService.LoadImage(player);
