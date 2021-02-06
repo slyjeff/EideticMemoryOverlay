@@ -17,6 +17,10 @@ namespace ArkhamOverlay.Services {
         }
 
         public void LoadImage(IHasImageButton hasImageButton, string imageLocation) {
+            if (string.IsNullOrEmpty(imageLocation)) {
+                return;
+            }
+
             if (Application.Current.Dispatcher.CheckAccess()) {
                 DoLoadImage(hasImageButton, imageLocation);
             } else {

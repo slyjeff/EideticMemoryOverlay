@@ -31,9 +31,6 @@ namespace ArkhamOverlay.Data {
             if (Application.Current == null) {
                 return;
             }
-
-            var cardImageService = ServiceLocator.GetService<CardImageService>();
-            cardImageService.LoadImage(this, ImageSource);
         }
 
         public Card(LocalManifestCard localCard, bool cardBack) {
@@ -54,9 +51,6 @@ namespace ArkhamOverlay.Data {
             if (Application.Current == null) {
                 return;
             }
-
-            var cardImageService = ServiceLocator.GetService<CardImageService>();
-            cardImageService.LoadImage(this, ImageSource);
         }
 
         public string Name { get; }

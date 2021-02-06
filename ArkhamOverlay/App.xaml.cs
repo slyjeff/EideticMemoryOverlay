@@ -2,7 +2,6 @@
 using ArkhamOverlay.Pages.Main;
 using ArkhamOverlay.Services;
 using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.Utils;
 using PageController;
 using System.Windows;
 
@@ -20,8 +19,6 @@ namespace ArkhamOverlay {
                 });
             });
 
-            ServiceLocator.Container = container;
-            
             PageControllerConfiguration.PageDependencyResolver = new StructureMapDependencyResolver(container);
 
             _loggingService = new LoggingService();

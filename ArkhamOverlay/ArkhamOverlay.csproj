@@ -202,7 +202,6 @@
     <Compile Include="Services\ArkhamDbService.cs" />
     <Compile Include="Utils\ColorToBrushConverter.cs" />
     <Compile Include="Utils\ImageUtils.cs" />
-    <Compile Include="Utils\ServiceLocator.cs" />
     <Page Include="Pages\ChooseEncounters\ChooseEncountersView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

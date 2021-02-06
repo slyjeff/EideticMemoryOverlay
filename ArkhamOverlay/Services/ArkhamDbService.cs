@@ -1,5 +1,4 @@
 ﻿using ArkhamOverlay.Data;
-using ArkhamOverlay.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,211 +9,30 @@ using System.Net;
 namespace ArkhamOverlay.Services {
     public class ArkhamDbService {
         private readonly LoggingService _logger;
-        private readonly AppData _appData;
-        private readonly LocalCardsService _localCardsService;
-        private readonly CardImageService _cardImageService;
 
-        public ArkhamDbService(LoggingService loggingService, AppData appData, LocalCardsService localCardsService, CardImageService cardImageService) {
+        public ArkhamDbService(LoggingService loggingService) {
             _logger = loggingService;
-            _appData = appData;
-            _localCardsService = localCardsService;
-            _cardImageService = cardImageService;
         }
 
-        internal void LoadPlayer(Player player) {
-            if (string.IsNullOrEmpty(player.DeckId)) {
-                _logger.LogWarning($"{player.ID} has no deck ID.");
-                return;
+        public ArkhamDbDeck GetPlayerDeck(string deckId) {
+            if(string.IsNullOrEmpty(deckId)) {
+                return null;
             }
 
-            _logger.LogMessage($"Loading deck {player.DeckId} for player {player.ID}.");
+            _logger.LogMessage($"Loading deck {deckId}");
 
-            string url = @"https://arkhamdb.com/api/public/deck/" + player.DeckId;
+            string url = @"https://arkhamdb.com/api/public/deck/" + deckId;
 
             var request = (HttpWebRequest)WebRequest.Create(url);
 
             using (var response = (HttpWebResponse)request.GetResponse())
             using (var stream = response.GetResponseStream())
             using (var reader = new StreamReader(stream)) {
-                var arkhamDbDeck = JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
-                player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
-                player.InvestigatorCode = arkhamDbDeck.Investigator_Code;
-                player.Slots = arkhamDbDeck.Slots;
-                var localCard = _localCardsService.GetCardById(arkhamDbDeck.Investigator_Code);
-                if (localCard != null) {
-                    _cardImageService.LoadImage(player, localCard.FilePath);
-                } else {
-                    _cardImageService.LoadImage(player, "https://arkhamdb.com/bundles/cards/" + arkhamDbDeck.Investigator_Code + ".png");
-                }
-            }
-
-            _logger.LogMessage($"Loading investigator card for player {player.ID}.");
-
-            var playerCard = GetCard(player.InvestigatorCode);
-
-            if (Enum.TryParse(playerCard.Faction_Name, ignoreCase: true, out Faction faction)) {
-                player.Faction = faction;
-            } else {
-                _logger.LogWarning($"Could not parse faction {playerCard.Faction_Name}.");
-            }
-
-            _logger.LogMessage($"Finished loading player {player.ID}.");
-
-            player.OnPlayerChanged();
-        }
-
-        internal void LoadPlayerCards(Player player) {
-            if (player.Slots == null) {
-                _logger.LogWarning($"{player.ID} has no cards in deck.");
-                return;
-            }
-
-            _logger.LogMessage($"Loading cards for player {player.ID}.");
-
-            player.SelectableCards.Loading = true;
-            try {
-                var cards = new List<Card>();
-                foreach (var slot in player.Slots) {
-                    ArkhamDbCard card = LocalCardCache.Instance.GetCard(slot.Key) ?? GetCard(slot.Key);
-                    if (card != null) {
-                        FindCardImageSource(card);
-                        cards.Add(new Card(card, slot.Value, true));
-                        if (card is ArkhamDbFullCard fullCard && fullCard.Bonded_Cards?.Any() == true) {
-                            foreach (var bondedCard in fullCard.Bonded_Cards) {
-                                ArkhamDbCard bondedArkhamDbCard = LocalCardCache.Instance.GetCard(bondedCard.Code) ?? GetCard(bondedCard.Code);
-                                if (bondedArkhamDbCard != null) {
-                                    FindCardImageSource(bondedArkhamDbCard);
-                                    cards.Add(new Card(bondedArkhamDbCard, bondedCard.Count, isPlayerCard: true, isBonded: true));
-                                } else {
-                                    _logger.LogError($"Could not find player {player.ID} bonded card: {bondedCard.Code}, bonded to: {slot.Key}");
-                                }
-                            }
-                        }
-                    } else {
-                        _logger.LogError($"Could not find player {player.ID} card: {slot.Key}");
-                    }
-                }
-                player.SelectableCards.LoadCards(cards);
-            }
-            catch (Exception ex) {
-                _logger.LogException(ex, $"Error loading cards for player {player.ID}.");
-            } finally {
-                player.SelectableCards.Loading = false;
-            }
-            _logger.LogMessage($"Finished loading cards for player {player.ID}.");
-        }
-
-        private ArkhamDbCard FindCardImageSource(ArkhamDbCard arkhamDbCard) {
-            var localCard = _localCardsService.GetCardById(arkhamDbCard.Code);
-            if (localCard != null) {
-                arkhamDbCard.ImageSrc = localCard.FilePath;
-                if (localCard.HasBack) {
-                    arkhamDbCard.BackImageSrc = localCard.BackFilePath;
-                }
-            } else {
-                if (!string.IsNullOrEmpty(arkhamDbCard.ImageSrc)) arkhamDbCard.ImageSrc = "https://arkhamdb.com/" + arkhamDbCard.ImageSrc;
-                if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) arkhamDbCard.BackImageSrc = "https://arkhamdb.com/" + arkhamDbCard.BackImageSrc;
-            }
-
-            return arkhamDbCard;
-        }
-
-        internal void FindMissingEncounterSets(Configuration configuration) {
-            var packsUrl = @"https://arkhamdb.com/api/public/packs/";
-            HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(packsUrl);
-
-            _logger.LogMessage("Looking for encounter sets.");
-
-            var setsAdded = false;
-
-            using (HttpWebResponse cardRsponse = (HttpWebResponse)cardRequest.GetResponse())
-            using (Stream cardStream = cardRsponse.GetResponseStream())
-            using (StreamReader cardReader = new StreamReader(cardStream)) {
-                var packs = JsonConvert.DeserializeObject<List<ArkhamDbPack>>(cardReader.ReadToEnd());
-                foreach (var pack in packs) {
-                    if (!configuration.Packs.Any(x => x.Code == pack.Code)) {
-                        if (AddPackToConfiguration(configuration, pack)) {
-                            setsAdded = true;
-                        }
-                    }
-                }
-            }
-
-            _logger.LogMessage($"Found new encounter sets: {setsAdded}.");
-
-            if (setsAdded) {
-                configuration.OnConfigurationChange();
+                return JsonConvert.DeserializeObject<ArkhamDbDeck>(reader.ReadToEnd());
             }
         }
 
-        internal bool AddPackToConfiguration(Configuration configuration, ArkhamDbPack arkhamDbPack) {
-            var cards = GetCardsInPack(arkhamDbPack.Code);
-            var encounterSets = new List<EncounterSet>();
-            foreach (var card in cards) {
-                if (string.IsNullOrEmpty(card.Encounter_Code) || encounterSets.Any(x => x.Code == card.Encounter_Code)) {
-                    continue;
-                }
-
-                encounterSets.Add(new EncounterSet { Code = card.Encounter_Code, Name = card.Encounter_Name });
-            }
-
-            if (!encounterSets.Any()) {
-                return false;
-            }
-
-            var newPack = new Pack { 
-                Code = arkhamDbPack.Code, 
-                Name = arkhamDbPack.Name,
-                CyclePosition = arkhamDbPack.Cycle_Position,
-                Position = arkhamDbPack.Position,
-                EncounterSets = encounterSets
-            };
-
-            configuration.Packs.Add(newPack);
-
-            _logger.LogMessage($"Added pack {newPack.Name} to encounter sets.");
-
-            return true;
-        }
-
-        internal List<Card> LoadEncounterCards() {
-            var packsToLoad = new List<Pack>();
-            // TODO: pass in list of packs to load and remove dependency on appdata
-            foreach (var pack in _appData.Configuration.Packs) {
-                foreach (var encounterSet in pack.EncounterSets) {
-                    if (_appData.Game.IsEncounterSetSelected(encounterSet.Code)) {
-                        packsToLoad.Add(pack);
-                        break;
-                    }
-                }
-            }
-
-            var cards = new List<Card>();
-            foreach (var pack in packsToLoad) {
-                var arkhamDbCards = GetCardsInPack(pack.Code);
-
-                foreach (var arkhamDbCard in arkhamDbCards) {
-                    if (!_appData.Game.IsEncounterSetSelected(arkhamDbCard.Encounter_Code)) {
-                        continue;
-                    }
-
-                    FindCardImageSource(arkhamDbCard);
-
-                    var newCard = new Card(arkhamDbCard, 1, false);
-                    cards.Add(newCard);
-                    if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) {
-                        var newCardBack = new Card(arkhamDbCard, 1, false, true);
-                        newCard.FlipSideCard = newCardBack;
-                        newCardBack.FlipSideCard = newCard;
-                        cards.Add(newCardBack);
-                    }
-                }
-            }
-
-            return cards;
-        }
-
-        internal IList<ArkhamDbCard> GetCardsInPack(string packCode) {
+        public IList<ArkhamDbCard> GetCardsInPack(string packCode) {
             var cardsInPackUrl = @"https://arkhamdb.com/api/public/cards/" + packCode;
             HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(cardsInPackUrl);
 
@@ -225,15 +43,31 @@ namespace ArkhamOverlay.Services {
             }
         }
 
-        private ArkhamDbCard GetCard(string cardCode) {
+        public ArkhamDbCard GetCard(string cardCode) {
+            return LocalCardCache.Instance.GetCard(cardCode) ?? GetCardFromArkhamDb(cardCode);
+        }
+
+        internal IList<ArkhamDbPack> GetAllPacks() {
+            var packsUrl = @"https://arkhamdb.com/api/public/packs/";
+            HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(packsUrl);
+
+            _logger.LogMessage("Fetching all packs");
+
+            using (HttpWebResponse cardRsponse = (HttpWebResponse)cardRequest.GetResponse())
+            using (Stream cardStream = cardRsponse.GetResponseStream())
+            using (StreamReader cardReader = new StreamReader(cardStream)) {
+                return JsonConvert.DeserializeObject<List<ArkhamDbPack>>(cardReader.ReadToEnd());
+            }
+        }
+
+        private ArkhamDbCard GetCardFromArkhamDb(string cardCode) {
             var baseCardUrl = @"https://arkhamdb.com/api/public/card/";
             HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(baseCardUrl + cardCode);
             try {
                 using (HttpWebResponse cardRsponse = (HttpWebResponse)cardRequest.GetResponse())
                 using (Stream cardStream = cardRsponse.GetResponseStream())
                 using (StreamReader cardReader = new StreamReader(cardStream)) {
-                    var arkhamDbCard = JsonConvert.DeserializeObject<ArkhamDbCard>(cardReader.ReadToEnd());
-                    return arkhamDbCard;
+                    return JsonConvert.DeserializeObject<ArkhamDbCard>(cardReader.ReadToEnd());
                 }
             } catch (Exception ex) {
                 _logger.LogException(ex, $"Error fetching card with code: {cardCode}");
@@ -292,15 +126,6 @@ namespace ArkhamOverlay.Services {
                 }
                 return bondedCards;
             }
-        }
-
-        public class ArkhamDbFullCard : ArkhamDbCard {
-            public List<BondedCard> Bonded_Cards;
-        }
-
-        public class BondedCard {
-            public int Count;
-            public string Code;
         }
     }
 }
