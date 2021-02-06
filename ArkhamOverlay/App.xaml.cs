@@ -18,7 +18,7 @@ namespace ArkhamOverlay {
                     y.WithDefaultConventions();
                 });
             });
-            
+
             PageControllerConfiguration.PageDependencyResolver = new StructureMapDependencyResolver(container);
 
             _loggingService = new LoggingService();
