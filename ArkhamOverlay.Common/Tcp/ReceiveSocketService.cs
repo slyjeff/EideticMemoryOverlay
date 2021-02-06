@@ -34,7 +34,7 @@ namespace ArkhamOverlay.Common.Tcp {
             var bodyLength = endOfBody - startOfBody + 1;
 
             var code = request.Substring(0, endOfCode + 1);
-            RequestType = code.AsAoTcpRequest();
+            RequestType = (AoTcpRequest)Enum.Parse(typeof(AoTcpRequest), code);
             Body = request.Substring(startOfBody, bodyLength);
             Socket = socket;
         }

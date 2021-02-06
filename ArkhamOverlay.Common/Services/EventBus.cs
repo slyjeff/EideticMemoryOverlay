@@ -5,6 +5,9 @@ namespace ArkhamOverlay.Common.Services {
     public interface IEvent {
     }
 
+    public interface ICrossAppEvent : IEvent {
+    }
+
     public interface IEventBus {
         void Publish<T>(T eventToPublish) where T : IEvent;
         void Subscribe<T>(Action<T> callback) where T : IEvent;

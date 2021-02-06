@@ -9,7 +9,7 @@ namespace ArkhamOverlay.Common.Tcp.Requests {
         }
 
         public override string ToString() {
-            return _aoTcpRequest.AsString() + ":" + JsonConvert.SerializeObject(this) + "<EOF>";
+            return _aoTcpRequest.ToString() + ":" + JsonConvert.SerializeObject(this) + "<EOF>";
         }
     }
 }

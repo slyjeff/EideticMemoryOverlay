@@ -122,7 +122,6 @@
     <Compile Include="Events\GetStatValueRequest.cs" />
     <Compile Include="Events\ImageLoadedEvent.cs" />
     <Compile Include="Events\GetInvestigatorImageRequest.cs" />
-    <Compile Include="Events\ShowDeckListRequest.cs" />
     <Compile Include="Events\GetButtonInfoRequest.cs" />
     <Compile Include="Events\DynamicButtonClickRequest.cs" />
     <Compile Include="Events\InvestigatorImageUpdatedEvent.cs" />

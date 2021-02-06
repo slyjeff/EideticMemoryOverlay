@@ -97,7 +97,7 @@ namespace StreamDeckPlugin.Services {
             SendRequest(new ArkhamOverlay.Common.Tcp.Requests.GetInvestigatorImageRequest { Deck = getInvestigatorImageRequest.Deck });
         }
 
-        private void ShowDeckList(Events.ShowDeckListRequest showDeckListRequest) {
+        private void ShowDeckList(ArkhamOverlay.Common.Events.ShowDeckListRequest showDeckListRequest) {
             SendRequest(new ArkhamOverlay.Common.Tcp.Requests.ShowDeckListRequest { Deck = showDeckListRequest.Deck });
         }
 

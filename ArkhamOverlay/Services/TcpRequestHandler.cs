@@ -30,7 +30,7 @@ namespace ArkhamOverlay.Services {
         }
 
         public void HandleRequest(TcpRequest request) {
-            _logger.LogMessage($"Handling Request: {request.RequestType.AsString()}");
+            _logger.LogMessage($"Handling Request: {request.RequestType.ToString()}");
             switch (request.RequestType) {
                 case AoTcpRequest.ClearAll:
                     HandleClearAll(request);
@@ -238,7 +238,7 @@ namespace ArkhamOverlay.Services {
 
         private void HandleShowDeckList(TcpRequest request) {
             _logger.LogMessage("Handling show deck list request");
-            var showDeckListRequest = JsonConvert.DeserializeObject<ShowDeckListRequest>(request.Body);
+            var showDeckListRequest = JsonConvert.DeserializeObject<ArkhamOverlay.Common.Tcp.Requests.ShowDeckListRequest>(request.Body);
             var selectableCards = GetDeck(showDeckListRequest.Deck);
 
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {

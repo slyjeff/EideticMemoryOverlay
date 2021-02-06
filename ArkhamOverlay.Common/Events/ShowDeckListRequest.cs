@@ -2,8 +2,8 @@
 using ArkhamOverlay.Common.Services;
 using System;
 
-namespace StreamDeckPlugin.Events {
-    public class ShowDeckListRequest : IEvent {
+namespace ArkhamOverlay.Common.Events {
+    public class ShowDeckListRequest : ICrossAppEvent {
         public ShowDeckListRequest(Deck deck) {
             Deck = deck;
         }

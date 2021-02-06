@@ -24,7 +24,7 @@ namespace StreamDeckPlugin.Utils {
         public void HandleRequest(TcpRequest request) {
             RequestReceivedRecently = true;
 
-            Console.WriteLine("Handling Request: " + request.RequestType.AsString());
+            Console.WriteLine("Handling Request: " + request.RequestType.ToString());
             switch (request.RequestType) {
                 case AoTcpRequest.UpdateCardInfo:
                     UpdateCardInfo(request);
