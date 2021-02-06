@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Common.Events;
+﻿using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Events;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Data;
 using ArkhamOverlay.Pages.ChooseEncounters;
@@ -251,9 +252,9 @@ namespace ArkhamOverlay.Pages.Main {
         }
 
         [Command]
-        public void ShowDeckList(SelectableCards selectableCards) {
+        public void ShowDeckList(Deck deck) {
             _logger.LogMessage("Main window: show deck list clicked.");
-            selectableCards.ShowDeckList();
+            _eventBus.PublishShowDeckListRequest(deck);
         }
 
         [Command]

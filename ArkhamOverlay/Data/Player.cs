@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Utils;
+﻿using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Utils;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,9 @@ namespace ArkhamOverlay.Data {
     public class Player : ViewModel, IHasImageButton {
         Configuration _configuration;
 
-        public Player(Configuration configuration, int id) {
+        public Player(Configuration configuration, Deck deck) {
             _configuration = configuration;
-            ID = id;
-            SelectableCards = new SelectableCards(SelectableType.Player);
+            SelectableCards = new SelectableCards(deck);
             Health = new Stat("health.png");
             Sanity = new Stat("sanity.png");
             Resources = new Stat("resource.png");
@@ -30,7 +30,22 @@ namespace ArkhamOverlay.Data {
             };
         }
 
-        public int ID { get; }
+        public int ID { 
+            get {
+                switch (SelectableCards.Deck) {
+                    case Deck.Player1:
+                        return 1;
+                    case Deck.Player2:
+                        return 2;
+                    case Deck.Player3:
+                        return 3;
+                    case Deck.Player4:
+                        return 4;
+                    default:
+                        return 1;
+                }
+            }
+        }
 
         public string DeckId { get; set; }
 

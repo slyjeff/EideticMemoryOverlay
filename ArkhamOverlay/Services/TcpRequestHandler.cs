@@ -58,9 +58,6 @@ namespace ArkhamOverlay.Services {
                 case AoTcpRequest.ChangeStatValue:
                     HandleChangeStatValue(request);
                     break;
-                case AoTcpRequest.Snapshot:
-                    HandleSnapshotRequest(request);
-                    break;
                 case AoTcpRequest.GetInvestigatorImage:
                     HandleGetInvesigatorImageRequest(request);
                     break;
@@ -244,12 +241,6 @@ namespace ArkhamOverlay.Services {
             foreach (var player in game.Players) {
                 SendInvestigatorImage(player);
             }
-        }
-
-        private void HandleSnapshotRequest(TcpRequest request) {
-            _logger.LogMessage("Handling snapshot request");
-            _eventBus.PublishTakeSnapshotRequest();
-            SendOkResponse(request.Socket);
         }
 
         private void HandleGetInvesigatorImageRequest(TcpRequest request) {

@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Services;
+﻿using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Services;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -8,12 +9,12 @@ using System.Windows;
 namespace ArkhamOverlay.Data {
     public class Game : ViewModel, IGame {
         public Game(Configuration configuration) {
-            Players = new List<Player> { new Player(configuration, 1), new Player(configuration, 2), new Player(configuration, 3), new Player(configuration, 4) };
+            Players = new List<Player> { new Player(configuration, Deck.Player1), new Player(configuration, Deck.Player2), new Player(configuration, Deck.Player3), new Player(configuration, Deck.Player4) };
             EncounterSets = new List<EncounterSet>();
             LocalPacks = new List<string>();
-            ScenarioCards = new SelectableCards(SelectableType.Scenario);
-            LocationCards = new SelectableCards(SelectableType.Location);
-            EncounterDeckCards = new SelectableCards(SelectableType.Encounter);
+            ScenarioCards = new SelectableCards(Deck.Scenario);
+            LocationCards = new SelectableCards(Deck.Locations);
+            EncounterDeckCards = new SelectableCards(Deck.EncounterDeck);
         }
 
         public string Name { get; set; }

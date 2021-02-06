@@ -1,6 +1,4 @@
-﻿
-using ArkhamOverlay.Common.Events;
-using ArkhamOverlay.Common.Services;
+﻿using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;
 using ArkhamOverlay.Common.Tcp.Responses;
@@ -31,7 +29,6 @@ namespace StreamDeckPlugin.Services {
             eventBus.SubscribeToGetButtonInfoRequest(GetCardInfo);
             eventBus.SubscribeToDynamicButtonClickRequest(DynamicButtonClicked);
             eventBus.SubscribeToGetInvestigatorImageRequest(GetInvestigatorImage);
-            eventBus.SubscribeToTakeSnapshotRequest(TakeSnapshot);
             eventBus.SubscribeToGetStatValueRequest(GetStatValue);
             eventBus.SubscribeToStatValueRequest(ChangeStatValue);
             eventBus.SubscribeToGetButtonImageRequest(GetButtonImage);
@@ -98,14 +95,6 @@ namespace StreamDeckPlugin.Services {
 
         private void GetInvestigatorImage(Events.GetInvestigatorImageRequest getInvestigatorImageRequest) {
             SendRequest(new ArkhamOverlay.Common.Tcp.Requests.GetInvestigatorImageRequest { Deck = getInvestigatorImageRequest.Deck });
-        }
-
-        private void ShowDeckList(ArkhamOverlay.Common.Events.ShowDeckListRequest showDeckListRequest) {
-            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.ShowDeckListRequest { Deck = showDeckListRequest.Deck });
-        }
-
-        private void TakeSnapshot(TakeSnapshotRequest takeSnapshotRequest) {
-            SendRequest(new SnapshotRequest());
         }
 
         private void GetStatValue(GetStatValueRequest getStatValueRequest) {

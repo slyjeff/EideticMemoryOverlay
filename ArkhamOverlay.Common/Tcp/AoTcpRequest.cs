@@ -10,10 +10,8 @@
         UpdateInvestigatorImage,
         RegisterForUpdates,
         ToggleActAgendaBarRequest,
-        ShowDeckList,
         StatValue,
         ChangeStatValue,
-        Snapshot,
         GetInvestigatorImage,
         EventBus,
     };

@@ -2,7 +2,7 @@
 using System;
 
 namespace ArkhamOverlay.Common.Events {
-    public class TakeSnapshotRequest : IEvent {
+    public class TakeSnapshotRequest : ICrossAppEvent {
     }
 
     public static class TakeSnapshotRequestExtensions {

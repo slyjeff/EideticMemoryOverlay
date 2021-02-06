@@ -7,9 +7,16 @@ using System.Linq;
 using System.Reflection;
 
 namespace ArkhamOverlay.Common.Services {
+    /// <summary>
+    /// Implement this interface to pass as an event
+    /// </summary>
     public interface IEvent {
     }
 
+    /// <summary>
+    /// Implement this interface to automatically send events to all apps
+    /// Note: these events must initialze their public properties via the constructor, as that's how they will be initialized
+    /// </summary>
     public interface ICrossAppEvent : IEvent {
     }
 
@@ -91,11 +98,18 @@ namespace ArkhamOverlay.Common.Services {
         }
 
         private event Action<EventBusRequest> _sendMessage;
+        /// <summary>
+        /// An action raised when the event bus wants to send an event to another app
+        /// </summary>
         event Action<EventBusRequest> ICrossAppEventBus.SendMessage {
             add { _sendMessage += value; }
             remove { _sendMessage -= value; }
         }
 
+        /// <summary>
+        /// Receive a message via TCP- this is an event raised by another app
+        /// </summary>
+        /// <param name="eventBusRequest">The event body of the request</param>
         void ICrossAppEventBus.ReceiveMessage(EventBusRequest eventBusRequest) {
             try {
                 var type = Type.GetType(eventBusRequest.EventClassName);
@@ -117,6 +131,12 @@ namespace ArkhamOverlay.Common.Services {
             }
         }
 
+        /// <summary>
+        /// Look at the constructor of a type and then construct a list of parameters to pass to it from JSON data
+        /// </summary>
+        /// <param name="type">Look at the constructor for this type</param>
+        /// <param name="serializedData">JSON that contains the values to pass to the constructor</param>
+        /// <returns></returns>
         private object[] GetParameterListFromJsonData(Type type, string serializedData) {
             var o = JObject.Parse(serializedData);
             var parameters = new List<object>();

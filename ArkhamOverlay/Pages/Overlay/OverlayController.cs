@@ -216,7 +216,6 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         private void InitializeSelectableCards(SelectableCards selectableCards) {
-            selectableCards.ShowDeckListTriggered += () => ShowDeckListHandler(selectableCards);
             selectableCards.CardVisibilityToggled += ToggleCardVisibilityHandler;
 
             selectableCards.CardSet.VisibilityToggled += () => {
@@ -241,13 +240,11 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
 
-        private void ShowDeckListRequest(ShowDeckListRequest request) {
-            ShowDeckListHandler(GetSelectableCardsFromDeck(request.Deck));
-        }
-
         private SelectableCards _currentDisplayedDeckList = null;
-        private void ShowDeckListHandler(SelectableCards selectableCards) {
+        private void ShowDeckListRequest(ShowDeckListRequest request) {
             _logger.LogMessage("Showing deck list in overlay.");
+            var selectableCards = GetSelectableCardsFromDeck(request.Deck);
+
             //it's already displayed- just hide it
             if (_currentDisplayedDeckList == selectableCards) {
                 ClearDeckList();
