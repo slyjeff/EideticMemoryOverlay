@@ -52,7 +52,7 @@ namespace StreamDeckPlugin.Actions {
                     columns = device.Size.Columns;
                 }
 
-                var buttonsPerPage = rows * columns - 4; //3 because the return to parent, show hand, left, and right buttons take up four slots
+                var buttonsPerPage = rows * columns - 4; //4 because the return to parent, show hand, left, and right buttons take up four slots
 
                 return (_page * buttonsPerPage) + (_coordinates.Row * columns + _coordinates.Column) - 1;
             }
