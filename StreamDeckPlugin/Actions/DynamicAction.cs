@@ -138,10 +138,6 @@ namespace StreamDeckPlugin.Actions {
             _eventBus.PublishGetButtonInfoRequest(Deck, Index, Mode);
         }
 
-        private bool DynamicActionMatchesButton(IDynamicActionInfo dynamicActionInfo) {
-            return (dynamicActionInfo.Deck == Deck && dynamicActionInfo.Index == Index && dynamicActionInfo.Mode == Mode);
-        }
-
         private void DynamicActionChanged(DynamicActionInfoChangedEvent dynamicActionInfoChangedEvent) {
             //we don't know anything about ourselves yet, so we can't really respond to changes
             if (_deviceId == null) {
