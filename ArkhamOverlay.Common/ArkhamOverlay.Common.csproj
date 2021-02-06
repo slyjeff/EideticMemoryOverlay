@@ -48,6 +48,7 @@
     <Compile Include="Events\ShowDeckListRequest.cs" />
     <Compile Include="Events\TakeSnapshotRequest.cs" />
     <Compile Include="Tcp\AoTcpRequest.cs" />
+    <Compile Include="Tcp\Requests\EventBusRequest.cs" />
     <Compile Include="Tcp\Requests\StatValueRequest.cs" />
     <Compile Include="Tcp\Requests\SnapshotRequest.cs" />
     <Compile Include="Tcp\Requests\ChangeStatValueRequest.cs" />

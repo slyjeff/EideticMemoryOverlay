@@ -19,5 +19,9 @@ namespace ArkhamOverlay.Common.Events {
         public static void SubscribeToShowDeckListRequest(this IEventBus eventBus, Action<ShowDeckListRequest> callback) {
             eventBus.Subscribe(callback);
         }
+
+        public static void UnsubscribeFromShowDeckListRequest(this IEventBus eventBus, Action<ShowDeckListRequest> callback) {
+            eventBus.Unsubscribe(callback);
+        }
     }
 }

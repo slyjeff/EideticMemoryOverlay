@@ -17,17 +17,20 @@ namespace StreamDeckPlugin.Services {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
         private readonly IImageService _imageService;
 
-        public SendEventHandler(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore, IImageService imageService) {
+        public SendEventHandler(IEventBus eventBus, ICrossAppEventBus crossAppEventBus, IDynamicActionInfoStore dynamicActionInfoStore, IImageService imageService) {
             _eventBus = eventBus;
             _dynamicActionInfoStore = dynamicActionInfoStore;
             _imageService = imageService;
+
+            crossAppEventBus.SendMessage += (request) => {
+                SendRequest(request);
+            };
 
             eventBus.SubscribeToEstablishConnectionToUiRequest(RegisterForUpdates);
             eventBus.SubscribeToClearAllCardsRequest(ClearAllCards);
             eventBus.SubscribeToGetButtonInfoRequest(GetCardInfo);
             eventBus.SubscribeToDynamicButtonClickRequest(DynamicButtonClicked);
             eventBus.SubscribeToGetInvestigatorImageRequest(GetInvestigatorImage);
-            eventBus.SubscribeToShowDeckListRequest(ShowDeckList);
             eventBus.SubscribeToTakeSnapshotRequest(TakeSnapshot);
             eventBus.SubscribeToGetStatValueRequest(GetStatValue);
             eventBus.SubscribeToStatValueRequest(ChangeStatValue);

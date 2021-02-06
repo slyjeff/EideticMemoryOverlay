@@ -17,8 +17,11 @@ namespace StreamDeckPlugin {
                 });
             });
 
+            var eventBus = new EventBus();
+
             container.Configure(x => {
-                x.For<IEventBus>().Use<EventBus>().Singleton();
+                x.For<IEventBus>().Use(eventBus);
+                x.For<ICrossAppEventBus>().Use(eventBus);
                 x.For<IDynamicActionInfoStore>().Use<DynamicActionInfoStore>().Singleton();
                 x.For<ISendEventHandler>().Use<SendEventHandler>().Singleton();
                 x.For<IImageService>().Use<ImageService>().Singleton();

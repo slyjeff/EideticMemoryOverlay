@@ -22,11 +22,13 @@ namespace ArkhamOverlay.Services {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
+        private readonly ICrossAppEventBus _crossAppEventBus;
 
-        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, IEventBus eventBus) {
+        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, IEventBus eventBus, ICrossAppEventBus crossAppEventBus) {
             _appData = viewModel;
             _logger = loggingService;
             _eventBus = eventBus;
+            _crossAppEventBus = crossAppEventBus;
         }
 
         public void HandleRequest(TcpRequest request) {
@@ -50,9 +52,6 @@ namespace ArkhamOverlay.Services {
                 case AoTcpRequest.RegisterForUpdates:
                     HandleRegisterForUpdates(request);
                     break;
-                case AoTcpRequest.ShowDeckList:
-                    HandleShowDeckList(request);
-                    break;
                 case AoTcpRequest.StatValue:
                     HandleRequestStatValue(request);
                     break;
@@ -65,7 +64,18 @@ namespace ArkhamOverlay.Services {
                 case AoTcpRequest.GetInvestigatorImage:
                     HandleGetInvesigatorImageRequest(request);
                     break;
+                case AoTcpRequest.EventBus:
+                    HandleEventBusRequest(request);
+                    break;
             }
+        }
+
+        private void HandleEventBusRequest(TcpRequest request) {
+            SendOkResponse(request.Socket);
+
+            _logger.LogMessage("Handling event bus request");
+            var eventBusRequest = JsonConvert.DeserializeObject<EventBusRequest>(request.Body);
+            _crossAppEventBus.ReceiveMessage(eventBusRequest);
         }
 
         private void HandleGetCardInfo(TcpRequest request) {
@@ -234,18 +244,6 @@ namespace ArkhamOverlay.Services {
             foreach (var player in game.Players) {
                 SendInvestigatorImage(player);
             }
-        }
-
-        private void HandleShowDeckList(TcpRequest request) {
-            _logger.LogMessage("Handling show deck list request");
-            var showDeckListRequest = JsonConvert.DeserializeObject<ArkhamOverlay.Common.Tcp.Requests.ShowDeckListRequest>(request.Body);
-            var selectableCards = GetDeck(showDeckListRequest.Deck);
-
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                selectableCards.ShowDeckList();
-
-                SendOkResponse(request.Socket);
-            }));
         }
 
         private void HandleSnapshotRequest(TcpRequest request) {
