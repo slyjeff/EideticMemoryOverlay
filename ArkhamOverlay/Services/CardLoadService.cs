@@ -95,8 +95,6 @@ namespace ArkhamOverlay.Services {
 
             var playerCard = _arkhamDbService.GetCard(player.InvestigatorCode);
 
-            FixArkhamDbCardImageSource(playerCard);
-
             var localCard = _localCardsService.GetCardById(arkhamDbDeck.Investigator_Code);
             if (localCard != null) {
                 player.ImageSource = localCard.FilePath;
@@ -218,16 +216,8 @@ namespace ArkhamOverlay.Services {
                     ArkhamDbCard arkhamDbCard = _arkhamDbService.GetCard(slot.Key);
                     if (arkhamDbCard != null) {
 
-                        FixArkhamDbCardImageSource(arkhamDbCard);
-
                         // Override card image with local card if possible
-                        var localCard = localCards.FirstOrDefault(c => c.ArkhamDbId == arkhamDbCard.Code);
-                        if (localCard != null) {
-                            arkhamDbCard.ImageSrc = localCard.FilePath;
-                            if (localCard.HasBack) {
-                                arkhamDbCard.BackImageSrc = localCard.BackFilePath;
-                            }
-                        }
+                        FindCardImageSource(arkhamDbCard, localCards);
 
                         var card = new Card(arkhamDbCard, slot.Value, true);
 
@@ -236,30 +226,8 @@ namespace ArkhamOverlay.Services {
                         cards.Add(card);
 
                         // Look for bonded cards if present
-                        if (arkhamDbCard is ArkhamDbFullCard fullCard && fullCard.Bonded_Cards?.Any() == true) {
-                            foreach (var bondedCardInfo in fullCard.Bonded_Cards) {
-                                ArkhamDbCard bondedArkhamDbCard = _arkhamDbService.GetCard(bondedCardInfo.Code);
-                                if (bondedArkhamDbCard != null) {
-
-                                    FixArkhamDbCardImageSource(bondedArkhamDbCard);
-
-                                    // Override card image with local card if possible
-                                    var localBondedCard = localCards.FirstOrDefault(c => c.ArkhamDbId == bondedArkhamDbCard.Code);
-                                    if (localBondedCard != null) {
-                                        bondedArkhamDbCard.ImageSrc = localBondedCard.FilePath;
-                                        if (localBondedCard.HasBack) {
-                                            bondedArkhamDbCard.BackImageSrc = localBondedCard.BackFilePath;
-                                        }
-                                    }
-
-                                    var bondedCard = new Card(bondedArkhamDbCard, bondedCardInfo.Count, isPlayerCard: true, isBonded: true);
-                                    _cardImageService.LoadImage(bondedCard);
-                                    cards.Add(bondedCard);
-                                } else {
-                                    _logger.LogError($"Could not find player {player.ID} bonded card: {bondedCardInfo.Code}, bonded to: {slot.Key}");
-                                }
-                            }
-                        }
+                        cards.AddRange(GetBondedCards(arkhamDbCard, localCards));
+                        
                     } else {
                         _logger.LogError($"Could not find player {player.ID} card: {slot.Key}");
                     }
@@ -271,6 +239,25 @@ namespace ArkhamOverlay.Services {
                 player.SelectableCards.Loading = false;
             }
             _logger.LogMessage($"Finished loading cards for player {player.ID}.");
+        }
+
+        private IEnumerable<Card> GetBondedCards(ArkhamDbCard arkhamDbCard, List<LocalManifestCard> localCards) {
+            if (arkhamDbCard is ArkhamDbFullCard fullCard && fullCard.Bonded_Cards?.Any() == true) {
+                foreach (var bondedCardInfo in fullCard.Bonded_Cards) {
+                    ArkhamDbCard bondedArkhamDbCard = _arkhamDbService.GetCard(bondedCardInfo.Code);
+                    if (bondedArkhamDbCard != null) {
+
+                        // Override card image with local card if possible
+                        FindCardImageSource(bondedArkhamDbCard, localCards);
+
+                        var bondedCard = new Card(bondedArkhamDbCard, bondedCardInfo.Count, isPlayerCard: true, isBonded: true);
+                        _cardImageService.LoadImage(bondedCard);
+                        yield return bondedCard;
+                    } else {
+                        _logger.LogError($"Could not find bonded card: {bondedCardInfo.Code}, bonded to: {arkhamDbCard.Code}");
+                    }
+                }
+            }
         }
 
         private List<Card> GetEncounterCards() {
@@ -295,18 +282,8 @@ namespace ArkhamOverlay.Services {
                         continue;
                     }
 
-                    FixArkhamDbCardImageSource(arkhamDbCard);
-
                     // Look for corresponding local card and grab its image. Remove it from the list to avoid duplicates
-                    // TODO: Consider when this logic could be reversed. User preference?
-                    var localCard = localCards.FirstOrDefault(c => c.ArkhamDbId == arkhamDbCard.Code);
-                    if (localCard != null) {
-                        arkhamDbCard.ImageSrc = localCard.FilePath;
-                        if (localCard.HasBack) {
-                            arkhamDbCard.BackImageSrc = localCard.BackFilePath;
-                        }
-                        localCards.Remove(localCard);
-                    }
+                    FindCardImageSource(arkhamDbCard, localCards, removeLocalCard: true);
 
                     var newCard = new Card(arkhamDbCard, 1, isPlayerCard: false);
                     _cardImageService.LoadImage(newCard);
@@ -336,7 +313,22 @@ namespace ArkhamOverlay.Services {
             return cards;
         }
 
-        private void FixArkhamDbCardImageSource(ArkhamDbCard arkhamDbCard) {
+        private static void FindCardImageSource(ArkhamDbCard arkhamDbCard, List<LocalManifestCard> localCards, bool removeLocalCard = false) {
+            FixArkhamDbCardImageSource(arkhamDbCard);
+
+            var localCard = localCards.FirstOrDefault(c => c.ArkhamDbId == arkhamDbCard.Code);
+            if (localCard != null) {
+                arkhamDbCard.ImageSrc = localCard.FilePath;
+                if (localCard.HasBack) {
+                    arkhamDbCard.BackImageSrc = localCard.BackFilePath;
+                }
+                if (removeLocalCard) {
+                    localCards.Remove(localCard);
+                }
+            }
+        }
+
+        private static void FixArkhamDbCardImageSource(ArkhamDbCard arkhamDbCard) {
             string arkhamDbPrefix = "https://arkhamdb.com/";
             if (!string.IsNullOrEmpty(arkhamDbCard.ImageSrc) && !arkhamDbCard.ImageSrc.StartsWith(arkhamDbPrefix)) {
                 arkhamDbCard.ImageSrc = arkhamDbPrefix + arkhamDbCard.ImageSrc;
