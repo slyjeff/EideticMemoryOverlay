@@ -23,7 +23,7 @@ namespace StreamDeckPlugin.Utils {
                 : CreateImageFromBytes(bytes);
 
             if (isToggled) {
-                ImageUtils.DrawSelected(bitmap);
+                ImageUtils.DrawSelectedRingOnImage(bitmap);
             }
 
             var converter = new ImageConverter();
@@ -33,7 +33,7 @@ namespace StreamDeckPlugin.Utils {
             return "data:image/png;base64," + imageString;
         }
 
-        public static void DrawSelected(Bitmap bitmap) {
+        public static void DrawSelectedRingOnImage(Bitmap bitmap) {
             var pen = new Pen(Color.Goldenrod, 16);
             using (Graphics G = Graphics.FromImage(bitmap)) {
                 G.DrawRoundedRectangle(pen, new Rectangle(0, 0, ImageHeightAndWidth, ImageHeightAndWidth), 30);
@@ -75,7 +75,6 @@ namespace StreamDeckPlugin.Utils {
                 graphics.DrawPath(pen, path);
             }
         }
-
 
         private static Bitmap CreateSolidBackgroundBitmap(Color color) {
             var bitmap = new Bitmap(ImageHeightAndWidth, ImageHeightAndWidth);
