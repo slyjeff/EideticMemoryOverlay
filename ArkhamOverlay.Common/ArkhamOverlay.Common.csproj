@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\TakeSnapshotRequest.cs" />
     <Compile Include="Tcp\AoTcpRequest.cs" />
     <Compile Include="Tcp\Requests\StatValueRequest.cs" />
     <Compile Include="Tcp\Requests\SnapshotRequest.cs" />

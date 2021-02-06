@@ -1,8 +1,8 @@
-﻿using ArkhamOverlay.Common.Services;
+﻿using ArkhamOverlay.Common.Events;
+using ArkhamOverlay.Common.Services;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
-using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Utils;
 using System.Threading.Tasks;
 

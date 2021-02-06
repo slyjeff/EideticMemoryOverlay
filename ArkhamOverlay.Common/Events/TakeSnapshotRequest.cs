@@ -1,7 +1,7 @@
 ﻿using ArkhamOverlay.Common.Services;
 using System;
 
-namespace StreamDeckPlugin.Events {
+namespace ArkhamOverlay.Common.Events {
     public class TakeSnapshotRequest : IEvent {
     }
 
@@ -12,6 +12,9 @@ namespace StreamDeckPlugin.Events {
 
         public static void SubscribeToTakeSnapshotRequest(this IEventBus eventBus, Action<TakeSnapshotRequest> action) {
             eventBus.Subscribe(action);
+        }
+        public static void UnsubscribeFromTakeSnapshotRequest(this IEventBus eventBus, Action<TakeSnapshotRequest> action) {
+            eventBus.Unsubscribe(action);
         }
     }
 }

@@ -21,8 +21,12 @@ namespace ArkhamOverlay.Common.Services {
                 return;
             }
 
-            var subscriptions = (Action<T>)_subscriptionList[key];
-            subscriptions?.Invoke(eventToPublish);
+
+            DoInvoke((Action<T>)_subscriptionList[key], eventToPublish);
+        }
+
+        protected virtual void DoInvoke<T>(Action<T> action, T eventToPublish) where T : IEvent {
+            action?.Invoke(eventToPublish);
         }
 
         public void Subscribe<T>(Action<T> callback) where T : IEvent {

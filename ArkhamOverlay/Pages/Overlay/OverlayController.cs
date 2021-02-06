@@ -13,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Diagnostics;
+using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Events;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayController : Controller<OverlayView, OverlayViewModel> {
@@ -41,7 +43,7 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public event Action Closed;
 
-        public OverlayController(AppData appData, LoggingService loggingService, IActionNotificationService actionNotificationService) {
+        public OverlayController(AppData appData, LoggingService loggingService, IEventBus eventBus) {
             ViewModel.AppData = appData;
             _appData = appData;
             _logger = loggingService;
@@ -54,7 +56,7 @@ namespace ArkhamOverlay.Pages.Overlay {
 
             _logger.LogMessage("Initializing Overlay Controller.");
 
-            actionNotificationService.SnapshotRequested += TakeSnapshot;
+            eventBus.SubscribeToTakeSnapshotRequest(TakeSnapshot);
 
             _configuration.PropertyChanged += (s, e) => {
                 if ((e.PropertyName == nameof(Configuration.OverlayHeight))
@@ -96,6 +98,8 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             View.Closed += (s, e) => {
+                eventBus.UnsubscribeFromTakeSnapshotRequest(TakeSnapshot);
+
                 _autoSnapshotTimer.Stop();
                 foreach (var overlayCards in ViewModel.AllOverlayCards) {
                     foreach (var overlayCard in overlayCards) {
@@ -391,7 +395,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-        internal void TakeSnapshot() {
+        internal void TakeSnapshot(TakeSnapshotRequest takeSnapshotRequest) {
             _logger.LogMessage("Taking snapshot of overlay window.");
 
             var timeStamp = DateTime.Now.ToString("yyddMHHmmss");

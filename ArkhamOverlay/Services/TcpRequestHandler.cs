@@ -1,5 +1,7 @@
 ﻿using ArkhamOverlay.CardButtons;
 using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Events;
+using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;
 using ArkhamOverlay.Common.Tcp.Responses;
@@ -19,12 +21,12 @@ namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
-        private readonly IActionRequestService _actionRequestService;
+        private readonly IEventBus _eventBus;
 
-        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, IActionRequestService actionRequestService) {
+        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, IEventBus eventBus) {
             _appData = viewModel;
             _logger = loggingService;
-            _actionRequestService = actionRequestService;
+            _eventBus = eventBus;
         }
 
         public void HandleRequest(TcpRequest request) {
@@ -248,7 +250,7 @@ namespace ArkhamOverlay.Services {
 
         private void HandleSnapshotRequest(TcpRequest request) {
             _logger.LogMessage("Handling snapshot request");
-            _actionRequestService.TakeSnapshot();
+            _eventBus.PublishTakeSnapshotRequest();
             SendOkResponse(request.Socket);
         }
 

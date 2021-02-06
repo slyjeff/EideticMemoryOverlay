@@ -121,7 +121,6 @@
     <Compile Include="Events\GetButtonImageRequest.cs" />
     <Compile Include="Events\GetStatValueRequest.cs" />
     <Compile Include="Events\ImageLoadedEvent.cs" />
-    <Compile Include="Events\TakeSnapshotRequest.cs" />
     <Compile Include="Events\GetInvestigatorImageRequest.cs" />
     <Compile Include="Events\ShowDeckListRequest.cs" />
     <Compile Include="Events\GetButtonInfoRequest.cs" />

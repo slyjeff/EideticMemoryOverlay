@@ -1,4 +1,5 @@
 ﻿
+using ArkhamOverlay.Common.Events;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;

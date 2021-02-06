@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Common.Tcp;
+﻿using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Data;
 using ArkhamOverlay.Pages.Main;
 using ArkhamOverlay.Services;
@@ -21,17 +22,15 @@ namespace ArkhamOverlay {
             
             PageControllerConfiguration.PageDependencyResolver = new StructureMapDependencyResolver(container);
 
-            _loggingService = new LoggingService();
-            var eventService = new ActionService();
-
             container.Configure(x => {
+                x.For<LoggingService>().Use<LoggingService>().Singleton();
+                x.For<IEventBus>().Use<UiEventBus>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
                 x.For<AppData>().Use(new AppData());
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
-                x.For<LoggingService>().Use(_loggingService);
-                x.For<IActionRequestService>().Use(eventService);
-                x.For<IActionNotificationService>().Use(eventService);
             });
+
+            _loggingService = container.GetInstance<LoggingService>();
 
             var cardLoadService = container.GetInstance<CardLoadService>();
             cardLoadService.RegisterEvents();
