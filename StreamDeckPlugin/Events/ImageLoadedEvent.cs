@@ -1,4 +1,4 @@
-﻿using StreamDeckPlugin.Services;
+﻿using ArkhamOverlay.Common.Services;
 using System;
 
 namespace StreamDeckPlugin.Events {

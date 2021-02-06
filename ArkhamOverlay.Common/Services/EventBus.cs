@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace StreamDeckPlugin.Services {
+namespace ArkhamOverlay.Common.Services {
     public interface IEvent {
     }
 

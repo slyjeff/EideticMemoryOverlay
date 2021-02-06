@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
+using ArkhamOverlay.Common.Services;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 using StreamDeckPlugin.Events;
-using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {

@@ -7,6 +7,7 @@ using System.Text;
 using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;
 using ArkhamOverlay.Common.Tcp.Responses;
+using ArkhamOverlay.Common.Services;
 
 namespace StreamDeckPlugin.Utils {
     public class TcpRequestHandler : IRequestHandler {

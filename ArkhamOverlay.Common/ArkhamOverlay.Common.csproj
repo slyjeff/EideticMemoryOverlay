@@ -73,6 +73,7 @@
     <Compile Include="Tcp\SendSocketService.cs" />
     <Compile Include="Tcp\ReceiveSocketService.cs" />
     <Compile Include="Tcp\TcpInfo.cs" />
+    <Compile Include="Services\EventBus.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

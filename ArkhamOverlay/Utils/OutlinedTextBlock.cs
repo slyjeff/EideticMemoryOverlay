@@ -259,6 +259,7 @@ namespace ArkhamOverlay.Utils {
             _FormattedText.SetTextDecorations(TextDecorations);
         }
 
+        [Obsolete]
         private void EnsureGeometry() {
             if (_TextGeometry != null) {
                 return;

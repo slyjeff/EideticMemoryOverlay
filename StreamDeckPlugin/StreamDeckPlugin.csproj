@@ -134,7 +134,6 @@
     <Compile Include="Events\DynamicActionInfoChangedEvent.cs" />
     <Compile Include="Services\DynamicActionInfo.cs" />
     <Compile Include="Services\ImageService.cs" />
-    <Compile Include="Services\EventBus.cs" />
     <Compile Include="Services\DynamicActionInfoStore.cs" />
     <Compile Include="Utils\EstablishConnectionToUiService.cs" />
     <Compile Include="Utils\RequestHandler.cs" />
