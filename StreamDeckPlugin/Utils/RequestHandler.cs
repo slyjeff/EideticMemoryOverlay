@@ -1,12 +1,12 @@
-﻿using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.TcpUtils.Requests;
-using ArkhamOverlay.TcpUtils.Responses;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using System;
 using System.Net.Sockets;
 using System.Text;
+using ArkhamOverlay.Common.Tcp;
+using ArkhamOverlay.Common.Tcp.Requests;
+using ArkhamOverlay.Common.Tcp.Responses;
 
 namespace StreamDeckPlugin.Utils {
     public class TcpRequestHandler : IRequestHandler {

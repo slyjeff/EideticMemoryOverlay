@@ -1,4 +1,4 @@
-﻿using ArkhamOverlay.TcpUtils;
+﻿using ArkhamOverlay.Common.Enums;
 using StreamDeckPlugin.Services;
 using System;
 

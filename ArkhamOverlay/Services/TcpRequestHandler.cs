@@ -1,8 +1,9 @@
 ﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Tcp;
+using ArkhamOverlay.Common.Tcp.Requests;
+using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Data;
-using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.TcpUtils.Requests;
-using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

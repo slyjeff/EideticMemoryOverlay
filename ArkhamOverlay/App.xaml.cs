@@ -1,7 +1,7 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.Common.Tcp;
+using ArkhamOverlay.Data;
 using ArkhamOverlay.Pages.Main;
 using ArkhamOverlay.Services;
-using ArkhamOverlay.TcpUtils;
 using PageController;
 using System.Windows;
 

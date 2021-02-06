@@ -7,12 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkhamOverlay", "ArkhamOver
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamDeckPlugin", "StreamDeckPlugin\StreamDeckPlugin.csproj", "{85A2BCC3-19C4-4D60-BEC5-BF4E922DCCCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkhamOverlay.TcpUtils", "ArkhamOverlay.TcpUtils\ArkhamOverlay.TcpUtils.csproj", "{434089C6-FA67-438D-8704-DAB3E626EB10}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5C74B641-6B7A-4B9E-BB59-ABD189E0FDFF}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		ArkhamOverlay.Common\ArkhamOverlay.Common.csproj = ArkhamOverlay.Common\ArkhamOverlay.Common.csproj
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkhamOverlay.Common", "ArkhamOverlay.Common\ArkhamOverlay.Common.csproj", "{434089C6-FA67-438D-8704-DAB3E626EB10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

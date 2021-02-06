@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.TcpUtils;
+﻿using ArkhamOverlay.Common;
+using ArkhamOverlay.Common.Enums;
 using StreamDeckPlugin.Events;
 using System.Collections.Generic;
 using System.Linq;

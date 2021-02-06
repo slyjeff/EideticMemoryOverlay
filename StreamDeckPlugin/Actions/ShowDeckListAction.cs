@@ -1,5 +1,4 @@
-﻿using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.TcpUtils.Requests;
+﻿using ArkhamOverlay.Common.Enums;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;

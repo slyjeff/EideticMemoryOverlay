@@ -1,6 +1,7 @@
-﻿using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.TcpUtils.Requests;
-using ArkhamOverlay.TcpUtils.Responses;
+﻿
+using ArkhamOverlay.Common.Tcp;
+using ArkhamOverlay.Common.Tcp.Requests;
+using ArkhamOverlay.Common.Tcp.Responses;
 using Newtonsoft.Json;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Utils;
@@ -45,13 +46,13 @@ namespace StreamDeckPlugin.Services {
         }
 
         #region Event Handlers
-        public void RegisterForUpdates(Events.EstablishConnectionToUiRequest registerForUpdatesRequest) {
-            var request = new ArkhamOverlay.TcpUtils.Requests.RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
+        public void RegisterForUpdates(EstablishConnectionToUiRequest registerForUpdatesRequest) {
+            var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
             SendRequest<OkResponse>(request);
         }
 
         public void ClearAllCards(Events.ClearAllCardsRequest clearAllCardsRequest) {
-            SendRequest(new ArkhamOverlay.TcpUtils.Requests.ClearAllCardsRequest());
+            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.ClearAllCardsRequest());
         }
 
         private void GetCardInfo(GetButtonInfoRequest getButtonInfoRequest) {
@@ -91,11 +92,11 @@ namespace StreamDeckPlugin.Services {
         }
 
         private void GetInvestigatorImage(Events.GetInvestigatorImageRequest getInvestigatorImageRequest) {
-            SendRequest(new ArkhamOverlay.TcpUtils.Requests.GetInvestigatorImageRequest { Deck = getInvestigatorImageRequest.Deck });
+            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.GetInvestigatorImageRequest { Deck = getInvestigatorImageRequest.Deck });
         }
 
         private void ShowDeckList(Events.ShowDeckListRequest showDeckListRequest) {
-            SendRequest(new ArkhamOverlay.TcpUtils.Requests.ShowDeckListRequest { Deck = showDeckListRequest.Deck });
+            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.ShowDeckListRequest { Deck = showDeckListRequest.Deck });
         }
 
         private void TakeSnapshot(TakeSnapshotRequest takeSnapshotRequest) {
@@ -112,7 +113,7 @@ namespace StreamDeckPlugin.Services {
         }
 
         private void ChangeStatValue(Events.ChangeStatValueRequest changeStatValueRequest) {
-            var response = SendRequest<StatValueResponse>(new ArkhamOverlay.TcpUtils.Requests.ChangeStatValueRequest { Deck = changeStatValueRequest.Deck, StatType = changeStatValueRequest.StatType, Increase = changeStatValueRequest.Increase });
+            var response = SendRequest<StatValueResponse>(new ArkhamOverlay.Common.Tcp.Requests.ChangeStatValueRequest { Deck = changeStatValueRequest.Deck, StatType = changeStatValueRequest.StatType, Increase = changeStatValueRequest.Increase });
             if (response == null) {
                 return;
             }
