@@ -181,7 +181,7 @@ namespace StreamDeckPlugin.Actions {
             var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(Deck, Index, Mode);
             if (dynamicActionInfo == null) {
                 SetTitleAsync(string.Empty);
-                SetImageAsync(string.Empty);
+                ClearImage();
 
                 GetButtonInfo();
                 return;
