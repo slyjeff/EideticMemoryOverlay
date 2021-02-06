@@ -19,7 +19,7 @@ namespace StreamDeckPlugin.Services {
             _dynamicActionInfoStore = dynamicActionInfoStore;
             _imageService = imageService;
 
-            eventBus.SubscribeToRegisterForUpdatesRequest(RegisterForUpdates);
+            eventBus.SubscribeToEstablishConnectionToUiRequest(RegisterForUpdates);
             eventBus.SubscribeToClearAllCardsRequest(ClearAllCards);
             eventBus.SubscribeToGetButtonInfoRequest(GetCardInfo);
             eventBus.SubscribeToDynamicButtonClickRequest(DynamicButtonClicked);
@@ -45,7 +45,7 @@ namespace StreamDeckPlugin.Services {
         }
 
         #region Event Handlers
-        public void RegisterForUpdates(Events.RegisterForUpdatesRequest registerForUpdatesRequest) {
+        public void RegisterForUpdates(Events.EstablishConnectionToUiRequest registerForUpdatesRequest) {
             var request = new ArkhamOverlay.TcpUtils.Requests.RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
             SendRequest<OkResponse>(request);
         }

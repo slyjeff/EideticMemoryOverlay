@@ -23,7 +23,7 @@ namespace StreamDeckPlugin {
                 x.For<IImageService>().Use<ImageService>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
                 x.For<IReceiveSocketService>().Use<ReceiveSocketService>();
-                x.For<IRegisterForUpdatesService>().Use<RegisterForUpdatesService>();
+                x.For<IEstablishConnectionToUiService>().Use<EstablishConnectionToUiService>();
             });
 
             ServiceLocator.Container = container;
@@ -33,8 +33,8 @@ namespace StreamDeckPlugin {
             var receiveSocketService = container.GetInstance<IReceiveSocketService>();
             receiveSocketService.StartListening(StreamDeckTcpInfo.Port);
 
-            var registerForUpdatesService = container.GetInstance<IRegisterForUpdatesService>();
-            registerForUpdatesService.RegisterForUpdates();
+            var establishConnectionToUiService = container.GetInstance<IEstablishConnectionToUiService>();
+            establishConnectionToUiService.AttemptToEstablishConnection();
 
             // register actions and connect to the Stream Deck
             SharpDeck.StreamDeckPlugin.Run();

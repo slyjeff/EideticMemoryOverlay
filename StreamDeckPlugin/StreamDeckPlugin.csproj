@@ -117,7 +117,7 @@
     <Compile Include="Actions\PageRightAction.cs" />
     <Compile Include="Actions\TrackStatAction.cs" />
     <Compile Include="Events\ChangeStatValueRequest.cs" />
-    <Compile Include="Events\RegisterForUpdatesRequest.cs" />
+    <Compile Include="Events\EstablishConnectionToUiRequest.cs" />
     <Compile Include="Events\GetButtonImageRequest.cs" />
     <Compile Include="Events\GetStatValueRequest.cs" />
     <Compile Include="Events\ImageLoadedEvent.cs" />
@@ -136,7 +136,7 @@
     <Compile Include="Services\ImageService.cs" />
     <Compile Include="Services\EventBus.cs" />
     <Compile Include="Services\DynamicActionInfoStore.cs" />
-    <Compile Include="Utils\RegisterForUpdatesService.cs" />
+    <Compile Include="Utils\EstablishConnectionToUiService.cs" />
     <Compile Include="Utils\RequestHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
