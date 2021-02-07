@@ -134,7 +134,7 @@
                             <TextBox Margin="10, 0, 0, 0" MaxLength="10" Text="{Binding DeckId, Mode=TwoWay}" />
                             <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.Refresh, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">⟲</Button>
                             <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.PlayerSelected, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}" Visibility="{Binding LoadedVisiblity}" >🠆</Button>
-                            <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.ShowDeckList, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}" Visibility="{Binding LoadedVisiblity}" >List</Button>
+                            <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.ShowDeckList, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards.Deck}" Visibility="{Binding LoadedVisiblity}" >List</Button>
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="5, 5, 0 ,0" Visibility="{Binding StatTrackingVisibility}">

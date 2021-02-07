@@ -1,4 +1,5 @@
 ﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Common.Enums;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -20,14 +21,16 @@ namespace ArkhamOverlay.Data {
         private string _playerName = string.Empty;
         private ShowSetButton _showSetButton = null;
 
-        public SelectableCards(SelectableType type) {
-            Type = type;
+        public SelectableCards(Deck deck) {
+            Type = deck.GetSelectableType();
             CardButtons = new List<ICardButton>();
             CardSet = new CardSet(this);
             CardSet.Buttons.CollectionChanged += (s, e) => CardSetUpdated();
         }
 
         public SelectableType Type { get; }
+
+        public Deck Deck { get; }
 
         public string Name { 
             get {
@@ -77,12 +80,6 @@ namespace ArkhamOverlay.Data {
         }
 
         public bool Loading { get; internal set; }
-
-
-        public event Action ShowDeckListTriggered;
-        public void ShowDeckList() {
-            ShowDeckListTriggered?.Invoke();
-        }
 
         public event Action<Card> CardVisibilityToggled;
         public void ToggleCardVisibility(Card card) {

@@ -48,8 +48,8 @@
     <Compile Include="Events\ShowDeckListRequest.cs" />
     <Compile Include="Events\TakeSnapshotRequest.cs" />
     <Compile Include="Tcp\AoTcpRequest.cs" />
+    <Compile Include="Tcp\Requests\EventBusRequest.cs" />
     <Compile Include="Tcp\Requests\StatValueRequest.cs" />
-    <Compile Include="Tcp\Requests\SnapshotRequest.cs" />
     <Compile Include="Tcp\Requests\ChangeStatValueRequest.cs" />
     <Compile Include="Tcp\Requests\GetInvestigatorImageRequest.cs" />
     <Compile Include="Tcp\Requests\UpdateInvestigatorImageRequest.cs" />
@@ -63,7 +63,6 @@
     <Compile Include="Tcp\Requests\RegisterForUpdatesRequest.cs" />
     <Compile Include="Tcp\Requests\ClearAllCardsRequest.cs" />
     <Compile Include="Tcp\Requests\ClickCardRequest.cs" />
-    <Compile Include="Tcp\Requests\ShowDeckListRequest.cs" />
     <Compile Include="Tcp\Requests\UpdateCardInfoRequest.cs" />
     <Compile Include="Tcp\Requests\GetCardInfoRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

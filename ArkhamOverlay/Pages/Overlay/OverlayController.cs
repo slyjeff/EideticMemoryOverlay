@@ -15,6 +15,7 @@ using System.Windows.Threading;
 using System.Diagnostics;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Events;
+using ArkhamOverlay.Common.Enums;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayController : Controller<OverlayView, OverlayViewModel> {
@@ -57,6 +58,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             _logger.LogMessage("Initializing Overlay Controller.");
 
             eventBus.SubscribeToTakeSnapshotRequest(TakeSnapshot);
+            eventBus.SubscribeToShowDeckListRequest(ShowDeckListRequest);
 
             _configuration.PropertyChanged += (s, e) => {
                 if ((e.PropertyName == nameof(Configuration.OverlayHeight))
@@ -98,6 +100,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             View.Closed += (s, e) => {
+                eventBus.UnsubscribeFromShowDeckListRequest(ShowDeckListRequest);
                 eventBus.UnsubscribeFromTakeSnapshotRequest(TakeSnapshot);
 
                 _autoSnapshotTimer.Stop();
@@ -213,7 +216,6 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         private void InitializeSelectableCards(SelectableCards selectableCards) {
-            selectableCards.ShowDeckListTriggered += () => ShowDeckListHandler(selectableCards);
             selectableCards.CardVisibilityToggled += ToggleCardVisibilityHandler;
 
             selectableCards.CardSet.VisibilityToggled += () => {
@@ -237,9 +239,12 @@ namespace ArkhamOverlay.Pages.Overlay {
             };
         }
 
+
         private SelectableCards _currentDisplayedDeckList = null;
-        private void ShowDeckListHandler(SelectableCards selectableCards) {
+        private void ShowDeckListRequest(ShowDeckListRequest request) {
             _logger.LogMessage("Showing deck list in overlay.");
+            var selectableCards = GetSelectableCardsFromDeck(request.Deck);
+
             //it's already displayed- just hide it
             if (_currentDisplayedDeckList == selectableCards) {
                 ClearDeckList();
@@ -395,7 +400,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-        internal void TakeSnapshot(TakeSnapshotRequest takeSnapshotRequest) {
+        private void TakeSnapshot(TakeSnapshotRequest takeSnapshotRequest) {
             _logger.LogMessage("Taking snapshot of overlay window.");
 
             var timeStamp = DateTime.Now.ToString("yyddMHHmmss");
@@ -430,6 +435,28 @@ namespace ArkhamOverlay.Pages.Overlay {
             } catch (Exception ex) {
                 //recover from a failure to write without crashing- we'll get it next time
                 _logger.LogException(ex, "Error writing snapshot to file.");
+            }
+        }
+
+        private SelectableCards GetSelectableCardsFromDeck(Deck deck) {
+            switch (deck) {
+                case Deck.Player1:
+                    return _appData.Game.Players[0].SelectableCards;
+                case Deck.Player2:
+                    return _appData.Game.Players[1].SelectableCards;
+                case Deck.Player3:
+                    return _appData.Game.Players[2].SelectableCards;
+                case Deck.Player4:
+                    return _appData.Game.Players[3].SelectableCards;
+                case Deck.Scenario:
+                    return _appData.Game.ScenarioCards;
+                case Deck.Locations:
+                    return _appData.Game.LocationCards;
+                case Deck.EncounterDeck:
+                    return _appData.Game.EncounterDeckCards;
+                default:
+                    return null;
+                    break;
             }
         }
     }
