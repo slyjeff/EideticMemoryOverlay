@@ -21,13 +21,11 @@ namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
-        private readonly IEventBus _eventBus;
         private readonly ICrossAppEventBus _crossAppEventBus;
 
-        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, IEventBus eventBus, ICrossAppEventBus crossAppEventBus) {
+        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, ICrossAppEventBus crossAppEventBus) {
             _appData = viewModel;
             _logger = loggingService;
-            _eventBus = eventBus;
             _crossAppEventBus = crossAppEventBus;
         }
 
