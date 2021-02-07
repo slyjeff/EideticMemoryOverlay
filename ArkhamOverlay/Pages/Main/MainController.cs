@@ -19,7 +19,7 @@ using System.Windows.Threading;
 namespace ArkhamOverlay.Pages.Main {
     public class MainController : Controller<MainView, MainViewModel> {
         private OverlayController _overlayController;
-        private readonly ArkhamDbService _arkhamDbService;
+        private readonly CardLoadService _cardLoadService;
         private readonly IList<SelectCardsController> _selectCardsControllers = new List<SelectCardsController>();
 
         private readonly GameFileService _gameFileService;
@@ -28,12 +28,12 @@ namespace ArkhamOverlay.Pages.Main {
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
 
-        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, ArkhamDbService arkhamDbService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
+        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
             ViewModel.AppData = appData;
 
             _gameFileService = gameFileService;
             _controllerFactory = controllerFactory;
-            _arkhamDbService = arkhamDbService;
+            _cardLoadService = cardLoadService;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
             _eventBus = eventBus;
@@ -55,7 +55,7 @@ namespace ArkhamOverlay.Pages.Main {
             worker.DoWork += (x, y) => {
                 _logger.LogMessage("Main window loading encounter sets.");
                 _loadingStatusService.ReportEncounterCardsStatus(Status.LoadingDeck);
-                _arkhamDbService.FindMissingEncounterSets(ViewModel.AppData.Configuration);
+                _cardLoadService.FindMissingEncounterSets(ViewModel.AppData.Configuration);
                 _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
             };
             worker.RunWorkerAsync();
@@ -216,13 +216,13 @@ namespace ArkhamOverlay.Pages.Main {
             if (!string.IsNullOrEmpty(player.DeckId)) {
                 try {
                     _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingDeck);
-                    _arkhamDbService.LoadPlayer(player);
+                    _cardLoadService.LoadPlayer(player);
 
                     var worker = new BackgroundWorker();
                     worker.DoWork += (x, y) => {
                         _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingCards);
                         try {
-                            _arkhamDbService.LoadPlayerCards(player);
+                            _cardLoadService.LoadPlayerCards(player);
                             _loadingStatusService.ReportPlayerStatus(player.ID, Status.Finished);
                         }
                         catch {

@@ -19,7 +19,7 @@ namespace ArkhamOverlay {
                     y.WithDefaultConventions();
                 });
             });
-            
+
             PageControllerConfiguration.PageDependencyResolver = new StructureMapDependencyResolver(container);
 
             container.Configure(x => {

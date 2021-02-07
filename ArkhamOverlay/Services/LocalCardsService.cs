@@ -17,25 +17,31 @@ namespace ArkhamOverlay.Services {
             _logger = logger;
         }
 
-        public List<Card> LoadEncounterCards() {
-            var cards = new List<Card>();
+        public List<LocalManifestCard> LoadLocalCards() {
+            var cards = new List<LocalManifestCard>();
 
             foreach (var manifest in GetLocalPackManifests()) {
-                if (!_appData.Game.LocalPacks.Any(x => string.Equals(x, manifest.Name, StringComparison.InvariantCulture))) {
+                _logger.LogMessage($"Loading Local Cards from {manifest.Name}.");
+                cards.AddRange(manifest.Cards);
+            }
+
+            return LoadLocalCardsImpl(null);
+        }
+
+        public List<LocalManifestCard> LoadLocalCardsFromPacks(IList<string> packsToLoad) {
+            return LoadLocalCardsImpl(packsToLoad);
+        }
+
+        public List<LocalManifestCard> LoadLocalCardsImpl(IList<string> packsToLoad) {
+            var cards = new List<LocalManifestCard>();
+
+            foreach (var manifest in GetLocalPackManifests()) {
+                if (packsToLoad != null && !packsToLoad.Any(x => string.Equals(x, manifest.Name, StringComparison.InvariantCulture))) {
                     continue;
                 }
 
                 _logger.LogMessage($"Loading Local Cards from {manifest.Name}.");
-                foreach (var card in manifest.Cards) {
-                    try {
-                        cards.Add(new Card(card, false));
-                        if (card.HasBack) {
-                            cards.Add(new Card(card, true));
-                        }
-                    } catch (Exception e) {
-                        _logger.LogException(e, "Error loading local cards");
-                    }
-                }
+                cards.AddRange(manifest.Cards);
             }
 
             return cards;
