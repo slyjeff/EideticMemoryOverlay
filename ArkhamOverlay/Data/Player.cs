@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Utils;
+﻿using ArkhamOverlay.CardButtons;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -54,6 +55,8 @@ namespace ArkhamOverlay.Data {
         public string Name { get { return SelectableCards.Name; } }
 
         CardType IHasImageButton.ImageCardType { get { return CardType.Investigator; } }
+
+        public string ImageSource { get; set; }
 
         private ImageSource _image;
         public ImageSource Image { 
