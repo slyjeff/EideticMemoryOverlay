@@ -1,12 +1,13 @@
-﻿using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.TcpUtils.Requests;
-using ArkhamOverlay.TcpUtils.Responses;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using System;
 using System.Net.Sockets;
 using System.Text;
+using ArkhamOverlay.Common.Tcp;
+using ArkhamOverlay.Common.Tcp.Requests;
+using ArkhamOverlay.Common.Tcp.Responses;
+using ArkhamOverlay.Common.Services;
 
 namespace StreamDeckPlugin.Utils {
     public class TcpRequestHandler : IRequestHandler {
@@ -23,7 +24,7 @@ namespace StreamDeckPlugin.Utils {
         public void HandleRequest(TcpRequest request) {
             RequestReceivedRecently = true;
 
-            Console.WriteLine("Handling Request: " + request.RequestType.AsString());
+            Console.WriteLine("Handling Request: " + request.RequestType.ToString());
             switch (request.RequestType) {
                 case AoTcpRequest.UpdateCardInfo:
                     UpdateCardInfo(request);

@@ -1,4 +1,5 @@
-﻿using StreamDeckPlugin.Events;
+﻿using ArkhamOverlay.Common.Services;
+using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
 using System.Timers;
 

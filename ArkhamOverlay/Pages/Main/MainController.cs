@@ -1,4 +1,6 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.Common.Events;
+using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Data;
 using ArkhamOverlay.Pages.ChooseEncounters;
 using ArkhamOverlay.Pages.LocalImages;
 using ArkhamOverlay.Pages.Overlay;
@@ -24,9 +26,9 @@ namespace ArkhamOverlay.Pages.Main {
         private readonly IControllerFactory _controllerFactory;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
-        private readonly IActionRequestService _actionRequestService;
+        private readonly IEventBus _eventBus;
 
-        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IActionRequestService actionRequestService) {
+        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
             ViewModel.AppData = appData;
 
             _gameFileService = gameFileService;
@@ -34,7 +36,7 @@ namespace ArkhamOverlay.Pages.Main {
             _cardLoadService = cardLoadService;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
-            _actionRequestService = actionRequestService;
+            _eventBus = eventBus;
 
             LoadEncounterSets();
 
@@ -321,7 +323,7 @@ namespace ArkhamOverlay.Pages.Main {
         [Command]
         public void TakeSnapshot() {
             _logger.LogMessage("Main window: take snapshot clicked.");
-            _actionRequestService.TakeSnapshot();
+            _eventBus.PublishTakeSnapshotRequest();
         }
     }
 }

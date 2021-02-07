@@ -1,8 +1,11 @@
 ﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Events;
+using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Tcp;
+using ArkhamOverlay.Common.Tcp.Requests;
+using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Data;
-using ArkhamOverlay.TcpUtils;
-using ArkhamOverlay.TcpUtils.Requests;
-using ArkhamOverlay.TcpUtils.Responses;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,16 +21,16 @@ namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
-        private readonly IActionRequestService _actionRequestService;
+        private readonly IEventBus _eventBus;
 
-        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, IActionRequestService actionRequestService) {
+        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, IEventBus eventBus) {
             _appData = viewModel;
             _logger = loggingService;
-            _actionRequestService = actionRequestService;
+            _eventBus = eventBus;
         }
 
         public void HandleRequest(TcpRequest request) {
-            _logger.LogMessage($"Handling Request: {request.RequestType.AsString()}");
+            _logger.LogMessage($"Handling Request: {request.RequestType.ToString()}");
             switch (request.RequestType) {
                 case AoTcpRequest.ClearAll:
                     HandleClearAll(request);
@@ -235,7 +238,7 @@ namespace ArkhamOverlay.Services {
 
         private void HandleShowDeckList(TcpRequest request) {
             _logger.LogMessage("Handling show deck list request");
-            var showDeckListRequest = JsonConvert.DeserializeObject<ShowDeckListRequest>(request.Body);
+            var showDeckListRequest = JsonConvert.DeserializeObject<ArkhamOverlay.Common.Tcp.Requests.ShowDeckListRequest>(request.Body);
             var selectableCards = GetDeck(showDeckListRequest.Deck);
 
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
@@ -247,7 +250,7 @@ namespace ArkhamOverlay.Services {
 
         private void HandleSnapshotRequest(TcpRequest request) {
             _logger.LogMessage("Handling snapshot request");
-            _actionRequestService.TakeSnapshot();
+            _eventBus.PublishTakeSnapshotRequest();
             SendOkResponse(request.Socket);
         }
 

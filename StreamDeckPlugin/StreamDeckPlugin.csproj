@@ -121,9 +121,7 @@
     <Compile Include="Events\GetButtonImageRequest.cs" />
     <Compile Include="Events\GetStatValueRequest.cs" />
     <Compile Include="Events\ImageLoadedEvent.cs" />
-    <Compile Include="Events\TakeSnapshotRequest.cs" />
     <Compile Include="Events\GetInvestigatorImageRequest.cs" />
-    <Compile Include="Events\ShowDeckListRequest.cs" />
     <Compile Include="Events\GetButtonInfoRequest.cs" />
     <Compile Include="Events\DynamicButtonClickRequest.cs" />
     <Compile Include="Events\InvestigatorImageUpdatedEvent.cs" />
@@ -134,7 +132,6 @@
     <Compile Include="Events\DynamicActionInfoChangedEvent.cs" />
     <Compile Include="Services\DynamicActionInfo.cs" />
     <Compile Include="Services\ImageService.cs" />
-    <Compile Include="Services\EventBus.cs" />
     <Compile Include="Services\DynamicActionInfoStore.cs" />
     <Compile Include="Utils\EstablishConnectionToUiService.cs" />
     <Compile Include="Utils\RequestHandler.cs" />
@@ -227,9 +224,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ArkhamOverlay.TcpUtils\ArkhamOverlay.TcpUtils.csproj">
+    <ProjectReference Include="..\ArkhamOverlay.Common\ArkhamOverlay.Common.csproj">
       <Project>{434089c6-fa67-438d-8704-dab3e626eb10}</Project>
-      <Name>ArkhamOverlay.TcpUtils</Name>
+      <Name>ArkhamOverlay.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

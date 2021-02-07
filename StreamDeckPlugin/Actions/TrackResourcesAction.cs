@@ -1,6 +1,6 @@
-﻿using SharpDeck;
+﻿using ArkhamOverlay.Common.Enums;
+using SharpDeck;
 using SharpDeck.Manifest;
-using ArkhamOverlay.TcpUtils;
 
 namespace StreamDeckPlugin.Actions {
 

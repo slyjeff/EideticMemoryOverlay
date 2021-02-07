@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.TcpUtils;
+﻿using ArkhamOverlay.Common;
+using ArkhamOverlay.Common.Enums;
 
 namespace StreamDeckPlugin.Services {
     public interface IDynamicActionInfoContext {

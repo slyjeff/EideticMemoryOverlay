@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.TcpUtils;
+﻿using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Tcp;
 using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 

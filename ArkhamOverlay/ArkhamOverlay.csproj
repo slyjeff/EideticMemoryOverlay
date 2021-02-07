@@ -145,11 +145,11 @@
     </Compile>
     <Compile Include="Pages\LocalImages\LocalImagesViewModel.cs" />
     <Compile Include="Data\LocalPackManifest.cs" />
-    <Compile Include="Services\ActionService.cs" />
     <Compile Include="Services\CardImageService.cs" />
     <Compile Include="Services\LocalCardsService.cs" />
     <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Pages\SelectCards\SelectPlayerMenuViewModel.cs" />
+    <Compile Include="Services\UiEventBus.cs" />
     <Compile Include="Utils\BoolToVisibilityCollapsedConverter.cs" />
     <Compile Include="Utils\FileCompare.cs" />
     <Compile Include="CardButtons\IHasImageButton.cs" />
@@ -260,12 +260,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ArkhamOverlay.TcpUtils\ArkhamOverlay.TcpUtils.csproj">
-      <Project>{434089c6-fa67-438d-8704-dab3e626eb10}</Project>
-      <Name>ArkhamOverlay.TcpUtils</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Windows Logo.png" />
   </ItemGroup>
   <ItemGroup>
@@ -282,6 +276,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\ArkhamOverlay.Common\ArkhamOverlay.Common.csproj">
+      <Project>{434089c6-fa67-438d-8704-dab3e626eb10}</Project>
+      <Name>ArkhamOverlay.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
