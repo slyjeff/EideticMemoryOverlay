@@ -35,13 +35,13 @@ namespace ArkhamOverlay.Services {
 
     public class GameFileService {
         private readonly AppData _appData;
-        private readonly ArkhamDbService _arkhamDbService;
+        private readonly CardLoadService _cardLoadService;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
 
-        public GameFileService(AppData appData, ArkhamDbService arkhamDbService, LoadingStatusService loadingStatusService, LoggingService loggingService) {
+        public GameFileService(AppData appData, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService) {
             _appData = appData;
-            _arkhamDbService = arkhamDbService;
+            _cardLoadService = cardLoadService;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
         }
@@ -63,7 +63,7 @@ namespace ArkhamOverlay.Services {
                         if (!string.IsNullOrEmpty(game.Players[index].DeckId)) {
                             try {
                                 _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.LoadingCards);
-                                _arkhamDbService.LoadPlayer(game.Players[index]);
+                                _cardLoadService.LoadPlayer(game.Players[index]);
                             }
                             catch (Exception ex) {
                                 _logger.LogException(ex, $"Error loading player {game.Players[index].ID}.");
