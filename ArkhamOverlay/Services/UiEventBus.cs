@@ -5,12 +5,13 @@ using System.Windows.Threading;
 
 namespace ArkhamOverlay.Services {
     public class UiEventBus : EventBus {
-        protected override void DoInvoke<T>(Action<T> action, T eventToPublish) {
+        protected override void DoInvokeCallbacks<T>(Action<T> action, T eventToPublish) {
+            //todo: think about if we need to be smarter about this and provide opt in/ opt out for forcing events to execute on the main UI thread
             if (Application.Current.Dispatcher.CheckAccess()) {
-                base.DoInvoke(action, eventToPublish);
+                base.DoInvokeCallbacks(action, eventToPublish);
             } else {
                 Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                    base.DoInvoke(action, eventToPublish);
+                    base.DoInvokeCallbacks(action, eventToPublish);
                 }));
             }
        }
