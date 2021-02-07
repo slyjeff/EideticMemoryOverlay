@@ -94,7 +94,7 @@ namespace ArkhamOverlay.Services {
             _logger.LogMessage($"Loading investigator card for player {player.ID}.");
 
             var playerCard = _arkhamDbService.GetCard(player.InvestigatorCode);
-
+            FixArkhamDbCardImageSource(playerCard);
             var localCard = _localCardsService.GetCardById(arkhamDbDeck.Investigator_Code);
             if (localCard != null) {
                 player.ImageSource = localCard.FilePath;
