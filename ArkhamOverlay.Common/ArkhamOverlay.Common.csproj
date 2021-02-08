@@ -34,6 +34,9 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="StructureMap, Version=4.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StructureMap.4.7.1\lib\net45\StructureMap.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -46,14 +49,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events\ShowDeckListRequest.cs" />
+    <Compile Include="Events\StatUpdatedEvent.cs" />
     <Compile Include="Events\TakeSnapshotRequest.cs" />
+    <Compile Include="Utils\ServiceLocator.cs" />
     <Compile Include="Tcp\AoTcpRequest.cs" />
     <Compile Include="Tcp\Requests\EventBusRequest.cs" />
     <Compile Include="Tcp\Requests\StatValueRequest.cs" />
     <Compile Include="Tcp\Requests\ChangeStatValueRequest.cs" />
     <Compile Include="Tcp\Requests\GetInvestigatorImageRequest.cs" />
     <Compile Include="Tcp\Requests\UpdateInvestigatorImageRequest.cs" />
-    <Compile Include="Tcp\Requests\UpdateStatInfoRequest.cs" />
     <Compile Include="Tcp\Responses\ChangeStatValueResponse.cs" />
     <Compile Include="Enums\StatType.cs" />
     <Compile Include="Enums\CardButtonType.cs" />

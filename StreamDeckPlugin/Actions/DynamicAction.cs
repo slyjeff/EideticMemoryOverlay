@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Utils;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;

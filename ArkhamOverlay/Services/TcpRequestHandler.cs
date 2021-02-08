@@ -8,10 +8,7 @@ using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Data;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows;
@@ -21,12 +18,14 @@ namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
+        private readonly IEventBus _eventBus;
         private readonly ICrossAppEventBus _crossAppEventBus;
         private readonly IBroadcastService _broadcastService;
 
-        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, ICrossAppEventBus crossAppEventBus, IBroadcastService broadcastService) {
+        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, IEventBus eventBus, ICrossAppEventBus crossAppEventBus, IBroadcastService broadcastService) {
             _appData = viewModel;
             _logger = loggingService;
+            _eventBus = eventBus;
             _crossAppEventBus = crossAppEventBus;
             _broadcastService = broadcastService;
         }
@@ -181,11 +180,6 @@ namespace ArkhamOverlay.Services {
                 if (!_alreadyRegisteredEvents) {
                     var game = _appData.Game;
                     foreach (var player in game.Players) {
-                        player.Health.PropertyChanged += (s, e) => { SendStatInfo(player.Health, GetDeckType(player.SelectableCards), StatType.Health); };
-                        player.Sanity.PropertyChanged += (s, e) => { SendStatInfo(player.Sanity, GetDeckType(player.SelectableCards), StatType.Sanity); };
-                        player.Resources.PropertyChanged += (s, e) => { SendStatInfo(player.Resources, GetDeckType(player.SelectableCards), StatType.Resources); };
-                        player.Clues.PropertyChanged += (s, e) => { SendStatInfo(player.Clues, GetDeckType(player.SelectableCards), StatType.Clues); };
-
                         player.PropertyChanged += (s, e) => {
                             if (e.PropertyName == nameof(Player.ButtonImageAsBytes)) {
                                 SendInvestigatorImage(player);
@@ -228,10 +222,10 @@ namespace ArkhamOverlay.Services {
         private void SendAllStats() {
             var game = _appData.Game;
             foreach (var player in game.Players) {
-                SendStatInfo(player.Health, GetDeckType(player.SelectableCards), StatType.Health);
-                SendStatInfo(player.Sanity, GetDeckType(player.SelectableCards), StatType.Sanity);
-                SendStatInfo(player.Resources, GetDeckType(player.SelectableCards), StatType.Resources);
-                SendStatInfo(player.Clues, GetDeckType(player.SelectableCards), StatType.Clues);
+                _eventBus.PublishStatUpdatedEvent(GetDeckType(player.SelectableCards), StatType.Health, player.Health.Value);
+                _eventBus.PublishStatUpdatedEvent(GetDeckType(player.SelectableCards), StatType.Sanity, player.Sanity.Value);
+                _eventBus.PublishStatUpdatedEvent(GetDeckType(player.SelectableCards), StatType.Resources, player.Resources.Value);
+                _eventBus.PublishStatUpdatedEvent(GetDeckType(player.SelectableCards), StatType.Clues, player.Clues.Value);
             }
         }
 
@@ -303,18 +297,6 @@ namespace ArkhamOverlay.Services {
             if (request.Index == -1) {
                 return;
             }
-
-            _broadcastService.SendRequest(request);
-        }
-
-        private void SendStatInfo(Stat stat, Deck deck, StatType statType) {
-            _logger.LogMessage("Sending stat info");
-
-            var request = new UpdateStatInfoRequest {
-                Deck = deck,
-                Value = stat.Value,
-                StatType = statType
-            };
 
             _broadcastService.SendRequest(request);
         }

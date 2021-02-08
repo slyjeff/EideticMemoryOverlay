@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Tcp;
+using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Data;
 using ArkhamOverlay.Pages.Main;
 using ArkhamOverlay.Services;
@@ -20,6 +21,8 @@ namespace ArkhamOverlay {
                 });
             });
 
+            ServiceLocator.Container = container;
+
             PageControllerConfiguration.PageDependencyResolver = new StructureMapDependencyResolver(container);
 
             var eventBus = new UiEventBus();
@@ -33,6 +36,7 @@ namespace ArkhamOverlay {
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
             });
 
+           
             _loggingService = container.GetInstance<LoggingService>();
 
             var cardLoadService = container.GetInstance<CardLoadService>();

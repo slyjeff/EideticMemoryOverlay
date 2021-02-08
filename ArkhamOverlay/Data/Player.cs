@@ -1,6 +1,5 @@
 ﻿using ArkhamOverlay.Common.Enums;
-using ArkhamOverlay.Utils;
-﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.CardButtons;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,9 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Utils;
+using ArkhamOverlay.Common.Events;
 
 namespace ArkhamOverlay.Data {
     public class Player : ViewModel, IHasImageButton {
@@ -16,10 +18,11 @@ namespace ArkhamOverlay.Data {
         public Player(Configuration configuration, Deck deck) {
             _configuration = configuration;
             SelectableCards = new SelectableCards(deck);
-            Health = new Stat("health.png");
-            Sanity = new Stat("sanity.png");
-            Resources = new Stat("resource.png");
-            Clues = new Stat("clue.png");
+            Health = new Stat(StatType.Health, deck);
+            Sanity = new Stat(StatType.Sanity, deck);
+            Resources = new Stat(StatType.Resources, deck);
+            Clues = new Stat(StatType.Clues, deck);
+
             Faction = Faction.Other;
 
             Resources.Value = 5;
@@ -121,11 +124,32 @@ namespace ArkhamOverlay.Data {
     }
 
     public class Stat : ViewModel {
-        public Stat(string imageFile) {
-            var fileName = AppDomain.CurrentDomain.BaseDirectory + "Images\\" + imageFile;
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
+        private readonly StatType _statType;
+        private readonly Deck _deck;
+
+        public Stat(StatType statType, Deck deck) {
+            _statType = statType;
+            _deck = deck;
+            var fileName = AppDomain.CurrentDomain.BaseDirectory + "Images\\" + GetImageFileName(statType);
             Image = new BitmapImage(new Uri(fileName));
             Increase = new UpdateStateCommand(this, true);
             Decrease = new UpdateStateCommand(this, false);
+        }
+
+        private string GetImageFileName(StatType statType) {
+            switch (statType) {
+                case StatType.Health:
+                    return "health.png";
+                case StatType.Sanity:
+                    return "sanity.png";
+                case StatType.Resources:
+                    return "resource.png";
+                case StatType.Clues:
+                    return "clue.png";
+                default:
+                    return "health.png";
+            }
         }
 
         public ImageSource Image { get; }
@@ -135,12 +159,17 @@ namespace ArkhamOverlay.Data {
             get => _value;
             set {
                 _value = value;
-                NotifyPropertyChanged(nameof(Value));
+                ValueChanged();
             }
         }
 
         public ICommand Increase { get; }
         public ICommand Decrease { get; }
+
+        private void ValueChanged() {
+            NotifyPropertyChanged(nameof(Value));
+            _eventBus.PublishStatUpdatedEvent(_deck, _statType, _value);
+        }
     }
 
     public class UpdateStateCommand : ICommand {

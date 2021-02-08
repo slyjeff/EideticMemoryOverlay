@@ -127,7 +127,6 @@
     <Compile Include="Events\InvestigatorImageUpdatedEvent.cs" />
     <Compile Include="Events\ModeToggledEvent.cs" />
     <Compile Include="Events\ClearAllCardsRequest.cs" />
-    <Compile Include="Events\StatUpdatedEvent.cs" />
     <Compile Include="Events\PageChangedEvent.cs" />
     <Compile Include="Events\DynamicActionInfoChangedEvent.cs" />
     <Compile Include="Services\DynamicActionInfo.cs" />
@@ -139,7 +138,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\SendEventHandler.cs" />
     <Compile Include="Utils\ImageUtils.cs" />
-    <Compile Include="Utils\ServiceLocator.cs" />
     <Compile Include="Utils\StreamDeckTcpInfo.cs" />
     <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\TrackStatSettings.cs" />

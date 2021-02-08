@@ -2,8 +2,8 @@
 using ArkhamOverlay.Common.Services;
 using System;
 
-namespace StreamDeckPlugin.Events {
-    public class StatUpdatedEvent : IEvent {
+namespace ArkhamOverlay.Common.Events {
+    public class StatUpdatedEvent : ICrossAppEvent {
         public StatUpdatedEvent(Deck deck, StatType statType, int value) {
             Deck = deck;
             StatType = statType;
