@@ -150,6 +150,7 @@
     <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Pages\SelectCards\SelectPlayerMenuViewModel.cs" />
     <Compile Include="Services\UiEventBus.cs" />
+    <Compile Include="Services\BroadcastService.cs" />
     <Compile Include="Utils\BoolToVisibilityCollapsedConverter.cs" />
     <Compile Include="Utils\FileCompare.cs" />
     <Compile Include="CardButtons\IHasImageButton.cs" />

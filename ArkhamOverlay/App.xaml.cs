@@ -24,9 +24,10 @@ namespace ArkhamOverlay {
 
             var eventBus = new UiEventBus();
             container.Configure(x => {
+                x.For<LoggingService>().Use<LoggingService>().Singleton();
                 x.For<IEventBus>().Use(eventBus);
                 x.For<ICrossAppEventBus>().Use(eventBus);
-                x.For<LoggingService>().Use<LoggingService>().Singleton();
+                x.For<IBroadcastService>().Use<BroadcastService>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
                 x.For<AppData>().Use(new AppData());
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));

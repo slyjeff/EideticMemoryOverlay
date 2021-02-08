@@ -13,10 +13,12 @@ namespace StreamDeckPlugin.Utils {
     public class TcpRequestHandler : IRequestHandler {
         private readonly IDynamicActionInfoStore _dynamicActionService;
         private readonly IEventBus _eventBus;
+        private readonly ICrossAppEventBus _crossAppEventBus;
 
-        public TcpRequestHandler(IDynamicActionInfoStore dynamicActionService, IEventBus eventBus) {
+        public TcpRequestHandler(IDynamicActionInfoStore dynamicActionService, IEventBus eventBus, ICrossAppEventBus crossAppEventBus) {
             _dynamicActionService = dynamicActionService;
             _eventBus = eventBus;
+            _crossAppEventBus = crossAppEventBus;
         }
 
         public bool RequestReceivedRecently { get; set; } 
@@ -34,6 +36,9 @@ namespace StreamDeckPlugin.Utils {
                     break;
                 case AoTcpRequest.UpdateInvestigatorImage:
                     UpdateInvestigatorImage(request);
+                    break;
+                case AoTcpRequest.EventBus:
+                    HandleEventBusRequest(request);
                     break;
             }
         }
@@ -84,6 +89,13 @@ namespace StreamDeckPlugin.Utils {
             } catch (Exception e) {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private void HandleEventBusRequest(TcpRequest request) {
+            Send(request.Socket, new OkResponse().ToString());
+
+            var eventBusRequest = JsonConvert.DeserializeObject<EventBusRequest>(request.Body);
+            _crossAppEventBus.ReceiveMessage(eventBusRequest);
         }
     }
 }
