@@ -32,7 +32,9 @@ namespace ArkhamOverlay {
                 x.For<ICrossAppEventBus>().Use(eventBus);
                 x.For<IBroadcastService>().Use<BroadcastService>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
-                x.For<AppData>().Use(new AppData());
+                x.For<AppData>().Use<AppData>().Singleton();
+                x.For<Configuration>().Use<Configuration>().Singleton();
+                x.For<Game>().Use<Game>().Singleton();
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
             });
 

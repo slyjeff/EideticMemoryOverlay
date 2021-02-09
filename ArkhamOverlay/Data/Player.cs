@@ -10,13 +10,14 @@ using System.Windows.Media.Imaging;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Common.Events;
+using ArkhamOverlay.Events;
 
 namespace ArkhamOverlay.Data {
     public class Player : ViewModel, IHasImageButton {
-        Configuration _configuration;
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
+        private bool _isStatTrackingVisible = false;
 
-        public Player(Configuration configuration, Deck deck) {
-            _configuration = configuration;
+        public Player(Deck deck) {
             SelectableCards = new SelectableCards(deck);
             Health = new Stat(StatType.Health, deck);
             Sanity = new Stat(StatType.Sanity, deck);
@@ -27,11 +28,10 @@ namespace ArkhamOverlay.Data {
 
             Resources.Value = 5;
 
-            configuration.PropertyChanged += (s, e) => {
-                if (e.PropertyName == nameof(Configuration.TrackPlayerStats)) {
-                    NotifyPropertyChanged(nameof(StatTrackingVisibility));
-                }
-            };
+            _eventBus.SubscribeToStatTrackingVisibilityChangedEvent(e => {
+                _isStatTrackingVisible = e.IsVisible;
+                NotifyPropertyChanged(nameof(StatTrackingVisibility));
+            });
         }
 
         public int ID { 
@@ -106,7 +106,7 @@ namespace ArkhamOverlay.Data {
         public Stat Resources { get; }
         public Stat Clues { get; }
         
-        public Visibility StatTrackingVisibility { get { return string.IsNullOrEmpty(SelectableCards.Name) || !_configuration.TrackPlayerStats ? Visibility.Collapsed : Visibility.Visible; } }
+        public Visibility StatTrackingVisibility { get { return string.IsNullOrEmpty(SelectableCards.Name) || !_isStatTrackingVisible ? Visibility.Collapsed : Visibility.Visible; } }
         public Brush PlayerNameBrush {
             get {
                 switch (Faction) {
