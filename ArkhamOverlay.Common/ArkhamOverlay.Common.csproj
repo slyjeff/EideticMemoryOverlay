@@ -49,11 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums\ButtonContext.cs" />
-    <Compile Include="Events\ButtonToggledEvent.cs" />
-    <Compile Include="Events\ButtonTextChangedEvent.cs" />
-    <Compile Include="Events\CardTemplateVisibilityChangedEvent.cs" />
+    <Compile Include="Events\ButtonToggled.cs" />
+    <Compile Include="Events\ButtonTextChanged.cs" />
+    <Compile Include="Events\CardTemplateVisibilityChanged.cs" />
     <Compile Include="Events\ShowDeckListRequest.cs" />
-    <Compile Include="Events\StatUpdatedEvent.cs" />
+    <Compile Include="Events\StatUpdated.cs" />
     <Compile Include="Events\TakeSnapshotRequest.cs" />
     <Compile Include="Utils\ServiceLocator.cs" />
     <Compile Include="Tcp\AoTcpRequest.cs" />

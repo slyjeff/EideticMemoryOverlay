@@ -104,7 +104,7 @@ namespace StreamDeckPlugin.Services {
                 return;
             }
 
-            _eventBus.PublishStatUpdatedEvent(getStatValueRequest.Deck, getStatValueRequest.StatType, response.Value);
+            _eventBus.PublishStatUpdated(getStatValueRequest.Deck, getStatValueRequest.StatType, response.Value);
         }
 
         private void ChangeStatValue(Events.ChangeStatValueRequest changeStatValueRequest) {
@@ -113,7 +113,7 @@ namespace StreamDeckPlugin.Services {
                 return;
             }
 
-            _eventBus.PublishStatUpdatedEvent(changeStatValueRequest.Deck, changeStatValueRequest.StatType, response.Value);
+            _eventBus.PublishStatUpdated(changeStatValueRequest.Deck, changeStatValueRequest.StatType, response.Value);
         }
 
         #endregion

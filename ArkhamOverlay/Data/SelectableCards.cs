@@ -31,7 +31,7 @@ namespace ArkhamOverlay.Data {
             CardSet = new CardSet(this);
             CardSet.Buttons.CollectionChanged += (s, e) => CardSetUpdated();
 
-            _eventBus.SubscribeToCardTemplateVisibilityChangedEvent(CardTemplateVisibilityChanged);
+            _eventBus.SubscribeToCardTemplateVisibilityChanged(CardTemplateVisibilityChanged);
         }
 
         public SelectableType Type { get; }
@@ -123,7 +123,7 @@ namespace ArkhamOverlay.Data {
             } else {
                 _showCardZoneButton.Text = "Right Click to add cards to " + buttonName;
             }
-            _eventBus.PublishButtonTextChangedEvent(CardGroup, 0, CardButtons.IndexOf(_showCardZoneButton), _showCardZoneButton.Text);
+            _eventBus.PublishButtonTextChanged(CardGroup, 0, CardButtons.IndexOf(_showCardZoneButton), _showCardZoneButton.Text);
         }
 
 
@@ -180,7 +180,7 @@ namespace ArkhamOverlay.Data {
         /// When card temlate visibility has changed, look through all of our buttons to see if we need to show that they are visible
         /// </summary>
         /// <param name="e">CardTemplateVisibilityChangedEvent</param>
-        private void CardTemplateVisibilityChanged(CardTemplateVisibilityChangedEvent e) {
+        private void CardTemplateVisibilityChanged(CardTemplateVisibilityChanged e) {
             var cardImageButtons = CardButtons.OfType<CardImageButton>().Union(CardSet.Buttons.OfType<CardImageButton>());
 
             foreach (var button in cardImageButtons) {

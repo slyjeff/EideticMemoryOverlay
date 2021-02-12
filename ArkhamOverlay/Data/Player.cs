@@ -168,7 +168,7 @@ namespace ArkhamOverlay.Data {
 
         private void ValueChanged() {
             NotifyPropertyChanged(nameof(Value));
-            _eventBus.PublishStatUpdatedEvent(_deck, _statType, _value);
+            _eventBus.PublishStatUpdated(_deck, _statType, _value);
         }
     }
 

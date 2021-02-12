@@ -122,7 +122,7 @@ namespace ArkhamOverlay.Data {
                 }
 
                 _isDisplayedOnOverlay = value;
-                _eventBus.PublishCardTemplateVisibilityChangedEvent(Name, _isDisplayedOnOverlay);
+                _eventBus.PublishCardTemplateVisibilityChanged(Name, _isDisplayedOnOverlay);
             }
         }
 

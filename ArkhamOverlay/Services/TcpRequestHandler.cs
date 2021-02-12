@@ -222,10 +222,10 @@ namespace ArkhamOverlay.Services {
         private void SendAllStats() {
             var game = _appData.Game;
             foreach (var player in game.Players) {
-                _eventBus.PublishStatUpdatedEvent(player.SelectableCards.CardGroup, StatType.Health, player.Health.Value);
-                _eventBus.PublishStatUpdatedEvent(player.SelectableCards.CardGroup, StatType.Sanity, player.Sanity.Value);
-                _eventBus.PublishStatUpdatedEvent(player.SelectableCards.CardGroup, StatType.Resources, player.Resources.Value);
-                _eventBus.PublishStatUpdatedEvent(player.SelectableCards.CardGroup, StatType.Clues, player.Clues.Value);
+                _eventBus.PublishStatUpdated(player.SelectableCards.CardGroup, StatType.Health, player.Health.Value);
+                _eventBus.PublishStatUpdated(player.SelectableCards.CardGroup, StatType.Sanity, player.Sanity.Value);
+                _eventBus.PublishStatUpdated(player.SelectableCards.CardGroup, StatType.Resources, player.Resources.Value);
+                _eventBus.PublishStatUpdated(player.SelectableCards.CardGroup, StatType.Clues, player.Clues.Value);
             }
         }
 

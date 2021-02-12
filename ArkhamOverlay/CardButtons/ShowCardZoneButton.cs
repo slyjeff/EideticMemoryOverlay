@@ -14,7 +14,7 @@ namespace ArkhamOverlay.CardButtons {
 
             selectableCards.CardSet.IsDisplayedOnOverlayChanged += (isDisplayedOnOverlay) => {
                 IsToggled = isDisplayedOnOverlay;
-                _eventBus.PublishButtonToggledEvent(selectableCards.CardGroup, 0, selectableCards.CardButtons.IndexOf(this), IsToggled);
+                _eventBus.PublishButtonToggled(selectableCards.CardGroup, 0, selectableCards.CardButtons.IndexOf(this), IsToggled);
             };
         }
 

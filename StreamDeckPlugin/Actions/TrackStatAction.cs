@@ -24,13 +24,13 @@ namespace StreamDeckPlugin.Actions {
         public TrackStatAction(StatType statType) {
             StatType = statType;
 
-            _eventBus.SubscribeToStatUpdatedEvent(StatUpdated);
+            _eventBus.SubscribeToStatUpdated(StatUpdated);
 
             _keyPressTimer.Enabled = false;
             _keyPressTimer.Elapsed += KeyHeldDown;
         }
 
-        private void StatUpdated(StatUpdatedEvent statUpdatedEvent) {
+        private void StatUpdated(StatUpdated statUpdatedEvent) {
             if (statUpdatedEvent.Deck == Deck && statUpdatedEvent.StatType == StatType) {
                 UpdateValue(statUpdatedEvent.Value);
             }

@@ -21,9 +21,9 @@ namespace StreamDeckPlugin.Services {
         public DynamicActionInfoStore(IEventBus eventBus) {
             _eventBus = eventBus;
             eventBus.SubscribeToImageLoadedEvent(e => ImageLoaded(e.ImageId));
-            eventBus.SubscribeToCardTemplateVisibilityChangedEvent(e => CardTemplateVisibilityChanged(e.Name, e.IsVisible));
-            eventBus.SubscribeToButtonTextChangedEvent(ButtonTextChanged);
-            eventBus.SubscribeToButtonToggledEvent(ButtonToggled);
+            eventBus.SubscribeToCardTemplateVisibilityChanged(e => CardTemplateVisibilityChanged(e.Name, e.IsVisible));
+            eventBus.SubscribeToButtonTextChanged(ButtonTextChanged);
+            eventBus.SubscribeToButtonToggled(ButtonToggled);
         }
 
         public IDynamicActionInfo GetDynamicActionInfo(IButtonContext buttonContext) {
@@ -84,7 +84,7 @@ namespace StreamDeckPlugin.Services {
             }
         }
 
-        private void ButtonTextChanged(ButtonTextChangedEvent e) {
+        private void ButtonTextChanged(ButtonTextChanged e) {
             IEnumerable<DynamicActionInfo> dynamicActionsToChange = new List<DynamicActionInfo>();
             lock (_cacheLock) {
                 dynamicActionsToChange = _dynamicActionInfoList.FindAllWithContext(e);
@@ -97,7 +97,7 @@ namespace StreamDeckPlugin.Services {
             }
         }
 
-        private void ButtonToggled(ButtonToggledEvent e) {
+        private void ButtonToggled(ButtonToggled e) {
             IEnumerable<DynamicActionInfo> dynamicActionsToChange = new List<DynamicActionInfo>();
             lock (_cacheLock) {
                 dynamicActionsToChange = _dynamicActionInfoList.FindAllWithContext(e);
