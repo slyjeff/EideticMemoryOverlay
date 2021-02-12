@@ -17,7 +17,7 @@ namespace ArkhamOverlay.Data {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private bool _isStatTrackingVisible = false;
 
-        public Player(Deck deck) {
+        public Player(CardGroup deck) {
             SelectableCards = new SelectableCards(deck);
             Health = new Stat(StatType.Health, deck);
             Sanity = new Stat(StatType.Sanity, deck);
@@ -36,14 +36,14 @@ namespace ArkhamOverlay.Data {
 
         public int ID { 
             get {
-                switch (SelectableCards.Deck) {
-                    case Deck.Player1:
+                switch (SelectableCards.CardGroup) {
+                    case CardGroup.Player1:
                         return 1;
-                    case Deck.Player2:
+                    case CardGroup.Player2:
                         return 2;
-                    case Deck.Player3:
+                    case CardGroup.Player3:
                         return 3;
-                    case Deck.Player4:
+                    case CardGroup.Player4:
                         return 4;
                     default:
                         return 1;
@@ -126,9 +126,9 @@ namespace ArkhamOverlay.Data {
     public class Stat : ViewModel {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly StatType _statType;
-        private readonly Deck _deck;
+        private readonly CardGroup _deck;
 
-        public Stat(StatType statType, Deck deck) {
+        public Stat(StatType statType, CardGroup deck) {
             _statType = statType;
             _deck = deck;
             var fileName = AppDomain.CurrentDomain.BaseDirectory + "Images\\" + GetImageFileName(statType);

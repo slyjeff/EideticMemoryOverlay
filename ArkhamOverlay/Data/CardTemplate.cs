@@ -1,13 +1,18 @@
 ﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Utils;
+using ArkhamOverlay.Events;
 using ArkhamOverlay.Services;
 using System;
 using System.Windows;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.Data {
-    public delegate void CardToggledEvent(ICardButton card);
+    public delegate void CardToggledEvent(IButton card);
 
     public class CardTemplate : IHasImageButton {
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
+
         public CardTemplate() {
         }
 
@@ -108,14 +113,16 @@ namespace ArkhamOverlay.Data {
 
         public CardTemplate FlipSideCard { get; set; }
 
-        public event Action<bool> IsDisplayedOnOverlayChanged;
-        
         private bool _isDisplayedOnOverlay = false;
         public bool IsDisplayedOnOverlay {
             get => _isDisplayedOnOverlay;
             set {
+                if (_isDisplayedOnOverlay == value) {
+                    return;
+                }
+
                 _isDisplayedOnOverlay = value;
-                IsDisplayedOnOverlayChanged?.Invoke(_isDisplayedOnOverlay);
+                _eventBus.PublishCardTemplateVisibilityChangedEvent(Name, _isDisplayedOnOverlay);
             }
         }
 

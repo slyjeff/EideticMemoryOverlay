@@ -4,16 +4,16 @@ using System;
 
 namespace StreamDeckPlugin.Events {
     public class GetInvestigatorImageRequest : IEvent {
-        public GetInvestigatorImageRequest(Deck deck) {
-            Deck = deck;
+        public GetInvestigatorImageRequest(CardGroup cardGroup) {
+            CardGroup = cardGroup;
         }
 
-        public Deck Deck { get; }
+        public CardGroup CardGroup { get; }
     }
 
     public static class GetInvestigatorImageRequestExtensions {
-        public static void PublishGetInvestigatorImageRequest(this IEventBus eventBus, Deck deck) {
-            eventBus.Publish(new GetInvestigatorImageRequest(deck));
+        public static void PublishGetInvestigatorImageRequest(this IEventBus eventBus, CardGroup cardGroup) {
+            eventBus.Publish(new GetInvestigatorImageRequest(cardGroup));
         }
 
         public static void SubscribeToGetInvestigatorImageRequest(this IEventBus eventBus, Action<GetInvestigatorImageRequest> callback) {

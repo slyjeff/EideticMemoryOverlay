@@ -5,7 +5,7 @@ namespace ArkhamOverlay.Common.Tcp.Requests {
         public StatValueRequest() : base(AoTcpRequest.StatValue) {
         }
 
-        public Deck Deck { get; set; }
+        public CardGroup Deck { get; set; }
         public StatType StatType { get; set; }
     }
 }

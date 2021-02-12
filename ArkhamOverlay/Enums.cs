@@ -33,18 +33,18 @@ namespace ArkhamOverlay {
     }
 
     public static class SelectableTypeExtensions {
-        public static SelectableType GetSelectableType(this Deck deck) {
+        public static SelectableType GetSelectableType(this CardGroup deck) {
             switch (deck) {
-                case Deck.Player1:
-                case Deck.Player2:
-                case Deck.Player3:
-                case Deck.Player4:
+                case CardGroup.Player1:
+                case CardGroup.Player2:
+                case CardGroup.Player3:
+                case CardGroup.Player4:
                     return SelectableType.Player;
-                case Deck.Scenario:
+                case CardGroup.Scenario:
                     return SelectableType.Scenario;
-                case Deck.Locations:
+                case CardGroup.Locations:
                     return SelectableType.Location;
-                case Deck.EncounterDeck:
+                case CardGroup.EncounterDeck:
                     return SelectableType.Encounter;
                 default:
                     return SelectableType.Player;

@@ -14,7 +14,7 @@ using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
-    public class DynamicAction : StreamDeckAction<ActionWithDeckSettings>, IDynamicActionInfoContext {
+    public class DynamicAction : StreamDeckAction<ActionWithDeckSettings>, IButtonContext {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore = ServiceLocator.GetService<IDynamicActionInfoStore>();
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
@@ -32,15 +32,15 @@ namespace StreamDeckPlugin.Actions {
             _keyPressTimer.Elapsed += KeyHeldDown;
         }
 
-        public DynamicActionMode Mode { get; private set; } 
+        public int CardZoneIndex { get; private set; } 
 
-        public Deck Deck {
+        public CardGroup CardGroup {
             get {
                 if (_settings == null) {
-                    return Deck.Player1;
+                    return CardGroup.Player1;
                 }
 
-                return _settings.Deck.AsDeck();
+                return _settings.Deck.AsCardGroup();
             }
         }
 
@@ -69,7 +69,7 @@ namespace StreamDeckPlugin.Actions {
             _eventBus.SubscribeToPageChangedEvent(PageChanged);
             _eventBus.SubscribeToModeToggledEvent(ModeToggled);
 
-            SetMode(DynamicActionMode.Pool);
+            SetCardZoneIndex(0);
  
             return Task.CompletedTask;
         }
@@ -130,14 +130,14 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void SendClick(bool isLeftClick) {
-            _eventBus.PublishDynamicButtonClickRequest(Deck, Index, Mode, isLeftClick);
+            _eventBus.PublishDynamicButtonClickRequest(CardGroup, CardZoneIndex, Index, isLeftClick);
 
             //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
         }
 
         private void GetButtonInfo() {
-            _eventBus.PublishGetButtonInfoRequest(Deck, Index, Mode);
+            _eventBus.PublishGetButtonInfoRequest(CardGroup, CardZoneIndex, Index);
         }
 
         private void DynamicActionChanged(DynamicActionInfoChangedEvent dynamicActionInfoChangedEvent) {
@@ -169,21 +169,21 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void ModeToggled(ModeToggledEvent modeToggledEvent) {
-            SetMode(Mode == DynamicActionMode.Pool ? DynamicActionMode.Set : DynamicActionMode.Pool);
+            SetCardZoneIndex(CardZoneIndex == 0 ? 1 : 0);
         }
 
-        public void SetMode(DynamicActionMode mode) {
+        public void SetCardZoneIndex(int cardZoneIndex) {
             _page = 0;
-            Mode = mode;
+            CardZoneIndex = cardZoneIndex;
 
             UpdateButtonToNewDynamicAction();
         }
 
         private void UpdateButtonToNewDynamicAction() {
-            var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(Deck, Index, Mode);
+            var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(this);
             if (dynamicActionInfo == null) {
                 SetTitleAsync(string.Empty);
-                ClearImage();
+                SetImageAsync(string.Empty);
 
                 GetButtonInfo();
                 return;
@@ -194,16 +194,7 @@ namespace StreamDeckPlugin.Actions {
         private void UpdateButtonDisplay(IDynamicActionInfo dynamicActionInfo) {
             _lastSetTitle = dynamicActionInfo.Text;
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
-
-            if (_imageService.HasImage(dynamicActionInfo.ImageId)) {
-                SetImageAsync(_imageService.GetImage(dynamicActionInfo));
-            } else {
-                ClearImage();
-            }
-        }
-
-        private void ClearImage() {
-            SetImageAsync(string.Empty);
+            SetImageAsync(_imageService.GetImage(dynamicActionInfo));
         }
     }
 }

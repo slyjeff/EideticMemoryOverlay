@@ -9,12 +9,12 @@ using System.Windows;
 namespace ArkhamOverlay.Data {
     public class Game : ViewModel, IGame {
         public Game() {
-            Players = new List<Player> { new Player(Deck.Player1), new Player(Deck.Player2), new Player(Deck.Player3), new Player(Deck.Player4) };
+            Players = new List<Player> { new Player(CardGroup.Player1), new Player(CardGroup.Player2), new Player(CardGroup.Player3), new Player(CardGroup.Player4) };
             EncounterSets = new List<EncounterSet>();
             LocalPacks = new List<string>();
-            ScenarioCards = new SelectableCards(Deck.Scenario);
-            LocationCards = new SelectableCards(Deck.Locations);
-            EncounterDeckCards = new SelectableCards(Deck.EncounterDeck);
+            ScenarioCards = new SelectableCards(CardGroup.Scenario);
+            LocationCards = new SelectableCards(CardGroup.Locations);
+            EncounterDeckCards = new SelectableCards(CardGroup.EncounterDeck);
         }
 
         public string Name { get; set; }

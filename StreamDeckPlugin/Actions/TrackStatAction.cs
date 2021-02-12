@@ -36,13 +36,13 @@ namespace StreamDeckPlugin.Actions {
             }
         }
 
-        public Deck Deck {
+        public CardGroup Deck {
             get {
                 if (_settings == null) {
-                    return Deck.Player1;
+                    return CardGroup.Player1;
                 }
 
-                return _settings.Deck.AsDeck();
+                return _settings.Deck.AsCardGroup();
             }
         }
 

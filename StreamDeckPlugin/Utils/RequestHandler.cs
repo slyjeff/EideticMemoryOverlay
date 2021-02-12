@@ -8,7 +8,6 @@ using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;
 using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Events;
 
 namespace StreamDeckPlugin.Utils {
     public class TcpRequestHandler : IRequestHandler {
@@ -44,8 +43,7 @@ namespace StreamDeckPlugin.Utils {
         private void UpdateCardInfo(TcpRequest request) {
             var updateCardInfoRequest = JsonConvert.DeserializeObject<UpdateCardInfoRequest>(request.Body);
             if (updateCardInfoRequest != null) {
-                var mode = updateCardInfoRequest.IsCardInSet ? DynamicActionMode.Set : DynamicActionMode.Pool;
-                _dynamicActionService.UpdateDynamicActionInfo(updateCardInfoRequest.Deck, updateCardInfoRequest.Index, mode, updateCardInfoRequest);
+                _dynamicActionService.UpdateDynamicActionInfo(updateCardInfoRequest, updateCardInfoRequest);
             }
             Send(request.Socket, new OkResponse().ToString());
         }
@@ -53,7 +51,7 @@ namespace StreamDeckPlugin.Utils {
         private void UpdateInvestigatorImage(TcpRequest request) {
             var updateInvestigatorImageRequest = JsonConvert.DeserializeObject<UpdateInvestigatorImageRequest>(request.Body);
             if (updateInvestigatorImageRequest != null) {
-                _eventBus.PublishInvestigatorImageUpdatedEvent(updateInvestigatorImageRequest.Deck, updateInvestigatorImageRequest.Bytes);
+                _eventBus.PublishInvestigatorImageUpdatedEvent(updateInvestigatorImageRequest.CardGroup, updateInvestigatorImageRequest.Bytes);
             }
 
             Send(request.Socket, new OkResponse().ToString());

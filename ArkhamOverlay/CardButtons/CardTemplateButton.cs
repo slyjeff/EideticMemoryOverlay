@@ -5,7 +5,7 @@ namespace ArkhamOverlay.CardButtons {
     public class CardTemplateButton : CardImageButton {
         private readonly SelectableCards _selectableCards;
 
-        public CardTemplateButton(SelectableCards selectableCards, CardTemplate card) : base(selectableCards, card) {
+        public CardTemplateButton(SelectableCards selectableCards, CardTemplate cardTemplate) : base(cardTemplate) {
             _selectableCards = selectableCards;
         }
 

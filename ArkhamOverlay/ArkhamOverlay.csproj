@@ -127,13 +127,13 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CardButtons\CardImageButton.cs" />
-    <Compile Include="CardButtons\CardInSetButton.cs" />
+    <Compile Include="CardButtons\CardButton.cs" />
     <Compile Include="CardButtons\CardTemplateButton.cs" />
-    <Compile Include="CardButtons\ShowSetButton.cs" />
+    <Compile Include="CardButtons\ShowCardZoneButton.cs" />
     <Compile Include="Data\AppData.cs" />
     <Compile Include="Data\CardTemplate.cs" />
     <Compile Include="CardButtons\ClearButton.cs" />
-    <Compile Include="CardButtons\CardButton.cs" />
+    <Compile Include="CardButtons\Button.cs" />
     <Compile Include="Data\CardSet.cs" />
     <Compile Include="Data\ICardInstance.cs" />
     <Compile Include="Data\SelectableCards.cs" />

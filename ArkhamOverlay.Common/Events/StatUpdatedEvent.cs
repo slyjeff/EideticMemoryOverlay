@@ -4,19 +4,19 @@ using System;
 
 namespace ArkhamOverlay.Common.Events {
     public class StatUpdatedEvent : ICrossAppEvent {
-        public StatUpdatedEvent(Deck deck, StatType statType, int value) {
+        public StatUpdatedEvent(CardGroup deck, StatType statType, int value) {
             Deck = deck;
             StatType = statType;
             Value = value;
         }
 
-        public Deck Deck { get; }
+        public CardGroup Deck { get; }
         public StatType StatType { get; }
         public int Value { get; }
     }
 
     public static class StatUpdatedEventExtensions {
-        public static void PublishStatUpdatedEvent(this IEventBus eventBus, Deck deck, StatType statType, int value) {
+        public static void PublishStatUpdatedEvent(this IEventBus eventBus, CardGroup deck, StatType statType, int value) {
             eventBus.Publish(new StatUpdatedEvent(deck, statType, value));
         }
 

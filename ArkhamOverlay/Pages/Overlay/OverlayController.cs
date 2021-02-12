@@ -239,7 +239,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             };
         }
 
-
         private SelectableCards _currentDisplayedDeckList = null;
         private void ShowDeckListRequestHandler(ShowDeckListRequest request) {
             _logger.LogMessage("Showing deck list in overlay.");
@@ -440,25 +439,24 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-        private SelectableCards GetSelectableCardsFromDeck(Deck deck) {
+        private SelectableCards GetSelectableCardsFromDeck(CardGroup deck) {
             switch (deck) {
-                case Deck.Player1:
+                case CardGroup.Player1:
                     return _appData.Game.Players[0].SelectableCards;
-                case Deck.Player2:
+                case CardGroup.Player2:
                     return _appData.Game.Players[1].SelectableCards;
-                case Deck.Player3:
+                case CardGroup.Player3:
                     return _appData.Game.Players[2].SelectableCards;
-                case Deck.Player4:
+                case CardGroup.Player4:
                     return _appData.Game.Players[3].SelectableCards;
-                case Deck.Scenario:
+                case CardGroup.Scenario:
                     return _appData.Game.ScenarioCards;
-                case Deck.Locations:
+                case CardGroup.Locations:
                     return _appData.Game.LocationCards;
-                case Deck.EncounterDeck:
+                case CardGroup.EncounterDeck:
                     return _appData.Game.EncounterDeckCards;
                 default:
                     return null;
-                    break;
             }
         }
     }

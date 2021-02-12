@@ -48,6 +48,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\ButtonContext.cs" />
+    <Compile Include="Events\ButtonToggledEvent.cs" />
+    <Compile Include="Events\ButtonTextChangedEvent.cs" />
+    <Compile Include="Events\CardTemplateVisibilityChangedEvent.cs" />
     <Compile Include="Events\ShowDeckListRequest.cs" />
     <Compile Include="Events\StatUpdatedEvent.cs" />
     <Compile Include="Events\TakeSnapshotRequest.cs" />
@@ -61,7 +65,7 @@
     <Compile Include="Tcp\Responses\ChangeStatValueResponse.cs" />
     <Compile Include="Enums\StatType.cs" />
     <Compile Include="Enums\CardButtonType.cs" />
-    <Compile Include="Enums\Deck.cs" />
+    <Compile Include="Enums\CardGroup.cs" />
     <Compile Include="ICardInfo.cs" />
     <Compile Include="Tcp\Requests\ButtonImageRequest.cs" />
     <Compile Include="Tcp\Requests\RegisterForUpdatesRequest.cs" />

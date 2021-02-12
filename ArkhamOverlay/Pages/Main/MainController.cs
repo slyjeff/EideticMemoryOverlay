@@ -252,7 +252,7 @@ namespace ArkhamOverlay.Pages.Main {
         }
 
         [Command]
-        public void ShowDeckList(Deck deck) {
+        public void ShowDeckList(CardGroup deck) {
             _logger.LogMessage("Main window: show deck list clicked.");
             _eventBus.PublishShowDeckListRequest(deck);
         }

@@ -28,38 +28,38 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void InvestigatorImageUpdated(InvestigatorImageUpdatedEvent investigatorImageUpdatedEvent) {
-            if (investigatorImageUpdatedEvent.Deck == Deck) {
+            if (investigatorImageUpdatedEvent.CardGroup == CardGroup) {
                 SetImageAsync(ImageUtils.CreateStreamdeckImage(investigatorImageUpdatedEvent.Bytes));
             }
         }
 
-        public Deck Deck {
+        public CardGroup CardGroup {
             get {
                 if (_settings == null) {
-                    return Deck.Player1;
+                    return CardGroup.Player1;
                 }
 
-                return _settings.Deck.AsDeck();
+                return _settings.Deck.AsCardGroup();
             }
         }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
 
-            _eventBus.PublishGetInvestigatorImageRequest(Deck);
+            _eventBus.PublishGetInvestigatorImageRequest(CardGroup);
 
             return Task.CompletedTask;
         }
 
         protected override Task OnKeyUp(ActionEventArgs<KeyPayload> args) {
-            _eventBus.PublishShowDeckListRequest(Deck);
+            _eventBus.PublishShowDeckListRequest(CardGroup);
             return Task.CompletedTask;
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
 
-            _eventBus.PublishGetInvestigatorImageRequest(Deck);
+            _eventBus.PublishGetInvestigatorImageRequest(CardGroup);
 
             await SetSettingsAsync(_settings);
         }

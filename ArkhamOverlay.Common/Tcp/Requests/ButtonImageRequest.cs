@@ -5,7 +5,7 @@ namespace ArkhamOverlay.Common.Tcp.Requests {
         public ButtonImageRequest() : base(AoTcpRequest.GetButtonImage) {
         }
 
-        public Deck Deck { get; set; }
+        public CardGroup CardGroup { get; set; }
         public int Index { get; set; }
         public bool FromCardSet { get; set; }
     }

@@ -1,26 +1,25 @@
 ﻿using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
-using StreamDeckPlugin.Services;
 using System;
 
 namespace StreamDeckPlugin.Events {
-    public class DynamicButtonClickRequest : IEvent {
-        public DynamicButtonClickRequest(Deck deck, int index, DynamicActionMode mode, bool isLeftClick) {
-            Deck = deck;
+    public class DynamicButtonClickRequest : IEvent, IButtonContext {
+        public DynamicButtonClickRequest(CardGroup cardGroup, int cardZoneIndex, int index, bool isLeftClick) {
+            CardGroup = cardGroup;
+            CardZoneIndex = cardZoneIndex;
             Index = index;
-            Mode = mode;
             IsLeftClick = isLeftClick;
         }
 
-        public Deck Deck { get; }
+        public CardGroup CardGroup { get; }
+        public int CardZoneIndex { get; }
         public int Index { get; }
-        public DynamicActionMode Mode { get; }
         public bool IsLeftClick { get; }
     }
 
     public static class DynamicButtonClickExtensions {
-        public static void PublishDynamicButtonClickRequest(this IEventBus eventBus, Deck deck, int index, DynamicActionMode mode, bool isLeftClick) {
-            eventBus.Publish(new DynamicButtonClickRequest(deck, index, mode, isLeftClick));
+        public static void PublishDynamicButtonClickRequest(this IEventBus eventBus, CardGroup cardGroup, int cardZoneIndex, int index, bool isLeftClick) {
+            eventBus.Publish(new DynamicButtonClickRequest(cardGroup, cardZoneIndex, index, isLeftClick));
         }
 
         public static void SubscribeToDynamicButtonClickRequest(this IEventBus eventBus, Action<DynamicButtonClickRequest> callback) {

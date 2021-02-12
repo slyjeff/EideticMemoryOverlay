@@ -1,24 +1,23 @@
 ﻿using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
-using StreamDeckPlugin.Services;
 using System;
 
 namespace StreamDeckPlugin.Events {
-    public class GetButtonInfoRequest : IEvent {
-        public GetButtonInfoRequest(Deck deck, int index, DynamicActionMode mode) {
-            Deck = deck;
+    public class GetButtonInfoRequest : IEvent, IButtonContext {
+        public GetButtonInfoRequest(CardGroup cardGroup, int cardZoneIndex, int index) {
+            CardGroup = cardGroup;
+            CardZoneIndex = cardZoneIndex;
             Index = index;
-            Mode = mode;
         }
 
-        public Deck Deck { get; }
+        public CardGroup CardGroup { get; }
+        public int CardZoneIndex { get; }
         public int Index { get; }
-        public DynamicActionMode Mode { get; }
     }
 
     public static class GetButtonInfoRequestExtensions {
-        public static void PublishGetButtonInfoRequest(this IEventBus eventBus, Deck deck, int index, DynamicActionMode mode) {
-            eventBus.Publish(new GetButtonInfoRequest(deck, index, mode));
+        public static void PublishGetButtonInfoRequest(this IEventBus eventBus, CardGroup cardGroup, int cardZoneIndex, int index) {
+            eventBus.Publish(new GetButtonInfoRequest(cardGroup, cardZoneIndex, index));
         }
 
         public static void SubscribeToGetButtonInfoRequest(this IEventBus eventBus, Action<GetButtonInfoRequest> callback) {

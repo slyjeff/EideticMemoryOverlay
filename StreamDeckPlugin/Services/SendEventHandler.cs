@@ -60,22 +60,22 @@ namespace StreamDeckPlugin.Services {
 
         private void GetCardInfo(GetButtonInfoRequest getButtonInfoRequest) {
             var request = new GetCardInfoRequest {
-                Deck = getButtonInfoRequest.Deck,
+                GardGroup = getButtonInfoRequest.CardGroup,
                 Index = getButtonInfoRequest.Index,
-                FromCardSet = getButtonInfoRequest.Mode == DynamicActionMode.Set,
+                FromCardSet = getButtonInfoRequest.CardZoneIndex == 1,
             };
 
             var response = SendRequest<CardInfoResponse>(request);
             if (response != null) {
-                _dynamicActionInfoStore.UpdateDynamicActionInfo(getButtonInfoRequest.Deck, getButtonInfoRequest.Index, getButtonInfoRequest.Mode, response);
+                _dynamicActionInfoStore.UpdateDynamicActionInfo(getButtonInfoRequest, response);
             }
         }
 
         private void GetButtonImage(GetButtonImageRequest getButtonImageRequest) {
             var request = new ButtonImageRequest {
-                Deck = getButtonImageRequest.Deck,
+                CardGroup = getButtonImageRequest.CardGroup,
                 Index = getButtonImageRequest.Index,
-                FromCardSet = getButtonImageRequest.Mode == DynamicActionMode.Set,
+                FromCardSet = getButtonImageRequest.CardZoneIndex == 1,
             };
 
             var response = SendRequest<ButtonImageResponse>(request);
@@ -86,16 +86,16 @@ namespace StreamDeckPlugin.Services {
 
         private void DynamicButtonClicked(DynamicButtonClickRequest dynamicButtonClickRequest) {
             var request = new ClickCardButtonRequest {
-                Deck = dynamicButtonClickRequest.Deck, 
+                CardGroup = dynamicButtonClickRequest.CardGroup, 
                 Index = dynamicButtonClickRequest.Index, 
-                FromCardSet = dynamicButtonClickRequest.Mode == DynamicActionMode.Set, 
+                FromCardSet = dynamicButtonClickRequest.CardZoneIndex == 1, 
                 Click = dynamicButtonClickRequest.IsLeftClick ? ButtonClick.Left : ButtonClick.Right
             };
             SendRequest(request);
         }
 
         private void GetInvestigatorImage(Events.GetInvestigatorImageRequest getInvestigatorImageRequest) {
-            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.GetInvestigatorImageRequest { Deck = getInvestigatorImageRequest.Deck });
+            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.GetInvestigatorImageRequest { CardGroup = getInvestigatorImageRequest.CardGroup });
         }
 
         private void GetStatValue(GetStatValueRequest getStatValueRequest) {

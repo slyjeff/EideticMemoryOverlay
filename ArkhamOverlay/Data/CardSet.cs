@@ -8,7 +8,7 @@ namespace ArkhamOverlay.Data {
     public class CardSet {
         private readonly SelectableCards _selectableCards;
         public CardSet(SelectableCards selectableCards) {
-            Buttons = new ObservableCollection<CardInSetButton>();
+            Buttons = new ObservableCollection<CardButton>();
             _selectableCards = selectableCards;
         }
 
@@ -29,14 +29,14 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public ObservableCollection<CardInSetButton> Buttons { get; set; }
+        public ObservableCollection<CardButton> Buttons { get; set; }
 
         public IEnumerable<ICardInstance> CardInstances { get => Buttons; }
 
         public void AddCard(CardTemplate card) {
             var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardTemplate == card.FlipSideCard);
             if (cardSetButtonToReplace != null) {
-                Buttons[Buttons.IndexOf(cardSetButtonToReplace)] = new CardInSetButton(this, _selectableCards, card);
+                Buttons[Buttons.IndexOf(cardSetButtonToReplace)] = new CardButton(this, _selectableCards, card);
             } else {
                 var existingCopyCount = Buttons.Count(x => x.CardTemplate == card);
 
@@ -51,11 +51,11 @@ namespace ArkhamOverlay.Data {
                     index = Buttons.IndexOf(Buttons.First(x => x.CardTemplate.Type == CardType.Act));
                 }
 
-                Buttons.Insert(index, new CardInSetButton(this, _selectableCards, card));
+                Buttons.Insert(index, new CardButton(this, _selectableCards, card));
             }
         }
 
-        public void RemoveCard(CardInSetButton cardInSetButton) {
+        public void RemoveCard(CardButton cardInSetButton) {
             Buttons.Remove(cardInSetButton);
         }
     }

@@ -5,7 +5,7 @@ namespace ArkhamOverlay.Common.Tcp.Requests {
         public GetCardInfoRequest() : base(AoTcpRequest.GetCardInfo) {
         }
 
-        public Deck Deck { get; set; }
+        public CardGroup GardGroup { get; set; }
         public int Index { get; set; }
         public bool FromCardSet { get; set; }
     }

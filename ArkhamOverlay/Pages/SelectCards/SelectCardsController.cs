@@ -42,13 +42,13 @@ namespace ArkhamOverlay.Pages.SelectCards {
         public double Height { get => View.Height; set => View.Height = value; }
 
         [Command]
-        public void CardLeftClick(ICardButton card) {
+        public void CardLeftClick(IButton card) {
             _logger.LogMessage($"Left clicking button {card.Text}");
             card.LeftClick();
         }
 
         [Command]
-        public void CardRightClick(ICardButton card) {
+        public void CardRightClick(IButton card) {
             _logger.LogMessage($"Right clicking button {card.Text}");
             if (card is CardTemplateButton showCardButton) {
                 if (showCardButton.CardTemplate.Type == CardType.Enemy || showCardButton.CardTemplate.Type == CardType.Treachery) {

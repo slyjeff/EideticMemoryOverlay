@@ -4,7 +4,6 @@ using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
 using PageController;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -15,7 +14,7 @@ namespace ArkhamOverlay.Data {
 
         string Name { get; }
 
-        List<ICardButton> CardButtons { get; }
+        List<IButton> CardButtons { get; }
         
         bool Loading { get; }
     }
@@ -23,18 +22,19 @@ namespace ArkhamOverlay.Data {
     public class SelectableCards : ViewModel, ISelectableCards, INotifyPropertyChanged {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private string _playerName = string.Empty;
-        private ShowSetButton _showSetButton = null;
+        private ShowCardZoneButton _showCardZoneButton = null;
 
-        public SelectableCards(Deck deck) {
-            Type = deck.GetSelectableType();
-            CardButtons = new List<ICardButton>();
+        public SelectableCards(CardGroup cardGroup) {
+            Type = cardGroup.GetSelectableType();
+            CardGroup = cardGroup;
+            CardButtons = new List<IButton>();
             CardSet = new CardSet(this);
             CardSet.Buttons.CollectionChanged += (s, e) => CardSetUpdated();
         }
 
         public SelectableType Type { get; }
 
-        public Deck Deck { get; }
+        public CardGroup CardGroup { get; }
 
         public string Name { 
             get {
@@ -71,7 +71,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public List<ICardButton> CardButtons { get; set; }
+        public List<IButton> CardButtons { get; set; }
         public CardSet CardSet { get; }
         
         private bool _showCardSetButtons;
@@ -85,17 +85,12 @@ namespace ArkhamOverlay.Data {
 
         public bool Loading { get; internal set; }
 
-        public event Action<ICardButton> ButtonChanged;
-        public void OnButtonChanged(ICardButton button) {
-            ButtonChanged?.Invoke(button);
-        }
-
         internal void ToggleCardSetVisibility() {
-            if (_showSetButton == null) {
+            if (_showCardZoneButton == null) {
                 return;
             }
 
-            _showSetButton.LeftClick();
+            _showCardZoneButton.LeftClick();
         }
 
 
@@ -108,12 +103,12 @@ namespace ArkhamOverlay.Data {
         }
 
         private void CardSetUpdated() {
-            UpdateShowSetButtonName();
+            UpdateShowCardZoneButtonName();
             ShowCardSetButtons = CardSet.Buttons.Count > 0;
         }
 
-        private void UpdateShowSetButtonName() {
-            if (_showSetButton == null) {
+        private void UpdateShowCardZoneButtonName() {
+            if (_showCardZoneButton == null) {
                 return;
             }
 
@@ -122,21 +117,23 @@ namespace ArkhamOverlay.Data {
                 : "Hand";
 
             if (CardSet.Buttons.Any()) {
-                _showSetButton.Text = "Show " + buttonName + " (" + CardSet.Buttons.Count + ")";
+                _showCardZoneButton.Text = "Show " + buttonName + " (" + CardSet.Buttons.Count + ")";
             } else {
-                _showSetButton.Text = "Right Click to add cards to " + buttonName;
+                _showCardZoneButton.Text = "Right Click to add cards to " + buttonName;
             }
+            _eventBus.PublishButtonTextChangedEvent(CardGroup, 0, CardButtons.IndexOf(_showCardZoneButton), _showCardZoneButton.Text);
         }
+
 
         internal void LoadCards(IEnumerable<CardTemplate> cards) {
             var clearButton = new ClearButton(this);
 
-            var playerButtons = new List<ICardButton> { clearButton };
+            var playerButtons = new List<IButton> { clearButton };
 
             if (Type == SelectableType.Scenario || Type == SelectableType.Player) {
-                _showSetButton = new ShowSetButton(this);
-                playerButtons.Add(_showSetButton);
-                UpdateShowSetButtonName();
+                _showCardZoneButton = new ShowCardZoneButton(this);
+                playerButtons.Add(_showCardZoneButton);
+                UpdateShowCardZoneButtonName();
             }
 
             playerButtons.AddRange(from card in SortCards(cards) select new CardTemplateButton(this, card));
