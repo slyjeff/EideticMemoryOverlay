@@ -15,7 +15,7 @@ namespace ArkhamOverlay.CardButtons {
                 return;
             }
 
-            _selectableCards.CardSet.AddCard(CardTemplate);
+            _selectableCards.CardZone.AddCard(CardTemplate);
         }
 
         public override ImageSource ButtonImage { get { return CardTemplate.ButtonImage; } }

@@ -28,8 +28,8 @@ namespace ArkhamOverlay.Data {
             Type = cardGroup.GetSelectableType();
             CardGroup = cardGroup;
             CardButtons = new List<IButton>();
-            CardSet = new CardSet(this);
-            CardSet.Buttons.CollectionChanged += (s, e) => CardSetUpdated();
+            CardZone = new CardZone(this);
+            CardZone.Buttons.CollectionChanged += (s, e) => CardZoneUpdated();
 
             _eventBus.SubscribeToCardTemplateVisibilityChanged(CardTemplateVisibilityChanged);
         }
@@ -60,7 +60,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public string CardSetName {
+        public string CardZoneName {
             get {
                 switch (Type) {
                     case SelectableType.Scenario:
@@ -74,20 +74,20 @@ namespace ArkhamOverlay.Data {
         }
 
         public List<IButton> CardButtons { get; set; }
-        public CardSet CardSet { get; }
+        public CardZone CardZone { get; }
         
-        private bool _showCardSetButtons;
-        public bool ShowCardSetButtons { 
-            get => _showCardSetButtons;
+        private bool _showCardZoneButtons;
+        public bool ShowCardZoneButtons { 
+            get => _showCardZoneButtons;
             set {
-                _showCardSetButtons = value;
-                NotifyPropertyChanged(nameof(ShowCardSetButtons));
+                _showCardZoneButtons = value;
+                NotifyPropertyChanged(nameof(ShowCardZoneButtons));
             }
         }
 
         public bool Loading { get; internal set; }
 
-        internal void ToggleCardSetVisibility() {
+        internal void ToggleCardZoneVisibility() {
             if (_showCardZoneButton == null) {
                 return;
             }
@@ -104,9 +104,9 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        private void CardSetUpdated() {
+        private void CardZoneUpdated() {
             UpdateShowCardZoneButtonName();
-            ShowCardSetButtons = CardSet.Buttons.Count > 0;
+            ShowCardZoneButtons = CardZone.Buttons.Count > 0;
         }
 
         private void UpdateShowCardZoneButtonName() {
@@ -118,8 +118,8 @@ namespace ArkhamOverlay.Data {
                 ? "Act/Agenda Bar"
                 : "Hand";
 
-            if (CardSet.Buttons.Any()) {
-                _showCardZoneButton.Text = "Show " + buttonName + " (" + CardSet.Buttons.Count + ")";
+            if (CardZone.Buttons.Any()) {
+                _showCardZoneButton.Text = "Show " + buttonName + " (" + CardZone.Buttons.Count + ")";
             } else {
                 _showCardZoneButton.Text = "Right Click to add cards to " + buttonName;
             }
@@ -181,7 +181,7 @@ namespace ArkhamOverlay.Data {
         /// </summary>
         /// <param name="e">CardTemplateVisibilityChangedEvent</param>
         private void CardTemplateVisibilityChanged(CardTemplateVisibilityChanged e) {
-            var cardImageButtons = CardButtons.OfType<CardImageButton>().Union(CardSet.Buttons.OfType<CardImageButton>());
+            var cardImageButtons = CardButtons.OfType<CardImageButton>().Union(CardZone.Buttons.OfType<CardImageButton>());
 
             foreach (var button in cardImageButtons) {
                 if (e.Name == button.CardTemplate.Name) {

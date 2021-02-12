@@ -28,9 +28,6 @@ namespace StreamDeckPlugin.Utils {
 
             Console.WriteLine("Handling Request: " + request.RequestType.ToString());
             switch (request.RequestType) {
-                case AoTcpRequest.UpdateCardInfo:
-                    UpdateCardInfo(request);
-                    break;
                 case AoTcpRequest.UpdateInvestigatorImage:
                     UpdateInvestigatorImage(request);
                     break;
@@ -38,14 +35,6 @@ namespace StreamDeckPlugin.Utils {
                     HandleEventBusRequest(request);
                     break;
             }
-        }
-
-        private void UpdateCardInfo(TcpRequest request) {
-            var updateCardInfoRequest = JsonConvert.DeserializeObject<UpdateCardInfoRequest>(request.Body);
-            if (updateCardInfoRequest != null) {
-                _dynamicActionService.UpdateDynamicActionInfo(updateCardInfoRequest, updateCardInfoRequest);
-            }
-            Send(request.Socket, new OkResponse().ToString());
         }
 
         private void UpdateInvestigatorImage(TcpRequest request) {

@@ -218,23 +218,23 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         private void InitializeSelectableCards(SelectableCards selectableCards) {
-            selectableCards.CardSet.VisibilityToggled += () => {
+            selectableCards.CardZone.VisibilityToggled += () => {
                 if (selectableCards.Type == SelectableType.Scenario) {
                     ToggleActAgendaVisibility();
                 } else {
-                    ToggleHandVisibility(selectableCards.CardSet);
+                    ToggleHandVisibility(selectableCards.CardZone);
                 }
             };
 
-            selectableCards.CardSet.Buttons.CollectionChanged += (s, e) => {
-                if (!selectableCards.CardSet.IsDisplayedOnOverlay) {
+            selectableCards.CardZone.Buttons.CollectionChanged += (s, e) => {
+                if (!selectableCards.CardZone.IsDisplayedOnOverlay) {
                     return;
                 }
 
                 if (selectableCards.Type == SelectableType.Scenario) {
-                    UpdateCardSet(selectableCards.CardSet, ViewModel.ActAgendaCards);
+                    UpdateCardSet(selectableCards.CardZone, ViewModel.ActAgendaCards);
                 } else {
-                    UpdateCardSet(selectableCards.CardSet, ViewModel.HandCards);
+                    UpdateCardSet(selectableCards.CardZone, ViewModel.HandCards);
                 }
             };
         }
@@ -314,7 +314,7 @@ namespace ArkhamOverlay.Pages.Overlay {
         private void ToggleActAgendaVisibility() {
             ClearDeckList();
 
-            var cardSet = _appData.Game.ScenarioCards.CardSet;
+            var cardSet = _appData.Game.ScenarioCards.CardZone;
             if (cardSet.IsDisplayedOnOverlay) {
                 _logger.LogMessage($"Hiding act/agenda in overlay.");
                 ViewModel.ActAgendaCards.RemoveOverlayCards(ViewModel.ActAgendaCards.ToArray());
@@ -327,8 +327,8 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
 
-        private CardSet _currentlyDisplayedHandCardSet;
-        private void ToggleHandVisibility(CardSet cardSet) {
+        private CardZone _currentlyDisplayedHandCardSet;
+        private void ToggleHandVisibility(CardZone cardSet) {
             _logger.LogMessage($"Toggling hand in overlay.");
             ClearDeckList();
 
@@ -359,7 +359,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             ViewModel.HandCards.RemoveOverlayCards(ViewModel.HandCards.ToArray());
         }
 
-        private void UpdateCardSet(CardSet cardSet, ObservableCollection<OverlayCardViewModel> overlayCards) {
+        private void UpdateCardSet(CardZone cardSet, ObservableCollection<OverlayCardViewModel> overlayCards) {
             var overlayCardsToRemove = new List<OverlayCardViewModel>();
             foreach (var overlayCard in overlayCards) {
                 if (!cardSet.CardInstances.Contains(overlayCard.CardInstance)) {

@@ -2,9 +2,8 @@
 
 namespace ArkhamOverlay.Common {
     public interface ICardInfo {
-        CardButtonType CardButtonType { get; set; }
-        string Name { get; set; }
-        bool IsToggled { get; set; }
-        bool ImageAvailable { get; set; }
+        string Name { get; }
+        bool IsToggled { get; }
+        bool ImageAvailable { get; }
     }
 }

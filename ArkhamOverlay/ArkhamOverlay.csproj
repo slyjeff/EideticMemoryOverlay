@@ -134,7 +134,7 @@
     <Compile Include="Data\CardTemplate.cs" />
     <Compile Include="CardButtons\ClearButton.cs" />
     <Compile Include="CardButtons\Button.cs" />
-    <Compile Include="Data\CardSet.cs" />
+    <Compile Include="Data\CardZone.cs" />
     <Compile Include="Data\ICardInstance.cs" />
     <Compile Include="Data\SelectableCards.cs" />
     <Compile Include="Data\Player.cs" />

@@ -2,9 +2,9 @@
 
 namespace ArkhamOverlay.CardButtons {
     public class CardButton : CardImageButton, ICardInstance {
-        private readonly CardSet _cardSet;
+        private readonly CardZone _cardSet;
 
-        public CardButton(CardSet cardSet, SelectableCards selectableCards, CardTemplate card) : base(card) {
+        public CardButton(CardZone cardSet, SelectableCards selectableCards, CardTemplate card) : base(card) {
             _cardSet = cardSet;
         }
 

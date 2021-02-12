@@ -12,14 +12,14 @@ namespace ArkhamOverlay.CardButtons {
         public ShowCardZoneButton(SelectableCards selectableCards)  {
             _selectableCards = selectableCards;
 
-            selectableCards.CardSet.IsDisplayedOnOverlayChanged += (isDisplayedOnOverlay) => {
+            selectableCards.CardZone.IsDisplayedOnOverlayChanged += (isDisplayedOnOverlay) => {
                 IsToggled = isDisplayedOnOverlay;
                 _eventBus.PublishButtonToggled(selectableCards.CardGroup, 0, selectableCards.CardButtons.IndexOf(this), IsToggled);
             };
         }
 
         public override void LeftClick() {
-            _selectableCards.CardSet.ToggleVisibility();
+            _selectableCards.CardZone.ToggleVisibility();
         }
     }
 }

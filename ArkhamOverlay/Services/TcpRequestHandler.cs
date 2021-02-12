@@ -6,6 +6,7 @@ using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;
 using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Data;
+using ArkhamOverlay.Events;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Specialized;
@@ -145,7 +146,7 @@ namespace ArkhamOverlay.Services {
         private IButton GetCardButton(CardGroup deck, bool cardInSet,  int index) {
             var selectableCards = GetDeck(deck);
             if (cardInSet) {
-                return (index < selectableCards.CardSet.Buttons.Count) ? selectableCards.CardSet.Buttons[index] : null;
+                return (index < selectableCards.CardZone.Buttons.Count) ? selectableCards.CardZone.Buttons[index] : null;
             } 
             return (index < selectableCards.CardButtons.Count) ? selectableCards.CardButtons[index] : null;
         }
@@ -161,7 +162,7 @@ namespace ArkhamOverlay.Services {
         private void HandleToggleActAgendaBar(TcpRequest request) {
             _logger.LogMessage("Handling toggle act/agenda bar request");
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                _appData.Game.ScenarioCards.ToggleCardSetVisibility();
+                _appData.Game.ScenarioCards.ToggleCardZoneVisibility();
                 SendOkResponse(request.Socket);
             }));
         }
@@ -183,28 +184,6 @@ namespace ArkhamOverlay.Services {
                         player.PropertyChanged += (s, e) => {
                             if (e.PropertyName == nameof(Player.ButtonImageAsBytes)) {
                                 SendInvestigatorImage(player);
-                            }
-                        };
-                    }
-
-                    foreach (var selectableCards in game.AllSelectableCards) {
-                        //selectableCards.ButtonChanged += (button) => {
-                        //    if (button is CardInSetButton cardInSetButton) {
-                        //        SendCardInSetInfoUpdate(cardInSetButton, selectableCards);
-                        //        return;
-                        //    }
-
-                        //    SendButtonInfoUpdate(button, selectableCards);
-                        //};
-
-                        selectableCards.CardSet.Buttons.CollectionChanged += (s, e) => {
-                            foreach (var button in selectableCards.CardSet.Buttons) {
-                                SendCardInSetInfoUpdate(button, selectableCards);
-                            }
-
-                            //if an item was removed, we need to send an update to clear the last item
-                            if (e.Action == NotifyCollectionChangedAction.Remove) {
-                                SendCardInSetInfoUpdate(null, selectableCards);
                             }
                         };
                     }
@@ -243,62 +222,6 @@ namespace ArkhamOverlay.Services {
             var getInvestigatorImageRequest = JsonConvert.DeserializeObject<GetInvestigatorImageRequest>(request.Body);
             var player = GetPlayer(getInvestigatorImageRequest.CardGroup);
             SendInvestigatorImage(player);
-        }
-
-        //private void SendButtonInfoUpdate(ICardButton button, SelectableCards selectableCards) {
-        //    _logger.LogMessage("Sending button info update");
-
-        //    CardTemplate card = null;
-        //    if (button is CardImageButton cardImageButton) {
-        //        card = cardImageButton.CardTemplate;
-        //    }
-
-        //    var deck = GetDeckType(selectableCards);
-
-        //    var request = new UpdateCardInfoRequest {
-        //        Deck = deck,
-        //        Index = selectableCards.CardButtons.IndexOf(button),
-        //        CardButtonType = GetCardType(card),
-        //        Name = button?.Text,
-        //        IsToggled = button != null && button.IsToggled,
-        //        ImageAvailable = card?.ButtonImageAsBytes != null,
-        //        IsCardInSet = false
-        //    };
-
-        //    //this sometimes happen when a button isn't in a list yet (on create)
-        //    ///TODO: there's probably a cleaner way
-        //    if (request.Index == -1) {
-        //        return;               
-        //    }
-
-        //    _broadcastService.SendRequest(request);
-        //}
-
-        private void SendCardInSetInfoUpdate(CardButton button, SelectableCards selectableCards) {
-            CardTemplate card = null;
-            if (button is CardImageButton cardImageButton) {
-                card = cardImageButton.CardTemplate;
-            }
-
-            var cardGroup = selectableCards.CardGroup;
-
-            var request = new UpdateCardInfoRequest {
-                CardGroup = cardGroup,
-                Index = button == null ? selectableCards.CardSet.Buttons.Count : selectableCards.CardSet.Buttons.IndexOf(button),
-                CardButtonType = GetCardType(card),
-                Name = button?.Text.Replace("Right Click", "Long Press"),
-                IsToggled = button != null && button.IsToggled,
-                ImageAvailable = card?.ButtonImageAsBytes != null,
-                CardZoneIndex = 1
-            };
-
-            //this sometimes happen when a button isn't in a list yet (on create)
-            ///TODO: there's probably a cleaner way
-            if (request.Index == -1) {
-                return;
-            }
-
-            _broadcastService.SendRequest(request);
         }
 
         private void SendInvestigatorImage(Player player) {

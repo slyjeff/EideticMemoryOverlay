@@ -91,12 +91,12 @@
         <TextBlock Margin="5, 10, 0, 2"
                    Foreground="White"
                    FontWeight="Bold"
-                   Text="{Binding SelectableCards.CardSetName}"
+                   Text="{Binding SelectableCards.CardZoneName}"
                    Visibility="{Binding Path=SelectableCards.ShowCardSetButtons, Converter={StaticResource BoolToVisibility}}"/>
         <ItemsControl 
-            ItemsSource="{Binding SelectableCards.CardSet.Buttons}" 
+            ItemsSource="{Binding SelectableCards.CardZone.Buttons}" 
             BorderThickness="0"
-            Visibility="{Binding Path=SelectableCards.ShowCardSetButtons, Converter={StaticResource BoolToVisibility}}">
+            Visibility="{Binding Path=SelectableCards.ShowCardZoneButtons, Converter={StaticResource BoolToVisibility}}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardButtonStyle}">

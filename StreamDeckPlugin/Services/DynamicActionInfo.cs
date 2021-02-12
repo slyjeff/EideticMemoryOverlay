@@ -35,7 +35,7 @@ namespace StreamDeckPlugin.Services {
         }
 
         static internal void UpdateFromCardInfo(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {
-            dynamicActionInfo.Text = cardInfo.Name;
+            dynamicActionInfo.Text = cardInfo.Name.Replace("Right Click", "Long Press");
             dynamicActionInfo.IsToggled = cardInfo.IsToggled;
             dynamicActionInfo.ImageId = cardInfo.Name;
             dynamicActionInfo.IsImageAvailable = cardInfo.ImageAvailable;

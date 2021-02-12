@@ -22,6 +22,7 @@ namespace StreamDeckPlugin.Services {
             _eventBus = eventBus;
             eventBus.SubscribeToImageLoadedEvent(e => ImageLoaded(e.ImageId));
             eventBus.SubscribeToCardTemplateVisibilityChanged(e => CardTemplateVisibilityChanged(e.Name, e.IsVisible));
+            eventBus.SubscribeToButtonInfoChanged(ButtonInfoChanged);
             eventBus.SubscribeToButtonTextChanged(ButtonTextChanged);
             eventBus.SubscribeToButtonToggled(ButtonToggled);
         }
@@ -82,6 +83,10 @@ namespace StreamDeckPlugin.Services {
             foreach (var dynamicActionInfo in changedActionInfoList) {
                 _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
             }
+        }
+
+        private void ButtonInfoChanged(ButtonInfoChanged e) {
+            UpdateDynamicActionInfo(e, e);
         }
 
         private void ButtonTextChanged(ButtonTextChanged e) {
