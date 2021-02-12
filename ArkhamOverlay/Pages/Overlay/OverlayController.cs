@@ -277,7 +277,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             _currentDisplayedDeckList = null;
         }
 
-        internal void ToggleCardVisibilityHandler(Card card) {
+        internal void ToggleCardVisibilityHandler(CardTemplate card) {
             _logger.LogMessage($"Showing card {card.Name} in overlay.");
             ClearDeckList();
 
@@ -302,7 +302,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-        private ObservableCollection<OverlayCardViewModel> GetCardList(Card card) {
+        private ObservableCollection<OverlayCardViewModel> GetCardList(CardTemplate card) {
             if (card.IsPlayerCard) {
                 return ViewModel.PlayerCards;
             }
@@ -482,7 +482,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-        public static OverlayCardViewModel FindCardToReplace(this ObservableCollection<OverlayCardViewModel> overlayCards, Card card) {
+        public static OverlayCardViewModel FindCardToReplace(this ObservableCollection<OverlayCardViewModel> overlayCards, CardTemplate card) {
             return overlayCards.FirstOrDefault(x => x.Card == card.FlipSideCard);
         }
     }

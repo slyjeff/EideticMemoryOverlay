@@ -131,7 +131,7 @@
     <Compile Include="CardButtons\ShowCardButton.cs" />
     <Compile Include="CardButtons\ShowSetButton.cs" />
     <Compile Include="Data\AppData.cs" />
-    <Compile Include="Data\Card.cs" />
+    <Compile Include="Data\CardTemplate.cs" />
     <Compile Include="CardButtons\ClearButton.cs" />
     <Compile Include="CardButtons\CardButton.cs" />
     <Compile Include="Data\CardSet.cs" />

@@ -248,7 +248,7 @@ namespace ArkhamOverlay.Services {
         private void SendButtonInfoUpdate(ICardButton button, SelectableCards selectableCards) {
             _logger.LogMessage("Sending button info update");
 
-            Card card = null;
+            CardTemplate card = null;
             if (button is CardImageButton cardImageButton) {
                 card = cardImageButton.Card;
             }
@@ -275,7 +275,7 @@ namespace ArkhamOverlay.Services {
         }
 
         private void SendCardInSetInfoUpdate(CardInSetButton button, SelectableCards selectableCards) {
-            Card card = null;
+            CardTemplate card = null;
             if (button is CardImageButton cardImageButton) {
                 card = cardImageButton.Card;
             }
@@ -421,7 +421,7 @@ namespace ArkhamOverlay.Services {
             }
         }
 
-        private static CardButtonType GetCardType(Card card) {
+        private static CardButtonType GetCardType(CardTemplate card) {
             if (card == null) {
                 return CardButtonType.Action;
             }

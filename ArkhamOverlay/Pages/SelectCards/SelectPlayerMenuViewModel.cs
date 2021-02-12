@@ -23,9 +23,9 @@ namespace ArkhamOverlay.Pages.SelectCards {
 
     public class AddCardToPlayerCommand : ICommand {
         private Player _player;
-        private readonly Card _card;
+        private readonly CardTemplate _card;
 
-        public AddCardToPlayerCommand(Player player, Card card) {
+        public AddCardToPlayerCommand(Player player, CardTemplate card) {
             _player = player;
             _card = card;
         }

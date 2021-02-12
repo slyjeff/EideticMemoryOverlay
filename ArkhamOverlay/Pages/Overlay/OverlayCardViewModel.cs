@@ -61,8 +61,8 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-        private Card _card;
-        public Card Card {
+        private CardTemplate _card;
+        public CardTemplate Card {
             get => _card;
             set {
                 _card = value;

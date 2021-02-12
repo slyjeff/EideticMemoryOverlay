@@ -33,7 +33,7 @@ namespace ArkhamOverlay.Data {
 
         public IEnumerable<ICardInstance> CardInstances { get => Buttons; }
 
-        public void AddCard(Card card) {
+        public void AddCard(CardTemplate card) {
             var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.Card == card.FlipSideCard);
             if (cardSetButtonToReplace != null) {
                 Buttons[Buttons.IndexOf(cardSetButtonToReplace)] = new CardInSetButton(this, _selectableCards, card);

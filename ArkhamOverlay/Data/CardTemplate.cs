@@ -1,6 +1,5 @@
 ﻿using ArkhamOverlay.CardButtons;
 using ArkhamOverlay.Services;
-using ArkhamOverlay.Utils;
 using System;
 using System.Windows;
 using System.Windows.Media;
@@ -8,11 +7,11 @@ using System.Windows.Media;
 namespace ArkhamOverlay.Data {
     public delegate void CardToggledEvent(ICardButton card);
 
-    public class Card : IHasImageButton {
-        public Card() {
+    public class CardTemplate : IHasImageButton {
+        public CardTemplate() {
         }
 
-        public Card(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false, bool isBonded = false) {
+        public CardTemplate(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false, bool isBonded = false) {
             Code = arkhamDbCard.Code;
             Count = count;
             Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")";
@@ -33,7 +32,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Card(LocalManifestCard localCard, bool cardBack) {
+        public CardTemplate(LocalManifestCard localCard, bool cardBack) {
             Code = "";
             Count = 1;
             Name = localCard.Name;
@@ -107,7 +106,7 @@ namespace ArkhamOverlay.Data {
 
         public bool IsPlayerCard { get; private set; }
 
-        public Card FlipSideCard { get; set; }
+        public CardTemplate FlipSideCard { get; set; }
 
         public event Action<bool> IsDisplayedOnOverlayChanged;
         

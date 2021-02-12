@@ -35,10 +35,10 @@ namespace ArkhamOverlay.Pages.Overlay {
     }
 
     public class DeckListItem {
-        private Card _card;
+        private CardTemplate _card;
         private string _name;
 
-        public DeckListItem(Card card) {
+        public DeckListItem(CardTemplate card) {
             _card = card;
         }
 

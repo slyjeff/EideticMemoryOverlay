@@ -81,8 +81,8 @@ namespace ArkhamOverlay.Data {
 
         public bool Loading { get; internal set; }
 
-        public event Action<Card> CardVisibilityToggled;
-        public void ToggleCardVisibility(Card card) {
+        public event Action<CardTemplate> CardVisibilityToggled;
+        public void ToggleCardVisibility(CardTemplate card) {
             CardVisibilityToggled?.Invoke(card);
         }
 
@@ -129,7 +129,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        internal void LoadCards(IEnumerable<Card> cards) {
+        internal void LoadCards(IEnumerable<CardTemplate> cards) {
             var clearButton = new ClearButton(this);
 
             var playerButtons = new List<ICardButton> { clearButton };
@@ -145,7 +145,7 @@ namespace ArkhamOverlay.Data {
             NotifyPropertyChanged(nameof(CardButtons));
         }
 
-        private IEnumerable<Card> SortCards(IEnumerable<Card> cards) {
+        private IEnumerable<CardTemplate> SortCards(IEnumerable<CardTemplate> cards) {
             var firstCard = cards.FirstOrDefault();
             if (firstCard == null) {
                 return cards;
