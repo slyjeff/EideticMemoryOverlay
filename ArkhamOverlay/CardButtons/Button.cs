@@ -37,7 +37,7 @@ namespace ArkhamOverlay.CardButtons {
         private bool _isToggled;
         public bool IsToggled {
             get => _isToggled;
-            protected set {
+            set {
                 _isToggled = value;
                 NotifyPropertyChanged(nameof(BorderBrush));
             }
