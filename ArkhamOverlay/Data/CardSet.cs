@@ -34,11 +34,11 @@ namespace ArkhamOverlay.Data {
         public IEnumerable<ICardInstance> CardInstances { get => Buttons; }
 
         public void AddCard(CardTemplate card) {
-            var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.Card == card.FlipSideCard);
+            var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardTemplate == card.FlipSideCard);
             if (cardSetButtonToReplace != null) {
                 Buttons[Buttons.IndexOf(cardSetButtonToReplace)] = new CardInSetButton(this, _selectableCards, card);
             } else {
-                var existingCopyCount = Buttons.Count(x => x.Card == card);
+                var existingCopyCount = Buttons.Count(x => x.CardTemplate == card);
 
                 //don't add more than one copy unless it's a player card
                 if (!card.IsPlayerCard && existingCopyCount > 0) {
@@ -47,8 +47,8 @@ namespace ArkhamOverlay.Data {
 
                 //if there's an act and this is an agenda, always add it to the left
                 var index = Buttons.Count();
-                if (card.Type == CardType.Agenda && Buttons.Any(x => x.Card.Type == CardType.Act)) {
-                    index = Buttons.IndexOf(Buttons.First(x => x.Card.Type == CardType.Act));
+                if (card.Type == CardType.Agenda && Buttons.Any(x => x.CardTemplate.Type == CardType.Act)) {
+                    index = Buttons.IndexOf(Buttons.First(x => x.CardTemplate.Type == CardType.Act));
                 }
 
                 Buttons.Insert(index, new CardInSetButton(this, _selectableCards, card));

@@ -85,7 +85,7 @@ namespace ArkhamOverlay.Services {
             _logger.LogMessage("Handling button image request");
             var buttonImageRequest = JsonConvert.DeserializeObject<ButtonImageRequest>(request.Body);
             var cardButton = GetCardButton(buttonImageRequest.Deck, buttonImageRequest.FromCardSet, buttonImageRequest.Index);
-            SendButtonImageResponse(request.Socket, cardButton as ShowCardButton);
+            SendButtonImageResponse(request.Socket, cardButton as CardTemplateButton);
         }
 
         private void HandleClick(TcpRequest request) {
@@ -250,7 +250,7 @@ namespace ArkhamOverlay.Services {
 
             CardTemplate card = null;
             if (button is CardImageButton cardImageButton) {
-                card = cardImageButton.Card;
+                card = cardImageButton.CardTemplate;
             }
 
             var deck = GetDeckType(selectableCards);
@@ -277,7 +277,7 @@ namespace ArkhamOverlay.Services {
         private void SendCardInSetInfoUpdate(CardInSetButton button, SelectableCards selectableCards) {
             CardTemplate card = null;
             if (button is CardImageButton cardImageButton) {
-                card = cardImageButton.Card;
+                card = cardImageButton.CardTemplate;
             }
 
             var deck = GetDeckType(selectableCards);
@@ -347,19 +347,19 @@ namespace ArkhamOverlay.Services {
             var cardInfoReponse = (cardButton == null)
                 ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
                 : new CardInfoResponse { 
-                    CardButtonType = GetCardType(cardImageButton?.Card),
+                    CardButtonType = GetCardType(cardImageButton?.CardTemplate),
                     Name = cardButton.Text.Replace("Right Click", "Long Press"),
                     IsToggled = cardButton.IsToggled,
-                    ImageAvailable = cardImageButton?.Card.ButtonImageAsBytes != null
+                    ImageAvailable = cardImageButton?.CardTemplate.ButtonImageAsBytes != null
                 };
 
             Send(socket, cardInfoReponse.ToString());
         }
 
-        private void SendButtonImageResponse(Socket socket, ShowCardButton cardButton) {
+        private void SendButtonImageResponse(Socket socket, CardTemplateButton cardButton) {
             var buttonImageResponse = new ButtonImageResponse { 
-                Name = cardButton?.Card.Name, 
-                Bytes = cardButton?.Card.ButtonImageAsBytes 
+                Name = cardButton?.CardTemplate.Name, 
+                Bytes = cardButton?.CardTemplate.ButtonImageAsBytes 
             };
 
             Send(socket, buttonImageResponse.ToString());

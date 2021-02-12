@@ -50,8 +50,8 @@ namespace ArkhamOverlay.Pages.SelectCards {
         [Command]
         public void CardRightClick(ICardButton card) {
             _logger.LogMessage($"Right clicking button {card.Text}");
-            if (card is ShowCardButton showCardButton) {
-                if (showCardButton.Card.Type == CardType.Enemy || showCardButton.Card.Type == CardType.Treachery) {
+            if (card is CardTemplateButton showCardButton) {
+                if (showCardButton.CardTemplate.Type == CardType.Enemy || showCardButton.CardTemplate.Type == CardType.Treachery) {
                     var contextMenu = View.FindResource("cmSelectPlayer") as ContextMenu;
                     contextMenu.DataContext = new SelectPlayerMenuViewModel(AppData.Game, showCardButton);
                     contextMenu.IsOpen = true;

@@ -1,5 +1,8 @@
 ﻿using ArkhamOverlay.CardButtons;
 using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Utils;
+using ArkhamOverlay.Events;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -18,6 +21,7 @@ namespace ArkhamOverlay.Data {
     }
 
     public class SelectableCards : ViewModel, ISelectableCards, INotifyPropertyChanged {
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private string _playerName = string.Empty;
         private ShowSetButton _showSetButton = null;
 
@@ -81,11 +85,6 @@ namespace ArkhamOverlay.Data {
 
         public bool Loading { get; internal set; }
 
-        public event Action<CardTemplate> CardVisibilityToggled;
-        public void ToggleCardVisibility(CardTemplate card) {
-            CardVisibilityToggled?.Invoke(card);
-        }
-
         public event Action<ICardButton> ButtonChanged;
         public void OnButtonChanged(ICardButton button) {
             ButtonChanged?.Invoke(button);
@@ -101,9 +100,9 @@ namespace ArkhamOverlay.Data {
 
 
         internal void HideAllCards() {
-            foreach (var showCardButton in CardButtons.OfType<ShowCardButton>()) {
-                if (showCardButton.Card.IsDisplayedOnOverlay) {
-                    CardVisibilityToggled?.Invoke(showCardButton.Card);
+            foreach (var showCardButton in CardButtons.OfType<CardTemplateButton>()) {
+                if (showCardButton.CardTemplate.IsDisplayedOnOverlay) {
+                    _eventBus.PublishToggleCardVisibilityRequest(showCardButton.CardTemplate);
                 }
             }
         }
@@ -140,7 +139,7 @@ namespace ArkhamOverlay.Data {
                 UpdateShowSetButtonName();
             }
 
-            playerButtons.AddRange(from card in SortCards(cards) select new ShowCardButton(this, card));
+            playerButtons.AddRange(from card in SortCards(cards) select new CardTemplateButton(this, card));
             CardButtons = playerButtons;
             NotifyPropertyChanged(nameof(CardButtons));
         }

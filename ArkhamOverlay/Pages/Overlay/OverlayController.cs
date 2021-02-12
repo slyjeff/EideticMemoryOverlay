@@ -16,6 +16,7 @@ using System.Diagnostics;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Events;
 using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Events;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayController : Controller<OverlayView, OverlayViewModel> {
@@ -57,8 +58,9 @@ namespace ArkhamOverlay.Pages.Overlay {
 
             _logger.LogMessage("Initializing Overlay Controller.");
 
-            eventBus.SubscribeToTakeSnapshotRequest(TakeSnapshot);
-            eventBus.SubscribeToShowDeckListRequest(ShowDeckListRequest);
+            eventBus.SubscribeToTakeSnapshotRequest(TakeSnapshotHandler);
+            eventBus.SubscribeToShowDeckListRequest(ShowDeckListRequestHandler);
+            eventBus.SubscribeToToggleCardVisibilityRequest(ToggleCardVisibilityRequestHandler);
 
             _configuration.PropertyChanged += (s, e) => {
                 if ((e.PropertyName == nameof(Configuration.OverlayHeight))
@@ -100,8 +102,8 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             View.Closed += (s, e) => {
-                eventBus.UnsubscribeFromShowDeckListRequest(ShowDeckListRequest);
-                eventBus.UnsubscribeFromTakeSnapshotRequest(TakeSnapshot);
+                eventBus.UnsubscribeFromShowDeckListRequest(ShowDeckListRequestHandler);
+                eventBus.UnsubscribeFromTakeSnapshotRequest(TakeSnapshotHandler);
 
                 _autoSnapshotTimer.Stop();
                 foreach (var overlayCards in ViewModel.AllOverlayCards) {
@@ -216,8 +218,6 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         private void InitializeSelectableCards(SelectableCards selectableCards) {
-            selectableCards.CardVisibilityToggled += ToggleCardVisibilityHandler;
-
             selectableCards.CardSet.VisibilityToggled += () => {
                 if (selectableCards.Type == SelectableType.Scenario) {
                     ToggleActAgendaVisibility();
@@ -241,7 +241,7 @@ namespace ArkhamOverlay.Pages.Overlay {
 
 
         private SelectableCards _currentDisplayedDeckList = null;
-        private void ShowDeckListRequest(ShowDeckListRequest request) {
+        private void ShowDeckListRequestHandler(ShowDeckListRequest request) {
             _logger.LogMessage("Showing deck list in overlay.");
             var selectableCards = GetSelectableCardsFromDeck(request.Deck);
 
@@ -251,8 +251,8 @@ namespace ArkhamOverlay.Pages.Overlay {
                 return;
             }
 
-            var cards = from cardButton in selectableCards.CardButtons.OfType<ShowCardButton>()
-                        select cardButton.Card;
+            var cards = from cardButton in selectableCards.CardButtons.OfType<CardTemplateButton>()
+                        select cardButton.CardTemplate;
 
             var deckList = new List<DeckListItem>();
             foreach (var card in cards.Where(c => !c.IsBonded)) {
@@ -277,23 +277,25 @@ namespace ArkhamOverlay.Pages.Overlay {
             _currentDisplayedDeckList = null;
         }
 
-        internal void ToggleCardVisibilityHandler(CardTemplate card) {
-            _logger.LogMessage($"Showing card {card.Name} in overlay.");
+        internal void ToggleCardVisibilityRequestHandler(ToggleCardVisibilityRequest request) {
+            var cardTemplate = request.CardTemplate;
+
+            _logger.LogMessage($"Showing card {cardTemplate.Name} in overlay.");
             ClearDeckList();
 
-            card.IsDisplayedOnOverlay = !card.IsDisplayedOnOverlay;
+            cardTemplate.IsDisplayedOnOverlay = !cardTemplate.IsDisplayedOnOverlay;
 
-            var overlayCards = GetCardList(card);
+            var overlayCards = GetCardList(cardTemplate);
 
-            var overlayCard = overlayCards.FirstOrDefault(x => x.Card == card);
+            var overlayCard = overlayCards.FirstOrDefault(x => x.Card == cardTemplate);
             if (overlayCard != null) {
                 overlayCards.RemoveOverlayCards(overlayCard);
                 return;
             }
 
-            var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration, OverlayCardType.Display) { Card = card };
+            var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration, OverlayCardType.Display) { Card = cardTemplate };
 
-            var overlayCardToReplace = overlayCards.FindCardToReplace(card);
+            var overlayCardToReplace = overlayCards.FindCardToReplace(cardTemplate);
             if (overlayCardToReplace == null) {
                 overlayCards.AddOverlayCard(newOverlayCard);
             } else {
@@ -400,7 +402,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-        private void TakeSnapshot(TakeSnapshotRequest takeSnapshotRequest) {
+        private void TakeSnapshotHandler(TakeSnapshotRequest request) {
             _logger.LogMessage("Taking snapshot of overlay window.");
 
             var timeStamp = DateTime.Now.ToString("yyddMHHmmss");

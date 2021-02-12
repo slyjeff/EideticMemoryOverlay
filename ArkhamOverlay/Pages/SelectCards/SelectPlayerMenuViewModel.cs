@@ -8,11 +8,11 @@ using System.Windows.Input;
 namespace ArkhamOverlay.Pages.SelectCards {
     public class SelectPlayerMenuViewModel : ViewModel {
 
-        public SelectPlayerMenuViewModel(Game game, ShowCardButton showCardButton) {
-            AddCardToPlayer1 = new AddCardToPlayerCommand(game.Players[0], showCardButton.Card);
-            AddCardToPlayer2 = new AddCardToPlayerCommand(game.Players[1], showCardButton.Card);
-            AddCardToPlayer3 = new AddCardToPlayerCommand(game.Players[2], showCardButton.Card);
-            AddCardToPlayer4 = new AddCardToPlayerCommand(game.Players[3], showCardButton.Card);
+        public SelectPlayerMenuViewModel(Game game, CardTemplateButton showCardButton) {
+            AddCardToPlayer1 = new AddCardToPlayerCommand(game.Players[0], showCardButton.CardTemplate);
+            AddCardToPlayer2 = new AddCardToPlayerCommand(game.Players[1], showCardButton.CardTemplate);
+            AddCardToPlayer3 = new AddCardToPlayerCommand(game.Players[2], showCardButton.CardTemplate);
+            AddCardToPlayer4 = new AddCardToPlayerCommand(game.Players[3], showCardButton.CardTemplate);
         }
 
         public ICommand AddCardToPlayer1 { get; }

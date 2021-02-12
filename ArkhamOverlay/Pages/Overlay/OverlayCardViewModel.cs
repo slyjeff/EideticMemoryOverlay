@@ -77,7 +77,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             get => _cardInstance; 
             set {
                 _cardInstance = value;
-                Card = _cardInstance.Card;
+                Card = _cardInstance.CardTemplate;
             } 
         }
 
