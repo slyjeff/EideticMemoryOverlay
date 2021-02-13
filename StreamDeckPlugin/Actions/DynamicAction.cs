@@ -69,7 +69,7 @@ namespace StreamDeckPlugin.Actions {
             _eventBus.SubscribeToPageChangedEvent(PageChanged);
             _eventBus.SubscribeToModeToggledEvent(ModeToggled);
 
-            SetCardZoneIndex(0);
+            SetButtonMode(ButtonMode.Pool);
  
             return Task.CompletedTask;
         }
@@ -169,10 +169,10 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void ModeToggled(ModeToggledEvent modeToggledEvent) {
-            SetCardZoneIndex(ButtonMode == ButtonMode.Pool ? ButtonMode.Zone : ButtonMode.Pool);
+            SetButtonMode(ButtonMode == ButtonMode.Pool ? ButtonMode.Zone : ButtonMode.Pool);
         }
 
-        public void SetCardZoneIndex(ButtonMode buttonMode) {
+        public void SetButtonMode(ButtonMode buttonMode) {
             _page = 0;
             ButtonMode = buttonMode;
 
