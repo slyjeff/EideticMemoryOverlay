@@ -89,7 +89,7 @@ namespace ArkhamOverlay.Services {
         private void HandleClick(TcpRequest request) {
             var clickCardButtonRequest = JsonConvert.DeserializeObject<ClickCardButtonRequest>(request.Body);
             _logger.LogMessage($"Handling {clickCardButtonRequest.Click} request");
-            var cardButton = GetCardButton(clickCardButtonRequest.CardGroup, clickCardButtonRequest.FromCardSet, clickCardButtonRequest.Index);
+            var cardButton = GetCardButton(clickCardButtonRequest.CardGroupId, clickCardButtonRequest.FromCardSet, clickCardButtonRequest.Index);
             if (cardButton == null) {
                 SendOkResponse(request.Socket);
                 return;

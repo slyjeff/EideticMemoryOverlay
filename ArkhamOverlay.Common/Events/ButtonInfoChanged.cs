@@ -5,17 +5,16 @@ using System;
 
 namespace ArkhamOverlay.Events {
     public class ButtonInfoChanged : ICrossAppEvent, IButtonContext, ICardInfo {
-        public ButtonInfoChanged(CardGroupId cardGroup, int cardZoneIndex, int index, string name, bool isToggled, bool imageAvailable) {
-            CardGroup = cardGroup;
-            CardZoneIndex = cardZoneIndex;
+        public ButtonInfoChanged(CardGroupId cardGroup, ButtonMode ButtonMode, int index, string name, bool isToggled, bool imageAvailable) {
+            CardGroupId = cardGroup;
             Index = index;
             Name = name;
             IsToggled = isToggled;
             ImageAvailable = imageAvailable;
         }
 
-        public CardGroupId CardGroup { get; }
-        public int CardZoneIndex { get; }
+        public CardGroupId CardGroupId { get; }
+        public ButtonMode ButtonMode { get; }
         public int Index { get; }
         public string Name { get; }
         public bool IsToggled { get; }
@@ -23,8 +22,8 @@ namespace ArkhamOverlay.Events {
     }
 
     public static class ButtonInfoChangedExtensions {
-        public static void PublishButtonInfoChanged(this IEventBus eventBus, CardGroupId cardGroup, int cardZoneIndex, int index, string name, bool isToggled, bool imageAvailable) {
-            eventBus.Publish(new ButtonInfoChanged(cardGroup, cardZoneIndex, index, name, isToggled, imageAvailable));
+        public static void PublishButtonInfoChanged(this IEventBus eventBus, CardGroupId cardGroup, ButtonMode buttonMode, int index, string name, bool isToggled, bool imageAvailable) {
+            eventBus.Publish(new ButtonInfoChanged(cardGroup, buttonMode, index, name, isToggled, imageAvailable));
         }
 
         public static void SubscribeToButtonInfoChanged(this IEventBus eventBus, Action<ButtonInfoChanged> callback) {

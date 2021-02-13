@@ -32,9 +32,9 @@ namespace StreamDeckPlugin.Actions {
             _keyPressTimer.Elapsed += KeyHeldDown;
         }
 
-        public int CardZoneIndex { get; private set; } 
+        public ButtonMode ButtonMode { get; private set; } 
 
-        public CardGroupId CardGroup {
+        public CardGroupId CardGroupId {
             get {
                 if (_settings == null) {
                     return CardGroupId.Player1;
@@ -130,14 +130,14 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void SendClick(bool isLeftClick) {
-            _eventBus.PublishDynamicButtonClickRequest(CardGroup, CardZoneIndex, Index, isLeftClick);
+            _eventBus.PublishDynamicButtonClickRequest(CardGroupId, ButtonMode, Index, isLeftClick);
 
             //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
         }
 
         private void GetButtonInfo() {
-            _eventBus.PublishGetButtonInfoRequest(CardGroup, CardZoneIndex, Index);
+            _eventBus.PublishGetButtonInfoRequest(CardGroupId, ButtonMode, Index);
         }
 
         private void DynamicActionChanged(DynamicActionInfoChangedEvent dynamicActionInfoChangedEvent) {
@@ -169,12 +169,12 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void ModeToggled(ModeToggledEvent modeToggledEvent) {
-            SetCardZoneIndex(CardZoneIndex == 0 ? 1 : 0);
+            SetCardZoneIndex(ButtonMode == ButtonMode.Pool ? ButtonMode.Zone : ButtonMode.Pool);
         }
 
-        public void SetCardZoneIndex(int cardZoneIndex) {
+        public void SetCardZoneIndex(ButtonMode buttonMode) {
             _page = 0;
-            CardZoneIndex = cardZoneIndex;
+            ButtonMode = buttonMode;
 
             UpdateButtonToNewDynamicAction();
         }

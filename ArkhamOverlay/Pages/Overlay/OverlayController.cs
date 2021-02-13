@@ -130,6 +130,8 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public event Action Closed;
 
+        #region Size Calculations
+
         private void CalculateDeckListHeight() {
             ViewModel.DeckListHeight = _appData.Configuration.OverlayHeight - 40;
         }
@@ -228,6 +230,8 @@ namespace ArkhamOverlay.Pages.Overlay {
                 overlayCard.MaxHeight = maxHeight;
             }
         }
+
+        #endregion
 
         private void InitializeSelectableCards(CardGroup cardGroup) {
             var cardZone = cardGroup.CardZone;

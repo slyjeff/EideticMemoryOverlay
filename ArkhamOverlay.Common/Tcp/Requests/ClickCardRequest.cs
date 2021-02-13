@@ -7,7 +7,7 @@ namespace ArkhamOverlay.Common.Tcp.Requests {
         public ClickCardButtonRequest() : base(AoTcpRequest.ClickCardButton) {
         }
 
-        public CardGroupId CardGroup { get; set; }
+        public CardGroupId CardGroupId { get; set; }
         public int Index { get; set; }
         public ButtonClick Click { get; set; }
         public bool FromCardSet { get; set; }

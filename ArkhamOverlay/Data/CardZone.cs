@@ -35,7 +35,7 @@ namespace ArkhamOverlay.Data {
         public CardZoneLocation Location { get; }
         public CardGroupId CardGroupId { get; set; }
 
-        public ObservableCollection<CardButton> Buttons { get; set; }
+        public ObservableCollection<CardButton> Buttons { get; }
 
         public IEnumerable<ICard> Cards { get => Buttons; }
 
@@ -83,7 +83,7 @@ namespace ArkhamOverlay.Data {
             var isToggled = button != null && button.IsToggled;
             var isImageAvailable = button?.CardTemplate.ButtonImageAsBytes != null;
 
-            _eventBus.PublishButtonInfoChanged(CardGroupId, 1, index, cardName, isToggled, isImageAvailable);
+            _eventBus.PublishButtonInfoChanged(CardGroupId, ButtonMode.Zone, index, cardName, isToggled, isImageAvailable);
         }
     }
 }

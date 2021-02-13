@@ -2,15 +2,17 @@
 using System.Linq;
 
 namespace ArkhamOverlay.Common.Enums {
+    public enum ButtonMode { Pool, Zone, Dialog }
+
     public interface IButtonContext {
-        CardGroupId CardGroup { get; }
-        int CardZoneIndex { get; }
+        CardGroupId CardGroupId { get; }
+        ButtonMode ButtonMode { get; }
         int Index { get; }
     }
 
     public static class ButtonContextExtensions { 
         public static bool HasSameContext(this IButtonContext a, IButtonContext b) {
-            return a.CardGroup == b.CardGroup && a.CardZoneIndex == b.CardZoneIndex && a.Index == b.Index;
+            return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.Index == b.Index;
         }
 
         public static IEnumerable<T> FindAllWithContext<T>(this IEnumerable<T> list, IButtonContext context) where T : IButtonContext {

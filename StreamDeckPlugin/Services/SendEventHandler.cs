@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Common.Events;
+﻿using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Events;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;
@@ -55,9 +56,9 @@ namespace StreamDeckPlugin.Services {
 
         private void GetCardInfo(GetButtonInfoRequest getButtonInfoRequest) {
             var request = new GetCardInfoRequest {
-                GardGroup = getButtonInfoRequest.CardGroup,
+                GardGroup = getButtonInfoRequest.CardGroupId,
                 Index = getButtonInfoRequest.Index,
-                FromCardSet = getButtonInfoRequest.CardZoneIndex == 1,
+                FromCardSet = getButtonInfoRequest.ButtonMode == ButtonMode.Zone,
             };
 
             var response = SendRequest<CardInfoResponse>(request);
@@ -68,9 +69,9 @@ namespace StreamDeckPlugin.Services {
 
         private void GetButtonImage(GetButtonImageRequest getButtonImageRequest) {
             var request = new ButtonImageRequest {
-                CardGroup = getButtonImageRequest.CardGroup,
+                CardGroup = getButtonImageRequest.CardGroupId,
                 Index = getButtonImageRequest.Index,
-                FromCardSet = getButtonImageRequest.CardZoneIndex == 1,
+                FromCardSet = getButtonImageRequest.ButtonMode == ButtonMode.Zone,
             };
 
             var response = SendRequest<ButtonImageResponse>(request);
@@ -81,9 +82,9 @@ namespace StreamDeckPlugin.Services {
 
         private void DynamicButtonClicked(DynamicButtonClickRequest dynamicButtonClickRequest) {
             var request = new ClickCardButtonRequest {
-                CardGroup = dynamicButtonClickRequest.CardGroup, 
+                CardGroupId = dynamicButtonClickRequest.CardGroupId, 
                 Index = dynamicButtonClickRequest.Index, 
-                FromCardSet = dynamicButtonClickRequest.CardZoneIndex == 1, 
+                FromCardSet = dynamicButtonClickRequest.ButtonMode == ButtonMode.Zone, 
                 Click = dynamicButtonClickRequest.IsLeftClick ? ButtonClick.Left : ButtonClick.Right
             };
             SendRequest(request);
