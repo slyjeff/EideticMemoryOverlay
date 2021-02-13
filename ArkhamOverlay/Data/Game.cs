@@ -9,12 +9,13 @@ using System.Windows;
 namespace ArkhamOverlay.Data {
     public class Game : ViewModel, IGame {
         public Game() {
-            Players = new List<Player> { new Player(CardGroup.Player1), new Player(CardGroup.Player2), new Player(CardGroup.Player3), new Player(CardGroup.Player4) };
+            Players = new List<Player> { new Player(CardGroupId.Player1), new Player(CardGroupId.Player2), new Player(CardGroupId.Player3), new Player(CardGroupId.Player4) };
             EncounterSets = new List<EncounterSet>();
             LocalPacks = new List<string>();
-            ScenarioCards = new SelectableCards(CardGroup.Scenario);
-            LocationCards = new SelectableCards(CardGroup.Locations);
-            EncounterDeckCards = new SelectableCards(CardGroup.EncounterDeck);
+            ScenarioCards = new CardGroup(CardGroupId.Scenario);
+            ScenarioCards.AddCardZone(new CardZone("Act/Agenda Bar", CardZoneLocation.Top));
+            LocationCards = new CardGroup(CardGroupId.Locations);
+            EncounterDeckCards = new CardGroup(CardGroupId.EncounterDeck);
         }
 
         public string Name { get; set; }
@@ -34,11 +35,11 @@ namespace ArkhamOverlay.Data {
 
         public IList<string> LocalPacks { get; set; }
 
-        public SelectableCards ScenarioCards { get; }
+        public CardGroup ScenarioCards { get; }
 
-        public SelectableCards LocationCards { get; }
+        public CardGroup LocationCards { get; }
 
-        public SelectableCards EncounterDeckCards { get; }
+        public CardGroup EncounterDeckCards { get; }
 
         public IList<Player> Players { get; }
 
@@ -72,25 +73,20 @@ namespace ArkhamOverlay.Data {
             return EncounterSets.Any(x => x.Code == code);
         }
 
-        public IList<SelectableCards> AllSelectableCards {
+        public IList<CardGroup> AllSelectableCards {
             get {
-                var allDecks = new List<SelectableCards> {
+                var allDecks = new List<CardGroup> {
                     ScenarioCards,
                     LocationCards,
                     EncounterDeckCards
                 };
                 
                 foreach (var player in Players) {
-                    allDecks.Add(player.SelectableCards);
+                    allDecks.Add(player.CardGroup);
                 }
                 return allDecks;
             }
         }
 
-        internal void ClearAllCards() {
-            foreach (var selectableCards in AllSelectableCards) {
-                selectableCards.HideAllCards();
-            }
-        }
     }
 }

@@ -68,14 +68,14 @@ namespace ArkhamOverlay.Pages.Main {
             }
         }
 
-        private void ShowSelectCardsWindow(ISelectableCards selectableCards, string startingPositionConfigName) {
-            _logger.LogMessage($"Showing select card window: {selectableCards.Name}.");
+        private void ShowSelectCardsWindow(ICardGroup cardGroup, string startingPositionConfigName) {
+            _logger.LogMessage($"Showing select card window: {cardGroup.Name}.");
             var left = View.Left + View.Width + 10;
             var width = (double)836;
             var top = View.Top;
             SelectCardsController controller = null;
             foreach (var selectCardsControllerInList in _selectCardsControllers) {
-                if (selectCardsControllerInList.SelectableCards == selectableCards) {
+                if (selectCardsControllerInList.CardGroup == cardGroup) {
                     controller = selectCardsControllerInList;
                     controller.Activate();
                     break;
@@ -93,8 +93,7 @@ namespace ArkhamOverlay.Pages.Main {
 
             if (controller == null) {
                 controller = _controllerFactory.CreateController<SelectCardsController>();
-                controller.AppData = ViewModel.AppData;
-                controller.SelectableCards = selectableCards;
+                controller.CardGroup = cardGroup;
                 controller.Left = startingPosition.X == 0 ? left : startingPosition.X;
                 controller.Top = startingPosition.Y == 0 ? top : startingPosition.Y;
                 controller.Width = width;
@@ -110,10 +109,10 @@ namespace ArkhamOverlay.Pages.Main {
                 _selectCardsControllers.Add(controller);
             }
 
-            if (!controller.SelectableCards.Loading) {
+            if (!controller.CardGroup.Loading) {
                 controller.Show();
             } else {
-                _logger.LogMessage($"Delayed showing select card window: {selectableCards.Name}.");
+                _logger.LogMessage($"Delayed showing select card window: {cardGroup.Name}.");
                 ShowSelectCardsWindowWhenFinishedLoading(controller);
             }
         }
@@ -124,11 +123,11 @@ namespace ArkhamOverlay.Pages.Main {
             };
 
             timer.Tick += (x, y) => {
-                if (selectCardsController.SelectableCards.Loading) {
+                if (selectCardsController.CardGroup.Loading) {
                     return;
                 }
 
-                _logger.LogMessage($"Showing select card window after delay: {selectCardsController.SelectableCards.Name}.");
+                _logger.LogMessage($"Showing select card window after delay: {selectCardsController.CardGroup.Name}.");
                 timer.Stop();
                 selectCardsController.Show();
             };
@@ -240,21 +239,21 @@ namespace ArkhamOverlay.Pages.Main {
         }
 
         [Command]
-        public void PlayerSelected(SelectableCards selectableCards) {
-            _logger.LogMessage($"Main window: player selected: {selectableCards.Name}.");
+        public void PlayerSelected(CardGroup cardGroup) {
+            _logger.LogMessage($"Main window: player selected: {cardGroup.Name}.");
             var startingPositionProperty = string.Empty;
-            if (ViewModel.Game.Players[0].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player1Position); }
-            else if (ViewModel.Game.Players[1].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player2Position); }
-            else if (ViewModel.Game.Players[2].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player3Position); }
-            else if (ViewModel.Game.Players[3].SelectableCards == selectableCards) { startingPositionProperty = nameof(Configuration.Player4Position); }
+            if (ViewModel.Game.Players[0].CardGroup == cardGroup) { startingPositionProperty = nameof(Configuration.Player1Position); }
+            else if (ViewModel.Game.Players[1].CardGroup == cardGroup) { startingPositionProperty = nameof(Configuration.Player2Position); }
+            else if (ViewModel.Game.Players[2].CardGroup == cardGroup) { startingPositionProperty = nameof(Configuration.Player3Position); }
+            else if (ViewModel.Game.Players[3].CardGroup == cardGroup) { startingPositionProperty = nameof(Configuration.Player4Position); }
 
-            ShowSelectCardsWindow(selectableCards, startingPositionProperty);
+            ShowSelectCardsWindow(cardGroup, startingPositionProperty);
         }
 
         [Command]
-        public void ShowDeckList(CardGroup deck) {
+        public void ShowDeckList(CardGroupId id) {
             _logger.LogMessage("Main window: show deck list clicked.");
-            _eventBus.PublishShowDeckListRequest(deck);
+            _eventBus.PublishShowDeckListRequest(id);
         }
 
         [Command]
@@ -289,7 +288,7 @@ namespace ArkhamOverlay.Pages.Main {
         [Command]
         public void ClearCards() {
             _logger.LogMessage("Main window: clear all cards clicked.");
-            ViewModel.AppData.Game.ClearAllCards();
+            _eventBus.PublishClearAllCardsRequest();
         }
 
         [Command]

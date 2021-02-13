@@ -25,7 +25,7 @@ namespace ArkhamOverlay {
         Other,
     }
 
-    public enum SelectableType {
+    public enum CardGroupType {
         Player,
         Scenario,
         Location,
@@ -33,21 +33,21 @@ namespace ArkhamOverlay {
     }
 
     public static class SelectableTypeExtensions {
-        public static SelectableType GetSelectableType(this CardGroup deck) {
+        public static CardGroupType GetSelectableType(this CardGroupId deck) {
             switch (deck) {
-                case CardGroup.Player1:
-                case CardGroup.Player2:
-                case CardGroup.Player3:
-                case CardGroup.Player4:
-                    return SelectableType.Player;
-                case CardGroup.Scenario:
-                    return SelectableType.Scenario;
-                case CardGroup.Locations:
-                    return SelectableType.Location;
-                case CardGroup.EncounterDeck:
-                    return SelectableType.Encounter;
+                case CardGroupId.Player1:
+                case CardGroupId.Player2:
+                case CardGroupId.Player3:
+                case CardGroupId.Player4:
+                    return CardGroupType.Player;
+                case CardGroupId.Scenario:
+                    return CardGroupType.Scenario;
+                case CardGroupId.Locations:
+                    return CardGroupType.Location;
+                case CardGroupId.EncounterDeck:
+                    return CardGroupType.Encounter;
                 default:
-                    return SelectableType.Player;
+                    return CardGroupType.Player;
             }
         }
     }

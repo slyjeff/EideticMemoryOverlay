@@ -5,7 +5,7 @@ using System;
 
 namespace ArkhamOverlay.Events {
     public class ButtonInfoChanged : ICrossAppEvent, IButtonContext, ICardInfo {
-        public ButtonInfoChanged(CardGroup cardGroup, int cardZoneIndex, int index, string name, bool isToggled, bool imageAvailable) {
+        public ButtonInfoChanged(CardGroupId cardGroup, int cardZoneIndex, int index, string name, bool isToggled, bool imageAvailable) {
             CardGroup = cardGroup;
             CardZoneIndex = cardZoneIndex;
             Index = index;
@@ -14,7 +14,7 @@ namespace ArkhamOverlay.Events {
             ImageAvailable = imageAvailable;
         }
 
-        public CardGroup CardGroup { get; }
+        public CardGroupId CardGroup { get; }
         public int CardZoneIndex { get; }
         public int Index { get; }
         public string Name { get; }
@@ -23,7 +23,7 @@ namespace ArkhamOverlay.Events {
     }
 
     public static class ButtonInfoChangedExtensions {
-        public static void PublishButtonInfoChanged(this IEventBus eventBus, CardGroup cardGroup, int cardZoneIndex, int index, string name, bool isToggled, bool imageAvailable) {
+        public static void PublishButtonInfoChanged(this IEventBus eventBus, CardGroupId cardGroup, int cardZoneIndex, int index, string name, bool isToggled, bool imageAvailable) {
             eventBus.Publish(new ButtonInfoChanged(cardGroup, cardZoneIndex, index, name, isToggled, imageAvailable));
         }
 

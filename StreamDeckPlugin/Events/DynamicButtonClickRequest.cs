@@ -4,21 +4,21 @@ using System;
 
 namespace StreamDeckPlugin.Events {
     public class DynamicButtonClickRequest : IEvent, IButtonContext {
-        public DynamicButtonClickRequest(CardGroup cardGroup, int cardZoneIndex, int index, bool isLeftClick) {
+        public DynamicButtonClickRequest(CardGroupId cardGroup, int cardZoneIndex, int index, bool isLeftClick) {
             CardGroup = cardGroup;
             CardZoneIndex = cardZoneIndex;
             Index = index;
             IsLeftClick = isLeftClick;
         }
 
-        public CardGroup CardGroup { get; }
+        public CardGroupId CardGroup { get; }
         public int CardZoneIndex { get; }
         public int Index { get; }
         public bool IsLeftClick { get; }
     }
 
     public static class DynamicButtonClickExtensions {
-        public static void PublishDynamicButtonClickRequest(this IEventBus eventBus, CardGroup cardGroup, int cardZoneIndex, int index, bool isLeftClick) {
+        public static void PublishDynamicButtonClickRequest(this IEventBus eventBus, CardGroupId cardGroup, int cardZoneIndex, int index, bool isLeftClick) {
             eventBus.Publish(new DynamicButtonClickRequest(cardGroup, cardZoneIndex, index, isLeftClick));
         }
 

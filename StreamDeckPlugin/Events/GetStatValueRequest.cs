@@ -4,17 +4,17 @@ using System;
 
 namespace StreamDeckPlugin.Events {
     public class GetStatValueRequest : IEvent {
-        public GetStatValueRequest(CardGroup deck, StatType statType) {
+        public GetStatValueRequest(CardGroupId deck, StatType statType) {
             Deck = deck;
             StatType = statType;
         }
 
-        public CardGroup Deck { get; }
+        public CardGroupId Deck { get; }
         public StatType StatType { get; }
     }
 
     public static class GetStatValueRequestExtensions {
-        public static void PublishGetStatValueRequest(this IEventBus eventBus, CardGroup deck, StatType statType) {
+        public static void PublishGetStatValueRequest(this IEventBus eventBus, CardGroupId deck, StatType statType) {
             eventBus.Publish(new GetStatValueRequest(deck, statType));
         }
 

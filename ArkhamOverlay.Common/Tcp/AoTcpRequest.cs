@@ -4,7 +4,6 @@
         GetCardInfo,
         GetButtonImage,
         ClickCardButton,
-        ClearAll,
         UpdateStatInfo,
         UpdateInvestigatorImage,
         RegisterForUpdates,

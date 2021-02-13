@@ -4,15 +4,15 @@ using System;
 
 namespace StreamDeckPlugin.Events {
     public class GetInvestigatorImageRequest : IEvent {
-        public GetInvestigatorImageRequest(CardGroup cardGroup) {
+        public GetInvestigatorImageRequest(CardGroupId cardGroup) {
             CardGroup = cardGroup;
         }
 
-        public CardGroup CardGroup { get; }
+        public CardGroupId CardGroup { get; }
     }
 
     public static class GetInvestigatorImageRequestExtensions {
-        public static void PublishGetInvestigatorImageRequest(this IEventBus eventBus, CardGroup cardGroup) {
+        public static void PublishGetInvestigatorImageRequest(this IEventBus eventBus, CardGroupId cardGroup) {
             eventBus.Publish(new GetInvestigatorImageRequest(cardGroup));
         }
 

@@ -17,8 +17,10 @@ namespace ArkhamOverlay.Data {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private bool _isStatTrackingVisible = false;
 
-        public Player(CardGroup deck) {
-            SelectableCards = new SelectableCards(deck);
+        public Player(CardGroupId deck) {
+            CardGroup = new CardGroup(deck);
+            CardGroup.AddCardZone(new CardZone("Hand", CardZoneLocation.Bottom));
+
             Health = new Stat(StatType.Health, deck);
             Sanity = new Stat(StatType.Sanity, deck);
             Resources = new Stat(StatType.Resources, deck);
@@ -36,14 +38,14 @@ namespace ArkhamOverlay.Data {
 
         public int ID { 
             get {
-                switch (SelectableCards.CardGroup) {
-                    case CardGroup.Player1:
+                switch (CardGroup.Id) {
+                    case CardGroupId.Player1:
                         return 1;
-                    case CardGroup.Player2:
+                    case CardGroupId.Player2:
                         return 2;
-                    case CardGroup.Player3:
+                    case CardGroupId.Player3:
                         return 3;
-                    case CardGroup.Player4:
+                    case CardGroupId.Player4:
                         return 4;
                     default:
                         return 1;
@@ -53,9 +55,9 @@ namespace ArkhamOverlay.Data {
 
         public string DeckId { get; set; }
 
-        public SelectableCards SelectableCards { get; }
+        public CardGroup CardGroup { get; }
 
-        public string Name { get { return SelectableCards.Name; } }
+        public string Name { get { return CardGroup.Name; } }
 
         CardType IHasImageButton.ImageCardType { get { return CardType.Investigator; } }
 
@@ -92,7 +94,7 @@ namespace ArkhamOverlay.Data {
 
         public IDictionary<string, int> Slots { get; set; }
 
-        public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(SelectableCards.Name) ? Visibility.Hidden : Visibility.Visible; } }
+        public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(CardGroup.Name) ? Visibility.Hidden : Visibility.Visible; } }
 
         public void OnPlayerChanged() {
             NotifyPropertyChanged(nameof(LoadedVisiblity));
@@ -106,7 +108,7 @@ namespace ArkhamOverlay.Data {
         public Stat Resources { get; }
         public Stat Clues { get; }
         
-        public Visibility StatTrackingVisibility { get { return string.IsNullOrEmpty(SelectableCards.Name) || !_isStatTrackingVisible ? Visibility.Collapsed : Visibility.Visible; } }
+        public Visibility StatTrackingVisibility { get { return string.IsNullOrEmpty(CardGroup.Name) || !_isStatTrackingVisible ? Visibility.Collapsed : Visibility.Visible; } }
         public Brush PlayerNameBrush {
             get {
                 switch (Faction) {
@@ -126,9 +128,9 @@ namespace ArkhamOverlay.Data {
     public class Stat : ViewModel {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly StatType _statType;
-        private readonly CardGroup _deck;
+        private readonly CardGroupId _deck;
 
-        public Stat(StatType statType, CardGroup deck) {
+        public Stat(StatType statType, CardGroupId deck) {
             _statType = statType;
             _deck = deck;
             var fileName = AppDomain.CurrentDomain.BaseDirectory + "Images\\" + GetImageFileName(statType);

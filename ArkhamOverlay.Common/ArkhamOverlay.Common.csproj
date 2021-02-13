@@ -53,6 +53,7 @@
     <Compile Include="Events\ButtonToggled.cs" />
     <Compile Include="Events\ButtonTextChanged.cs" />
     <Compile Include="Events\CardTemplateVisibilityChanged.cs" />
+    <Compile Include="Events\ClearAllCardsRequest.cs" />
     <Compile Include="Events\ShowDeckListRequest.cs" />
     <Compile Include="Events\StatUpdated.cs" />
     <Compile Include="Events\TakeSnapshotRequest.cs" />
@@ -66,11 +67,10 @@
     <Compile Include="Tcp\Responses\ChangeStatValueResponse.cs" />
     <Compile Include="Enums\StatType.cs" />
     <Compile Include="Enums\CardButtonType.cs" />
-    <Compile Include="Enums\CardGroup.cs" />
+    <Compile Include="Enums\CardGroupId.cs" />
     <Compile Include="ICardInfo.cs" />
     <Compile Include="Tcp\Requests\ButtonImageRequest.cs" />
     <Compile Include="Tcp\Requests\RegisterForUpdatesRequest.cs" />
-    <Compile Include="Tcp\Requests\ClearAllCardsRequest.cs" />
     <Compile Include="Tcp\Requests\ClickCardRequest.cs" />
     <Compile Include="Tcp\Requests\GetCardInfoRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

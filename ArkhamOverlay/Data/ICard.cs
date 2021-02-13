@@ -1,5 +1,5 @@
 ﻿namespace ArkhamOverlay.Data {
-    public interface ICardInstance {
+    public interface ICard {
         CardTemplate CardTemplate { get; }
     }
 }

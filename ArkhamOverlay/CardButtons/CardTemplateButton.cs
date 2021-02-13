@@ -3,19 +3,19 @@ using System.Windows.Media;
 
 namespace ArkhamOverlay.CardButtons {
     public class CardTemplateButton : CardImageButton {
-        private readonly SelectableCards _selectableCards;
+        private readonly CardGroup _selectableCards;
 
-        public CardTemplateButton(SelectableCards selectableCards, CardTemplate cardTemplate) : base(cardTemplate) {
+        public CardTemplateButton(CardGroup selectableCards, CardTemplate cardTemplate) : base(cardTemplate) {
             _selectableCards = selectableCards;
         }
 
         public override void RightClick() {
-            //we only put act/agend/player cards in sets
-            if ((CardTemplate.Type != CardType.Act) && (CardTemplate.Type != CardType.Agenda) && !CardTemplate.IsPlayerCard) {
+            var cardZone = _selectableCards.CardZone;
+            if (cardZone == default(CardZone)) {
                 return;
             }
 
-            _selectableCards.CardZone.AddCard(CardTemplate);
+            cardZone.AddCard(CardTemplate);
         }
 
         public override ImageSource ButtonImage { get { return CardTemplate.ButtonImage; } }

@@ -1,10 +1,10 @@
 ﻿using ArkhamOverlay.Data;
 
 namespace ArkhamOverlay.CardButtons {
-    public class CardButton : CardImageButton, ICardInstance {
+    public class CardButton : CardImageButton, ICard {
         private readonly CardZone _cardSet;
 
-        public CardButton(CardZone cardSet, SelectableCards selectableCards, CardTemplate card) : base(card) {
+        public CardButton(CardZone cardSet, CardTemplate card) : base(card) {
             _cardSet = cardSet;
         }
 

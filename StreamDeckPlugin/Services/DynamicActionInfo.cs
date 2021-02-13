@@ -17,7 +17,7 @@ namespace StreamDeckPlugin.Services {
             Index = buttonContex.Index;
         }
 
-        public CardGroup CardGroup { get; }
+        public CardGroupId CardGroup { get; }
         public int CardZoneIndex { get; }
         public int Index { get; }
         public string ImageId { get; set; }

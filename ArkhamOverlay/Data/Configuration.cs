@@ -109,24 +109,24 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        private int _actAgendaCardHeight;
-        public int ActAgendaCardHeight {
-            get => _actAgendaCardHeight;
+        private int _topCardZoneHeight;
+        public int TopCardZoneHeight {
+            get => _topCardZoneHeight;
             set {
-                _actAgendaCardHeight = value;
+                _topCardZoneHeight = value;
 
-                NotifyPropertyChanged(nameof(ActAgendaCardHeight));
+                NotifyPropertyChanged(nameof(TopCardZoneHeight));
                 OnConfigurationChange();
             }
         }
 
-        private int _handCardHeight;
-        public int HandCardHeight {
-            get => _handCardHeight;
+        private int _bottomCardZoneHeight;
+        public int BottomCardZoneHeight {
+            get => _bottomCardZoneHeight;
             set {
-                _handCardHeight = value;
+                _bottomCardZoneHeight = value;
 
-                NotifyPropertyChanged(nameof(HandCardHeight));
+                NotifyPropertyChanged(nameof(BottomCardZoneHeight));
                 OnConfigurationChange();
             }
         }

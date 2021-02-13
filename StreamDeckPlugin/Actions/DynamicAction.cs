@@ -34,13 +34,13 @@ namespace StreamDeckPlugin.Actions {
 
         public int CardZoneIndex { get; private set; } 
 
-        public CardGroup CardGroup {
+        public CardGroupId CardGroup {
             get {
                 if (_settings == null) {
-                    return CardGroup.Player1;
+                    return CardGroupId.Player1;
                 }
 
-                return _settings.Deck.AsCardGroup();
+                return _settings.Deck.AsCardGroupId();
             }
         }
 

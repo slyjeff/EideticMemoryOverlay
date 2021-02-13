@@ -6,7 +6,7 @@
         xmlns:selectcards="clr-namespace:ArkhamOverlay.Pages.SelectCards"
         d:DataContext="{d:DesignInstance {x:Type selectcards:SelectCardsViewModel}, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
-        Title="{Binding SelectableCards.Name}"
+        Title="{Binding CardGroup.Name}"
         SizeToContent="Height"
         Background="Black">
     <Window.Resources>
@@ -61,7 +61,7 @@
         </Style>
     </Window.Resources>
     <StackPanel Orientation="Vertical">
-        <ItemsControl ItemsSource="{Binding SelectableCards.CardButtons}" BorderThickness="0">
+        <ItemsControl ItemsSource="{Binding CardGroup.CardButtons}" BorderThickness="0">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardButtonStyle}">
@@ -91,12 +91,12 @@
         <TextBlock Margin="5, 10, 0, 2"
                    Foreground="White"
                    FontWeight="Bold"
-                   Text="{Binding SelectableCards.CardZoneName}"
-                   Visibility="{Binding Path=SelectableCards.ShowCardSetButtons, Converter={StaticResource BoolToVisibility}}"/>
+                   Text="{Binding CardGroup.CardZoneName}"
+                   Visibility="{Binding Path=CardGroup.ShowCardZoneButtons, Converter={StaticResource BoolToVisibility}}"/>
         <ItemsControl 
-            ItemsSource="{Binding SelectableCards.CardZone.Buttons}" 
+            ItemsSource="{Binding CardGroup.CardZone.Buttons}" 
             BorderThickness="0"
-            Visibility="{Binding Path=SelectableCards.ShowCardZoneButtons, Converter={StaticResource BoolToVisibility}}">
+            Visibility="{Binding Path=CardGroup.ShowCardZoneButtons, Converter={StaticResource BoolToVisibility}}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardButtonStyle}">

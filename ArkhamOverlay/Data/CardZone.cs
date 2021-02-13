@@ -1,4 +1,5 @@
 ﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
@@ -8,17 +9,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace ArkhamOverlay.Data {
+    public enum CardZoneLocation { Top, Bottom }
+
     public class CardZone {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
-        private readonly SelectableCards _selectableCards;
-        public CardZone(SelectableCards selectableCards) {
+        public CardZone(string name, CardZoneLocation location) {
+            Name = name;
             Buttons = new ObservableCollection<CardButton>();
-            _selectableCards = selectableCards;
-        }
-
-        public event Action VisibilityToggled;
-        internal void ToggleVisibility() {
-            VisibilityToggled?.Invoke();
+            Location = location;
         }
 
         public event Action<bool> IsDisplayedOnOverlayChanged;
@@ -32,16 +30,20 @@ namespace ArkhamOverlay.Data {
                 IsDisplayedOnOverlayChanged?.Invoke(_isDisplayedOnOverlay);
             }
         }
+        
+        public string Name { get; }
+        public CardZoneLocation Location { get; }
+        public CardGroupId CardGroupId { get; set; }
 
         public ObservableCollection<CardButton> Buttons { get; set; }
 
-        public IEnumerable<ICardInstance> CardInstances { get => Buttons; }
+        public IEnumerable<ICard> Cards { get => Buttons; }
 
         public void AddCard(CardTemplate card) {
             var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardTemplate == card.FlipSideCard);
             if (cardSetButtonToReplace != null) {
                 var index = Buttons.IndexOf(cardSetButtonToReplace);
-                Buttons[index] = new CardButton(this, _selectableCards, card);
+                Buttons[index] = new CardButton(this, card);
                 PublishCardButtonInfoChanged(index);
             } else {
                 var existingCopyCount = Buttons.Count(x => x.CardTemplate == card);
@@ -57,7 +59,7 @@ namespace ArkhamOverlay.Data {
                     index = Buttons.IndexOf(Buttons.First(x => x.CardTemplate.Type == CardType.Act));
                 }
 
-                Buttons.Insert(index, new CardButton(this, _selectableCards, card));
+                Buttons.Insert(index, new CardButton(this, card));
                 PublishCardButtonInfoChangedRange(index, Buttons.Count - 1);
             }
         }
@@ -77,12 +79,11 @@ namespace ArkhamOverlay.Data {
         private void PublishCardButtonInfoChanged(int index) {
             var button = index < Buttons.Count ? Buttons[index] : null;
 
-            var cardGroup = _selectableCards.CardGroup;
             var cardName = button?.Text;
             var isToggled = button != null && button.IsToggled;
             var isImageAvailable = button?.CardTemplate.ButtonImageAsBytes != null;
 
-            _eventBus.PublishButtonInfoChanged(cardGroup, 1, index, cardName, isToggled, isImageAvailable);
+            _eventBus.PublishButtonInfoChanged(CardGroupId, 1, index, cardName, isToggled, isImageAvailable);
         }
     }
 }

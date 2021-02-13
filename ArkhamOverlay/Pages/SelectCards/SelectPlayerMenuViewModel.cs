@@ -37,7 +37,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
         }
 
         public void Execute(object parameter) {
-            _player.SelectableCards.CardZone.AddCard(_card);
+            _player.CardGroup.CardZone.AddCard(_card);
         }
 
         public Visibility Visibility { get { return string.IsNullOrEmpty(_player.Name) ? Visibility.Collapsed : Visibility.Visible; } }

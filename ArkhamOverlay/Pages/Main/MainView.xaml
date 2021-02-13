@@ -133,8 +133,8 @@
                             <TextBlock Text="Arkham Deck ID:" />
                             <TextBox Margin="10, 0, 0, 0" MaxLength="10" Text="{Binding DeckId, Mode=TwoWay}" />
                             <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.Refresh, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">⟲</Button>
-                            <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.PlayerSelected, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}" Visibility="{Binding LoadedVisiblity}" >🠆</Button>
-                            <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.ShowDeckList, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards.Deck}" Visibility="{Binding LoadedVisiblity}" >List</Button>
+                            <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.PlayerSelected, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding CardGroup}" Visibility="{Binding LoadedVisiblity}" >🠆</Button>
+                            <Button FontSize="14" Padding="2, -3, 2, 0" Command="{Binding DataContext.ShowDeckList, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding CardGroup.Id}" Visibility="{Binding LoadedVisiblity}" >List</Button>
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="5, 5, 0 ,0" Visibility="{Binding StatTrackingVisibility}">
@@ -206,7 +206,7 @@
                                             Rect="0,0,218,156"/>
                                 </Image.Clip>
                                 <Image.InputBindings>
-                                    <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.PlayerSelected, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding SelectableCards}"/>
+                                    <MouseBinding MouseAction="LeftClick" Command="{Binding DataContext.PlayerSelected, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding CardGroup}"/>
                                 </Image.InputBindings>
                             </Image>
                         </Border>
@@ -222,10 +222,10 @@
             <TextBox Margin ="4, 0, 0, 0" Text="{Binding Configuration.OverlayHeight, Mode=TwoWay}" Width="40" />
             <TextBlock Margin = "10, 0, 0, 0" Text="Card Height:" />
             <TextBox Margin = "10, 0, 0, 0" Text="{Binding Configuration.CardHeight, Mode=TwoWay}" Width="30" />
-            <TextBlock Margin = "10, 0, 0, 0" Text="Act/Agenda Card Height:" />
-            <TextBox Margin = "10, 0, 0, 0" Text="{Binding Configuration.ActAgendaCardHeight, Mode=TwoWay}" Width="30" />
-            <TextBlock Margin = "10, 0, 0, 0" Text="Hand Card Height:" />
-            <TextBox Margin = "10, 0, 0, 0" Text="{Binding Configuration.HandCardHeight, Mode=TwoWay}" Width="30" />
+            <TextBlock Margin = "10, 0, 0, 0" Text="Top Zone Card Height:" />
+            <TextBox Margin = "10, 0, 0, 0" Text="{Binding Configuration.TopCardZoneHeight, Mode=TwoWay}" Width="30" />
+            <TextBlock Margin = "10, 0, 0, 0" Text="Bottom Zone Card Height:" />
+            <TextBox Margin = "10, 0, 0, 0" Text="{Binding Configuration.BottomCardZoneHeight, Mode=TwoWay}" Width="30" />
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">

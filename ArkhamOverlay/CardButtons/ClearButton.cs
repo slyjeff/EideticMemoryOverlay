@@ -1,16 +1,20 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Utils;
+using ArkhamOverlay.Data;
+using ArkhamOverlay.Events;
 
 namespace ArkhamOverlay.CardButtons {
     public class ClearButton : Button {
-        private readonly SelectableCards _selectableCards;
+        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
+        private readonly CardGroup _selectableCards;
 
-        public ClearButton(SelectableCards selectableCards) {
+        public ClearButton(CardGroup selectableCards) {
             Text = "Clear Cards";
             _selectableCards = selectableCards;
         }
 
         public override void LeftClick() {
-            _selectableCards.HideAllCards();
+            _eventBus.PublishClearAllCardsForCardGroupRequest(_selectableCards);
         }
     }
 }

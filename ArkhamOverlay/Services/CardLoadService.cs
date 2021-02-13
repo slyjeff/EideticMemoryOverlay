@@ -87,7 +87,7 @@ namespace ArkhamOverlay.Services {
             _logger.LogMessage($"Loading deck for player {player.ID}.");
 
             var arkhamDbDeck = _arkhamDbService.GetPlayerDeck(player.DeckId);
-            player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
+            player.CardGroup.Name = arkhamDbDeck.Investigator_Name;
             player.InvestigatorCode = arkhamDbDeck.Investigator_Code;
             player.Slots = arkhamDbDeck.Slots;
 
@@ -209,7 +209,7 @@ namespace ArkhamOverlay.Services {
             // TODO: Consider alternatives to loading all cards
             var localCards = _localCardsService.LoadLocalCards();
 
-            player.SelectableCards.Loading = true;
+            player.CardGroup.Loading = true;
             try {
                 var cards = new List<CardTemplate>();
                 foreach (var slot in player.Slots) {
@@ -232,11 +232,11 @@ namespace ArkhamOverlay.Services {
                         _logger.LogError($"Could not find player {player.ID} card: {slot.Key}");
                     }
                 }
-                player.SelectableCards.LoadCards(cards);
+                player.CardGroup.LoadCards(cards);
             } catch (Exception ex) {
                 _logger.LogException(ex, $"Error loading cards for player {player.ID}.");
             } finally {
-                player.SelectableCards.Loading = false;
+                player.CardGroup.Loading = false;
             }
             _logger.LogMessage($"Finished loading cards for player {player.ID}.");
         }

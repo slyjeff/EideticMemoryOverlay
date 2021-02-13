@@ -19,5 +19,9 @@ namespace ArkhamOverlay.Events {
         public static void SubscribeToToggleCardVisibilityRequest(this IEventBus eventBus, Action<ToggleCardVisibilityRequest> callback) {
             eventBus.Subscribe(callback);
         }
+
+        public static void UnsubscribeFromToggleCardVisibilityRequest(this IEventBus eventBus, Action<ToggleCardVisibilityRequest> callback) {
+            eventBus.Unsubscribe(callback);
+        }
     }
 }

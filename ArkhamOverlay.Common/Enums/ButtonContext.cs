@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace ArkhamOverlay.Common.Enums {
     public interface IButtonContext {
-        CardGroup CardGroup { get; }
+        CardGroupId CardGroup { get; }
         int CardZoneIndex { get; }
         int Index { get; }
     }

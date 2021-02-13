@@ -8,31 +8,32 @@ using System.Windows.Controls;
 namespace ArkhamOverlay.Pages.SelectCards {
     public class SelectCardsController : Controller<SelectCardsView, SelectCardsViewModel> {
         private readonly LoggingService _logger;
-        public SelectCardsController(LoggingService loggingService) {
+        private readonly AppData _appData;
+        public SelectCardsController(LoggingService loggingService, AppData appData) {
             _logger = loggingService;
+            _appData = appData;
+
             View.Closed += (s, e) => {
                 Closed?.Invoke();
             };
         }
 
-        public AppData AppData { get; set; }
-
         public event Action Closed;
 
-        public ISelectableCards SelectableCards { get => ViewModel.SelectableCards; set => ViewModel.SelectableCards = value; }
+        public ICardGroup CardGroup { get => ViewModel.CardGroup; set => ViewModel.CardGroup = value; }
 
         internal void Close() {
-            _logger.LogMessage($"Closing Select Cards Window {ViewModel.SelectableCards.Name}");
+            _logger.LogMessage($"Closing Select Cards Window {ViewModel.CardGroup.Name}");
             View.Close();
         }
 
         internal void Activate() {
-            _logger.LogMessage($"Activating Select Cards Window {ViewModel.SelectableCards.Name}");
+            _logger.LogMessage($"Activating Select Cards Window {ViewModel.CardGroup.Name}");
             View.Activate();
         }
 
         internal void Show() {
-            _logger.LogMessage($"Showing Select Cards Window {ViewModel.SelectableCards.Name}");
+            _logger.LogMessage($"Showing Select Cards Window {ViewModel.CardGroup.Name}");
             View.Show();
         }
 
@@ -53,7 +54,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
             if (card is CardTemplateButton showCardButton) {
                 if (showCardButton.CardTemplate.Type == CardType.Enemy || showCardButton.CardTemplate.Type == CardType.Treachery) {
                     var contextMenu = View.FindResource("cmSelectPlayer") as ContextMenu;
-                    contextMenu.DataContext = new SelectPlayerMenuViewModel(AppData.Game, showCardButton);
+                    contextMenu.DataContext = new SelectPlayerMenuViewModel(_appData.Game, showCardButton);
                     contextMenu.IsOpen = true;
                     return;
                 }

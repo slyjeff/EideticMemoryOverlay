@@ -4,19 +4,19 @@ using System;
 
 namespace StreamDeckPlugin.Events {
     public class GetButtonImageRequest : IEvent, IButtonContext {
-        public GetButtonImageRequest(CardGroup cardGroup, int cardZoneIndex, int index) {
+        public GetButtonImageRequest(CardGroupId cardGroup, int cardZoneIndex, int index) {
             CardGroup = cardGroup;
             CardZoneIndex = cardZoneIndex;
             Index = index;
         }
 
-        public CardGroup CardGroup { get; }
+        public CardGroupId CardGroup { get; }
         public int CardZoneIndex { get; }
         public int Index { get; }
     }
 
     public static class GetButtonImageRequestExtensions {
-        public static void PublishGetButtonImageRequest(this IEventBus eventBus, CardGroup cardGroup, int cardZoneIndex, int index) {
+        public static void PublishGetButtonImageRequest(this IEventBus eventBus, CardGroupId cardGroup, int cardZoneIndex, int index) {
             eventBus.Publish(new GetButtonImageRequest(cardGroup, cardZoneIndex, index));
         }
 

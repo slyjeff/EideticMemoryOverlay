@@ -26,7 +26,6 @@ namespace StreamDeckPlugin.Services {
             };
 
             eventBus.SubscribeToEstablishConnectionToUiRequest(RegisterForUpdates);
-            eventBus.SubscribeToClearAllCardsRequest(ClearAllCards);
             eventBus.SubscribeToGetButtonInfoRequest(GetCardInfo);
             eventBus.SubscribeToDynamicButtonClickRequest(DynamicButtonClicked);
             eventBus.SubscribeToGetInvestigatorImageRequest(GetInvestigatorImage);
@@ -52,10 +51,6 @@ namespace StreamDeckPlugin.Services {
         public void RegisterForUpdates(EstablishConnectionToUiRequest registerForUpdatesRequest) {
             var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
             SendRequest<OkResponse>(request);
-        }
-
-        public void ClearAllCards(Events.ClearAllCardsRequest clearAllCardsRequest) {
-            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.ClearAllCardsRequest());
         }
 
         private void GetCardInfo(GetButtonInfoRequest getButtonInfoRequest) {

@@ -34,9 +34,6 @@ namespace ArkhamOverlay.Services {
         public void HandleRequest(TcpRequest request) {
             _logger.LogMessage($"Handling Request: {request.RequestType.ToString()}");
             switch (request.RequestType) {
-                case AoTcpRequest.ClearAll:
-                    HandleClearAll(request);
-                    break;
                 case AoTcpRequest.ToggleActAgendaBarRequest:
                     HandleToggleActAgendaBar(request);
                     break;
@@ -143,20 +140,12 @@ namespace ArkhamOverlay.Services {
             Send(request.Socket, response.ToString());
         }
 
-        private IButton GetCardButton(CardGroup deck, bool cardInSet,  int index) {
-            var selectableCards = GetDeck(deck);
+        private IButton GetCardButton(CardGroupId deck, bool cardInSet,  int index) {
+            var cardGroup = GetCardGroup(deck);
             if (cardInSet) {
-                return (index < selectableCards.CardZone.Buttons.Count) ? selectableCards.CardZone.Buttons[index] : null;
+                return (index < cardGroup.CardZone.Buttons.Count) ? cardGroup.GetCardZone(0).Buttons[index] : null;
             } 
-            return (index < selectableCards.CardButtons.Count) ? selectableCards.CardButtons[index] : null;
-        }
-
-        private void HandleClearAll(TcpRequest request) {
-            _logger.LogMessage("Handling clear all request");
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                _appData.Game.ClearAllCards();
-                SendOkResponse(request.Socket);
-            }));
+            return (index < cardGroup.CardButtons.Count) ? cardGroup.CardButtons[index] : null;
         }
 
         private void HandleToggleActAgendaBar(TcpRequest request) {
@@ -201,10 +190,10 @@ namespace ArkhamOverlay.Services {
         private void SendAllStats() {
             var game = _appData.Game;
             foreach (var player in game.Players) {
-                _eventBus.PublishStatUpdated(player.SelectableCards.CardGroup, StatType.Health, player.Health.Value);
-                _eventBus.PublishStatUpdated(player.SelectableCards.CardGroup, StatType.Sanity, player.Sanity.Value);
-                _eventBus.PublishStatUpdated(player.SelectableCards.CardGroup, StatType.Resources, player.Resources.Value);
-                _eventBus.PublishStatUpdated(player.SelectableCards.CardGroup, StatType.Clues, player.Clues.Value);
+                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Health, player.Health.Value);
+                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Sanity, player.Sanity.Value);
+                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Resources, player.Resources.Value);
+                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Clues, player.Clues.Value);
             }
         }
 
@@ -227,7 +216,7 @@ namespace ArkhamOverlay.Services {
         private void SendInvestigatorImage(Player player) {
             _logger.LogMessage("Sending Investigator Image");
 
-            var cardGroup = player.SelectableCards.CardGroup;
+            var cardGroup = player.CardGroup.Id;
             var request = new UpdateInvestigatorImageRequest {
                 CardGroup = cardGroup,
                 Bytes = player.ButtonImageAsBytes
@@ -265,36 +254,36 @@ namespace ArkhamOverlay.Services {
             Send(socket, new OkResponse().ToString());
         }
 
-        private SelectableCards GetDeck(CardGroup deck) {
-            switch (deck) {
-                case CardGroup.Player1: 
-                    return _appData.Game.Players[0].SelectableCards;
-                case CardGroup.Player2: 
-                    return _appData.Game.Players[1].SelectableCards;
-                case CardGroup.Player3:
-                    return _appData.Game.Players[2].SelectableCards;
-                case CardGroup.Player4:
-                    return _appData.Game.Players[3].SelectableCards;
-                case CardGroup.Scenario:
+        private CardGroup GetCardGroup(CardGroupId id) {
+            switch (id) {
+                case CardGroupId.Player1: 
+                    return _appData.Game.Players[0].CardGroup;
+                case CardGroupId.Player2: 
+                    return _appData.Game.Players[1].CardGroup;
+                case CardGroupId.Player3:
+                    return _appData.Game.Players[2].CardGroup;
+                case CardGroupId.Player4:
+                    return _appData.Game.Players[3].CardGroup;
+                case CardGroupId.Scenario:
                     return _appData.Game.ScenarioCards;
-                case CardGroup.Locations:
+                case CardGroupId.Locations:
                     return _appData.Game.LocationCards;
-                case CardGroup.EncounterDeck:
+                case CardGroupId.EncounterDeck:
                     return _appData.Game.EncounterDeckCards;
                 default:
-                    return _appData.Game.Players[0].SelectableCards;
+                    return _appData.Game.Players[0].CardGroup;
             }
         }
 
-        private Player GetPlayer(CardGroup cardGroup) {
+        private Player GetPlayer(CardGroupId cardGroup) {
             switch (cardGroup) {
-                case CardGroup.Player1:
+                case CardGroupId.Player1:
                     return _appData.Game.Players[0];
-                case CardGroup.Player2:
+                case CardGroupId.Player2:
                     return _appData.Game.Players[1];
-                case CardGroup.Player3:
+                case CardGroupId.Player3:
                     return _appData.Game.Players[2];
-                case CardGroup.Player4:
+                case CardGroupId.Player4:
                     return _appData.Game.Players[3];
                 default:
                     return _appData.Game.Players[0];
