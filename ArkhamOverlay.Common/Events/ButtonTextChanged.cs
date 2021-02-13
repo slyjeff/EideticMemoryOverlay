@@ -4,8 +4,9 @@ using System;
 
 namespace ArkhamOverlay.Events {
     public class ButtonTextChanged : ICrossAppEvent, IButtonContext {
-        public ButtonTextChanged(CardGroupId cardGroup, ButtonMode buttonMode, int index, string text) {
-            CardGroupId = cardGroup;
+        public ButtonTextChanged(CardGroupId cardGroupId, ButtonMode buttonMode, int index, string text) {
+            CardGroupId = cardGroupId;
+            ButtonMode = buttonMode;
             Index = index;
             Text = text;
         }
@@ -17,8 +18,8 @@ namespace ArkhamOverlay.Events {
 }
 
     public static class ButtonTextChangedExtensions {
-        public static void PublishButtonTextChanged(this IEventBus eventBus, CardGroupId cardGroup, ButtonMode buttonMode, int index, string text) {
-            eventBus.Publish(new ButtonTextChanged(cardGroup, buttonMode, index, text));
+        public static void PublishButtonTextChanged(this IEventBus eventBus, CardGroupId cardGroupId, ButtonMode buttonMode, int index, string text) {
+            eventBus.Publish(new ButtonTextChanged(cardGroupId, buttonMode, index, text));
         }
 
         public static void SubscribeToButtonTextChanged(this IEventBus eventBus, Action<ButtonTextChanged> callback) {

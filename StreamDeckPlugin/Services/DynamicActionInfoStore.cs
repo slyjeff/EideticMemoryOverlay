@@ -23,6 +23,7 @@ namespace StreamDeckPlugin.Services {
             eventBus.SubscribeToImageLoadedEvent(e => ImageLoaded(e.ImageId));
             eventBus.SubscribeToCardTemplateVisibilityChanged(e => CardTemplateVisibilityChanged(e.Name, e.IsVisible));
             eventBus.SubscribeToButtonInfoChanged(ButtonInfoChanged);
+            eventBus.SubscribeToButtonRemoved(ButtonRemoved);
             eventBus.SubscribeToButtonTextChanged(ButtonTextChanged);
             eventBus.SubscribeToButtonToggled(ButtonToggled);
         }
@@ -34,18 +35,42 @@ namespace StreamDeckPlugin.Services {
         }
 
         public void UpdateDynamicActionInfo(IButtonContext buttonContex, ICardInfo cardInfo) {
+            DynamicActionInfo dynamicActionInfo;
+            lock (_cacheLock) {
+                dynamicActionInfo = _dynamicActionInfoList.FirstOrDefaultWithContext(buttonContex);
+                if (dynamicActionInfo != null) {
+                    if (!dynamicActionInfo.CardInfoHasChanged(cardInfo)) {
+                        return;
+                    }
+                    dynamicActionInfo.UpdateFromCardInfo(cardInfo);
+                }
+            }
+
+            if (dynamicActionInfo == null) {
+                AddDynamicActionInfo(buttonContex, cardInfo);
+            } else {
+                //don't raise events within a lock
+                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
+            }
+        }
+
+        public void AddDynamicActionInfo(IButtonContext buttonContex, ICardInfo cardInfo) {
             var changedActionInfoList = new List<DynamicActionInfo>();
             lock (_cacheLock) {
-                var dynamicActionInfo = _dynamicActionInfoList.FirstOrDefaultWithContext(buttonContex);
-                if (dynamicActionInfo == null) {
-                    dynamicActionInfo = new DynamicActionInfo(buttonContex);
-                    _dynamicActionInfoList.Add(dynamicActionInfo);
-                } else if (!dynamicActionInfo.CardInfoHasChanged(cardInfo)) {
-                    return;
+                var itemExistsAtLocation = _dynamicActionInfoList.FirstOrDefaultWithContext(buttonContex) != null;
+                if (itemExistsAtLocation) {
+                    //make room for the item we are inserting by shifting the index of everything else up
+                    foreach (var dynamicActioninfo in _dynamicActionInfoList) {
+                        if (dynamicActioninfo.IsAtSameIndexOrAfter(buttonContex)) {
+                            dynamicActioninfo.Index++;
+                            changedActionInfoList.Add(dynamicActioninfo);
+                        }
+                    }
                 }
 
+                var dynamicActionInfo = new DynamicActionInfo(buttonContex);
                 dynamicActionInfo.UpdateFromCardInfo(cardInfo);
-
+                _dynamicActionInfoList.Add(dynamicActionInfo);
                 changedActionInfoList.Add(dynamicActionInfo);
             }
 
@@ -54,6 +79,7 @@ namespace StreamDeckPlugin.Services {
                 _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
             }
         }
+
 
         private void ImageLoaded(string imageId) {
             var dynamicActionInfoWithImageItems = new List<DynamicActionInfo>();
@@ -86,31 +112,70 @@ namespace StreamDeckPlugin.Services {
         }
 
         private void ButtonInfoChanged(ButtonInfoChanged e) {
-            UpdateDynamicActionInfo(e, e);
+            if (e.Action == ChangeAction.Update) {
+                UpdateDynamicActionInfo(e, e);
+            } else {
+                AddDynamicActionInfo(e, e);
+            }
+        }
+
+        private void ButtonRemoved(ButtonRemoved e) {
+            var changedActionInfoList = new List<DynamicActionInfo>();
+            lock (_cacheLock) {
+                var dynamicActionToRemove = _dynamicActionInfoList.FirstOrDefaultWithContext(e);
+                //changedActionInfoList.Add(dynamicActionToRemove);
+                _dynamicActionInfoList.Remove(dynamicActionToRemove);
+
+                var lastIndex = dynamicActionToRemove.Index;
+                foreach (var dynamicActioninfo in _dynamicActionInfoList) {
+                    if (dynamicActioninfo.IsAfter(e)) {
+                        if (dynamicActioninfo.Index > lastIndex) {
+                            lastIndex = dynamicActioninfo.Index;
+                        }
+                        dynamicActioninfo.Index--;
+                        changedActionInfoList.Add(dynamicActioninfo);
+                    }
+                }
+
+                //we have to add a blank action info at the end so we blank out the previously last item (the list is now shorter)
+                var blankDynamicAction = new DynamicActionInfo(e) {
+                    Index = lastIndex
+                };
+                changedActionInfoList.Add(blankDynamicAction);
+            }
+
+            //don't raise events within a lock
+            foreach (var dynamicActionInfo in changedActionInfoList) {
+                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
+            }
         }
 
         private void ButtonTextChanged(ButtonTextChanged e) {
-            IEnumerable<DynamicActionInfo> dynamicActionsToChange = new List<DynamicActionInfo>();
+            IList<DynamicActionInfo> dynamicActionsToChange = new List<DynamicActionInfo>();
             lock (_cacheLock) {
-                dynamicActionsToChange = _dynamicActionInfoList.FindAllWithContext(e);
+                foreach (var dynamicActionInfo in _dynamicActionInfoList.FindAllWithContext(e)) {
+                    dynamicActionInfo.Text = e.Text;
+                    dynamicActionsToChange.Add(dynamicActionInfo);
+                }
             }
 
             //don't raise events within a lock
             foreach (var dynamicActionInfo in dynamicActionsToChange) {
-                dynamicActionInfo.Text = e.Text;
                 _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
             }
         }
 
         private void ButtonToggled(ButtonToggled e) {
-            IEnumerable<DynamicActionInfo> dynamicActionsToChange = new List<DynamicActionInfo>();
+            IList<DynamicActionInfo> dynamicActionsToChange = new List<DynamicActionInfo>();
             lock (_cacheLock) {
-                dynamicActionsToChange = _dynamicActionInfoList.FindAllWithContext(e);
+                foreach (var dynamicActionInfo in _dynamicActionInfoList.FindAllWithContext(e)) {
+                    dynamicActionInfo.IsToggled = e.IsToggled;
+                    dynamicActionsToChange.Add(dynamicActionInfo);
+                }
             }
 
             //don't raise events within a lock
             foreach (var dynamicActionInfo in dynamicActionsToChange) {
-                dynamicActionInfo.IsToggled = e.IsToggled;
                 _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
             }
         }

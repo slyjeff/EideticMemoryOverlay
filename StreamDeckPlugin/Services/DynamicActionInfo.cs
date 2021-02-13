@@ -19,7 +19,7 @@ namespace StreamDeckPlugin.Services {
 
         public CardGroupId CardGroupId { get; }
         public ButtonMode ButtonMode { get; }
-        public int Index { get; }
+        public int Index { get; set; }
         public string ImageId { get; set; }
         public bool IsImageAvailable { get; set; }
         public string Text { get; set; }

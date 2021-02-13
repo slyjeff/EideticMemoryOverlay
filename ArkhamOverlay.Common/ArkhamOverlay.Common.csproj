@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums\ButtonContext.cs" />
+    <Compile Include="Events\ButtonRemoved.cs" />
     <Compile Include="Events\ButtonInfoChanged.cs" />
     <Compile Include="Events\ButtonToggled.cs" />
     <Compile Include="Events\ButtonTextChanged.cs" />

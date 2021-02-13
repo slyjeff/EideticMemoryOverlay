@@ -43,6 +43,8 @@ namespace ArkhamOverlay.Pages.Overlay {
 
             ViewModel.AppData = appData;
 
+            eventBus.SubscribeToButtonInfoChanged(ButtonInfoChangedHandler);
+            eventBus.SubscribeToButtonRemoved(ButtonRemovedHandler);
             eventBus.SubscribeToTakeSnapshotRequest(TakeSnapshotHandler);
             eventBus.SubscribeToShowDeckListRequest(ShowDeckListRequestHandler);
             eventBus.SubscribeToToggleCardVisibilityRequest(ToggleCardVisibilityRequestHandler);
@@ -85,11 +87,9 @@ namespace ArkhamOverlay.Pages.Overlay {
                 overlayCards.CollectionChanged += (s, e) => CalculateMaxHeightForCards();
             }
 
-            foreach (var selectableCards in appData.Game.AllSelectableCards) {
-                InitializeSelectableCards(selectableCards);
-            }
-
             View.Closed += (s, e) => {
+                eventBus.UnsubscribeFromButtonInfoChanged(ButtonInfoChangedHandler);
+                eventBus.UnsubscribeFromButtonRemoved(ButtonRemovedHandler);
                 eventBus.UnsubscribeFromShowDeckListRequest(ShowDeckListRequestHandler);
                 eventBus.UnsubscribeFromTakeSnapshotRequest(TakeSnapshotHandler);
                 eventBus.UnsubscribeFromToggleCardVisibilityRequest(ToggleCardVisibilityRequestHandler);
@@ -233,21 +233,40 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         #endregion
 
-        private void InitializeSelectableCards(CardGroup cardGroup) {
-            var cardZone = cardGroup.CardZone;
+        private void ButtonInfoChangedHandler(ButtonInfoChanged e) {
+            if (e.ButtonMode == ButtonMode.Zone) {
+                UpdateCardZone(GetCardZoneFromCardGroupId(e.CardGroupId));
+            }
+        }
+
+        private void ButtonRemovedHandler(ButtonRemoved e) {
+            if (e.ButtonMode == ButtonMode.Zone) {
+                UpdateCardZone(GetCardZoneFromCardGroupId(e.CardGroupId));
+            }
+        }
+
+        private void UpdateCardZone(CardZone cardZone) {
             if (cardZone == default(CardZone)) {
                 return;
             }
 
-            cardZone.Buttons.CollectionChanged += (s, e) => {
-                if (!cardZone.IsDisplayedOnOverlay) {
-                    return;
-                }
+            if (!cardZone.IsDisplayedOnOverlay) {
+                return;
+            }
 
-                var cardZoneManager = cardZone.Location == CardZoneLocation.Top ? _topCardZoneManager : _bottomCardZoneManager;
-                cardZoneManager.Update(cardZone);
-            };
+            var cardZoneManager = cardZone.Location == CardZoneLocation.Top ? _topCardZoneManager : _bottomCardZoneManager;
+            cardZoneManager.Update(cardZone);
         }
+
+        private CardZone GetCardZoneFromCardGroupId(CardGroupId cardGroupId) {
+            foreach (var cardGroup in _appData.Game.AllCardGroups) {
+                if (cardGroup.Id == cardGroupId) {
+                    return cardGroup.CardZone;
+                }
+            }
+            return null;
+        }
+
 
         private CardGroup _currentDisplayedDeckList = null;
         private void ShowDeckListRequestHandler(ShowDeckListRequest request) {

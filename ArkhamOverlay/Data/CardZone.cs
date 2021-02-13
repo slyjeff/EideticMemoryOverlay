@@ -43,8 +43,9 @@ namespace ArkhamOverlay.Data {
             var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardTemplate == card.FlipSideCard);
             if (cardSetButtonToReplace != null) {
                 var index = Buttons.IndexOf(cardSetButtonToReplace);
-                Buttons[index] = new CardButton(this, card);
-                PublishCardButtonInfoChanged(index);
+                var newButton = new CardButton(this, card);
+                Buttons[index] = newButton;
+                PublishButtonInfoChanged(newButton, ChangeAction.Update);
             } else {
                 var existingCopyCount = Buttons.Count(x => x.CardTemplate == card);
 
@@ -59,31 +60,28 @@ namespace ArkhamOverlay.Data {
                     index = Buttons.IndexOf(Buttons.First(x => x.CardTemplate.Type == CardType.Act));
                 }
 
-                Buttons.Insert(index, new CardButton(this, card));
-                PublishCardButtonInfoChangedRange(index, Buttons.Count - 1);
+                var newButton = new CardButton(this, card);
+                Buttons.Insert(index, newButton);
+                PublishButtonInfoChanged(newButton, ChangeAction.Add);
             }
         }
 
         public void RemoveCard(CardButton cardButton) {
             var indexOfRemovedCard = Buttons.IndexOf(cardButton);
             Buttons.Remove(cardButton);
-            PublishCardButtonInfoChangedRange(indexOfRemovedCard, Buttons.Count); //not an off by one error- we send an update for the card at the index one after the list so it can be removed
+            PublishButtonRemoved(indexOfRemovedCard); 
         }
 
-        public void PublishCardButtonInfoChangedRange(int startIndex, int endIndex) {
-            for (int index = startIndex; index <= endIndex; index++) {
-                PublishCardButtonInfoChanged(index);
-            }
-        }
-
-        private void PublishCardButtonInfoChanged(int index) {
-            var button = index < Buttons.Count ? Buttons[index] : null;
-
-            var cardName = button?.Text;
-            var isToggled = button != null && button.IsToggled;
+        private void PublishButtonInfoChanged(CardButton button, ChangeAction action) {
+            var index = Buttons.IndexOf(button);
             var isImageAvailable = button?.CardTemplate.ButtonImageAsBytes != null;
 
-            _eventBus.PublishButtonInfoChanged(CardGroupId, ButtonMode.Zone, index, cardName, isToggled, isImageAvailable);
+            _eventBus.PublishButtonInfoChanged(CardGroupId, ButtonMode.Zone, index, button.Text, button.IsToggled, isImageAvailable, action);
         }
+
+        private void PublishButtonRemoved(int index) {
+            _eventBus.PublishButtonRemoved(CardGroupId, ButtonMode.Zone, index);
+        }
+
     }
 }

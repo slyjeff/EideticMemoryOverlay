@@ -59,7 +59,7 @@ namespace ArkhamOverlay.Data {
         }
 
         internal void ClearAllCardsLists() {
-            foreach (var selectableCards in AllSelectableCards) {
+            foreach (var selectableCards in AllCardGroups) {
                 selectableCards.ClearCards();
             }
         }
@@ -73,18 +73,18 @@ namespace ArkhamOverlay.Data {
             return EncounterSets.Any(x => x.Code == code);
         }
 
-        public IList<CardGroup> AllSelectableCards {
+        public IList<CardGroup> AllCardGroups {
             get {
-                var allDecks = new List<CardGroup> {
+                var allCardGroups = new List<CardGroup> {
                     ScenarioCards,
                     LocationCards,
                     EncounterDeckCards
                 };
                 
                 foreach (var player in Players) {
-                    allDecks.Add(player.CardGroup);
+                    allCardGroups.Add(player.CardGroup);
                 }
-                return allDecks;
+                return allCardGroups;
             }
         }
 

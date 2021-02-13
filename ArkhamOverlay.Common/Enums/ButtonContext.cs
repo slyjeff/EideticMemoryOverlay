@@ -15,6 +15,15 @@ namespace ArkhamOverlay.Common.Enums {
             return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.Index == b.Index;
         }
 
+        public static bool IsAfter(this IButtonContext a, IButtonContext b) {
+            return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.Index > b.Index;
+        }
+
+        public static bool IsAtSameIndexOrAfter(this IButtonContext a, IButtonContext b) {
+            return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.Index >= b.Index;
+        }
+
+
         public static IEnumerable<T> FindAllWithContext<T>(this IEnumerable<T> list, IButtonContext context) where T : IButtonContext {
             return from potentialContext in list
                    where potentialContext.HasSameContext(context)
