@@ -296,6 +296,7 @@ namespace ArkhamOverlay.Services {
                         cards.Add(newCardBack);
                     }
                 }
+            }
 
                 foreach (var localCard in localCards) {
                     var newLocalCard = new CardTemplate(localCard, false);
@@ -308,7 +309,6 @@ namespace ArkhamOverlay.Services {
                         cards.Add(newLocalCardBack);
                     }
                 }
-            }
 
             return cards;
         }
