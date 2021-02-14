@@ -296,17 +296,17 @@ namespace ArkhamOverlay.Services {
                         cards.Add(newCardBack);
                     }
                 }
+            }
 
-                foreach (var localCard in localCards) {
-                    var newLocalCard = new Card(localCard, false);
-                    _cardImageService.LoadImage(newLocalCard);
-                    cards.Add(newLocalCard);
+            foreach (var localCard in localCards) {
+                var newLocalCard = new Card(localCard, false);
+                _cardImageService.LoadImage(newLocalCard);
+                cards.Add(newLocalCard);
 
-                    if (localCard.HasBack) {
-                        var newLocalCardBack = new Card(localCard, true);
-                        _cardImageService.LoadImage(newLocalCardBack);
-                        cards.Add(newLocalCardBack);
-                    }
+                if (localCard.HasBack) {
+                    var newLocalCardBack = new Card(localCard, true);
+                    _cardImageService.LoadImage(newLocalCardBack);
+                    cards.Add(newLocalCardBack);
                 }
             }
 
