@@ -3,7 +3,6 @@
         Unknown,
         GetButtonInfo,
         GetButtonImage,
-        ClickCardButton,
         UpdateStatInfo,
         UpdateInvestigatorImage,
         RegisterForUpdates,

@@ -13,10 +13,12 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         
         <ContextMenu x:Key="cmSelectPlayer">
-            <MenuItem Header="{Binding AddCardToPlayer1.Text}" Visibility="{Binding AddCardToPlayer1.Visibility}"  Command="{Binding AddCardToPlayer1}" />
-            <MenuItem Header="{Binding AddCardToPlayer2.Text}" Visibility="{Binding AddCardToPlayer2.Visibility}"  Command="{Binding AddCardToPlayer2}" />
-            <MenuItem Header="{Binding AddCardToPlayer3.Text}" Visibility="{Binding AddCardToPlayer3.Visibility}"  Command="{Binding AddCardToPlayer3}" />
-            <MenuItem Header="{Binding AddCardToPlayer4.Text}" Visibility="{Binding AddCardToPlayer4.Visibility}"  Command="{Binding AddCardToPlayer4}" />
+            <ContextMenu.ItemContainerStyle>
+                <Style TargetType="{x:Type MenuItem}">
+                    <Setter Property='Command' Value="{Binding}"/>
+                    <Setter Property='Header' Value="{Binding Text}"/>
+                </Style>
+            </ContextMenu.ItemContainerStyle>
         </ContextMenu>
         
         <Style x:Key="ImageStyle" TargetType="{x:Type Image}">
@@ -72,11 +74,11 @@
                         <Border.InputBindings>
                            <MouseBinding 
                                         MouseAction="LeftClick" 
-                                        Command="{Binding DataContext.CardLeftClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        Command="{Binding DataContext.CardTemplateLeftClick, RelativeSource={RelativeSource AncestorType=Window}}" 
                                         CommandParameter="{Binding}"/>
                             <MouseBinding 
                                         MouseAction="RightClick" 
-                                        Command="{Binding DataContext.CardRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        Command="{Binding DataContext.CardTemplateRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
                                         CommandParameter="{Binding}"/>
                         </Border.InputBindings>
                     </Border>

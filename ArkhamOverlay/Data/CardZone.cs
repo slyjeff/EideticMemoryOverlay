@@ -26,28 +26,32 @@ namespace ArkhamOverlay.Data {
 
         public IEnumerable<ICard> Cards { get => Buttons; }
 
-        public void AddCard(CardTemplate card, bool isToggled) {
-            var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardTemplate == card.FlipSideCard);
+        /// <summary>
+        /// Create a card and add it to the first zone
+        /// </summary>
+        /// <param name="cardTemplateButton">Template to use to create the card</param>
+        public void CreateCard(CardTemplateButton cardTemplateButton) {
+            var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardTemplate == cardTemplateButton.CardTemplate.FlipSideCard);
             if (cardSetButtonToReplace != null) {
                 var index = Buttons.IndexOf(cardSetButtonToReplace);
-                var newButton = new CardButton(this, card, isToggled);
+                var newButton = new CardButton(cardTemplateButton);
                 Buttons[index] = newButton;
                 PublishButtonInfoChanged(newButton, ChangeAction.Update);
             } else {
-                var existingCopyCount = Buttons.Count(x => x.CardTemplate == card);
+                var existingCopyCount = Buttons.Count(x => x.CardTemplate == cardTemplateButton.CardTemplate);
 
                 //don't add more than one copy unless it's a player card
-                if (!card.IsPlayerCard && existingCopyCount > 0) {
+                if (!cardTemplateButton.CardTemplate.IsPlayerCard && existingCopyCount > 0) {
                     return;
                 }
 
                 //if there's an act and this is an agenda, always add it to the left
                 var index = Buttons.Count();
-                if (card.Type == CardType.Agenda && Buttons.Any(x => x.CardTemplate.Type == CardType.Act)) {
+                if (cardTemplateButton.CardTemplate.Type == CardType.Agenda && Buttons.Any(x => x.CardTemplate.Type == CardType.Act)) {
                     index = Buttons.IndexOf(Buttons.First(x => x.CardTemplate.Type == CardType.Act));
                 }
 
-                var newButton = new CardButton(this, card, isToggled);
+                var newButton = new CardButton(cardTemplateButton);
                 Buttons.Insert(index, newButton);
                 PublishButtonInfoChanged(newButton, ChangeAction.Add);
             }

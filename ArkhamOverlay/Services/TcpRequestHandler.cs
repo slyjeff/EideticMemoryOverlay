@@ -40,9 +40,6 @@ namespace ArkhamOverlay.Services {
                 case AoTcpRequest.GetButtonImage:
                     HandleGetButtonImage(request);
                     break;
-                case AoTcpRequest.ClickCardButton:
-                    HandleClick(request);
-                    break;
                 case AoTcpRequest.RegisterForUpdates:
                     HandleRegisterForUpdates(request);
                     break;
@@ -81,25 +78,6 @@ namespace ArkhamOverlay.Services {
             var buttonImageRequest = JsonConvert.DeserializeObject<ButtonImageRequest>(request.Body);
             var cardButton = GetCardButton(buttonImageRequest);
             SendButtonImageResponse(request.Socket, cardButton as CardTemplateButton);
-        }
-
-        private void HandleClick(TcpRequest request) {
-            var clickCardButtonRequest = JsonConvert.DeserializeObject<ClickCardButtonRequest>(request.Body);
-            _logger.LogMessage($"Handling {clickCardButtonRequest.Click} request");
-            var cardButton = GetCardButton(clickCardButtonRequest);
-            if (cardButton == null) {
-                SendOkResponse(request.Socket);
-                return;
-            }
-
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                if (clickCardButtonRequest.Click == ButtonClick.Left) {
-                    cardButton.LeftClick();
-                } else {
-                    cardButton.RightClick();
-                }
-                SendOkResponse(request.Socket);
-            }));
         }
 
         private void HandleRequestStatValue(TcpRequest request) {

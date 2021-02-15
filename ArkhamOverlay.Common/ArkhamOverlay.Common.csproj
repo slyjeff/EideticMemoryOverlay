@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums\ButtonContext.cs" />
+    <Compile Include="Events\ButtonClickRequest.cs" />
     <Compile Include="Events\ButtonRemoved.cs" />
     <Compile Include="Events\ButtonInfoChanged.cs" />
     <Compile Include="Events\ButtonToggled.cs" />
@@ -72,7 +73,6 @@
     <Compile Include="ICardInfo.cs" />
     <Compile Include="Tcp\Requests\ButtonImageRequest.cs" />
     <Compile Include="Tcp\Requests\RegisterForUpdatesRequest.cs" />
-    <Compile Include="Tcp\Requests\ClickCardRequest.cs" />
     <Compile Include="Tcp\Requests\GetCardInfoRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tcp\Requests\Request.cs" />

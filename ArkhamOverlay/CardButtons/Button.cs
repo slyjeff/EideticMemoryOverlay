@@ -1,19 +1,19 @@
 ﻿using ArkhamOverlay.Utils;
 using PageController;
+using System.Collections.Generic;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.CardButtons {
     public interface IButton {
         string Text { get; }
-
-        void LeftClick();
-
-        void RightClick();
-
         bool IsToggled { get; }
+        IList<ButtonOption> Options { get; } 
     }
 
     public abstract class Button : ViewModel, IButton {
+        public Button() {
+            Options = new List<ButtonOption>();
+        }
 
         private string _text;
         public string Text {
@@ -28,12 +28,6 @@ namespace ArkhamOverlay.CardButtons {
 
         public virtual ImageSource ButtonImage { get { return ImageUtils.CreateSolidColorImage(Colors.DarkGray); } }
 
-        public abstract void LeftClick();
-
-        public virtual void RightClick() {
-            //by default, do nothing
-        }
-
         private bool _isToggled;
         public bool IsToggled {
             get => _isToggled;
@@ -42,5 +36,7 @@ namespace ArkhamOverlay.CardButtons {
                 NotifyPropertyChanged(nameof(BorderBrush));
             }
         }
+
+        public IList<ButtonOption> Options { get; }
     }
 }

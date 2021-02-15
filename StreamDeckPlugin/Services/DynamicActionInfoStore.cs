@@ -111,11 +111,11 @@ namespace StreamDeckPlugin.Services {
             }
         }
 
-        private void ButtonInfoChanged(ButtonInfoChanged e) {
-            if (e.Action == ChangeAction.Update) {
-                UpdateDynamicActionInfo(e, e);
+        private void ButtonInfoChanged(ButtonInfoChanged eventData) {
+            if (eventData.Action == ChangeAction.Update) {
+                UpdateDynamicActionInfo(eventData, eventData);
             } else {
-                AddDynamicActionInfo(e, e);
+                AddDynamicActionInfo(eventData, eventData);
             }
         }
 

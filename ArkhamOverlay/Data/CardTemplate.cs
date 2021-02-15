@@ -1,6 +1,8 @@
 ﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Services;
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 

@@ -28,7 +28,6 @@ namespace StreamDeckPlugin.Services {
 
             eventBus.SubscribeToEstablishConnectionToUiRequest(RegisterForUpdates);
             eventBus.SubscribeToGetButtonInfoRequest(GetCardInfo);
-            eventBus.SubscribeToDynamicButtonClickRequest(DynamicButtonClicked);
             eventBus.SubscribeToGetInvestigatorImageRequest(GetInvestigatorImage);
             eventBus.SubscribeToGetStatValueRequest(GetStatValue);
             eventBus.SubscribeToStatValueRequest(ChangeStatValue);
@@ -78,16 +77,6 @@ namespace StreamDeckPlugin.Services {
             if (response != null) {
                 _imageService.UpdateButtonImage(response.Name, response.Bytes);
             }
-        }
-
-        private void DynamicButtonClicked(DynamicButtonClickRequest dynamicButtonClickRequest) {
-            var request = new ClickCardButtonRequest {
-                CardGroupId = dynamicButtonClickRequest.CardGroupId, 
-                Index = dynamicButtonClickRequest.Index, 
-                ButtonMode = dynamicButtonClickRequest.ButtonMode, 
-                Click = dynamicButtonClickRequest.IsLeftClick ? ButtonClick.Left : ButtonClick.Right
-            };
-            SendRequest(request);
         }
 
         private void GetInvestigatorImage(Events.GetInvestigatorImageRequest getInvestigatorImageRequest) {

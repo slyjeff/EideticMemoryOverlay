@@ -10,12 +10,14 @@ using System.Linq;
 
 namespace ArkhamOverlay.Data {
     public interface ICardGroup {
+        CardGroupId Id { get; }
         CardGroupType Type { get; }
-
+        
         string Name { get; }
 
         List<IButton> CardButtons { get; }
-        
+        CardZone CardZone { get; }
+
         bool Loading { get; }
     }
 
@@ -31,8 +33,8 @@ namespace ArkhamOverlay.Data {
             CardButtons = new List<IButton>();
             _cardZones = new List<CardZone>();
 
-            _eventBus.SubscribeToCardTemplateVisibilityChanged(CardTemplateVisibilityChanged);
-            _eventBus.SubscribeToCardZoneVisibilityToggled(CardZoneVisibilityToggled);
+            _eventBus.SubscribeToCardTemplateVisibilityChanged(CardTemplateVisibilityChangedHandler);
+            _eventBus.SubscribeToCardZoneVisibilityToggled(CardZoneVisibilityToggledHandler);
         }
 
         public CardGroupType Type { get; }
@@ -93,13 +95,27 @@ namespace ArkhamOverlay.Data {
         public bool Loading { get; internal set; }
         public IEnumerable<CardTemplate> CardPool { get => from button in CardButtons.OfType<CardTemplateButton>() select button.CardTemplate; }
 
-        internal void ToggleCardZoneVisibility() {
-            if (_showCardZoneButton == null) {
-                return;
+        /// <summary>
+        /// Use the button context to find the button
+        /// </summary>
+        /// <param name="context">Information to find the button</param>
+        /// <returns>The button identified by the context- will be default if not found</returns>
+        internal IButton GetButton(IButtonContext context) {
+            if (context.CardGroupId != Id) {
+                return default(Button);
             }
 
-            _showCardZoneButton.LeftClick();
+            if (context.ButtonMode == ButtonMode.Pool) {
+                return (context.Index < CardButtons.Count) ? CardButtons[context.Index] : default(Button);
+            }
+
+            if (CardZone == default(CardZone)) {
+                return default(Button);
+            }
+
+            return context.Index < CardZone.Buttons.Count ? CardZone.Buttons[context.Index] : default(Button);
         }
+
 
         /// <summary>
         /// Remove all CardTemplates from the pool and all card zones
@@ -113,17 +129,17 @@ namespace ArkhamOverlay.Data {
         }
 
         internal void LoadCards(IEnumerable<CardTemplate> cards) {
-            var clearButton = new ClearButton(this);
+            var clearButton = new ClearButton();
 
             var playerButtons = new List<IButton> { clearButton };
 
             if (_cardZones.Count > 0) {
-                _showCardZoneButton = new ShowCardZoneButton(this.CardZone);
+                _showCardZoneButton = new ShowCardZoneButton();
                 playerButtons.Add(_showCardZoneButton);
                 UpdateShowCardZoneButtonName();
             }
 
-            playerButtons.AddRange(from card in SortCards(cards) select new CardTemplateButton(this, card));
+            playerButtons.AddRange(from card in SortCards(cards) select new CardTemplateButton(card));
             CardButtons = playerButtons;
             NotifyPropertyChanged(nameof(CardButtons));
         }
@@ -159,7 +175,7 @@ namespace ArkhamOverlay.Data {
         /// When card temlate visibility has changed, look through all of our buttons to see if we need to show that they are visible
         /// </summary>
         /// <param name="e">CardTemplateVisibilityChanged</param>
-        private void CardTemplateVisibilityChanged(CardTemplateVisibilityChanged e) {
+        private void CardTemplateVisibilityChangedHandler(CardTemplateVisibilityChanged e) {
             var cardImageButtons = CardButtons.OfType<CardImageButton>();
             foreach (var cardZone in _cardZones) {
                 cardImageButtons = cardImageButtons.Union(cardZone.Buttons.OfType<CardImageButton>());
@@ -176,7 +192,7 @@ namespace ArkhamOverlay.Data {
         /// When the card zone for this card group has been toggled, update the card zone toggle button pressed state
         /// </summary>
         /// <param name="e">CardZoneVisibilityToggled</param>
-        private void CardZoneVisibilityToggled(CardZoneVisibilityToggled e) {
+        private void CardZoneVisibilityToggledHandler(CardZoneVisibilityToggled e) {
             var cardZone = e.CardZone;
             if (cardZone != CardZone) {
                 return;

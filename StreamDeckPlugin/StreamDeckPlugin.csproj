@@ -123,7 +123,6 @@
     <Compile Include="Events\ImageLoadedEvent.cs" />
     <Compile Include="Events\GetInvestigatorImageRequest.cs" />
     <Compile Include="Events\GetButtonInfoRequest.cs" />
-    <Compile Include="Events\DynamicButtonClickRequest.cs" />
     <Compile Include="Events\InvestigatorImageUpdatedEvent.cs" />
     <Compile Include="Events\ModeToggledEvent.cs" />
     <Compile Include="Events\PageChangedEvent.cs" />

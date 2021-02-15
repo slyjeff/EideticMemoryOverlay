@@ -4,6 +4,7 @@ using System.Timers;
 using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
+using ArkhamOverlay.Events;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
@@ -110,7 +111,7 @@ namespace StreamDeckPlugin.Actions {
                 _keyIsDown = false;
                 _keyPressTimer.Enabled = false;
 
-                SendClick(isLeftClick: false);
+                SendClick(MouseButton.Right);
             }
         }
 
@@ -123,14 +124,14 @@ namespace StreamDeckPlugin.Actions {
                 _keyPressTimer.Enabled = false;
 
                 _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-                SendClick(isLeftClick: true);
+                SendClick(MouseButton.Left);
 
                 return Task.CompletedTask;
             }
         }
 
-        private void SendClick(bool isLeftClick) {
-            _eventBus.PublishDynamicButtonClickRequest(CardGroupId, ButtonMode, Index, isLeftClick);
+        private void SendClick(MouseButton mouseButton) {
+            _eventBus.PublishButtonClickRequest(CardGroupId, ButtonMode, Index, mouseButton, string.Empty);
 
             //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));

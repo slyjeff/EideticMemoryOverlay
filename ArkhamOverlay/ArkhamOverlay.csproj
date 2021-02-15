@@ -155,10 +155,11 @@
     <Compile Include="Services\CardImageService.cs" />
     <Compile Include="Services\LocalCardsService.cs" />
     <Compile Include="Services\LoggingService.cs" />
-    <Compile Include="Pages\SelectCards\SelectPlayerMenuViewModel.cs" />
+    <Compile Include="Pages\SelectCards\RightClickOptionCommand.cs" />
     <Compile Include="Services\UiEventBus.cs" />
     <Compile Include="Services\BroadcastService.cs" />
     <Compile Include="Utils\BoolToVisibilityCollapsedConverter.cs" />
+    <Compile Include="Utils\ButtonOption.cs" />
     <Compile Include="Utils\FileCompare.cs" />
     <Compile Include="CardButtons\IHasImageButton.cs" />
     <Compile Include="Utils\OutlinedTextBlock.cs" />
