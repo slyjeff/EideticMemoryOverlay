@@ -8,10 +8,10 @@ namespace ArkhamOverlay.CardButtons {
     public abstract class CardImageButton : Button {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
 
-        public CardImageButton(CardTemplate cardTemplate) {
+        public CardImageButton(CardTemplate cardTemplate, bool isToggled) {
             CardTemplate = cardTemplate;
             Text = cardTemplate.Name;
-            IsToggled = cardTemplate.IsDisplayedOnOverlay;
+            IsToggled = isToggled;
         }
 
         public CardTemplate CardTemplate { get; }
@@ -19,7 +19,7 @@ namespace ArkhamOverlay.CardButtons {
         public override ImageSource ButtonImage { get { return CardTemplate.ButtonImage; } }
 
         public override void LeftClick() {
-            _eventBus.PublishToggleCardVisibilityRequest(CardTemplate);
+            _eventBus.PublishToggleCardTemplateVisibilityRequest(CardTemplate);
         }
     }
 }

@@ -27,6 +27,7 @@ namespace ArkhamOverlay.Pages.Overlay {
         public virtual ObservableCollection<OverlayCardViewModel> EncounterCardTemplates { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> PlayerCardTemplates { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> BottomZoneCards { get; set; }
+
         public IList<ObservableCollection<OverlayCardViewModel>> AllOverlayCards {
             get {
                 return new List<ObservableCollection<OverlayCardViewModel>> { TopZoneCards, EncounterCardTemplates, PlayerCardTemplates, BottomZoneCards };

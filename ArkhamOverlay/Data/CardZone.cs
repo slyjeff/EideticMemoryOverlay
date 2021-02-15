@@ -26,11 +26,11 @@ namespace ArkhamOverlay.Data {
 
         public IEnumerable<ICard> Cards { get => Buttons; }
 
-        public void AddCard(CardTemplate card) {
+        public void AddCard(CardTemplate card, bool isToggled) {
             var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardTemplate == card.FlipSideCard);
             if (cardSetButtonToReplace != null) {
                 var index = Buttons.IndexOf(cardSetButtonToReplace);
-                var newButton = new CardButton(this, card);
+                var newButton = new CardButton(this, card, isToggled);
                 Buttons[index] = newButton;
                 PublishButtonInfoChanged(newButton, ChangeAction.Update);
             } else {
@@ -47,7 +47,7 @@ namespace ArkhamOverlay.Data {
                     index = Buttons.IndexOf(Buttons.First(x => x.CardTemplate.Type == CardType.Act));
                 }
 
-                var newButton = new CardButton(this, card);
+                var newButton = new CardButton(this, card, isToggled);
                 Buttons.Insert(index, newButton);
                 PublishButtonInfoChanged(newButton, ChangeAction.Add);
             }
@@ -69,6 +69,5 @@ namespace ArkhamOverlay.Data {
         private void PublishButtonRemoved(int index) {
             _eventBus.PublishButtonRemoved(CardGroupId, ButtonMode.Zone, index);
         }
-
     }
 }

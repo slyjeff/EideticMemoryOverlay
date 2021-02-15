@@ -5,7 +5,7 @@ namespace ArkhamOverlay.CardButtons {
     public class CardTemplateButton : CardImageButton {
         private readonly CardGroup _selectableCards;
 
-        public CardTemplateButton(CardGroup selectableCards, CardTemplate cardTemplate) : base(cardTemplate) {
+        public CardTemplateButton(CardGroup selectableCards, CardTemplate cardTemplate) : base(cardTemplate, false) {
             _selectableCards = selectableCards;
         }
 
@@ -15,7 +15,7 @@ namespace ArkhamOverlay.CardButtons {
                 return;
             }
 
-            cardZone.AddCard(CardTemplate);
+            cardZone.AddCard(CardTemplate, IsToggled);
         }
 
         public override ImageSource ButtonImage { get { return CardTemplate.ButtonImage; } }

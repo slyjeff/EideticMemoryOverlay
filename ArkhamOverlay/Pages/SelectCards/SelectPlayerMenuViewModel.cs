@@ -8,11 +8,11 @@ using System.Windows.Input;
 namespace ArkhamOverlay.Pages.SelectCards {
     public class SelectPlayerMenuViewModel : ViewModel {
 
-        public SelectPlayerMenuViewModel(Game game, CardTemplateButton showCardButton) {
-            AddCardToPlayer1 = new AddCardToPlayerCommand(game.Players[0], showCardButton.CardTemplate);
-            AddCardToPlayer2 = new AddCardToPlayerCommand(game.Players[1], showCardButton.CardTemplate);
-            AddCardToPlayer3 = new AddCardToPlayerCommand(game.Players[2], showCardButton.CardTemplate);
-            AddCardToPlayer4 = new AddCardToPlayerCommand(game.Players[3], showCardButton.CardTemplate);
+        public SelectPlayerMenuViewModel(Game game, CardTemplateButton cardTemplateButton) {
+            AddCardToPlayer1 = new AddCardToPlayerCommand(game.Players[0], cardTemplateButton);
+            AddCardToPlayer2 = new AddCardToPlayerCommand(game.Players[1], cardTemplateButton);
+            AddCardToPlayer3 = new AddCardToPlayerCommand(game.Players[2], cardTemplateButton);
+            AddCardToPlayer4 = new AddCardToPlayerCommand(game.Players[3], cardTemplateButton);
         }
 
         public ICommand AddCardToPlayer1 { get; }
@@ -23,11 +23,11 @@ namespace ArkhamOverlay.Pages.SelectCards {
 
     public class AddCardToPlayerCommand : ICommand {
         private Player _player;
-        private readonly CardTemplate _card;
+        private readonly CardTemplateButton _cardTemplateButton;
 
-        public AddCardToPlayerCommand(Player player, CardTemplate card) {
+        public AddCardToPlayerCommand(Player player, CardTemplateButton cardTemplateButton) {
             _player = player;
-            _card = card;
+            _cardTemplateButton = cardTemplateButton;
         }
 
         public event EventHandler CanExecuteChanged;
@@ -37,7 +37,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
         }
 
         public void Execute(object parameter) {
-            _player.CardGroup.CardZone.AddCard(_card);
+            _player.CardGroup.CardZone.AddCard(_cardTemplateButton.CardTemplate, _cardTemplateButton.IsToggled);
         }
 
         public Visibility Visibility { get { return string.IsNullOrEmpty(_player.Name) ? Visibility.Collapsed : Visibility.Visible; } }
