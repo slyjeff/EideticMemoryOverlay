@@ -7,7 +7,6 @@
         UpdateStatInfo,
         UpdateInvestigatorImage,
         RegisterForUpdates,
-        ToggleActAgendaBarRequest,
         StatValue,
         ChangeStatValue,
         GetInvestigatorImage,

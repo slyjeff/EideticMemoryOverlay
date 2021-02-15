@@ -34,9 +34,6 @@ namespace ArkhamOverlay.Services {
         public void HandleRequest(TcpRequest request) {
             _logger.LogMessage($"Handling Request: {request.RequestType.ToString()}");
             switch (request.RequestType) {
-                case AoTcpRequest.ToggleActAgendaBarRequest:
-                    HandleToggleActAgendaBar(request);
-                    break;
                 case AoTcpRequest.GetCardInfo:
                     HandleGetCardInfo(request);
                     break;
@@ -146,14 +143,6 @@ namespace ArkhamOverlay.Services {
                 return (index < cardGroup.CardZone.Buttons.Count) ? cardGroup.GetCardZone(0).Buttons[index] : null;
             } 
             return (index < cardGroup.CardButtons.Count) ? cardGroup.CardButtons[index] : null;
-        }
-
-        private void HandleToggleActAgendaBar(TcpRequest request) {
-            _logger.LogMessage("Handling toggle act/agenda bar request");
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                _appData.Game.ScenarioCards.ToggleCardZoneVisibility();
-                SendOkResponse(request.Socket);
-            }));
         }
 
         private bool _alreadyRegisteredEvents = false;
