@@ -116,11 +116,8 @@ namespace ArkhamOverlay.Services {
         }
 
         private IButton GetCardButton(IButtonContext context) {
-            var cardGroup = GetCardGroup(context.CardGroupId);
-            if (context.ButtonMode == ButtonMode.Zone) {
-                return (context.Index < cardGroup.CardZone.Buttons.Count) ? cardGroup.CardZone.Buttons[context.Index] : null;
-            } 
-            return (context.Index < cardGroup.CardButtons.Count) ? cardGroup.CardButtons[context.Index] : null;
+            var cardGroup = _appData.Game.GetCardGroup(context.CardGroupId);
+            return cardGroup.GetButton(context);
         }
 
         private bool _alreadyRegisteredEvents = false;
@@ -219,27 +216,6 @@ namespace ArkhamOverlay.Services {
 
         private void SendOkResponse(Socket socket) {
             Send(socket, new OkResponse().ToString());
-        }
-
-        private CardGroup GetCardGroup(CardGroupId id) {
-            switch (id) {
-                case CardGroupId.Player1: 
-                    return _appData.Game.Players[0].CardGroup;
-                case CardGroupId.Player2: 
-                    return _appData.Game.Players[1].CardGroup;
-                case CardGroupId.Player3:
-                    return _appData.Game.Players[2].CardGroup;
-                case CardGroupId.Player4:
-                    return _appData.Game.Players[3].CardGroup;
-                case CardGroupId.Scenario:
-                    return _appData.Game.ScenarioCards;
-                case CardGroupId.Locations:
-                    return _appData.Game.LocationCards;
-                case CardGroupId.EncounterDeck:
-                    return _appData.Game.EncounterDeckCards;
-                default:
-                    return _appData.Game.Players[0].CardGroup;
-            }
         }
 
         private Player GetPlayer(CardGroupId cardGroup) {
