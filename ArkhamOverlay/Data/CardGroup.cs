@@ -32,6 +32,7 @@ namespace ArkhamOverlay.Data {
             _cardZones = new List<CardZone>();
 
             _eventBus.SubscribeToCardTemplateVisibilityChanged(CardTemplateVisibilityChanged);
+            _eventBus.SubscribeToCardZoneVisibilityToggled(CardZoneVisibilityToggled);
         }
 
         public CardGroupType Type { get; }
@@ -117,7 +118,7 @@ namespace ArkhamOverlay.Data {
             var playerButtons = new List<IButton> { clearButton };
 
             if (_cardZones.Count > 0) {
-                _showCardZoneButton = new ShowCardZoneButton(this);
+                _showCardZoneButton = new ShowCardZoneButton(this.CardZone);
                 playerButtons.Add(_showCardZoneButton);
                 UpdateShowCardZoneButtonName();
             }
@@ -157,7 +158,7 @@ namespace ArkhamOverlay.Data {
         /// <summary>
         /// When card temlate visibility has changed, look through all of our buttons to see if we need to show that they are visible
         /// </summary>
-        /// <param name="e">CardTemplateVisibilityChangedEvent</param>
+        /// <param name="e">CardTemplateVisibilityChanged</param>
         private void CardTemplateVisibilityChanged(CardTemplateVisibilityChanged e) {
             var cardImageButtons = CardButtons.OfType<CardImageButton>();
             foreach (var cardZone in _cardZones) {
@@ -170,6 +171,21 @@ namespace ArkhamOverlay.Data {
                 }
             }
         }
+
+        /// <summary>
+        /// When the card zone for this card group has been toggled, update the card zone toggle button pressed state
+        /// </summary>
+        /// <param name="e">CardZoneVisibilityToggled</param>
+        private void CardZoneVisibilityToggled(CardZoneVisibilityToggled e) {
+            var cardZone = e.CardZone;
+            if (cardZone != CardZone) {
+                return;
+            }
+
+            _showCardZoneButton.IsToggled = e.IsVisible;
+            _eventBus.PublishButtonToggled(Id, ButtonMode.Pool, CardButtons.IndexOf(_showCardZoneButton), e.IsVisible);
+        }
+
 
         private void CardZoneUpdated() {
             UpdateShowCardZoneButtonName();

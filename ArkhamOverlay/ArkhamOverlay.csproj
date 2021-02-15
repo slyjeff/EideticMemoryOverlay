@@ -140,6 +140,7 @@
     <Compile Include="Data\Player.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Events\ClearAllCardsForCardGroupRequest.cs" />
+    <Compile Include="Events\CardZoneVisibilityToggled.cs" />
     <Compile Include="Events\ToggleCardZoneVisibilityRequest.cs" />
     <Compile Include="Events\ToggleCardVisibilityRequest.cs" />
     <Compile Include="Events\StatTrackingVisibilityChangedEvent.cs" />

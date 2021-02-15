@@ -7,19 +7,14 @@ namespace ArkhamOverlay.CardButtons {
     public class ShowCardZoneButton : Button {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
 
-        private readonly CardGroup _cardGroup;
+        private readonly CardZone _cardZone;
 
-        public ShowCardZoneButton(CardGroup cardGroup)  {
-            _cardGroup = cardGroup;
-
-            cardGroup.CardZone.IsDisplayedOnOverlayChanged += (isDisplayedOnOverlay) => {
-                IsToggled = isDisplayedOnOverlay;
-                _eventBus.PublishButtonToggled(_cardGroup.Id, 0, _cardGroup.CardButtons.IndexOf(this), IsToggled);
-            };
+        public ShowCardZoneButton(CardZone cardZone)  {
+            _cardZone = cardZone;
         }
 
         public override void LeftClick() {
-            _eventBus.PublishToggleCardZoneVisibilityRequest(_cardGroup.CardZone);
+            _eventBus.PublishToggleCardZoneVisibilityRequest(_cardZone);
         }
     }
 }

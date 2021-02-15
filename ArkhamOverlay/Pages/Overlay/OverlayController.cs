@@ -17,6 +17,7 @@ using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Events;
 using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Events;
+using ArkhamOverlay.Common.Utils;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayController : Controller<OverlayView, OverlayViewModel> {
@@ -25,6 +26,7 @@ namespace ArkhamOverlay.Pages.Overlay {
         private readonly Configuration _configuration;
         private readonly ICardZoneManager _topCardZoneManager;
         private readonly ICardZoneManager _bottomCardZoneManager;
+        private readonly IList<ICardZoneManager> _cardZoneManagers = new List<ICardZoneManager>();
         private readonly DispatcherTimer _autoSnapshotTimer = new DispatcherTimer();
 
         public OverlayController(AppData appData, LoggingService loggingService, IEventBus eventBus) {
@@ -32,9 +34,8 @@ namespace ArkhamOverlay.Pages.Overlay {
             _appData = appData;
             _logger = loggingService;
             _configuration = appData.Configuration;
-            _topCardZoneManager = new CardZoneManager(ViewModel.TopZoneCards, _configuration, _logger);
-            _bottomCardZoneManager = new CardZoneManager(ViewModel.BottomZoneCards, _configuration, _logger);
-
+            _topCardZoneManager = CreateCardZoneManager(ViewModel.TopZoneCards);
+            _bottomCardZoneManager = CreateCardZoneManager(ViewModel.BottomZoneCards);
             _autoSnapshotTimer.Tick += (e, s) => {
                 AutoSnapshot();
             };
@@ -233,6 +234,21 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         #endregion
 
+        #region CardZone Managers
+        private ICardZoneManager CreateCardZoneManager(IList<OverlayCardViewModel> overlayCards) {
+            var cardZoneManager = ServiceLocator.GetService<CardZoneManager>();
+            cardZoneManager.SetOverlayCards(overlayCards);
+
+            _cardZoneManagers.Add(cardZoneManager);
+
+            return cardZoneManager;
+        }
+
+        private bool IsCardZoneVisible(CardZone cardZone) {
+            return _cardZoneManagers.Any(x => x.IsShowingCardZone(cardZone));
+        }
+        #endregion
+
         private void ButtonInfoChangedHandler(ButtonInfoChanged e) {
             if (e.ButtonMode == ButtonMode.Zone) {
                 UpdateCardZone(GetCardZoneFromCardGroupId(e.CardGroupId));
@@ -250,7 +266,7 @@ namespace ArkhamOverlay.Pages.Overlay {
                 return;
             }
 
-            if (!cardZone.IsDisplayedOnOverlay) {
+            if (!IsCardZoneVisible(cardZone)) {
                 return;
             }
 
@@ -374,7 +390,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             var cardGroup = request.CardGroup;
             var cardZone = cardGroup.CardZone;
             if (cardZone != default(CardZone)) {
-                if (cardZone.IsDisplayedOnOverlay) {
+                if (IsCardZoneVisible(cardZone)) {
                     ToggleCardZone(cardZone);
                 }
             }

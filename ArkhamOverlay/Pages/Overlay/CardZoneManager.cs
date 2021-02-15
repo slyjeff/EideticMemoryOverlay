@@ -1,32 +1,45 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Data;
+using ArkhamOverlay.Events;
 using ArkhamOverlay.Services;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public interface ICardZoneManager {
+        void SetOverlayCards(IList<OverlayCardViewModel> overlayCards);
+        bool IsShowingCardZone(CardZone cardZone);
         void ToggleVisibility(CardZone cardZone);
         void Update(CardZone cardZone);
         void Clear();
     }
 
     public class CardZoneManager : ICardZoneManager {
-        private readonly IList<OverlayCardViewModel> _overlayCards;
+        private IList<OverlayCardViewModel> _overlayCards;
         private readonly Configuration _configuration;
         private readonly LoggingService _logger;
-
+        private readonly IEventBus _eventBus;
         private CardZone _currentlyDisplayedCardZone;
 
-        public CardZoneManager(IList<OverlayCardViewModel> overlayCards, Configuration configuration, LoggingService loggingService) {
-            _overlayCards = overlayCards;
+        public CardZoneManager(Configuration configuration, LoggingService loggingService, IEventBus eventBus) {
             _configuration = configuration;
             _logger = loggingService;
+            _eventBus = eventBus;
         }
+
+        public void SetOverlayCards(IList<OverlayCardViewModel> overlayCards) {
+            _overlayCards = overlayCards;
+        }
+
+        public bool IsShowingCardZone(CardZone cardZone) {
+            return (cardZone == _currentlyDisplayedCardZone);
+        }
+
 
         public void Update(CardZone cardZone) {
             _logger.LogMessage($"Updating {_currentlyDisplayedCardZone.Name} in overlay.");
 
-            if (cardZone != _currentlyDisplayedCardZone) {
+            if (!IsShowingCardZone(cardZone)) {
                 ClearCurrentlyDisplayedCardZone();
             }
 
@@ -36,11 +49,11 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public void ToggleVisibility(CardZone cardZoneToToggle) {
             //if there is a current hand being displayed- clear it
-            var currentCardZone = _currentlyDisplayedCardZone;
+            var isHidingCurrentCardZone = IsShowingCardZone(cardZoneToToggle); 
             ClearCurrentlyDisplayedCardZone();
 
             //if the zone we are toggling was the one already displayed, we are done
-            if (cardZoneToToggle == currentCardZone) {
+            if (isHidingCurrentCardZone) {
                 return;
             }
 
@@ -58,7 +71,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             _logger.LogMessage($"Hiding {_currentlyDisplayedCardZone.Name} in overlay.");
-            _currentlyDisplayedCardZone.IsDisplayedOnOverlay = false; //todo: change to an event (maybe?)
+            _eventBus.PublishCardZoneVisibilityToggled(_currentlyDisplayedCardZone, false);
             _currentlyDisplayedCardZone = null;
 
             _overlayCards.RemoveOverlayCards(_overlayCards.ToArray());
@@ -82,7 +95,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             _currentlyDisplayedCardZone = cardZone;
-            cardZone.IsDisplayedOnOverlay = true; //todo: change to an event (maybe?)
+            _eventBus.PublishCardZoneVisibilityToggled(_currentlyDisplayedCardZone, true);
         }
 
         private void AddCard(CardZone cardZone, ICard card) {

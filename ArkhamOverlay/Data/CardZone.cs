@@ -3,7 +3,6 @@ using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -19,18 +18,6 @@ namespace ArkhamOverlay.Data {
             Location = location;
         }
 
-        public event Action<bool> IsDisplayedOnOverlayChanged;
-
-        private bool _isDisplayedOnOverlay = false;
-
-        public bool IsDisplayedOnOverlay {
-            get => _isDisplayedOnOverlay;
-            set {
-                _isDisplayedOnOverlay = value;
-                IsDisplayedOnOverlayChanged?.Invoke(_isDisplayedOnOverlay);
-            }
-        }
-        
         public string Name { get; }
         public CardZoneLocation Location { get; }
         public CardGroupId CardGroupId { get; set; }
