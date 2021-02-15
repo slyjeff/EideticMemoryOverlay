@@ -1,7 +1,7 @@
 ﻿namespace ArkhamOverlay.Common.Tcp {
     public enum AoTcpRequest {
         Unknown,
-        GetCardInfo,
+        GetButtonInfo,
         GetButtonImage,
         ClickCardButton,
         UpdateStatInfo,

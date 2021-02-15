@@ -32,7 +32,7 @@ namespace StreamDeckPlugin.Services {
             eventBus.SubscribeToGetInvestigatorImageRequest(GetInvestigatorImage);
             eventBus.SubscribeToGetStatValueRequest(GetStatValue);
             eventBus.SubscribeToStatValueRequest(ChangeStatValue);
-            eventBus.SubscribeToGetButtonImageRequest(GetButtonImage);
+            eventBus.SubscribeToGetButtonImageRequest(GetButtonImageRequestHandler);
         }
 
         private string SendRequest(Request request) {
@@ -56,9 +56,9 @@ namespace StreamDeckPlugin.Services {
 
         private void GetCardInfo(GetButtonInfoRequest getButtonInfoRequest) {
             var request = new GetCardInfoRequest {
-                GardGroup = getButtonInfoRequest.CardGroupId,
+                CardGroupId = getButtonInfoRequest.CardGroupId,
+                ButtonMode = getButtonInfoRequest.ButtonMode,
                 Index = getButtonInfoRequest.Index,
-                FromCardSet = getButtonInfoRequest.ButtonMode == ButtonMode.Zone,
             };
 
             var response = SendRequest<CardInfoResponse>(request);
@@ -67,11 +67,11 @@ namespace StreamDeckPlugin.Services {
             }
         }
 
-        private void GetButtonImage(GetButtonImageRequest getButtonImageRequest) {
+        private void GetButtonImageRequestHandler(GetButtonImageRequest getButtonImageRequest) {
             var request = new ButtonImageRequest {
-                CardGroup = getButtonImageRequest.CardGroupId,
+                CardGroupId = getButtonImageRequest.CardGroupId,
+                ButtonMode = getButtonImageRequest.ButtonMode,
                 Index = getButtonImageRequest.Index,
-                FromCardSet = getButtonImageRequest.ButtonMode == ButtonMode.Zone,
             };
 
             var response = SendRequest<ButtonImageResponse>(request);
@@ -84,7 +84,7 @@ namespace StreamDeckPlugin.Services {
             var request = new ClickCardButtonRequest {
                 CardGroupId = dynamicButtonClickRequest.CardGroupId, 
                 Index = dynamicButtonClickRequest.Index, 
-                FromCardSet = dynamicButtonClickRequest.ButtonMode == ButtonMode.Zone, 
+                ButtonMode = dynamicButtonClickRequest.ButtonMode, 
                 Click = dynamicButtonClickRequest.IsLeftClick ? ButtonClick.Left : ButtonClick.Right
             };
             SendRequest(request);

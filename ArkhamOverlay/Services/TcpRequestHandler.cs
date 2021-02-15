@@ -34,8 +34,8 @@ namespace ArkhamOverlay.Services {
         public void HandleRequest(TcpRequest request) {
             _logger.LogMessage($"Handling Request: {request.RequestType.ToString()}");
             switch (request.RequestType) {
-                case AoTcpRequest.GetCardInfo:
-                    HandleGetCardInfo(request);
+                case AoTcpRequest.GetButtonInfo:
+                    HandleGetButtonInfo(request);
                     break;
                 case AoTcpRequest.GetButtonImage:
                     HandleGetButtonImage(request);
@@ -69,24 +69,24 @@ namespace ArkhamOverlay.Services {
             _crossAppEventBus.ReceiveMessage(eventBusRequest);
         }
 
-        private void HandleGetCardInfo(TcpRequest request) {
-            _logger.LogMessage("Handling card info request");
+        private void HandleGetButtonInfo(TcpRequest request) {
+            _logger.LogMessage("Handling button info request");
             var getCardInfoRequest = JsonConvert.DeserializeObject<GetCardInfoRequest>(request.Body);
-            var cardButton = GetCardButton(getCardInfoRequest.GardGroup, getCardInfoRequest.FromCardSet, getCardInfoRequest.Index);
+            var cardButton = GetCardButton(getCardInfoRequest);
             SendCardInfoResponse(request.Socket, cardButton);
         }
 
         private void HandleGetButtonImage(TcpRequest request) {
             _logger.LogMessage("Handling button image request");
             var buttonImageRequest = JsonConvert.DeserializeObject<ButtonImageRequest>(request.Body);
-            var cardButton = GetCardButton(buttonImageRequest.CardGroup, buttonImageRequest.FromCardSet, buttonImageRequest.Index);
+            var cardButton = GetCardButton(buttonImageRequest);
             SendButtonImageResponse(request.Socket, cardButton as CardTemplateButton);
         }
 
         private void HandleClick(TcpRequest request) {
             var clickCardButtonRequest = JsonConvert.DeserializeObject<ClickCardButtonRequest>(request.Body);
             _logger.LogMessage($"Handling {clickCardButtonRequest.Click} request");
-            var cardButton = GetCardButton(clickCardButtonRequest.CardGroupId, clickCardButtonRequest.FromCardSet, clickCardButtonRequest.Index);
+            var cardButton = GetCardButton(clickCardButtonRequest);
             if (cardButton == null) {
                 SendOkResponse(request.Socket);
                 return;
@@ -137,12 +137,12 @@ namespace ArkhamOverlay.Services {
             Send(request.Socket, response.ToString());
         }
 
-        private IButton GetCardButton(CardGroupId deck, bool cardInSet,  int index) {
-            var cardGroup = GetCardGroup(deck);
-            if (cardInSet) {
-                return (index < cardGroup.CardZone.Buttons.Count) ? cardGroup.GetCardZone(0).Buttons[index] : null;
+        private IButton GetCardButton(IButtonContext context) {
+            var cardGroup = GetCardGroup(context.CardGroupId);
+            if (context.ButtonMode == ButtonMode.Zone) {
+                return (context.Index < cardGroup.CardZone.Buttons.Count) ? cardGroup.CardZone.Buttons[context.Index] : null;
             } 
-            return (index < cardGroup.CardButtons.Count) ? cardGroup.CardButtons[index] : null;
+            return (context.Index < cardGroup.CardButtons.Count) ? cardGroup.CardButtons[context.Index] : null;
         }
 
         private bool _alreadyRegisteredEvents = false;

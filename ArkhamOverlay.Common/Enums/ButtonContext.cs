@@ -2,7 +2,7 @@
 using System.Linq;
 
 namespace ArkhamOverlay.Common.Enums {
-    public enum ButtonMode { Pool, Zone, Dialog }
+    public enum ButtonMode { Pool, Zone }
 
     public interface IButtonContext {
         CardGroupId CardGroupId { get; }
