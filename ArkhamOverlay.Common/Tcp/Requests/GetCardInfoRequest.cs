@@ -1,4 +1,5 @@
 ﻿using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Utils;
 
 namespace ArkhamOverlay.Common.Tcp.Requests {
     public class GetCardInfoRequest : Request, IButtonContext {

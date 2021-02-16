@@ -1,6 +1,6 @@
 ﻿using ArkhamOverlay.Common;
-using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
 using StreamDeckPlugin.Events;
 using System.Collections.Generic;

@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Utils;
 using System;
 
 namespace ArkhamOverlay.Events {

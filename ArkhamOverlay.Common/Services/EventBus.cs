@@ -10,6 +10,10 @@ namespace ArkhamOverlay.Common.Services {
     /// <summary>
     /// Implement this interface to pass as an event
     /// </summary>
+    /// <remarks>
+    /// By convention a request for something to be done should end in the name "Request"- events that allow
+    /// other parts of the application to respond to something that happened should have a past tense name
+    /// </remarks>
     public interface IEvent {
     }
 

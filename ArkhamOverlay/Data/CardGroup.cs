@@ -21,6 +21,10 @@ namespace ArkhamOverlay.Data {
         bool Loading { get; }
     }
 
+    /// <summary>
+    /// A logical grouping of cards that contains a pool (cards avaialbe for use by this card group) and (optionally) CardZone(s) that
+    /// represent physical locations of instances of cards in the real world
+    /// </summary>
     public class CardGroup : ViewModel, ICardGroup, INotifyPropertyChanged {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private string _playerName = string.Empty;
@@ -67,12 +71,21 @@ namespace ArkhamOverlay.Data {
 
         public List<IButton> CardButtons { get; set; }
 
+        /// <summary>
+        /// Add a Card Zone to this Card Group
+        /// </summary>
+        /// <param name="cardZone">Card Zone to add</param>
         public void AddCardZone(CardZone cardZone) {
             cardZone.Buttons.CollectionChanged += (s, e) => CardZoneUpdated();
             cardZone.CardGroupId = Id;
             _cardZones.Add(cardZone);
         }
 
+        /// <summary>
+        /// Retrieve a Card Zone by index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>Card Zone at the index- default(CardZone) if does not exist</returns>
         public CardZone GetCardZone(int index) {
             if (index >= _cardZones.Count) {
                 return default;
@@ -81,9 +94,16 @@ namespace ArkhamOverlay.Data {
             return _cardZones[index];
         }
 
+        /// <summary>
+        /// The first Card Zone assigned to this CardGroup. Will be default(CardZone) if no Card Zone is assigned
+        /// </summary>
+        /// <remarks>This will eventually go away as we start supporting multiple Card Zones more fully</remarks>
         public CardZone CardZone { get { return GetCardZone(0); } }
 
         private bool _showCardZoneButtons;
+        /// <summary>
+        /// Whether card zones should be displayed on the UI
+        /// </summary>
         public bool ShowCardZoneButtons { 
             get => _showCardZoneButtons;
             set {

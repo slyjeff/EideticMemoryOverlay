@@ -48,7 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Enums\ButtonContext.cs" />
+    <Compile Include="Utils\ButtonContext.cs" />
     <Compile Include="Events\ButtonClickRequest.cs" />
     <Compile Include="Events\ButtonRemoved.cs" />
     <Compile Include="Events\ButtonInfoChanged.cs" />

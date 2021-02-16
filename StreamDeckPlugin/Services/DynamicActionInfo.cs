@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.Common;
 using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Utils;
 
 namespace StreamDeckPlugin.Services {
     public interface IDynamicActionInfo : IButtonContext {

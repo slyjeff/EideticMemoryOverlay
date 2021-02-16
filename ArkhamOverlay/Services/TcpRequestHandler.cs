@@ -5,6 +5,7 @@ using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;
 using ArkhamOverlay.Common.Tcp.Responses;
+using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Data;
 using ArkhamOverlay.Events;
 using Newtonsoft.Json;
