@@ -48,7 +48,7 @@ namespace ArkhamOverlay {
             configurationService.Load();
 
             var gameFileService = container.GetInstance<GameFileService>();
-            gameFileService.Load("LastSaved.json");
+            gameFileService.Load();
 
             var receiveSocketService = container.GetInstance<ReceiveSocketService>();
             receiveSocketService.StartListening(TcpInfo.ArkhamOverlayPort);

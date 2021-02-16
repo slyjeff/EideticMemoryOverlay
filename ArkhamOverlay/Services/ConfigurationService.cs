@@ -8,6 +8,7 @@ using System.Windows.Media;
 
 namespace ArkhamOverlay.Services {
     public interface IConfiguration {
+        string LastSavedFileName { get; set; }
         bool TrackHealthAndSanity { get; set; }
         bool TrackResources { get; set; }
         bool TrackClues { get; set; }
@@ -37,6 +38,7 @@ namespace ArkhamOverlay.Services {
             Packs = new List<Pack>();
         }
 
+        public string LastSavedFileName { get; set; }
         public bool TrackHealthAndSanity { get; set; }
         public bool TrackResources { get; set; }
         public bool TrackClues { get; set; }
@@ -114,6 +116,7 @@ namespace ArkhamOverlay.Services {
 
     public static class ConfigurationExtensions {
         public static void CopyTo(this IConfiguration fromConfiguration, IConfiguration toConfiguration) {
+            toConfiguration.LastSavedFileName = fromConfiguration.LastSavedFileName;
             toConfiguration.TrackHealthAndSanity = fromConfiguration.TrackHealthAndSanity;
             toConfiguration.TrackResources = fromConfiguration.TrackResources;
             toConfiguration.TrackClues = fromConfiguration.TrackClues;

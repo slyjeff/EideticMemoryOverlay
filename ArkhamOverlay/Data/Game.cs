@@ -29,12 +29,26 @@ namespace ArkhamOverlay.Data {
             _eventBus.SubscribeToButtonClickRequest(ButtonClickRequestHandler);
         }
 
-        public string Name { get; set; }
+        public string FileName { get; set; }
 
-        public string Scenario { get; set; }
+        private string _name;
+        public string Name { get => _name; 
+            set {
+                _name = value;
+                NotifyPropertyChanged(nameof(Name));
+            }
+        }
+
+        private string _scenariome;
+        public string Scenario {
+            get => _scenariome;
+            set {
+                _scenariome = value;
+                NotifyPropertyChanged(nameof(Scenario));
+            }
+        }
         
         private string _snapshotDirectory;
-
         public string SnapshotDirectory {
             get => _snapshotDirectory;
             set {
