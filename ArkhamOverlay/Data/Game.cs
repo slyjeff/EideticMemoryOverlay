@@ -39,11 +39,11 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        private string _scenariome;
+        private string _scenario;
         public string Scenario {
-            get => _scenariome;
+            get => _scenario;
             set {
-                _scenariome = value;
+                _scenario = value;
                 NotifyPropertyChanged(nameof(Scenario));
             }
         }
