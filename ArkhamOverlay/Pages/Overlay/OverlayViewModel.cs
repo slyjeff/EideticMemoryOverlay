@@ -9,8 +9,8 @@ namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayViewModel : ViewModel {
         public OverlayViewModel() {
             TopZoneCards = new ObservableCollection<OverlayCardViewModel>();
-            EncounterCardTemplates = new ObservableCollection<OverlayCardViewModel>();
-            PlayerCardTemplates = new ObservableCollection<OverlayCardViewModel>();
+            EncounterCardInfos = new ObservableCollection<OverlayCardViewModel>();
+            PlayerCardInfos = new ObservableCollection<OverlayCardViewModel>();
             BottomZoneCards = new ObservableCollection<OverlayCardViewModel>();
         }
 
@@ -24,22 +24,22 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public virtual IList<DeckListItem> DeckList { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> TopZoneCards { get; set; }
-        public virtual ObservableCollection<OverlayCardViewModel> EncounterCardTemplates { get; set; }
-        public virtual ObservableCollection<OverlayCardViewModel> PlayerCardTemplates { get; set; }
+        public virtual ObservableCollection<OverlayCardViewModel> EncounterCardInfos { get; set; }
+        public virtual ObservableCollection<OverlayCardViewModel> PlayerCardInfos { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> BottomZoneCards { get; set; }
 
         public IList<ObservableCollection<OverlayCardViewModel>> AllOverlayCards {
             get {
-                return new List<ObservableCollection<OverlayCardViewModel>> { TopZoneCards, EncounterCardTemplates, PlayerCardTemplates, BottomZoneCards };
+                return new List<ObservableCollection<OverlayCardViewModel>> { TopZoneCards, EncounterCardInfos, PlayerCardInfos, BottomZoneCards };
             }
         }
     }
 
     public class DeckListItem {
-        private CardTemplate _card;
+        private CardInfo _card;
         private string _name;
 
-        public DeckListItem(CardTemplate card) {
+        public DeckListItem(CardInfo card) {
             _card = card;
         }
 

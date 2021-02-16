@@ -115,7 +115,7 @@
                 Orientation="Vertical"
                 VerticalAlignment="Center"
                 Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}">
-                <ItemsControl ItemsSource="{Binding EncounterCardTemplates}" HorizontalAlignment="Center">
+                <ItemsControl ItemsSource="{Binding EncounterCardInfos}" HorizontalAlignment="Center">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" />
@@ -127,7 +127,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <ItemsControl ItemsSource="{Binding PlayerCardTemplates}" HorizontalAlignment="Center">
+                <ItemsControl ItemsSource="{Binding PlayerCardInfos}" HorizontalAlignment="Center">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" />

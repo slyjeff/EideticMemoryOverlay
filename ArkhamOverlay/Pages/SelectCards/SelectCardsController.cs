@@ -52,7 +52,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
         public double Height { get => View.Height; set => View.Height = value; }
 
         [Command]
-        public void CardTemplateLeftClick(IButton button) {
+        public void CardInfoLeftClick(IButton button) {
             _logger.LogMessage($"Left clicking button {button.Text}");
 
             var index = ViewModel.CardGroup.CardButtons.IndexOf(button);
@@ -60,7 +60,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
         }
 
         [Command]
-        public void CardTemplateRightClick(IButton button) {
+        public void CardInfoRightClick(IButton button) {
             _logger.LogMessage($"Right clicking button {button.Text}");
 
             var index = ViewModel.CardGroup.CardButtons.IndexOf(button);

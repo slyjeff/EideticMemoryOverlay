@@ -4,9 +4,9 @@ using ArkhamOverlay.Utils;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.CardButtons {
-    public class CardTemplateButton : CardImageButton {
-        public CardTemplateButton(CardTemplate cardTemplate) : base(cardTemplate, false) {
-            if (!cardTemplate.IsPlayerCard && (cardTemplate.Type == CardType.Treachery) || (cardTemplate.Type == CardType.Enemy)) {
+    public class CardInfoButton : CardImageButton {
+        public CardInfoButton(CardInfo cardInfo) : base(cardInfo, false) {
+            if (!cardInfo.IsPlayerCard && (cardInfo.Type == CardType.Treachery) || (cardInfo.Type == CardType.Enemy)) {
                 Options.Add(new ButtonOption(CardGroupId.Player1.ToString(), $"Add to <<{CardGroupId.Player1}>>'s hand"));
                 Options.Add(new ButtonOption(CardGroupId.Player2.ToString(), $"Add to <<{CardGroupId.Player2}>>'s hand"));
                 Options.Add(new ButtonOption(CardGroupId.Player3.ToString(), $"Add to <<{CardGroupId.Player3}>>'s hand"));
@@ -14,6 +14,6 @@ namespace ArkhamOverlay.CardButtons {
             }
         }
 
-        public override ImageSource ButtonImage { get { return CardTemplate.ButtonImage; } }
+        public override ImageSource ButtonImage { get { return CardInfo.ButtonImage; } }
     }
 }

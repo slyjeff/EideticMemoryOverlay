@@ -3,14 +3,14 @@ using System.Windows.Media;
 
 namespace ArkhamOverlay.CardButtons {
     public abstract class CardImageButton : Button {
-        public CardImageButton(CardTemplate cardTemplate, bool isToggled) {
-            CardTemplate = cardTemplate;
-            Text = cardTemplate.Name;
+        public CardImageButton(CardInfo cardInfo, bool isToggled) {
+            CardInfo = cardInfo;
+            Text = cardInfo.Name;
             IsToggled = isToggled;
         }
 
-        public CardTemplate CardTemplate { get; }
+        public CardInfo CardInfo { get; }
 
-        public override ImageSource ButtonImage { get { return CardTemplate.ButtonImage; } }
+        public override ImageSource ButtonImage { get { return CardInfo.ButtonImage; } }
     }
 }

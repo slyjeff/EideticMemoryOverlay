@@ -32,29 +32,29 @@ namespace ArkhamOverlay.Data {
         /// <summary>
         /// Create a card and add it to the first zone
         /// </summary>
-        /// <param name="cardTemplateButton">Template to use to create the card</param>
-        public void CreateCard(CardTemplateButton cardTemplateButton) {
-            var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardTemplate == cardTemplateButton.CardTemplate.FlipSideCard);
+        /// <param name="cardInfoButton">Card Info to use to create the card</param>
+        public void CreateCard(CardInfoButton cardInfoButton) {
+            var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardInfo == cardInfoButton.CardInfo.FlipSideCard);
             if (cardSetButtonToReplace != null) {
                 var index = Buttons.IndexOf(cardSetButtonToReplace);
-                var newButton = new CardButton(cardTemplateButton);
+                var newButton = new CardButton(cardInfoButton);
                 Buttons[index] = newButton;
                 PublishButtonInfoChanged(newButton, ChangeAction.Update);
             } else {
-                var existingCopyCount = Buttons.Count(x => x.CardTemplate == cardTemplateButton.CardTemplate);
+                var existingCopyCount = Buttons.Count(x => x.CardInfo == cardInfoButton.CardInfo);
 
                 //don't add more than one copy unless it's a player card
-                if (!cardTemplateButton.CardTemplate.IsPlayerCard && existingCopyCount > 0) {
+                if (!cardInfoButton.CardInfo.IsPlayerCard && existingCopyCount > 0) {
                     return;
                 }
 
                 //if there's an act and this is an agenda, always add it to the left
                 var index = Buttons.Count();
-                if (cardTemplateButton.CardTemplate.Type == CardType.Agenda && Buttons.Any(x => x.CardTemplate.Type == CardType.Act)) {
-                    index = Buttons.IndexOf(Buttons.First(x => x.CardTemplate.Type == CardType.Act));
+                if (cardInfoButton.CardInfo.Type == CardType.Agenda && Buttons.Any(x => x.CardInfo.Type == CardType.Act)) {
+                    index = Buttons.IndexOf(Buttons.First(x => x.CardInfo.Type == CardType.Act));
                 }
 
-                var newButton = new CardButton(cardTemplateButton);
+                var newButton = new CardButton(cardInfoButton);
                 Buttons.Insert(index, newButton);
                 PublishButtonInfoChanged(newButton, ChangeAction.Add);
             }
@@ -68,7 +68,7 @@ namespace ArkhamOverlay.Data {
 
         private void PublishButtonInfoChanged(CardButton button, ChangeAction action) {
             var index = Buttons.IndexOf(button);
-            var isImageAvailable = button?.CardTemplate.ButtonImageAsBytes != null;
+            var isImageAvailable = button?.CardInfo.ButtonImageAsBytes != null;
 
             _eventBus.PublishButtonInfoChanged(CardGroupId, ButtonMode.Zone, index, button.Text, button.IsToggled, isImageAvailable, action);
         }

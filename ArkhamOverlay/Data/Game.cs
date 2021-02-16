@@ -157,8 +157,8 @@ namespace ArkhamOverlay.Data {
         /// <param name="button">The button clicked</param>
         private void HandleButtonLeftClick(CardGroup cardGroup, IButton button) {
             if (button is CardImageButton cardImageButton) {
-                _logger.LogMessage($"Requesting toggle for {cardImageButton.CardTemplate.Name} visibility");
-                _eventBus.PublishToggleCardTemplateVisibilityRequest(cardImageButton.CardTemplate);
+                _logger.LogMessage($"Requesting toggle for {cardImageButton.CardInfo.Name} visibility");
+                _eventBus.PublishToggleCardInfoVisibilityRequest(cardImageButton.CardInfo);
                 return;
             }
 
@@ -182,15 +182,15 @@ namespace ArkhamOverlay.Data {
         /// <param name="cardGroup">The Card Group this card was clicked in</param>
         /// <param name="selectedOption">Option the user selected from a right click menu, if applicable</param>
         private void HandleButtonRightClick(CardGroup cardGroup, IButton button, string selectedOption) {
-            if (button is CardTemplateButton cardTemplateButton) {
+            if (button is CardInfoButton cardInfoButton) {
                 if (string.IsNullOrEmpty(selectedOption)) {
-                    CreateCard(cardTemplateButton, cardGroup);
+                    CreateCard(cardInfoButton, cardGroup);
                     return;
                 }
 
                 var cardGroupId = (CardGroupId)Enum.Parse(typeof(CardGroupId), selectedOption);
                 var cardGroupToAddTo = GetCardGroup(cardGroupId);
-                CreateCard(cardTemplateButton, cardGroupToAddTo);
+                CreateCard(cardInfoButton, cardGroupToAddTo);
                 return;
             }
 
@@ -203,11 +203,11 @@ namespace ArkhamOverlay.Data {
         /// <summary>
         /// Create a card and add it to a zone
         /// </summary>
-        /// <param name="cardTemplateButton">The template to use for creating the card</param>
+        /// <param name="cardInfoButton">The info to use for creating the card</param>
         /// <param name="cardGroup">Add the card to this group</param>
-        private void CreateCard(CardTemplateButton cardTemplateButton, CardGroup cardGroup) {
-            _logger.LogMessage($"Adding card {cardTemplateButton.CardTemplate.Name} and adding it to {cardGroup.Name} {cardGroup.CardZone.Name}");
-            cardGroup.CardZone.CreateCard(cardTemplateButton);
+        private void CreateCard(CardInfoButton cardInfoButton, CardGroup cardGroup) {
+            _logger.LogMessage($"Adding card {cardInfoButton.CardInfo.Name} and adding it to {cardGroup.Name} {cardGroup.CardZone.Name}");
+            cardGroup.CardZone.CreateCard(cardInfoButton);
         }
     }
 }

@@ -128,10 +128,10 @@
     </ApplicationDefinition>
     <Compile Include="CardButtons\CardImageButton.cs" />
     <Compile Include="CardButtons\CardButton.cs" />
-    <Compile Include="CardButtons\CardTemplateButton.cs" />
+    <Compile Include="CardButtons\CardInfoButton.cs" />
     <Compile Include="CardButtons\ShowCardZoneButton.cs" />
     <Compile Include="Data\AppData.cs" />
-    <Compile Include="Data\CardTemplate.cs" />
+    <Compile Include="Data\CardInfo.cs" />
     <Compile Include="CardButtons\ClearButton.cs" />
     <Compile Include="CardButtons\Button.cs" />
     <Compile Include="Data\CardZone.cs" />

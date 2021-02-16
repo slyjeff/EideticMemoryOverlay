@@ -3,24 +3,24 @@ using ArkhamOverlay.Data;
 using System;
 
 namespace ArkhamOverlay.Events {
-    public class ToggleCardTemplateVisibilityRequest : IEvent {
-        public ToggleCardTemplateVisibilityRequest(CardTemplate cardTemplate) {
-            CardTemplate = cardTemplate;
+    public class ToggleCardInfoVisibilityRequest : IEvent {
+        public ToggleCardInfoVisibilityRequest(CardInfo cardInfo) {
+            CardInfo = cardInfo;
         }
 
-        public CardTemplate CardTemplate { get; }
+        public CardInfo CardInfo { get; }
     }
 
     public static class ToggleCardVisibilityRequestExtensions {
-        public static void PublishToggleCardTemplateVisibilityRequest(this IEventBus eventBus, CardTemplate cardTemplate) {
-            eventBus.Publish(new ToggleCardTemplateVisibilityRequest(cardTemplate));
+        public static void PublishToggleCardInfoVisibilityRequest(this IEventBus eventBus, CardInfo cardInfo) {
+            eventBus.Publish(new ToggleCardInfoVisibilityRequest(cardInfo));
         }
 
-        public static void SubscribeToToggleCardTemplateVisibilityRequest(this IEventBus eventBus, Action<ToggleCardTemplateVisibilityRequest> callback) {
+        public static void SubscribeToToggleCardInfoVisibilityRequest(this IEventBus eventBus, Action<ToggleCardInfoVisibilityRequest> callback) {
             eventBus.Subscribe(callback);
         }
 
-        public static void UnsubscribeFromToggleCardTemplateVisibilityRequest(this IEventBus eventBus, Action<ToggleCardTemplateVisibilityRequest> callback) {
+        public static void UnsubscribeFromToggleCardInfoVisibilityRequest(this IEventBus eventBus, Action<ToggleCardInfoVisibilityRequest> callback) {
             eventBus.Unsubscribe(callback);
         }
     }

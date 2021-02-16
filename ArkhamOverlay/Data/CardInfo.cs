@@ -13,11 +13,11 @@ namespace ArkhamOverlay.Data {
     /// All information about a card, including images from either arkham db or local stored
     /// </summary>
     /// <remarks>Eventually this will be an abstract class so that different games can inheret from it and add game specific information here.</remarks>
-    public class CardTemplate : IHasImageButton {
-        public CardTemplate() {
+    public class CardInfo : IHasImageButton {
+        public CardInfo() {
         }
 
-        public CardTemplate(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false, bool isBonded = false) {
+        public CardInfo(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false, bool isBonded = false) {
             Code = arkhamDbCard.Code;
             Count = count;
             Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")";
@@ -38,7 +38,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public CardTemplate(LocalManifestCard localCard, bool cardBack) {
+        public CardInfo(LocalManifestCard localCard, bool cardBack) {
             Code = "";
             Count = 1;
             Name = localCard.Name;
@@ -112,7 +112,7 @@ namespace ArkhamOverlay.Data {
 
         public bool IsPlayerCard { get; private set; }
 
-        public CardTemplate FlipSideCard { get; set; }
+        public CardInfo FlipSideCard { get; set; }
 
         private CardType GetCardType(string typeCode) {
             if(Enum.TryParse(typeCode, ignoreCase: true, out CardType type)) {

@@ -2,8 +2,8 @@
 using System;
 
 namespace ArkhamOverlay.Events {
-    public class CardTemplateVisibilityChanged : ICrossAppEvent {
-        public CardTemplateVisibilityChanged(string name, bool isVisible) {
+    public class CardInfoVisibilityChanged : ICrossAppEvent {
+        public CardInfoVisibilityChanged(string name, bool isVisible) {
             Name = name;
             IsVisible = isVisible;
         }
@@ -12,12 +12,12 @@ namespace ArkhamOverlay.Events {
         public bool IsVisible;
     }
 
-    public static class CardTemplateVisibilityChangedExtensions {
-        public static void PublishCardTemplateVisibilityChanged(this IEventBus eventBus, string name, bool isVisible) {
-            eventBus.Publish(new CardTemplateVisibilityChanged(name, isVisible));
+    public static class CardInfoVisibilityChangedExtensions {
+        public static void PublishCardInfoVisibilityChanged(this IEventBus eventBus, string name, bool isVisible) {
+            eventBus.Publish(new CardInfoVisibilityChanged(name, isVisible));
         }
 
-        public static void SubscribeToCardTemplateVisibilityChanged(this IEventBus eventBus, Action<CardTemplateVisibilityChanged> callback) {
+        public static void SubscribeToCardInfoVisibilityChanged(this IEventBus eventBus, Action<CardInfoVisibilityChanged> callback) {
             eventBus.Subscribe(callback);
         }
     }

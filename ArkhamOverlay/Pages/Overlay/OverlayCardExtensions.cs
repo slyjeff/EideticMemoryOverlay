@@ -7,9 +7,9 @@ namespace ArkhamOverlay.Pages.Overlay {
         public static void AddOverlayCard(this IList<OverlayCardViewModel> cards, OverlayCardViewModel cardViewModel) {
             var insertIndex = cards.Count;
 
-            if (cardViewModel.CardTemplate.Type == CardType.Agenda) {
+            if (cardViewModel.CardInfo.Type == CardType.Agenda) {
                 //add this directly to the left of the first act
-                var firstAct = cards.FirstOrDefault(x => x.CardTemplate.Type == CardType.Act);
+                var firstAct = cards.FirstOrDefault(x => x.CardInfo.Type == CardType.Act);
                 if (firstAct != null) {
                     insertIndex = cards.IndexOf(firstAct);
                 }
@@ -18,8 +18,8 @@ namespace ArkhamOverlay.Pages.Overlay {
             cards.Insert(insertIndex, cardViewModel);
         }
 
-        public static OverlayCardViewModel FindCardTemplateToReplace(this IList<OverlayCardViewModel> overlayCards, CardTemplate card) {
-            return overlayCards.FirstOrDefault(x => x.CardTemplate == card.FlipSideCard);
+        public static OverlayCardViewModel FindCardInfoToReplace(this IList<OverlayCardViewModel> overlayCards, CardInfo card) {
+            return overlayCards.FirstOrDefault(x => x.CardInfo == card.FlipSideCard);
         }
 
         public static void RemoveOverlayCards(this IList<OverlayCardViewModel> overlayCards, params OverlayCardViewModel[] overlayCardsToRemove) {

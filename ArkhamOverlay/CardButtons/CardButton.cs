@@ -2,7 +2,7 @@
 
 namespace ArkhamOverlay.CardButtons {
     public class CardButton : CardImageButton, ICard {
-        public CardButton(CardTemplateButton cardTemplateButton) : base(cardTemplateButton.CardTemplate, cardTemplateButton.IsToggled) {
+        public CardButton(CardInfoButton cardInfoButton) : base(cardInfoButton.CardInfo, cardInfoButton.IsToggled) {
         }
     }
 }

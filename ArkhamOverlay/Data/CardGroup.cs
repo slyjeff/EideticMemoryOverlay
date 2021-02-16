@@ -37,7 +37,7 @@ namespace ArkhamOverlay.Data {
             CardButtons = new List<IButton>();
             _cardZones = new List<CardZone>();
 
-            _eventBus.SubscribeToCardTemplateVisibilityChanged(CardTemplateVisibilityChangedHandler);
+            _eventBus.SubscribeToCardInfoVisibilityChanged(CardInfoVisibilityChangedHandler);
             _eventBus.SubscribeToCardZoneVisibilityToggled(CardZoneVisibilityToggledHandler);
         }
 
@@ -113,7 +113,7 @@ namespace ArkhamOverlay.Data {
         }
 
         public bool Loading { get; internal set; }
-        public IEnumerable<CardTemplate> CardPool { get => from button in CardButtons.OfType<CardTemplateButton>() select button.CardTemplate; }
+        public IEnumerable<CardInfo> CardPool { get => from button in CardButtons.OfType<CardInfoButton>() select button.CardInfo; }
 
         /// <summary>
         /// Use the button context to find the button
@@ -138,7 +138,7 @@ namespace ArkhamOverlay.Data {
 
 
         /// <summary>
-        /// Remove all CardTemplates from the pool and all card zones
+        /// Remove all CardInfos from the pool and all card zones
         /// </summary>
         internal void ClearCards() {
             CardButtons.Clear();
@@ -148,7 +148,7 @@ namespace ArkhamOverlay.Data {
             NotifyPropertyChanged(nameof(CardButtons));
         }
 
-        internal void LoadCards(IEnumerable<CardTemplate> cards) {
+        internal void LoadCards(IEnumerable<CardInfo> cards) {
             var clearButton = new ClearButton();
 
             var playerButtons = new List<IButton> { clearButton };
@@ -159,12 +159,12 @@ namespace ArkhamOverlay.Data {
                 UpdateShowCardZoneButtonName();
             }
 
-            playerButtons.AddRange(from card in SortCards(cards) select new CardTemplateButton(card));
+            playerButtons.AddRange(from card in SortCards(cards) select new CardInfoButton(card));
             CardButtons = playerButtons;
             NotifyPropertyChanged(nameof(CardButtons));
         }
 
-        private IEnumerable<CardTemplate> SortCards(IEnumerable<CardTemplate> cards) {
+        private IEnumerable<CardInfo> SortCards(IEnumerable<CardInfo> cards) {
             var firstCard = cards.FirstOrDefault();
             if (firstCard == null) {
                 return cards;
@@ -194,15 +194,15 @@ namespace ArkhamOverlay.Data {
         /// <summary>
         /// When card temlate visibility has changed, look through all of our buttons to see if we need to show that they are visible
         /// </summary>
-        /// <param name="e">CardTemplateVisibilityChanged</param>
-        private void CardTemplateVisibilityChangedHandler(CardTemplateVisibilityChanged e) {
+        /// <param name="e">CardInfoVisibilityChanged</param>
+        private void CardInfoVisibilityChangedHandler(CardInfoVisibilityChanged e) {
             var cardImageButtons = CardButtons.OfType<CardImageButton>();
             foreach (var cardZone in _cardZones) {
                 cardImageButtons = cardImageButtons.Union(cardZone.Buttons.OfType<CardImageButton>());
             }
 
             foreach (var button in cardImageButtons) {
-                if (e.Name == button.CardTemplate.Name) {
+                if (e.Name == button.CardInfo.Name) {
                     button.IsToggled = e.IsVisible;
                 }
             }

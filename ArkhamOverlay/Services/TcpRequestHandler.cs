@@ -78,7 +78,7 @@ namespace ArkhamOverlay.Services {
             _logger.LogMessage("Handling button image request");
             var buttonImageRequest = JsonConvert.DeserializeObject<ButtonImageRequest>(request.Body);
             var cardButton = GetCardButton(buttonImageRequest);
-            SendButtonImageResponse(request.Socket, cardButton as CardTemplateButton);
+            SendButtonImageResponse(request.Socket, cardButton as CardInfoButton);
         }
 
         private void HandleRequestStatValue(TcpRequest request) {
@@ -196,19 +196,19 @@ namespace ArkhamOverlay.Services {
             var cardInfoReponse = (cardButton == null)
                 ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
                 : new CardInfoResponse { 
-                    CardButtonType = GetCardType(cardImageButton?.CardTemplate),
+                    CardButtonType = GetCardType(cardImageButton?.CardInfo),
                     Name = cardButton.Text.Replace("Right Click", "Long Press"),
                     IsToggled = cardButton.IsToggled,
-                    ImageAvailable = cardImageButton?.CardTemplate.ButtonImageAsBytes != null
+                    ImageAvailable = cardImageButton?.CardInfo.ButtonImageAsBytes != null
                 };
 
             Send(socket, cardInfoReponse.ToString());
         }
 
-        private void SendButtonImageResponse(Socket socket, CardTemplateButton cardButton) {
+        private void SendButtonImageResponse(Socket socket, CardInfoButton cardButton) {
             var buttonImageResponse = new ButtonImageResponse { 
-                Name = cardButton?.CardTemplate.Name, 
-                Bytes = cardButton?.CardTemplate.ButtonImageAsBytes 
+                Name = cardButton?.CardInfo.Name, 
+                Bytes = cardButton?.CardInfo.ButtonImageAsBytes 
             };
 
             Send(socket, buttonImageResponse.ToString());
@@ -249,7 +249,7 @@ namespace ArkhamOverlay.Services {
             }
         }
 
-        private static CardButtonType GetCardType(CardTemplate card) {
+        private static CardButtonType GetCardType(CardInfo card) {
             if (card == null) {
                 return CardButtonType.Action;
             }

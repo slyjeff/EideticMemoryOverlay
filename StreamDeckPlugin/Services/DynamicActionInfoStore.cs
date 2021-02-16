@@ -21,7 +21,7 @@ namespace StreamDeckPlugin.Services {
         public DynamicActionInfoStore(IEventBus eventBus) {
             _eventBus = eventBus;
             eventBus.SubscribeToImageLoadedEvent(e => ImageLoaded(e.ImageId));
-            eventBus.SubscribeToCardTemplateVisibilityChanged(e => CardTemplateVisibilityChanged(e.Name, e.IsVisible));
+            eventBus.SubscribeToCardInfoVisibilityChanged(e => CardInfoVisibilityChanged(e.Name, e.IsVisible));
             eventBus.SubscribeToButtonInfoChanged(ButtonInfoChanged);
             eventBus.SubscribeToButtonRemoved(ButtonRemoved);
             eventBus.SubscribeToButtonTextChanged(ButtonTextChanged);
@@ -94,7 +94,7 @@ namespace StreamDeckPlugin.Services {
             }
         }
 
-        private void CardTemplateVisibilityChanged(string name, bool isVisible) {
+        private void CardInfoVisibilityChanged(string name, bool isVisible) {
             var changedActionInfoList = new List<DynamicActionInfo>();
             lock (_cacheLock) {
                 foreach (var dynamicActionInfo in _dynamicActionInfoList) {
