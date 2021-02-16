@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Utils;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 using StreamDeckPlugin.Events;
-using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Page Right", "arkhamoverlay.pageright")]

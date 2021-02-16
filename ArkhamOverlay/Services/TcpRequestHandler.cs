@@ -8,10 +8,7 @@ using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Data;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows;
@@ -21,12 +18,16 @@ namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
+        private readonly IEventBus _eventBus;
         private readonly ICrossAppEventBus _crossAppEventBus;
+        private readonly IBroadcastService _broadcastService;
 
-        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, ICrossAppEventBus crossAppEventBus) {
+        public TcpRequestHandler(AppData viewModel, LoggingService loggingService, IEventBus eventBus, ICrossAppEventBus crossAppEventBus, IBroadcastService broadcastService) {
             _appData = viewModel;
             _logger = loggingService;
+            _eventBus = eventBus;
             _crossAppEventBus = crossAppEventBus;
+            _broadcastService = broadcastService;
         }
 
         public void HandleRequest(TcpRequest request) {
@@ -165,26 +166,20 @@ namespace ArkhamOverlay.Services {
             }));
         }
 
-        private readonly IList<int> _updatePorts = new List<int>();
         private bool _alreadyRegisteredEvents = false;
 
         private object _registerLock = new object();
         private void HandleRegisterForUpdates(TcpRequest request) {
             _logger.LogMessage("Handling register for update request");
             var registerForUpdatesRequest = JsonConvert.DeserializeObject<RegisterForUpdatesRequest>(request.Body);
-            if (!_updatePorts.Contains(registerForUpdatesRequest.Port)) {
-                _updatePorts.Add(registerForUpdatesRequest.Port);
+            if (!_broadcastService.Ports.Contains(registerForUpdatesRequest.Port)) {
+                _broadcastService.Ports.Add(registerForUpdatesRequest.Port);
             }
-
-            lock(_registerLock) {
+            
+            lock (_registerLock) {
                 if (!_alreadyRegisteredEvents) {
                     var game = _appData.Game;
                     foreach (var player in game.Players) {
-                        player.Health.PropertyChanged += (s, e) => { SendStatInfo(player.Health, GetDeckType(player.SelectableCards), StatType.Health); };
-                        player.Sanity.PropertyChanged += (s, e) => { SendStatInfo(player.Sanity, GetDeckType(player.SelectableCards), StatType.Sanity); };
-                        player.Resources.PropertyChanged += (s, e) => { SendStatInfo(player.Resources, GetDeckType(player.SelectableCards), StatType.Resources); };
-                        player.Clues.PropertyChanged += (s, e) => { SendStatInfo(player.Clues, GetDeckType(player.SelectableCards), StatType.Clues); };
-
                         player.PropertyChanged += (s, e) => {
                             if (e.PropertyName == nameof(Player.ButtonImageAsBytes)) {
                                 SendInvestigatorImage(player);
@@ -227,10 +222,10 @@ namespace ArkhamOverlay.Services {
         private void SendAllStats() {
             var game = _appData.Game;
             foreach (var player in game.Players) {
-                SendStatInfo(player.Health, GetDeckType(player.SelectableCards), StatType.Health);
-                SendStatInfo(player.Sanity, GetDeckType(player.SelectableCards), StatType.Sanity);
-                SendStatInfo(player.Resources, GetDeckType(player.SelectableCards), StatType.Resources);
-                SendStatInfo(player.Clues, GetDeckType(player.SelectableCards), StatType.Clues);
+                _eventBus.PublishStatUpdatedEvent(GetDeckType(player.SelectableCards), StatType.Health, player.Health.Value);
+                _eventBus.PublishStatUpdatedEvent(GetDeckType(player.SelectableCards), StatType.Sanity, player.Sanity.Value);
+                _eventBus.PublishStatUpdatedEvent(GetDeckType(player.SelectableCards), StatType.Resources, player.Resources.Value);
+                _eventBus.PublishStatUpdatedEvent(GetDeckType(player.SelectableCards), StatType.Clues, player.Clues.Value);
             }
         }
 
@@ -276,7 +271,7 @@ namespace ArkhamOverlay.Services {
                 return;               
             }
 
-            SendStatusToAllRegisteredPorts(request);
+            _broadcastService.SendRequest(request);
         }
 
         private void SendCardInSetInfoUpdate(CardInSetButton button, SelectableCards selectableCards) {
@@ -303,19 +298,7 @@ namespace ArkhamOverlay.Services {
                 return;
             }
 
-            SendStatusToAllRegisteredPorts(request);
-        }
-
-        private void SendStatInfo(Stat stat, Deck deck, StatType statType) {
-            _logger.LogMessage("Sending stat info");
-
-            var request = new UpdateStatInfoRequest {
-                Deck = deck,
-                Value = stat.Value,
-                StatType = statType
-            };
-
-            SendStatusToAllRegisteredPorts(request);
+            _broadcastService.SendRequest(request);
         }
 
         private void SendInvestigatorImage(Player player) {
@@ -327,35 +310,7 @@ namespace ArkhamOverlay.Services {
                 Bytes = player.ButtonImageAsBytes
             };
 
-            SendStatusToAllRegisteredPorts(request);
-        }
-
-        private void SendStatusToAllRegisteredPorts(Request request) {
-            //if no one is listening, don't speak!
-            if (!_updatePorts.Any()) {
-                _logger.LogMessage("No ports to send status to.");
-                return;
-            }
-
-            var worker = new BackgroundWorker();
-            worker.DoWork += (x, y) => {
-                var portsToRemove = new List<int>();
-                foreach (var port in _updatePorts.ToList()) {
-                    try {
-                        SendSocketService.SendRequest(request, port);
-                        _logger.LogMessage($"Sent request to port {port}.");
-                    } catch (Exception ex) {
-                        //this clearly is not cool- stop trying to talk
-                        _logger.LogException(ex, $"Error sending status to port {port}.");
-                        portsToRemove.Add(port);
-                    }
-                }
-
-                foreach (var portToRemove in portsToRemove) {
-                    _updatePorts.Remove(portToRemove);
-                }
-            };
-            worker.RunWorkerAsync();
+            _broadcastService.SendRequest(request);
         }
 
         private Deck GetDeckType(SelectableCards selectableCards) {

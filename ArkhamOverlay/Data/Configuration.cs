@@ -1,4 +1,7 @@
-﻿using ArkhamOverlay.Services;
+﻿using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Utils;
+using ArkhamOverlay.Events;
+using ArkhamOverlay.Services;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -8,11 +11,15 @@ using System.Windows.Media;
 
 namespace ArkhamOverlay.Data {
     public class Configuration : ViewModel, IConfiguration {
-        public Configuration() {
+        private readonly IEventBus _eventBus;
+
+        public Configuration(IEventBus eventBus) {
+            _eventBus = eventBus;
+            OverlayWidth = 1228;
+            OverlayHeight = 720;
+            CardHeight = 300;
             Packs = new List<Pack>();
         }
-
-        public bool TrackPlayerStats { get { return TrackHealthAndSanity || TrackResources || TrackClues; } }
 
         private bool _trackHealthAndSanity;
         public bool TrackHealthAndSanity {
@@ -20,7 +27,7 @@ namespace ArkhamOverlay.Data {
             set {
                 _trackHealthAndSanity = value;
                 NotifyPropertyChanged(nameof(TrackHealthAndSanity));
-                NotifyPropertyChanged(nameof(TrackPlayerStats));
+                OnTrackPlayerStatsChanged();
                 OnConfigurationChange();
             }
         }
@@ -31,7 +38,7 @@ namespace ArkhamOverlay.Data {
             set {
                 _trackResources = value;
                 NotifyPropertyChanged(nameof(TrackResources));
-                NotifyPropertyChanged(nameof(TrackPlayerStats));
+                OnTrackPlayerStatsChanged();
                 OnConfigurationChange();
             }
         }
@@ -42,10 +49,15 @@ namespace ArkhamOverlay.Data {
             set {
                 _trackClues = value;
                 NotifyPropertyChanged(nameof(TrackClues));
-                NotifyPropertyChanged(nameof(TrackPlayerStats));
+                OnTrackPlayerStatsChanged();
                 OnConfigurationChange();
             }
         }
+
+        private void OnTrackPlayerStatsChanged() {
+            _eventBus.PublishStatTrackingVisibilityChangedEvent(TrackHealthAndSanity || TrackResources || TrackClues);
+        }
+
 
         private bool _seperateStatSnapshots;
         public bool SeperateStatSnapshots {

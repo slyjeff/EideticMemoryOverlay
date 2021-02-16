@@ -1,5 +1,6 @@
 ﻿using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Tcp;
+using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Data;
 using ArkhamOverlay.Pages.Main;
 using ArkhamOverlay.Services;
@@ -20,18 +21,24 @@ namespace ArkhamOverlay {
                 });
             });
 
+            ServiceLocator.Container = container;
+
             PageControllerConfiguration.PageDependencyResolver = new StructureMapDependencyResolver(container);
 
             var eventBus = new UiEventBus();
             container.Configure(x => {
+                x.For<LoggingService>().Use<LoggingService>().Singleton();
                 x.For<IEventBus>().Use(eventBus);
                 x.For<ICrossAppEventBus>().Use(eventBus);
-                x.For<LoggingService>().Use<LoggingService>().Singleton();
+                x.For<IBroadcastService>().Use<BroadcastService>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
-                x.For<AppData>().Use(new AppData());
+                x.For<AppData>().Use<AppData>().Singleton();
+                x.For<Configuration>().Use<Configuration>().Singleton();
+                x.For<Game>().Use<Game>().Singleton();
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
             });
 
+           
             _loggingService = container.GetInstance<LoggingService>();
 
             var cardLoadService = container.GetInstance<CardLoadService>();

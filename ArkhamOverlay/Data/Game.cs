@@ -8,8 +8,8 @@ using System.Windows;
 
 namespace ArkhamOverlay.Data {
     public class Game : ViewModel, IGame {
-        public Game(Configuration configuration) {
-            Players = new List<Player> { new Player(configuration, Deck.Player1), new Player(configuration, Deck.Player2), new Player(configuration, Deck.Player3), new Player(configuration, Deck.Player4) };
+        public Game() {
+            Players = new List<Player> { new Player(Deck.Player1), new Player(Deck.Player2), new Player(Deck.Player3), new Player(Deck.Player4) };
             EncounterSets = new List<EncounterSet>();
             LocalPacks = new List<string>();
             ScenarioCards = new SelectableCards(Deck.Scenario);

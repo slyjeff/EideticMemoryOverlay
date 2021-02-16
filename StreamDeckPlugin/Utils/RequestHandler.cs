@@ -8,15 +8,18 @@ using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;
 using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Events;
 
 namespace StreamDeckPlugin.Utils {
     public class TcpRequestHandler : IRequestHandler {
         private readonly IDynamicActionInfoStore _dynamicActionService;
         private readonly IEventBus _eventBus;
+        private readonly ICrossAppEventBus _crossAppEventBus;
 
-        public TcpRequestHandler(IDynamicActionInfoStore dynamicActionService, IEventBus eventBus) {
+        public TcpRequestHandler(IDynamicActionInfoStore dynamicActionService, IEventBus eventBus, ICrossAppEventBus crossAppEventBus) {
             _dynamicActionService = dynamicActionService;
             _eventBus = eventBus;
+            _crossAppEventBus = crossAppEventBus;
         }
 
         public bool RequestReceivedRecently { get; set; } 
@@ -29,11 +32,11 @@ namespace StreamDeckPlugin.Utils {
                 case AoTcpRequest.UpdateCardInfo:
                     UpdateCardInfo(request);
                     break;
-                case AoTcpRequest.UpdateStatInfo:
-                    UpdateStatInfo(request);
-                    break;
                 case AoTcpRequest.UpdateInvestigatorImage:
                     UpdateInvestigatorImage(request);
+                    break;
+                case AoTcpRequest.EventBus:
+                    HandleEventBusRequest(request);
                     break;
             }
         }
@@ -44,15 +47,6 @@ namespace StreamDeckPlugin.Utils {
                 var mode = updateCardInfoRequest.IsCardInSet ? DynamicActionMode.Set : DynamicActionMode.Pool;
                 _dynamicActionService.UpdateDynamicActionInfo(updateCardInfoRequest.Deck, updateCardInfoRequest.Index, mode, updateCardInfoRequest);
             }
-            Send(request.Socket, new OkResponse().ToString());
-        }
-
-        private void UpdateStatInfo(TcpRequest request) {
-            var updateStatInfoRequest = JsonConvert.DeserializeObject<UpdateStatInfoRequest>(request.Body);
-            if (updateStatInfoRequest != null) {
-                _eventBus.PublishStatUpdatedEvent(updateStatInfoRequest.Deck, updateStatInfoRequest.StatType, updateStatInfoRequest.Value);
-            }
-
             Send(request.Socket, new OkResponse().ToString());
         }
 
@@ -84,6 +78,13 @@ namespace StreamDeckPlugin.Utils {
             } catch (Exception e) {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private void HandleEventBusRequest(TcpRequest request) {
+            Send(request.Socket, new OkResponse().ToString());
+
+            var eventBusRequest = JsonConvert.DeserializeObject<EventBusRequest>(request.Body);
+            _crossAppEventBus.ReceiveMessage(eventBusRequest);
         }
     }
 }
