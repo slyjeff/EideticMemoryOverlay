@@ -11,7 +11,7 @@ namespace ArkhamOverlay.Data {
     public enum CardZoneLocation { Top, Bottom }
 
     /// <summary>
-    /// Represents a physical location in the real world (hand, act/agenda bar), and contains a list of instances of cards
+    /// Represents a physical location (hand, act/agenda bar) and contains a list of instances of cards
     /// </summary>
     public class CardZone {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
