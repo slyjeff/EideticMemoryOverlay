@@ -15,8 +15,7 @@ namespace ArkhamOverlay.Events {
         public CardGroupId CardGroupId { get; }
         public ButtonMode ButtonMode { get; }
         public int Index { get; }
-
-        public bool IsToggled;
+        public bool IsToggled { get; }
     }
 
     public static class ButtonToggledExtensions {
