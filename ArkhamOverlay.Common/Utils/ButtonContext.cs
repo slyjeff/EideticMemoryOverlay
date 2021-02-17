@@ -19,6 +19,7 @@ namespace ArkhamOverlay.Common.Utils {
         int Index { get; }
     }
 
+    //todo: consider using IComparable
     public static class ButtonContextExtensions {
         public static bool HasSameContext(this IButtonContext a, IButtonContext b) {
             return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.Index == b.Index;
