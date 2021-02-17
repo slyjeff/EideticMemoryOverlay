@@ -13,7 +13,6 @@ namespace ArkhamOverlay.Common.Utils {
     /// <summary>
     /// Identify a button in three parts (eventually four)
     /// </summary>
-    /// <remarks>Eventually will need to add a Card Zone Index when we develop for multiple card zones</remarks>
     public interface IButtonContext {
         CardGroupId CardGroupId { get; }
         ButtonMode ButtonMode { get; }

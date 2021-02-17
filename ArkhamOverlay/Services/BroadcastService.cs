@@ -16,7 +16,7 @@ namespace ArkhamOverlay.Services {
     public class BroadcastService : IBroadcastService {
         private readonly LoggingService _logger;
 
-        public BroadcastService(LoggingService loggingService, ICrossAppEventBus crossAppEventBus, IEventBus eventBus) {
+        public BroadcastService(LoggingService loggingService, ICrossAppEventBus crossAppEventBus) {
             Ports = new List<int>();
 
             _logger = loggingService;

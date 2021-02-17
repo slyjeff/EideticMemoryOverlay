@@ -97,7 +97,6 @@ namespace ArkhamOverlay.Data {
         /// <summary>
         /// The first Card Zone assigned to this CardGroup. Will be default(CardZone) if no Card Zone is assigned
         /// </summary>
-        /// <remarks>This will eventually go away as we start supporting multiple Card Zones more fully</remarks>
         public CardZone CardZone { get { return GetCardZone(0); } }
 
         private bool _showCardZoneButtons;
