@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace ArkhamOverlay.Common.Utils {
+    /// <summary>
+    /// This part of the context is whether this button interacts with the card pool for this card group (logical group of all Card Infos
+    /// that the group contains, or Card Zones, which represent actual instances of cards in play
+    /// </summary>
+    /// <remarks>Should probably be renamed to ButtonType, but I'm not 100% settled on that yet</remarks>
     public enum ButtonMode { Pool, Zone }
 
     /// <summary>
