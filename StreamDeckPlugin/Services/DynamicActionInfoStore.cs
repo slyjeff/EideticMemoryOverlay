@@ -49,7 +49,6 @@ namespace StreamDeckPlugin.Services {
             if (dynamicActionInfo == null) {
                 AddDynamicActionInfo(buttonContex, cardInfo);
             } else {
-                //don't raise events within a lock
                 _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
             }
         }
@@ -74,7 +73,6 @@ namespace StreamDeckPlugin.Services {
                 changedActionInfoList.Add(dynamicActionInfo);
             }
 
-            //don't raise events within a lock
             foreach (var dynamicActionInfo in changedActionInfoList) {
                 _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
             }
@@ -105,7 +103,6 @@ namespace StreamDeckPlugin.Services {
                 }
             }
 
-            //don't raise events within a lock
             foreach (var dynamicActionInfo in changedActionInfoList) {
                 _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
             }
@@ -143,7 +140,6 @@ namespace StreamDeckPlugin.Services {
                 changedActionInfoList.Add(blankDynamicAction);
             }
 
-            //don't raise events within a lock
             foreach (var dynamicActionInfo in changedActionInfoList) {
                 _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
             }
