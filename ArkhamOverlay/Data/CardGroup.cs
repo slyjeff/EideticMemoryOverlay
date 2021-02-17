@@ -22,7 +22,7 @@ namespace ArkhamOverlay.Data {
     }
 
     /// <summary>
-    /// A logical grouping of cards that contains a pool (cards avaialbe for use by this card group) and (optionally) CardZone(s) that
+    /// A logical grouping of cards that contains a pool (cards avaiable for use by this card group) and (optionally) CardZone(s) that
     /// represent physical locations of instances of cards in the real world
     /// </summary>
     public class CardGroup : ViewModel, ICardGroup, INotifyPropertyChanged {
