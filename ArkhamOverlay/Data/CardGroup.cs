@@ -170,6 +170,7 @@ namespace ArkhamOverlay.Data {
                 return cards;
             }
 
+            //todo: change sorting in card group to be enumartion based rather than looking at the first card
             //don't sort scenario cards- easier to find when acts/agendas are in order
             if (firstCard.Type == CardType.Scenario) {
                 return cards;
