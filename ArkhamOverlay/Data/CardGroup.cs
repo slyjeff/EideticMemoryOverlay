@@ -193,7 +193,7 @@ namespace ArkhamOverlay.Data {
         }
 
         /// <summary>
-        /// When card temlate visibility has changed, look through all of our buttons to see if we need to show that they are visible
+        /// When card info visibility has changed, look through all of our buttons to see if we need to show that they are visible
         /// </summary>
         /// <param name="e">CardInfoVisibilityChanged</param>
         private void CardInfoVisibilityChangedHandler(CardInfoVisibilityChanged e) {
