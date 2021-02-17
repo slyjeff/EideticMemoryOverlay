@@ -135,7 +135,6 @@ namespace ArkhamOverlay.Data {
             return context.Index < CardZone.Buttons.Count ? CardZone.Buttons[context.Index] : default(Button);
         }
 
-
         /// <summary>
         /// Remove all CardInfos from the pool and all card zones
         /// </summary>
