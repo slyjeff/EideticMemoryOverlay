@@ -17,6 +17,7 @@ namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
     public class DynamicAction : StreamDeckAction<ActionWithDeckSettings>, IButtonContext {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore = ServiceLocator.GetService<IDynamicActionInfoStore>();
+        private readonly IDynamicActionIndexService _dynamicActionIndexService = ServiceLocator.GetService<IDynamicActionIndexService>();
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
 
@@ -45,7 +46,10 @@ namespace StreamDeckPlugin.Actions {
             }
         }
 
-        public int Index {
+        /// <summary>
+        /// The index of the Dynamic Action determined by its physical location
+        /// </summary>
+        public int PhysicalIndex {
             get {
                 var rows = 4;
                 var columns = 16;
@@ -54,18 +58,35 @@ namespace StreamDeckPlugin.Actions {
                     rows = device.Size.Rows;
                     columns = device.Size.Columns;
                 }
-
-                var buttonsPerPage = rows * columns - 4; //4 because the return to parent, show hand, left, and right buttons take up four slots
-
-                return (_page * buttonsPerPage) + (_coordinates.Row * columns + _coordinates.Column) - 1;
+                return rows * columns;
             }
         }
+
+        /// <summary>
+        /// The index of the Dynamic Action relative to all other Dynamic Actions assigned to the same Card Group
+        /// </summary>
+        /// <remarks>Set by the DynamicActionIndexService</remarks>
+        public int RelativeIndex { get; set; }
+
+        /// <summary>
+        /// The total number of Dynamic Actions in this Dynamic Action's Card Group
+        /// </summary>
+        /// <remarks>Set by the DynamicActionIndexService</remarks>
+        public int CountOfDynamicActionsInCardGroup { get; set; }
+
+        /// <summary>
+        /// Index of the Button in the UI this Dynamic Action corresponds to
+        /// </summary>
+        /// <remarks>Takes into account the Relative Index as well as the page</remarks>
+        public int Index { get { return (_page * CountOfDynamicActionsInCardGroup) + RelativeIndex; } }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _coordinates = args.Payload.Coordinates;
             _deviceId = args.Device;
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-            
+
+            _dynamicActionIndexService.RegisterAction(this);
+
             _eventBus.SubscribeToDynamicActionInfoChangedEvent(DynamicActionChanged);
             _eventBus.SubscribeToPageChangedEvent(PageChanged);
             _eventBus.SubscribeToModeToggledEvent(ModeToggled);
@@ -84,6 +105,8 @@ namespace StreamDeckPlugin.Actions {
 
         protected override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
+
+            _dynamicActionIndexService.ReclaculateIndexes();
 
             SetSettingsAsync(_settings);
 

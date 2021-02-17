@@ -1,4 +1,6 @@
-﻿namespace ArkhamOverlay.Common.Enums {
+﻿using System.Collections.Generic;
+
+namespace ArkhamOverlay.Common.Enums {
     public enum CardGroupId {
         Player1,
         Player2,
@@ -9,7 +11,7 @@
         EncounterDeck
     }
 
-    public static class DeckExtensions {
+    public static class CardGroupIdExtensions {
         public static CardGroupId AsCardGroupId(this string deck) {
             switch (deck) {
                 case "player1": return CardGroupId.Player1;
