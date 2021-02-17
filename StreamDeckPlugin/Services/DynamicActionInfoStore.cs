@@ -123,7 +123,6 @@ namespace StreamDeckPlugin.Services {
             var changedActionInfoList = new List<DynamicActionInfo>();
             lock (_cacheLock) {
                 var dynamicActionToRemove = _dynamicActionInfoList.FirstOrDefaultWithContext(e);
-                //changedActionInfoList.Add(dynamicActionToRemove);
                 _dynamicActionInfoList.Remove(dynamicActionToRemove);
 
                 var lastIndex = dynamicActionToRemove.Index;
