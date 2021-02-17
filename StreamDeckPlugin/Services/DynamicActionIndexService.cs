@@ -13,8 +13,15 @@ namespace StreamDeckPlugin.Services {
         /// Start tracking and updating an action's index so it can correctly know what action it correlates to
         /// </summary>
         /// <param name="dynamicAction">A Dynamic Action to track</param>
-        /// <remarks>will not add if it already is being tracked</remarks>
+        /// <remarks>Will not add if it already is being tracked</remarks>
         void RegisterAction(DynamicAction dynamicAction);
+
+        /// <summary>
+        /// Stop tracking and updating an action's index
+        /// </summary>
+        /// <param name="dynamicAction">Dynamic Action to stop tracking</param>
+        void UnregisterAction(DynamicAction dynamicAction);
+
 
         /// <summary>
         /// Reveluate all indexes for a card group make sure they are correct, updating the index of dynamic actions that are incorrect
@@ -34,7 +41,7 @@ namespace StreamDeckPlugin.Services {
         /// Start tracking and updating an action's index so it can correctly know what action it correlates to
         /// </summary>
         /// <param name="dynamicAction">A Dynamic Action to track</param>
-        /// <remarks>will not add if it already is being tracked</remarks>
+        /// <remarks>Will not add if it already is being tracked</remarks>
         public void RegisterAction(DynamicAction dynamicAction) {
             lock (_dynamicActionsLock) {
                 if (_dynamicActions.Contains(dynamicAction)) {
@@ -42,6 +49,18 @@ namespace StreamDeckPlugin.Services {
                 }
 
                 _dynamicActions.Add(dynamicAction);
+            }
+            ReclaculateIndexes();
+        }
+
+        /// <summary>
+        /// Stop tracking and updating an action's index so it can correctly know what action it correlates to
+        /// </summary>
+        /// <param name="dynamicAction">A Dynamic Action to track</param>
+        /// <remarks>will not add if it already is being tracked</remarks>
+        public void UnregisterAction(DynamicAction dynamicAction) {
+            lock (_dynamicActionsLock) {
+                _dynamicActions.Remove(dynamicAction);
             }
             ReclaculateIndexes();
         }
@@ -61,8 +80,7 @@ namespace StreamDeckPlugin.Services {
                     var relativeIndex = 0;
                     var dynamicActionCount = actionsInCardGroup.Count();
                     foreach (var action in actionsInCardGroup) {
-                        action.RelativeIndex = relativeIndex++;
-                        action.CountOfDynamicActionsInCardGroup = dynamicActionCount;
+                        action.UpdateIndexInformation(relativeIndex++, dynamicActionCount);
                     }
                 }
             }

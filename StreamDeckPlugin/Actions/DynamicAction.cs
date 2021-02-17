@@ -62,23 +62,31 @@ namespace StreamDeckPlugin.Actions {
             }
         }
 
-        /// <summary>
-        /// The index of the Dynamic Action relative to all other Dynamic Actions assigned to the same Card Group
-        /// </summary>
-        /// <remarks>Set by the DynamicActionIndexService</remarks>
-        public int RelativeIndex { get; set; }
+        private int _relativeIndex = 0;
+        public int _dynamicActionCount = 0;
 
         /// <summary>
-        /// The total number of Dynamic Actions in this Dynamic Action's Card Group
+        /// Called by the DynamicActionIndexService to set information necessary for calculating its index
         /// </summary>
-        /// <remarks>Set by the DynamicActionIndexService</remarks>
-        public int CountOfDynamicActionsInCardGroup { get; set; }
+        /// <param name="relativeIndex">The index of the Dynamic Action relative to all other Dynamic Actions assigned to the same Card Group</param>
+        /// <param name="">The total number of Dynamic Actions in this Dynamic Action's Card Group</param>
+        public void UpdateIndexInformation(int relativeIndex, int dynamicActionCount) {
+            var logicalIndexBeforeUpdate = Index;
+            _relativeIndex = relativeIndex;
+            _dynamicActionCount = dynamicActionCount;
+
+            //don't request new information if our index hasn't changed
+            if (Index != logicalIndexBeforeUpdate) {
+                UpdateButtonToNewDynamicAction();
+            }
+
+        }
 
         /// <summary>
         /// Index of the Button in the UI this Dynamic Action corresponds to
         /// </summary>
         /// <remarks>Takes into account the Relative Index as well as the page</remarks>
-        public int Index { get { return (_page * CountOfDynamicActionsInCardGroup) + RelativeIndex; } }
+        public int Index { get { return (_page * _dynamicActionCount) + _relativeIndex; } }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _coordinates = args.Payload.Coordinates;
@@ -100,6 +108,7 @@ namespace StreamDeckPlugin.Actions {
             _eventBus.UnsubscribeFromModeToggledEvent(ModeToggled);
             _eventBus.UnsubscribeFromPageChangedEvent(PageChanged);
             _eventBus.UnsubscribeFromDynamicActionInfoChangedEvent(DynamicActionChanged);
+            _dynamicActionIndexService.UnregisterAction(this);
             return Task.CompletedTask;
         }
 
