@@ -2,7 +2,9 @@
 using ArkhamOverlay.Common.Utils;
 using StreamDeckPlugin.Actions;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Timers;
 
 namespace StreamDeckPlugin.Services {
     /// <summary>
@@ -36,6 +38,7 @@ namespace StreamDeckPlugin.Services {
     public class DynamicActionIndexService : IDynamicActionIndexService {
         private readonly IList<DynamicAction> _dynamicActions = new List<DynamicAction>();
         private readonly object _dynamicActionsLock = new object();
+        private bool _recalculateInProgress = false;
 
         /// <summary>
         /// Start tracking and updating an action's index so it can correctly know what action it correlates to
@@ -50,11 +53,24 @@ namespace StreamDeckPlugin.Services {
 
                 _dynamicActions.Add(dynamicAction);
             }
-            ReclaculateIndexes();
+
+            //add a delay so we can gather all the information, then display the buttons
+            if (_recalculateInProgress) {
+                return;
+            }
+            _recalculateInProgress = true;
+
+            var delayRecalculateTimer = new Timer(50);
+            delayRecalculateTimer.Elapsed += (s, e) => {
+                delayRecalculateTimer.Enabled = false;
+                _recalculateInProgress = false;
+                ReclaculateIndexes();
+            };
+            delayRecalculateTimer.Enabled = true;
         }
 
         /// <summary>
-        /// Stop tracking and updating an action's index so it can correctly know what action it correlates to
+        /// Stop tracking and updating an action's index
         /// </summary>
         /// <param name="dynamicAction">A Dynamic Action to track</param>
         /// <remarks>will not add if it already is being tracked</remarks>
@@ -62,7 +78,6 @@ namespace StreamDeckPlugin.Services {
             lock (_dynamicActionsLock) {
                 _dynamicActions.Remove(dynamicAction);
             }
-            ReclaculateIndexes();
         }
 
         /// <summary>
@@ -70,6 +85,10 @@ namespace StreamDeckPlugin.Services {
         /// </summary>
         /// <remarks>This should be called whenever a dynamic action changes its card group</remarks>
         public void ReclaculateIndexes() {
+            if (_recalculateInProgress) {
+                return;
+            }
+
             lock (_dynamicActionsLock) {
                 foreach (var cardGroupId in EnumUtil.GetValues<CardGroupId>()) {
                     var actionsInCardGroup = from dynamicAction in _dynamicActions

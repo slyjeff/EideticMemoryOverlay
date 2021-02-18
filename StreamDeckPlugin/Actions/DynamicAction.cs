@@ -58,11 +58,11 @@ namespace StreamDeckPlugin.Actions {
                     rows = device.Size.Rows;
                     columns = device.Size.Columns;
                 }
-                return rows * columns;
+                return _coordinates.Column + _coordinates.Row * columns;
             }
         }
 
-        private int _relativeIndex = 0;
+        private int _relativeIndex = -1;
         public int _dynamicActionCount = 0;
 
         /// <summary>
@@ -79,7 +79,6 @@ namespace StreamDeckPlugin.Actions {
             if (Index != logicalIndexBeforeUpdate) {
                 UpdateButtonToNewDynamicAction();
             }
-
         }
 
         /// <summary>
@@ -213,6 +212,11 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void UpdateButtonToNewDynamicAction() {
+            if (_relativeIndex == -1) {
+                //we don't know our position yet, so don't try to display anything
+                return;
+            }
+
             var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(this);
             if (dynamicActionInfo == null) {
                 SetTitleAsync(string.Empty);
