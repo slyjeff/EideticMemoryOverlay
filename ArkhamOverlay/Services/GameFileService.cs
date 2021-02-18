@@ -50,7 +50,11 @@ namespace ArkhamOverlay.Services {
             _eventBus = eventBus;
         }
 
-        internal void Load(string fileName) {
+        internal void Load(string fileName = "") {
+            if (string.IsNullOrEmpty(fileName)) {
+                fileName = _appData.Configuration.LastSavedFileName;
+            }
+
             _logger.LogMessage($"Loading game from file {fileName}.");
             if (File.Exists(fileName)) {
                 try {
@@ -61,6 +65,7 @@ namespace ArkhamOverlay.Services {
                     game.ClearAllCardsLists();
 
                     gameFile.CopyTo(game);
+                    game.FileName = fileName;
                     game.OnEncounterSetsChanged();
 
                     for (var index = 0; index < gameFile.DeckIds.Count && index < game.Players.Count; index++) {
@@ -97,7 +102,7 @@ namespace ArkhamOverlay.Services {
 
             try {
                 File.WriteAllText(fileName, JsonConvert.SerializeObject(gameFile));
-                File.WriteAllText("LastSaved.json", JsonConvert.SerializeObject(gameFile));
+                _appData.Configuration.LastSavedFileName = fileName;
                 _logger.LogMessage($"Finished writing to game file: {fileName}.");
             } catch (Exception ex) {
                 _logger.LogException(ex, $"Error saving game file: {fileName}.");
