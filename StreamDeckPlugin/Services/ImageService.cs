@@ -34,7 +34,7 @@ namespace StreamDeckPlugin.Services {
                 return;
             }
 
-            _eventBus.PublishGetButtonImageRequest(dynamicActionInfo.Deck, dynamicActionInfo.Index, dynamicActionInfo.Mode);
+            _eventBus.PublishGetButtonImageRequest(dynamicActionInfo.CardGroupId, dynamicActionInfo.ButtonMode, dynamicActionInfo.Index);
         }
 
         public void UpdateButtonImage(string imageId, byte[] bytes) {

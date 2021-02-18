@@ -1,12 +1,13 @@
 ﻿using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Utils;
 
 namespace ArkhamOverlay.Common.Tcp.Requests {
-    public class GetCardInfoRequest : Request {
-        public GetCardInfoRequest() : base(AoTcpRequest.GetCardInfo) {
+    public class GetCardInfoRequest : Request, IButtonContext {
+        public GetCardInfoRequest() : base(AoTcpRequest.GetButtonInfo) {
         }
 
-        public Deck Deck { get; set; }
+        public CardGroupId CardGroupId { get; set; }
+        public ButtonMode ButtonMode { get; set; }
         public int Index { get; set; }
-        public bool FromCardSet { get; set; }
     }
 }

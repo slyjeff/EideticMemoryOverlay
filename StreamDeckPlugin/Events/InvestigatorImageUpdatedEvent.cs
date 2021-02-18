@@ -4,18 +4,18 @@ using System;
 
 namespace StreamDeckPlugin.Events {
     public class InvestigatorImageUpdatedEvent : IEvent {
-        public InvestigatorImageUpdatedEvent(Deck deck, byte[] bytes) {
-            Deck = deck;
+        public InvestigatorImageUpdatedEvent(CardGroupId cardGroup, byte[] bytes) {
+            CardGroup = cardGroup;
             Bytes = bytes;
         }
 
-        public Deck Deck { get; }
+        public CardGroupId CardGroup { get; }
         public byte[] Bytes { get; }
     }
 
     public static class InvestigatorImageUpdatedEventExtensions {
-        public static void PublishInvestigatorImageUpdatedEvent(this IEventBus eventBus, Deck deck, byte[] bytes) {
-            eventBus.Publish(new InvestigatorImageUpdatedEvent(deck, bytes));
+        public static void PublishInvestigatorImageUpdatedEvent(this IEventBus eventBus, CardGroupId cardGroup, byte[] bytes) {
+            eventBus.Publish(new InvestigatorImageUpdatedEvent(cardGroup, bytes));
         }
 
         public static void SubscribeToInvestigatorImageUpdatedEvent(this IEventBus eventBus, Action<InvestigatorImageUpdatedEvent> callback) {

@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Common.Events;
+﻿using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Events;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;
@@ -26,13 +27,11 @@ namespace StreamDeckPlugin.Services {
             };
 
             eventBus.SubscribeToEstablishConnectionToUiRequest(RegisterForUpdates);
-            eventBus.SubscribeToClearAllCardsRequest(ClearAllCards);
             eventBus.SubscribeToGetButtonInfoRequest(GetCardInfo);
-            eventBus.SubscribeToDynamicButtonClickRequest(DynamicButtonClicked);
             eventBus.SubscribeToGetInvestigatorImageRequest(GetInvestigatorImage);
             eventBus.SubscribeToGetStatValueRequest(GetStatValue);
             eventBus.SubscribeToStatValueRequest(ChangeStatValue);
-            eventBus.SubscribeToGetButtonImageRequest(GetButtonImage);
+            eventBus.SubscribeToGetButtonImageRequest(GetButtonImageRequestHandler);
         }
 
         private string SendRequest(Request request) {
@@ -54,28 +53,24 @@ namespace StreamDeckPlugin.Services {
             SendRequest<OkResponse>(request);
         }
 
-        public void ClearAllCards(Events.ClearAllCardsRequest clearAllCardsRequest) {
-            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.ClearAllCardsRequest());
-        }
-
         private void GetCardInfo(GetButtonInfoRequest getButtonInfoRequest) {
             var request = new GetCardInfoRequest {
-                Deck = getButtonInfoRequest.Deck,
+                CardGroupId = getButtonInfoRequest.CardGroupId,
+                ButtonMode = getButtonInfoRequest.ButtonMode,
                 Index = getButtonInfoRequest.Index,
-                FromCardSet = getButtonInfoRequest.Mode == DynamicActionMode.Set,
             };
 
             var response = SendRequest<CardInfoResponse>(request);
             if (response != null) {
-                _dynamicActionInfoStore.UpdateDynamicActionInfo(getButtonInfoRequest.Deck, getButtonInfoRequest.Index, getButtonInfoRequest.Mode, response);
+                _dynamicActionInfoStore.UpdateDynamicActionInfo(getButtonInfoRequest, response);
             }
         }
 
-        private void GetButtonImage(GetButtonImageRequest getButtonImageRequest) {
+        private void GetButtonImageRequestHandler(GetButtonImageRequest getButtonImageRequest) {
             var request = new ButtonImageRequest {
-                Deck = getButtonImageRequest.Deck,
+                CardGroupId = getButtonImageRequest.CardGroupId,
+                ButtonMode = getButtonImageRequest.ButtonMode,
                 Index = getButtonImageRequest.Index,
-                FromCardSet = getButtonImageRequest.Mode == DynamicActionMode.Set,
             };
 
             var response = SendRequest<ButtonImageResponse>(request);
@@ -84,18 +79,8 @@ namespace StreamDeckPlugin.Services {
             }
         }
 
-        private void DynamicButtonClicked(DynamicButtonClickRequest dynamicButtonClickRequest) {
-            var request = new ClickCardButtonRequest {
-                Deck = dynamicButtonClickRequest.Deck, 
-                Index = dynamicButtonClickRequest.Index, 
-                FromCardSet = dynamicButtonClickRequest.Mode == DynamicActionMode.Set, 
-                Click = dynamicButtonClickRequest.IsLeftClick ? ButtonClick.Left : ButtonClick.Right
-            };
-            SendRequest(request);
-        }
-
         private void GetInvestigatorImage(Events.GetInvestigatorImageRequest getInvestigatorImageRequest) {
-            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.GetInvestigatorImageRequest { Deck = getInvestigatorImageRequest.Deck });
+            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.GetInvestigatorImageRequest { CardGroup = getInvestigatorImageRequest.CardGroup });
         }
 
         private void GetStatValue(GetStatValueRequest getStatValueRequest) {
@@ -104,7 +89,7 @@ namespace StreamDeckPlugin.Services {
                 return;
             }
 
-            _eventBus.PublishStatUpdatedEvent(getStatValueRequest.Deck, getStatValueRequest.StatType, response.Value);
+            _eventBus.PublishStatUpdated(getStatValueRequest.Deck, getStatValueRequest.StatType, response.Value);
         }
 
         private void ChangeStatValue(Events.ChangeStatValueRequest changeStatValueRequest) {
@@ -113,7 +98,7 @@ namespace StreamDeckPlugin.Services {
                 return;
             }
 
-            _eventBus.PublishStatUpdatedEvent(changeStatValueRequest.Deck, changeStatValueRequest.StatType, response.Value);
+            _eventBus.PublishStatUpdated(changeStatValueRequest.Deck, changeStatValueRequest.StatType, response.Value);
         }
 
         #endregion

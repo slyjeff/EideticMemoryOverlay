@@ -1,4 +1,6 @@
-﻿using ArkhamOverlay.Data;
+﻿using ArkhamOverlay.Common.Events;
+using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Data;
 using ArkhamOverlay.Pages.Main;
 using Newtonsoft.Json;
 using System;
@@ -38,18 +40,21 @@ namespace ArkhamOverlay.Services {
         private readonly CardLoadService _cardLoadService;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
+        private readonly IEventBus _eventBus;
 
-        public GameFileService(AppData appData, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService) {
+        public GameFileService(AppData appData, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
             _appData = appData;
             _cardLoadService = cardLoadService;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
+            _eventBus = eventBus;
         }
 
         internal void Load(string fileName) {
             _logger.LogMessage($"Loading game from file {fileName}.");
             if (File.Exists(fileName)) {
                 try {
+                    _eventBus.PublishClearAllCardsRequest();
                     var gameFile = JsonConvert.DeserializeObject<GameFile>(File.ReadAllText(fileName));
 
                     var game = _appData.Game;

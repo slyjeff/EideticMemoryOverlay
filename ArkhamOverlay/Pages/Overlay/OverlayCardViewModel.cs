@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.Pages.Overlay {
-    public enum OverlayCardType { Display, ActAgenda, Hand,}
+    public enum OverlayCardType { Info, TopCardZone, BottomCardZone}
 
     public class OverlayCardViewModel : ViewModel {
         public static double CardWidthRatio = 0.716;
@@ -31,12 +31,12 @@ namespace ArkhamOverlay.Pages.Overlay {
         public string HeightProperty { 
             get {
                 switch (OverlayCardType) {
-                    case OverlayCardType.Display:
+                    case OverlayCardType.Info:
                         return nameof(Configuration.CardHeight);
-                    case OverlayCardType.ActAgenda:
-                        return nameof(Configuration.ActAgendaCardHeight);
-                    case OverlayCardType.Hand:
-                        return nameof(Configuration.HandCardHeight);
+                    case OverlayCardType.TopCardZone:
+                        return nameof(Configuration.TopCardZoneHeight);
+                    case OverlayCardType.BottomCardZone:
+                        return nameof(Configuration.BottomCardZoneHeight);
                     default:
                         return nameof(Configuration.CardHeight);
                 }
@@ -61,23 +61,23 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-        private Card _card;
-        public Card Card {
-            get => _card;
+        private CardInfo _cardInfo;
+        public CardInfo CardInfo {
+            get => _cardInfo;
             set {
-                _card = value;
-                CardImage = _card.Image;
+                _cardInfo = value;
 
+                CardImage = _cardInfo.Image;
                 NotifyPropertyChanged(nameof(CardImage));
             }
         }
 
-        private ICardInstance _cardInstance;
-        public ICardInstance CardInstance { 
-            get => _cardInstance; 
+        private ICard _card;
+        public ICard Card { 
+            get => _card; 
             set {
-                _cardInstance = value;
-                Card = _cardInstance.Card;
+                _card = value;
+                CardInfo = _card.CardInfo;
             } 
         }
 
@@ -85,17 +85,17 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public double Height {
             get {
-                return Card.IsHorizontal ? Math.Min(MaxHeight, ConfigurationHeight) * CardWidthRatio : Math.Min(MaxHeight, ConfigurationHeight);
+                return CardInfo.IsHorizontal ? Math.Min(MaxHeight, ConfigurationHeight) * CardWidthRatio : Math.Min(MaxHeight, ConfigurationHeight);
             }
         }
 
         public double Width {
             get {
-                return Card.IsHorizontal ? Height / CardWidthRatio : Height * CardWidthRatio;
+                return CardInfo.IsHorizontal ? Height / CardWidthRatio : Height * CardWidthRatio;
             }
         }
 
-        public double Radius { get { return (Card.IsHorizontal ? Width : Height) / _cardRadiusDivisor; } }
+        public double Radius { get { return (CardInfo.IsHorizontal ? Width : Height) / _cardRadiusDivisor; } }
 
         public Rect ClipRect {get { return new Rect { Height = Height, Width = Width }; } }
 

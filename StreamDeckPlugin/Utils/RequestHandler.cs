@@ -8,7 +8,6 @@ using ArkhamOverlay.Common.Tcp;
 using ArkhamOverlay.Common.Tcp.Requests;
 using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Events;
 
 namespace StreamDeckPlugin.Utils {
     public class TcpRequestHandler : IRequestHandler {
@@ -29,9 +28,6 @@ namespace StreamDeckPlugin.Utils {
 
             Console.WriteLine("Handling Request: " + request.RequestType.ToString());
             switch (request.RequestType) {
-                case AoTcpRequest.UpdateCardInfo:
-                    UpdateCardInfo(request);
-                    break;
                 case AoTcpRequest.UpdateInvestigatorImage:
                     UpdateInvestigatorImage(request);
                     break;
@@ -41,19 +37,10 @@ namespace StreamDeckPlugin.Utils {
             }
         }
 
-        private void UpdateCardInfo(TcpRequest request) {
-            var updateCardInfoRequest = JsonConvert.DeserializeObject<UpdateCardInfoRequest>(request.Body);
-            if (updateCardInfoRequest != null) {
-                var mode = updateCardInfoRequest.IsCardInSet ? DynamicActionMode.Set : DynamicActionMode.Pool;
-                _dynamicActionService.UpdateDynamicActionInfo(updateCardInfoRequest.Deck, updateCardInfoRequest.Index, mode, updateCardInfoRequest);
-            }
-            Send(request.Socket, new OkResponse().ToString());
-        }
-
         private void UpdateInvestigatorImage(TcpRequest request) {
             var updateInvestigatorImageRequest = JsonConvert.DeserializeObject<UpdateInvestigatorImageRequest>(request.Body);
             if (updateInvestigatorImageRequest != null) {
-                _eventBus.PublishInvestigatorImageUpdatedEvent(updateInvestigatorImageRequest.Deck, updateInvestigatorImageRequest.Bytes);
+                _eventBus.PublishInvestigatorImageUpdatedEvent(updateInvestigatorImageRequest.CardGroup, updateInvestigatorImageRequest.Bytes);
             }
 
             Send(request.Socket, new OkResponse().ToString());

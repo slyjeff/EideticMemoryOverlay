@@ -94,7 +94,7 @@
 
             <ItemsControl 
                 Grid.Row="0"
-                ItemsSource="{Binding ActAgendaCards}"
+                ItemsSource="{Binding TopZoneCards}"
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Top"
                 Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}">
@@ -115,7 +115,7 @@
                 Orientation="Vertical"
                 VerticalAlignment="Center"
                 Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}">
-                <ItemsControl ItemsSource="{Binding EncounterCards}" HorizontalAlignment="Center">
+                <ItemsControl ItemsSource="{Binding EncounterCardInfos}" HorizontalAlignment="Center">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" />
@@ -127,7 +127,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <ItemsControl ItemsSource="{Binding PlayerCards}" HorizontalAlignment="Center">
+                <ItemsControl ItemsSource="{Binding PlayerCardInfos}" HorizontalAlignment="Center">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal" />
@@ -143,7 +143,7 @@
 
             <ItemsControl 
                 Grid.Row="2"    
-                ItemsSource="{Binding HandCards}"
+                ItemsSource="{Binding BottomZoneCards}"
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Bottom"
                 Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}">

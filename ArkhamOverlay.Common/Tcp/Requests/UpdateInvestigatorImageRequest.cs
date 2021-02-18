@@ -5,7 +5,7 @@ namespace ArkhamOverlay.Common.Tcp.Requests {
         public UpdateInvestigatorImageRequest() : base(AoTcpRequest.UpdateInvestigatorImage) {
         }
 
-        public Deck Deck { get; set; }
+        public CardGroupId CardGroup { get; set; }
         public byte[] Bytes { get; set; }
     }
 }

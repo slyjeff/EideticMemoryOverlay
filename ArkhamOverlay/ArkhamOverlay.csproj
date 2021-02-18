@@ -127,18 +127,22 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CardButtons\CardImageButton.cs" />
-    <Compile Include="CardButtons\CardInSetButton.cs" />
-    <Compile Include="CardButtons\ShowCardButton.cs" />
-    <Compile Include="CardButtons\ShowSetButton.cs" />
-    <Compile Include="Data\AppData.cs" />
-    <Compile Include="Data\Card.cs" />
-    <Compile Include="CardButtons\ClearButton.cs" />
     <Compile Include="CardButtons\CardButton.cs" />
-    <Compile Include="Data\CardSet.cs" />
-    <Compile Include="Data\ICardInstance.cs" />
-    <Compile Include="Data\SelectableCards.cs" />
+    <Compile Include="CardButtons\CardInfoButton.cs" />
+    <Compile Include="CardButtons\ShowCardZoneButton.cs" />
+    <Compile Include="Data\AppData.cs" />
+    <Compile Include="Data\CardInfo.cs" />
+    <Compile Include="CardButtons\ClearButton.cs" />
+    <Compile Include="CardButtons\Button.cs" />
+    <Compile Include="Data\CardZone.cs" />
+    <Compile Include="Data\ICard.cs" />
+    <Compile Include="Data\CardGroup.cs" />
     <Compile Include="Data\Player.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="Events\ClearAllCardsForCardGroupRequest.cs" />
+    <Compile Include="Events\CardZoneVisibilityToggled.cs" />
+    <Compile Include="Events\ToggleCardZoneVisibilityRequest.cs" />
+    <Compile Include="Events\ToggleCardInfoVisibilityRequest.cs" />
     <Compile Include="Events\StatTrackingVisibilityChangedEvent.cs" />
     <Compile Include="Pages\LocalImages\LocalImagesController.cs" />
     <Compile Include="Pages\LocalImages\LocalImagesView.xaml.cs">
@@ -146,13 +150,16 @@
     </Compile>
     <Compile Include="Pages\LocalImages\LocalImagesViewModel.cs" />
     <Compile Include="Data\LocalPackManifest.cs" />
+    <Compile Include="Pages\Overlay\CardZoneManager.cs" />
+    <Compile Include="Pages\Overlay\OverlayCardExtensions.cs" />
     <Compile Include="Services\CardImageService.cs" />
     <Compile Include="Services\LocalCardsService.cs" />
     <Compile Include="Services\LoggingService.cs" />
-    <Compile Include="Pages\SelectCards\SelectPlayerMenuViewModel.cs" />
+    <Compile Include="Pages\SelectCards\RightClickOptionCommand.cs" />
     <Compile Include="Services\UiEventBus.cs" />
     <Compile Include="Services\BroadcastService.cs" />
     <Compile Include="Utils\BoolToVisibilityCollapsedConverter.cs" />
+    <Compile Include="Utils\ButtonOption.cs" />
     <Compile Include="Utils\FileCompare.cs" />
     <Compile Include="CardButtons\IHasImageButton.cs" />
     <Compile Include="Utils\OutlinedTextBlock.cs" />

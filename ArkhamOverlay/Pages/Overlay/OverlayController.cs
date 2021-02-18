@@ -16,56 +16,51 @@ using System.Diagnostics;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Events;
 using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Events;
+using ArkhamOverlay.Common.Utils;
 
 namespace ArkhamOverlay.Pages.Overlay {
     public class OverlayController : Controller<OverlayView, OverlayViewModel> {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
         private readonly Configuration _configuration;
+        private readonly IEventBus _eventBus;
+        private readonly ICardZoneManager _topCardZoneManager;
+        private readonly ICardZoneManager _bottomCardZoneManager;
+        private readonly IList<ICardZoneManager> _cardZoneManagers = new List<ICardZoneManager>();
         private readonly DispatcherTimer _autoSnapshotTimer = new DispatcherTimer();
 
-        public double Top { get => View.Top; set => View.Top = value; }
-        public double Left { get => View.Left; set => View.Left = value; }
-
-        public void Close() {
-            _logger.LogMessage("Closing overlay window.");
-            View.Close();
-        }
-
-        public void Activate() {
-            _logger.LogMessage("Activating overlay window.");
-            View.Activate();
-        }
-
-        internal void Show() {
-            _logger.LogMessage("Showing overlay window.");
-            View.Show();
-        }
-
-        public event Action Closed;
-
         public OverlayController(AppData appData, LoggingService loggingService, IEventBus eventBus) {
-            ViewModel.AppData = appData;
+            loggingService.LogMessage("Initializing Overlay Controller.");
             _appData = appData;
             _logger = loggingService;
             _configuration = appData.Configuration;
+            _eventBus = eventBus;
+            _topCardZoneManager = CreateCardZoneManager(ViewModel.TopZoneCards);
+            _bottomCardZoneManager = CreateCardZoneManager(ViewModel.BottomZoneCards);
             _autoSnapshotTimer.Tick += (e, s) => {
                 AutoSnapshot();
             };
             _autoSnapshotTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             _autoSnapshotTimer.IsEnabled = _configuration.UseAutoSnapshot;
 
-            _logger.LogMessage("Initializing Overlay Controller.");
+            ViewModel.AppData = appData;
 
-            eventBus.SubscribeToTakeSnapshotRequest(TakeSnapshot);
-            eventBus.SubscribeToShowDeckListRequest(ShowDeckListRequest);
+            eventBus.SubscribeToButtonInfoChanged(ButtonInfoChangedHandler);
+            eventBus.SubscribeToButtonRemoved(ButtonRemovedHandler);
+            eventBus.SubscribeToTakeSnapshotRequest(TakeSnapshotHandler);
+            eventBus.SubscribeToShowDeckListRequest(ShowDeckListRequestHandler);
+            eventBus.SubscribeToToggleCardInfoVisibilityRequest(ToggleCardInfoVisibilityRequestHandler);
+            eventBus.SubscribeToClearAllCardsRequest(ClearAllCardsRequestHandler);
+            eventBus.SubscribeToClearAllCardsForCardGroupRequest(ClearAllCardsForCardGroupRequestHandler);
+            eventBus.SubscribeToToggleCardZoneVisibilityRequest(ToggleCardZoneVisibilityRequestHandler);
 
             _configuration.PropertyChanged += (s, e) => {
                 if ((e.PropertyName == nameof(Configuration.OverlayHeight))
                 || (e.PropertyName == nameof(Configuration.OverlayWidth))
                 || (e.PropertyName == nameof(Configuration.CardHeight))
-                || (e.PropertyName == nameof(Configuration.ActAgendaCardHeight))
-                || (e.PropertyName == nameof(Configuration.HandCardHeight))) {
+                || (e.PropertyName == nameof(Configuration.TopCardZoneHeight))
+                || (e.PropertyName == nameof(Configuration.BottomCardZoneHeight))) {
                     CalculateMaxHeightForCards();
                 }
 
@@ -95,26 +90,65 @@ namespace ArkhamOverlay.Pages.Overlay {
                 overlayCards.CollectionChanged += (s, e) => CalculateMaxHeightForCards();
             }
 
-            foreach (var selectableCards in appData.Game.AllSelectableCards) {
-                InitializeSelectableCards(selectableCards);
-            }
-
             View.Closed += (s, e) => {
-                eventBus.UnsubscribeFromShowDeckListRequest(ShowDeckListRequest);
-                eventBus.UnsubscribeFromTakeSnapshotRequest(TakeSnapshot);
-
                 _autoSnapshotTimer.Stop();
-                foreach (var overlayCards in ViewModel.AllOverlayCards) {
-                    foreach (var overlayCard in overlayCards) {
-                        overlayCard.Card.IsDisplayedOnOverlay = false;
-                    }
-                }
+                ClearAllCards();
+
+                eventBus.UnsubscribeFromButtonInfoChanged(ButtonInfoChangedHandler);
+                eventBus.UnsubscribeFromButtonRemoved(ButtonRemovedHandler);
+                eventBus.UnsubscribeFromShowDeckListRequest(ShowDeckListRequestHandler);
+                eventBus.UnsubscribeFromTakeSnapshotRequest(TakeSnapshotHandler);
+                eventBus.UnsubscribeFromToggleCardInfoVisibilityRequest(ToggleCardInfoVisibilityRequestHandler);
+                eventBus.UnsubscribeFromClearAllCardsRequest(ClearAllCardsRequestHandler);
+                eventBus.UnsubscribeFromClearAllCardsForCardGroupRequest(ClearAllCardsForCardGroupRequestHandler);
+                eventBus.UnsubscribeFromToggleCardZoneVisibilityRequest(ToggleCardZoneVisibilityRequestHandler);
 
                 Closed?.Invoke();
             };
 
             _logger.LogMessage("Finished initializing Overlay Controller.");
         }
+
+        public double Top { get => View.Top; set => View.Top = value; }
+        public double Left { get => View.Left; set => View.Left = value; }
+
+        public void Close() {
+            _logger.LogMessage("Closing overlay window.");
+            View.Close();
+        }
+
+        public void Activate() {
+            _logger.LogMessage("Activating overlay window.");
+            View.Activate();
+        }
+
+        internal void Show() {
+            _logger.LogMessage("Showing overlay window.");
+            View.Show();
+        }
+
+        public event Action Closed;
+
+        private ICardZoneManager CreateCardZoneManager(IList<OverlayCardViewModel> overlayCards) {
+            var cardZoneManager = ServiceLocator.GetService<CardZoneManager>();
+            cardZoneManager.SetOverlayCards(overlayCards);
+
+            _cardZoneManagers.Add(cardZoneManager);
+
+            return cardZoneManager;
+        }
+
+        private void ClearAllCards() {
+            _topCardZoneManager.Clear();
+            _bottomCardZoneManager.Clear();
+
+            var allVisibleCardInfos = ViewModel.EncounterCardInfos.Union(ViewModel.PlayerCardInfos).ToList();
+            foreach (var overlayCard in allVisibleCardInfos) {
+                HideCardInfo(overlayCard.CardInfo);
+            }
+        }
+
+        #region Size Calculations
 
         private void CalculateDeckListHeight() {
             ViewModel.DeckListHeight = _appData.Configuration.OverlayHeight - 40;
@@ -139,61 +173,61 @@ namespace ArkhamOverlay.Pages.Overlay {
         }
 
         private void CalculateMaxHeightForCards() {
-            var actAgendaHeight = Math.Min(_configuration.ActAgendaCardHeight * OverlayCardViewModel.CardWidthRatio,  CalculateMaxHeightForRow(ViewModel.ActAgendaCards));
-            var handHeight = Math.Min(_configuration.HandCardHeight, CalculateMaxHeightForRow(ViewModel.HandCards));
-            var encounterHeight = Math.Min(_configuration.CardHeight, CalculateMaxHeightForRow(ViewModel.EncounterCards));
-            var playerHeight = Math.Min(_configuration.CardHeight, CalculateMaxHeightForRow(ViewModel.PlayerCards));
+            double topZoneCardsHeight = Math.Min(_configuration.TopCardZoneHeight * OverlayCardViewModel.CardWidthRatio,  CalculateMaxHeightForRow(ViewModel.TopZoneCards));
+            var encounterCardInfosHeight = Math.Min(_configuration.CardHeight, CalculateMaxHeightForRow(ViewModel.EncounterCardInfos));
+            var playerCardInfosHeight = Math.Min(_configuration.CardHeight, CalculateMaxHeightForRow(ViewModel.PlayerCardInfos));
+            var bottomZoneCardsHeight = Math.Min(_configuration.BottomCardZoneHeight, CalculateMaxHeightForRow(ViewModel.BottomZoneCards));
 
-            var isActAgendaVisible = actAgendaHeight > 0;
-            var isEncounterVisible = encounterHeight > 0;
-            var isPlayerVisible = playerHeight > 0;
-            var isHandVisible = handHeight > 0;
+            var isTopZoneVisible = topZoneCardsHeight > 0;
+            var isEncounterCardInfosVisible = encounterCardInfosHeight > 0;
+            var isPlayerCardInfosVisible = playerCardInfosHeight > 0;
+            var isBottomZoneVisible = bottomZoneCardsHeight > 0;
 
             var margins = 50; // top and bottom
-            if (isActAgendaVisible) margins += 10;
-            if (isEncounterVisible) margins += 10;
-            if (isPlayerVisible) margins += 10;
-            if (isHandVisible) margins += 10;
+            if (isTopZoneVisible) margins += 10;
+            if (isEncounterCardInfosVisible) margins += 10;
+            if (isPlayerCardInfosVisible) margins += 10;
+            if (isBottomZoneVisible) margins += 10;
 
             var overlayHeightWithMargins = _configuration.OverlayHeight - margins;
 
             //is there enough room to show everything?
-            if ((actAgendaHeight + handHeight + encounterHeight + playerHeight) > overlayHeightWithMargins) {
+            if ((topZoneCardsHeight + bottomZoneCardsHeight + encounterCardInfosHeight + playerCardInfosHeight) > overlayHeightWithMargins) {
                 //there is not- keep the act/agenda fixed and fill the remaining space
-                var spaceToFill = overlayHeightWithMargins - actAgendaHeight;
+                var spaceToFill = overlayHeightWithMargins - topZoneCardsHeight;
 
                 //how many zones do we have to account for?
                 var remainingZoneCount = 0;
-                if (isEncounterVisible) remainingZoneCount++;
-                if (isPlayerVisible) remainingZoneCount++;
-                if (isHandVisible) remainingZoneCount++;
+                if (isEncounterCardInfosVisible) remainingZoneCount++;
+                if (isPlayerCardInfosVisible) remainingZoneCount++;
+                if (isBottomZoneVisible) remainingZoneCount++;
 
                 //what is the average remaining zone height?
                 var averageHeight = spaceToFill / remainingZoneCount;
 
                 //if the encounter height is smaller than the average height, we have extra we can add to the other zones
-                var encounterHeightLeftover = (!isEncounterVisible || encounterHeight > averageHeight) ? 0 : averageHeight - encounterHeight;
+                var encounterHeightLeftover = (!isEncounterCardInfosVisible || encounterCardInfosHeight > averageHeight) ? 0 : averageHeight - encounterCardInfosHeight;
 
                 //if the player height is smaller than the average height, we have extra we can add to the other zones
-                var playerHeightLeftover = (!isPlayerVisible || playerHeight > averageHeight) ? 0 : averageHeight - playerHeight;
+                var playerHeightLeftover = (!isPlayerCardInfosVisible || playerCardInfosHeight > averageHeight) ? 0 : averageHeight - playerCardInfosHeight;
 
                 //if the hand height is smaller than the average heigh, we have extra we can add to the encounter player
-                var handHeightLeftover = (!isHandVisible || handHeight > averageHeight) ? 0 : averageHeight - handHeight;
+                var handHeightLeftover = (!isBottomZoneVisible || bottomZoneCardsHeight > averageHeight) ? 0 : averageHeight - bottomZoneCardsHeight;
                 
                 //hand heightLeftover needs to be split if both the encounter and player zones are visible
-                if (isEncounterVisible && isPlayerVisible) {
+                if (isEncounterCardInfosVisible && isPlayerCardInfosVisible) {
                     handHeightLeftover = handHeightLeftover / 2;
                 }
 
-                encounterHeight = Math.Min(encounterHeight, averageHeight + handHeightLeftover);
-                playerHeight = Math.Min(playerHeight, averageHeight + handHeightLeftover);
-                handHeight = Math.Min(handHeight, averageHeight + encounterHeightLeftover + playerHeightLeftover);
+                encounterCardInfosHeight = Math.Min(encounterCardInfosHeight, averageHeight + handHeightLeftover);
+                playerCardInfosHeight = Math.Min(playerCardInfosHeight, averageHeight + handHeightLeftover);
+                bottomZoneCardsHeight = Math.Min(bottomZoneCardsHeight, averageHeight + encounterHeightLeftover + playerHeightLeftover);
             }
 
-            SetMaxHeightForRow(ViewModel.ActAgendaCards, actAgendaHeight / OverlayCardViewModel.CardWidthRatio);
-            SetMaxHeightForRow(ViewModel.HandCards, handHeight);
-            SetMaxHeightForRow(ViewModel.EncounterCards, encounterHeight);
-            SetMaxHeightForRow(ViewModel.PlayerCards, playerHeight);
+            SetMaxHeightForRow(ViewModel.TopZoneCards, topZoneCardsHeight / OverlayCardViewModel.CardWidthRatio);
+            SetMaxHeightForRow(ViewModel.EncounterCardInfos, encounterCardInfosHeight);
+            SetMaxHeightForRow(ViewModel.PlayerCardInfos, playerCardInfosHeight);
+            SetMaxHeightForRow(ViewModel.BottomZoneCards, bottomZoneCardsHeight);
         }
 
         private double CalculateMaxHeightForRow(IList<OverlayCardViewModel> overlayCards) {
@@ -202,8 +236,8 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             var margin = overlayCards.First().Margin * 2;
-            var horizontalCount = overlayCards.Count(x => x.Card.IsHorizontal);
-            var verticalCount = overlayCards.Count(x => !x.Card.IsHorizontal);
+            var horizontalCount = overlayCards.Count(x => x.CardInfo.IsHorizontal);
+            var verticalCount = overlayCards.Count(x => !x.CardInfo.IsHorizontal);
             var maxCardWidth = (_configuration.OverlayWidth - 35 - (margin * (horizontalCount + verticalCount) )) / (verticalCount + horizontalCount / OverlayCardViewModel.CardWidthRatio);
 
             return maxCardWidth / OverlayCardViewModel.CardWidthRatio;
@@ -215,44 +249,94 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-        private void InitializeSelectableCards(SelectableCards selectableCards) {
-            selectableCards.CardVisibilityToggled += ToggleCardVisibilityHandler;
+        #endregion
 
-            selectableCards.CardSet.VisibilityToggled += () => {
-                if (selectableCards.Type == SelectableType.Scenario) {
-                    ToggleActAgendaVisibility();
-                } else {
-                    ToggleHandVisibility(selectableCards.CardSet);
-                }
-            };
+        #region Event Handlers
 
-            selectableCards.CardSet.Buttons.CollectionChanged += (s, e) => {
-                if (!selectableCards.CardSet.IsDisplayedOnOverlay) {
-                    return;
-                }
-
-                if (selectableCards.Type == SelectableType.Scenario) {
-                    UpdateCardSet(selectableCards.CardSet, ViewModel.ActAgendaCards);
-                } else {
-                    UpdateCardSet(selectableCards.CardSet, ViewModel.HandCards);
-                }
-            };
+        private void ButtonInfoChangedHandler(ButtonInfoChanged e) {
+            if (e.ButtonMode == ButtonMode.Zone) {
+                UpdateCardZone(GetCardZoneFromCardGroupId(e.CardGroupId));
+            }
         }
 
+        private void ButtonRemovedHandler(ButtonRemoved e) {
+            if (e.ButtonMode == ButtonMode.Zone) {
+                UpdateCardZone(GetCardZoneFromCardGroupId(e.CardGroupId));
+            }
+        }
 
-        private SelectableCards _currentDisplayedDeckList = null;
-        private void ShowDeckListRequest(ShowDeckListRequest request) {
+        private void ToggleCardZoneVisibilityRequestHandler(ToggleCardZoneVisibilityRequest request) {
+            ClearDeckList();
+
+            ToggleCardZone(request.CardZone);
+        }
+
+        private void ClearAllCardsRequestHandler(ClearAllCardsRequest request) {
+            ClearAllCards();
+        }
+
+        private void TakeSnapshotHandler(TakeSnapshotRequest request) {
+            _logger.LogMessage("Taking snapshot of overlay window.");
+
+            var timeStamp = DateTime.Now.ToString("yyddMHHmmss");
+
+            if (_appData.Configuration.SeperateStatSnapshots) {
+                WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}.png", View.Cards);
+                WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}-Stats.png", View.Stats);
+            } else {
+                WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}.png");
+            }
+
+            try {
+                Process.Start(_appData.Game.SnapshotDirectory);
+            } catch (Exception e) {
+                _logger.LogException(e, "Error opening snapshot directory");
+            }
+        }
+
+        private void ShowDeckListRequestHandler(ShowDeckListRequest request) {
+            ShowDeckList(GetCardGroupFromId(request.CardGroupId));
+        }
+
+        internal void ToggleCardInfoVisibilityRequestHandler(ToggleCardInfoVisibilityRequest request) {
+            var cardInfo = request.CardInfo;
+
+            _logger.LogMessage($"Showing card {cardInfo.Name} in overlay.");
+            ClearDeckList();
+
+            ToggleCardInfoVisibility(cardInfo);
+        }
+
+        private void ClearAllCardsForCardGroupRequestHandler(ClearAllCardsForCardGroupRequest request) {
+            var cardGroup = request.CardGroup;
+            var cardZone = cardGroup.CardZone;
+            if (cardZone != default(CardZone)) {
+                if (IsCardZoneVisible(cardZone)) {
+                    ToggleCardZone(cardZone);
+                }
+            }
+
+            foreach (var cardInfo in cardGroup.CardPool) {
+                if (IsCardInfoVisible(cardInfo)) {
+                    ToggleCardInfoVisibility(cardInfo);
+                }
+            }
+        }
+        #endregion
+
+        #region ShowDeckList
+        private CardGroup _currentDisplayedDeckList = null;
+        private void ShowDeckList(CardGroup cardGroup) {
             _logger.LogMessage("Showing deck list in overlay.");
-            var selectableCards = GetSelectableCardsFromDeck(request.Deck);
 
             //it's already displayed- just hide it
-            if (_currentDisplayedDeckList == selectableCards) {
+            if (_currentDisplayedDeckList == cardGroup) {
                 ClearDeckList();
                 return;
             }
 
-            var cards = from cardButton in selectableCards.CardButtons.OfType<ShowCardButton>()
-                        select cardButton.Card;
+            var cards = from cardButton in cardGroup.CardButtons.OfType<CardInfoButton>()
+                        select cardButton.CardInfo;
 
             var deckList = new List<DeckListItem>();
             foreach (var card in cards.Where(c => !c.IsBonded)) {
@@ -268,7 +352,7 @@ namespace ArkhamOverlay.Pages.Overlay {
                 }
             }
 
-            _currentDisplayedDeckList = selectableCards;
+            _currentDisplayedDeckList = cardGroup;
             ViewModel.DeckList = deckList;
             ViewModel.ShowDeckList = true;
         }
@@ -279,109 +363,65 @@ namespace ArkhamOverlay.Pages.Overlay {
             ViewModel.DeckList = null;
             _currentDisplayedDeckList = null;
         }
+        #endregion
 
-        internal void ToggleCardVisibilityHandler(Card card) {
-            _logger.LogMessage($"Showing card {card.Name} in overlay.");
-            ClearDeckList();
+        #region Card Info
+        private void ToggleCardInfoVisibility(CardInfo cardInfo) {
+            if (IsCardInfoVisible(cardInfo)) {
+                HideCardInfo(cardInfo);
+            } else {
+                ShowCardInfo(cardInfo);
+            }
+        }
 
-            card.IsDisplayedOnOverlay = !card.IsDisplayedOnOverlay;
-
-            var overlayCards = GetCardList(card);
-
-            var overlayCard = overlayCards.FirstOrDefault(x => x.Card == card);
+        private void HideCardInfo(CardInfo cardInfo) {
+            var overlayCards = GetOverlayCardInfoCardList(cardInfo);
+            var overlayCard = overlayCards.FirstOrDefault(x => x.CardInfo == cardInfo);
             if (overlayCard != null) {
                 overlayCards.RemoveOverlayCards(overlayCard);
-                return;
             }
 
-            var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration, OverlayCardType.Display) { Card = card };
+            _eventBus.PublishCardInfoVisibilityChanged(overlayCard.CardInfo.Name, false);
+        }
 
-            var overlayCardToReplace = overlayCards.FindCardToReplace(card);
+        private void ShowCardInfo(CardInfo cardInfo) {
+            var overlayCards = GetOverlayCardInfoCardList(cardInfo);
+
+            var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration, OverlayCardType.Info) { CardInfo = cardInfo };
+
+            var overlayCardToReplace = overlayCards.FindCardInfoToReplace(cardInfo);
             if (overlayCardToReplace == null) {
                 overlayCards.AddOverlayCard(newOverlayCard);
             } else {
-                overlayCardToReplace.Card.IsDisplayedOnOverlay = false;
+                _eventBus.PublishCardInfoVisibilityChanged(overlayCardToReplace.CardInfo.Name, false);
                 overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newOverlayCard;
             }
+
+            _eventBus.PublishCardInfoVisibilityChanged(cardInfo.Name, true); 
+        }
+        #endregion
+
+        #region Card Zones
+        private void ToggleCardZone(CardZone cardZone) {
+            var cardZoneManager = cardZone.Location == CardZoneLocation.Top ? _topCardZoneManager : _bottomCardZoneManager;
+            cardZoneManager.ToggleVisibility(cardZone);
         }
 
-        private ObservableCollection<OverlayCardViewModel> GetCardList(Card card) {
-            if (card.IsPlayerCard) {
-                return ViewModel.PlayerCards;
-            }
-
-            return ViewModel.EncounterCards;
-        }
-
-        private void ToggleActAgendaVisibility() {
-            ClearDeckList();
-
-            var cardSet = _appData.Game.ScenarioCards.CardSet;
-            if (cardSet.IsDisplayedOnOverlay) {
-                _logger.LogMessage($"Hiding act/agenda in overlay.");
-                ViewModel.ActAgendaCards.RemoveOverlayCards(ViewModel.ActAgendaCards.ToArray());
-                cardSet.IsDisplayedOnOverlay = false;
-            } else {
-                _logger.LogMessage($"Showing act/agenda in overlay.");
-                cardSet.IsDisplayedOnOverlay = true;
-                UpdateCardSet(cardSet, ViewModel.ActAgendaCards);
-            }            
-        }
-
-
-        private CardSet _currentlyDisplayedHandCardSet;
-        private void ToggleHandVisibility(CardSet cardSet) {
-            _logger.LogMessage($"Toggling hand in overlay.");
-            ClearDeckList();
-
-            //if there is a current hand being displayed- clear it
-            var currentHandCardSet = _currentlyDisplayedHandCardSet;
-
-            ClearCurrentlyDisplayedHandCardSet();
-
-            //if this hand is the hand that was already set, all we were doing was hiding it
-            if (cardSet == currentHandCardSet) {
-                _logger.LogMessage($"Hiding hand in overlay.");
-            } else {
-                _logger.LogMessage($"Showing new hand in overlay.");
-                _currentlyDisplayedHandCardSet = cardSet;
-                cardSet.IsDisplayedOnOverlay = true;
-                UpdateCardSet(cardSet, ViewModel.HandCards);
-            }
-        }
-
-        private void ClearCurrentlyDisplayedHandCardSet() {
-            if (_currentlyDisplayedHandCardSet == null) {
+        private void UpdateCardZone(CardZone cardZone) {
+            if (cardZone == default(CardZone)) {
                 return;
             }
 
-            _currentlyDisplayedHandCardSet.IsDisplayedOnOverlay = false;
-            _currentlyDisplayedHandCardSet = null;
+            if (!IsCardZoneVisible(cardZone)) {
+                return;
+            }
 
-            ViewModel.HandCards.RemoveOverlayCards(ViewModel.HandCards.ToArray());
+            var cardZoneManager = cardZone.Location == CardZoneLocation.Top ? _topCardZoneManager : _bottomCardZoneManager;
+            cardZoneManager.Update(cardZone);
         }
+        #endregion
 
-        private void UpdateCardSet(CardSet cardSet, ObservableCollection<OverlayCardViewModel> overlayCards) {
-            var overlayCardsToRemove = new List<OverlayCardViewModel>();
-            foreach (var overlayCard in overlayCards) {
-                if (!cardSet.CardInstances.Contains(overlayCard.CardInstance)) {
-                    overlayCardsToRemove.Add(overlayCard);
-                }
-            }
-            if (overlayCardsToRemove.Any()) {
-                overlayCards.RemoveOverlayCards(overlayCardsToRemove.ToArray());
-            }
-
-            foreach (var cardInstance in cardSet.CardInstances) {
-                if (!overlayCards.Any(x => x.CardInstance == cardInstance)) {
-                    var overlayCardType = (overlayCards == ViewModel.ActAgendaCards) ? OverlayCardType.ActAgenda : OverlayCardType.Hand;
-
-                    var newOverlayCard = new OverlayCardViewModel(ViewModel.AppData.Configuration, overlayCardType) { CardInstance = cardInstance };
-                    overlayCards.AddOverlayCard(newOverlayCard);
-                }
-            }
-        }
-
+        #region Snapshots
         private void AutoSnapshot() {
             //every half second we write a snapshot to a temp file and then try to overwrite the configured file with it
             //this prevents OBS from getting in a weird state where it tries to read a file that is not there (because we are writing it)
@@ -403,25 +443,6 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
         }
 
-        private void TakeSnapshot(TakeSnapshotRequest takeSnapshotRequest) {
-            _logger.LogMessage("Taking snapshot of overlay window.");
-
-            var timeStamp = DateTime.Now.ToString("yyddMHHmmss");
-
-            if (_appData.Configuration.SeperateStatSnapshots) {
-                WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}.png", View.Cards);
-                WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}-Stats.png", View.Stats);
-            } else {
-                WriteSnapshotToFile($"{_appData.Game.SnapshotDirectory}\\OverlaySnapshot{timeStamp}.png");
-            }
-
-            try {
-                Process.Start(_appData.Game.SnapshotDirectory);
-            } catch (Exception e) {
-                _logger.LogException(e, "Error opening snapshot directory");
-            }
-        }
-
         private void WriteSnapshotToFile(string file, FrameworkElement controlToSnapshot = null) {
             if (controlToSnapshot == null) {
                 controlToSnapshot = View.Overlay;
@@ -440,53 +461,58 @@ namespace ArkhamOverlay.Pages.Overlay {
                 _logger.LogException(ex, "Error writing snapshot to file.");
             }
         }
+        #endregion
 
-        private SelectableCards GetSelectableCardsFromDeck(Deck deck) {
-            switch (deck) {
-                case Deck.Player1:
-                    return _appData.Game.Players[0].SelectableCards;
-                case Deck.Player2:
-                    return _appData.Game.Players[1].SelectableCards;
-                case Deck.Player3:
-                    return _appData.Game.Players[2].SelectableCards;
-                case Deck.Player4:
-                    return _appData.Game.Players[3].SelectableCards;
-                case Deck.Scenario:
+        #region Utils
+        private bool IsCardZoneVisible(CardZone cardZone) {
+            return _cardZoneManagers.Any(x => x.IsShowingCardZone(cardZone));
+        }
+
+        private bool IsCardInfoVisible(CardInfo cardInfo) {
+            return GetAllOverlayCardsForCardInfos().Any(x => x.CardInfo == cardInfo);
+        }
+
+        private IEnumerable<OverlayCardViewModel> GetAllOverlayCardsForCardInfos() {
+            return ViewModel.EncounterCardInfos.Union(ViewModel.PlayerCardInfos);
+        }
+
+        private CardZone GetCardZoneFromCardGroupId(CardGroupId cardGroupId) {
+            foreach (var cardGroup in _appData.Game.AllCardGroups) {
+                if (cardGroup.Id == cardGroupId) {
+                    return cardGroup.CardZone;
+                }
+            }
+            return null;
+        }
+
+        private ObservableCollection<OverlayCardViewModel> GetOverlayCardInfoCardList(CardInfo card) {
+            if (card.IsPlayerCard) {
+                return ViewModel.PlayerCardInfos;
+            }
+
+            return ViewModel.EncounterCardInfos;
+        }
+
+        private CardGroup GetCardGroupFromId(CardGroupId id) {
+            switch (id) {
+                case CardGroupId.Player1:
+                    return _appData.Game.Players[0].CardGroup;
+                case CardGroupId.Player2:
+                    return _appData.Game.Players[1].CardGroup;
+                case CardGroupId.Player3:
+                    return _appData.Game.Players[2].CardGroup;
+                case CardGroupId.Player4:
+                    return _appData.Game.Players[3].CardGroup;
+                case CardGroupId.Scenario:
                     return _appData.Game.ScenarioCards;
-                case Deck.Locations:
+                case CardGroupId.Locations:
                     return _appData.Game.LocationCards;
-                case Deck.EncounterDeck:
+                case CardGroupId.EncounterDeck:
                     return _appData.Game.EncounterDeckCards;
                 default:
                     return null;
-                    break;
             }
         }
-    }
-
-    public static class OverlayCardExtensions {
-        public static void AddOverlayCard(this ObservableCollection<OverlayCardViewModel> cards, OverlayCardViewModel cardViewModel) {
-            var insertIndex = cards.Count;
-
-            if (cardViewModel.Card.Type == CardType.Agenda) {
-                //add this directly to the left of the first act
-                var firstAct = cards.FirstOrDefault(x => x.Card.Type == CardType.Act);
-                if (firstAct != null) {
-                    insertIndex = cards.IndexOf(firstAct);
-                }
-            }
-
-            cards.Insert(insertIndex, cardViewModel);
-        }
-
-        public static void RemoveOverlayCards(this ObservableCollection<OverlayCardViewModel> overlayCards, params OverlayCardViewModel[] overlayCardsToRemove) {
-            foreach (var overlayCard in overlayCardsToRemove) {
-                overlayCards.Remove(overlayCard);
-            }
-        }
-
-        public static OverlayCardViewModel FindCardToReplace(this ObservableCollection<OverlayCardViewModel> overlayCards, Card card) {
-            return overlayCards.FirstOrDefault(x => x.Card == card.FlipSideCard);
-        }
+        #endregion
     }
 }

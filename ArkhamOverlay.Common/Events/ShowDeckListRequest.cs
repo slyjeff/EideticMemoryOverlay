@@ -4,16 +4,16 @@ using System;
 
 namespace ArkhamOverlay.Common.Events {
     public class ShowDeckListRequest : ICrossAppEvent {
-        public ShowDeckListRequest(Deck deck) {
-            Deck = deck;
+        public ShowDeckListRequest(CardGroupId cardGroupId) {
+            CardGroupId = cardGroupId;
         }
 
-        public Deck Deck { get; }
+        public CardGroupId CardGroupId { get; }
     }
 
     public static class ShowDeckListRequestExtensions {
-        public static void PublishShowDeckListRequest(this IEventBus eventBus, Deck deck) {
-            eventBus.Publish(new ShowDeckListRequest(deck));
+        public static void PublishShowDeckListRequest(this IEventBus eventBus, CardGroupId cardGroupId) {
+            eventBus.Publish(new ShowDeckListRequest(cardGroupId));
         }
 
         public static void SubscribeToShowDeckListRequest(this IEventBus eventBus, Action<ShowDeckListRequest> callback) {

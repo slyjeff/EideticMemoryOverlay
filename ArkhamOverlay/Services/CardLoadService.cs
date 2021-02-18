@@ -87,7 +87,7 @@ namespace ArkhamOverlay.Services {
             _logger.LogMessage($"Loading deck for player {player.ID}.");
 
             var arkhamDbDeck = _arkhamDbService.GetPlayerDeck(player.DeckId);
-            player.SelectableCards.Name = arkhamDbDeck.Investigator_Name;
+            player.CardGroup.Name = arkhamDbDeck.Investigator_Name;
             player.InvestigatorCode = arkhamDbDeck.Investigator_Code;
             player.Slots = arkhamDbDeck.Slots;
 
@@ -146,12 +146,12 @@ namespace ArkhamOverlay.Services {
 
                     var cards = GetEncounterCards();
 
-                    var scenarioCards = new List<Card>();
-                    var agendas = new List<Card>();
-                    var acts = new List<Card>();
-                    var locations = new List<Card>();
-                    var treacheries = new List<Card>();
-                    var enemies = new List<Card>();
+                    var scenarioCards = new List<CardInfo>();
+                    var agendas = new List<CardInfo>();
+                    var acts = new List<CardInfo>();
+                    var locations = new List<CardInfo>();
+                    var treacheries = new List<CardInfo>();
+                    var enemies = new List<CardInfo>();
 
                     foreach (var card in cards) {
                         switch (card.Type) {
@@ -209,9 +209,9 @@ namespace ArkhamOverlay.Services {
             // TODO: Consider alternatives to loading all cards
             var localCards = _localCardsService.LoadLocalCards();
 
-            player.SelectableCards.Loading = true;
+            player.CardGroup.Loading = true;
             try {
-                var cards = new List<Card>();
+                var cards = new List<CardInfo>();
                 foreach (var slot in player.Slots) {
                     ArkhamDbCard arkhamDbCard = _arkhamDbService.GetCard(slot.Key);
                     if (arkhamDbCard != null) {
@@ -219,7 +219,7 @@ namespace ArkhamOverlay.Services {
                         // Override card image with local card if possible
                         FindCardImageSource(arkhamDbCard, localCards);
 
-                        var card = new Card(arkhamDbCard, slot.Value, true);
+                        var card = new CardInfo(arkhamDbCard, slot.Value, true);
 
                         _cardImageService.LoadImage(card);
 
@@ -232,16 +232,16 @@ namespace ArkhamOverlay.Services {
                         _logger.LogError($"Could not find player {player.ID} card: {slot.Key}");
                     }
                 }
-                player.SelectableCards.LoadCards(cards);
+                player.CardGroup.LoadCards(cards);
             } catch (Exception ex) {
                 _logger.LogException(ex, $"Error loading cards for player {player.ID}.");
             } finally {
-                player.SelectableCards.Loading = false;
+                player.CardGroup.Loading = false;
             }
             _logger.LogMessage($"Finished loading cards for player {player.ID}.");
         }
 
-        private IEnumerable<Card> GetBondedCards(ArkhamDbCard arkhamDbCard, List<LocalManifestCard> localCards) {
+        private IEnumerable<CardInfo> GetBondedCards(ArkhamDbCard arkhamDbCard, List<LocalManifestCard> localCards) {
             if (arkhamDbCard is ArkhamDbFullCard fullCard && fullCard.Bonded_Cards?.Any() == true) {
                 foreach (var bondedCardInfo in fullCard.Bonded_Cards) {
                     ArkhamDbCard bondedArkhamDbCard = _arkhamDbService.GetCard(bondedCardInfo.Code);
@@ -250,7 +250,7 @@ namespace ArkhamOverlay.Services {
                         // Override card image with local card if possible
                         FindCardImageSource(bondedArkhamDbCard, localCards);
 
-                        var bondedCard = new Card(bondedArkhamDbCard, bondedCardInfo.Count, isPlayerCard: true, isBonded: true);
+                        var bondedCard = new CardInfo(bondedArkhamDbCard, bondedCardInfo.Count, isPlayerCard: true, isBonded: true);
                         _cardImageService.LoadImage(bondedCard);
                         yield return bondedCard;
                     } else {
@@ -260,7 +260,7 @@ namespace ArkhamOverlay.Services {
             }
         }
 
-        private List<Card> GetEncounterCards() {
+        private List<CardInfo> GetEncounterCards() {
             var packsToLoad = new List<Pack>();
             foreach (var pack in _appData.Configuration.Packs) {
                 foreach (var encounterSet in pack.EncounterSets) {
@@ -273,7 +273,7 @@ namespace ArkhamOverlay.Services {
 
             var localCards = _localCardsService.LoadLocalCardsFromPacks(_appData.Game.LocalPacks);
 
-            var cards = new List<Card>();
+            var cards = new List<CardInfo>();
             foreach (var pack in packsToLoad) {
                 var arkhamDbCards = _arkhamDbService.GetCardsInPack(pack.Code);
 
@@ -285,11 +285,11 @@ namespace ArkhamOverlay.Services {
                     // Look for corresponding local card and grab its image. Remove it from the list to avoid duplicates
                     FindCardImageSource(arkhamDbCard, localCards, removeLocalCard: true);
 
-                    var newCard = new Card(arkhamDbCard, 1, isPlayerCard: false);
+                    var newCard = new CardInfo(arkhamDbCard, 1, isPlayerCard: false);
                     _cardImageService.LoadImage(newCard);
                     cards.Add(newCard);
                     if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) {
-                        var newCardBack = new Card(arkhamDbCard, 1, isPlayerCard: false, cardBack: true);
+                        var newCardBack = new CardInfo(arkhamDbCard, 1, isPlayerCard: false, cardBack: true);
                         _cardImageService.LoadImage(newCardBack);
                         newCard.FlipSideCard = newCardBack;
                         newCardBack.FlipSideCard = newCard;
@@ -299,12 +299,12 @@ namespace ArkhamOverlay.Services {
             }
 
             foreach (var localCard in localCards) {
-                var newLocalCard = new Card(localCard, false);
+                var newLocalCard = new CardInfo(localCard, false);
                 _cardImageService.LoadImage(newLocalCard);
                 cards.Add(newLocalCard);
 
                 if (localCard.HasBack) {
-                    var newLocalCardBack = new Card(localCard, true);
+                    var newLocalCardBack = new CardInfo(localCard, true);
                     _cardImageService.LoadImage(newLocalCardBack);
                     cards.Add(newLocalCardBack);
                 }

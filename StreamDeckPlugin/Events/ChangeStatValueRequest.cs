@@ -4,19 +4,19 @@ using System;
 
 namespace StreamDeckPlugin.Events {
     public class ChangeStatValueRequest : IEvent {
-        public ChangeStatValueRequest(Deck deck, StatType statType, bool increase) {
+        public ChangeStatValueRequest(CardGroupId deck, StatType statType, bool increase) {
             Deck = deck;
             StatType = statType;
             Increase = increase;
         }
 
-        public Deck Deck { get; }
+        public CardGroupId Deck { get; }
         public StatType StatType { get; }
         public bool Increase { get; }
     }
 
     public static class ChangeStatValueRequestExtensions {
-        public static void PublishChangeStatValueRequest(this IEventBus eventBus, Deck deck, StatType statType, bool increase) {
+        public static void PublishChangeStatValueRequest(this IEventBus eventBus, CardGroupId deck, StatType statType, bool increase) {
             eventBus.Publish(new ChangeStatValueRequest(deck, statType, increase));
         }
 

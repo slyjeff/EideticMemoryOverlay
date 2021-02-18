@@ -6,17 +6,19 @@
         xmlns:selectcards="clr-namespace:ArkhamOverlay.Pages.SelectCards"
         d:DataContext="{d:DesignInstance {x:Type selectcards:SelectCardsViewModel}, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
-        Title="{Binding SelectableCards.Name}"
+        Title="{Binding CardGroup.Name}"
         SizeToContent="Height"
         Background="Black">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         
         <ContextMenu x:Key="cmSelectPlayer">
-            <MenuItem Header="{Binding AddCardToPlayer1.Text}" Visibility="{Binding AddCardToPlayer1.Visibility}"  Command="{Binding AddCardToPlayer1}" />
-            <MenuItem Header="{Binding AddCardToPlayer2.Text}" Visibility="{Binding AddCardToPlayer2.Visibility}"  Command="{Binding AddCardToPlayer2}" />
-            <MenuItem Header="{Binding AddCardToPlayer3.Text}" Visibility="{Binding AddCardToPlayer3.Visibility}"  Command="{Binding AddCardToPlayer3}" />
-            <MenuItem Header="{Binding AddCardToPlayer4.Text}" Visibility="{Binding AddCardToPlayer4.Visibility}"  Command="{Binding AddCardToPlayer4}" />
+            <ContextMenu.ItemContainerStyle>
+                <Style TargetType="{x:Type MenuItem}">
+                    <Setter Property='Command' Value="{Binding}"/>
+                    <Setter Property='Header' Value="{Binding Text}"/>
+                </Style>
+            </ContextMenu.ItemContainerStyle>
         </ContextMenu>
         
         <Style x:Key="ImageStyle" TargetType="{x:Type Image}">
@@ -61,7 +63,7 @@
         </Style>
     </Window.Resources>
     <StackPanel Orientation="Vertical">
-        <ItemsControl ItemsSource="{Binding SelectableCards.CardButtons}" BorderThickness="0">
+        <ItemsControl ItemsSource="{Binding CardGroup.CardButtons}" BorderThickness="0">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardButtonStyle}">
@@ -72,11 +74,11 @@
                         <Border.InputBindings>
                            <MouseBinding 
                                         MouseAction="LeftClick" 
-                                        Command="{Binding DataContext.CardLeftClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        Command="{Binding DataContext.CardTemplateLeftClick, RelativeSource={RelativeSource AncestorType=Window}}" 
                                         CommandParameter="{Binding}"/>
                             <MouseBinding 
                                         MouseAction="RightClick" 
-                                        Command="{Binding DataContext.CardRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        Command="{Binding DataContext.CardTemplateRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
                                         CommandParameter="{Binding}"/>
                         </Border.InputBindings>
                     </Border>
@@ -91,12 +93,12 @@
         <TextBlock Margin="5, 10, 0, 2"
                    Foreground="White"
                    FontWeight="Bold"
-                   Text="{Binding SelectableCards.CardSetName}"
-                   Visibility="{Binding Path=SelectableCards.ShowCardSetButtons, Converter={StaticResource BoolToVisibility}}"/>
+                   Text="{Binding CardGroup.CardZoneName}"
+                   Visibility="{Binding Path=CardGroup.ShowCardZoneButtons, Converter={StaticResource BoolToVisibility}}"/>
         <ItemsControl 
-            ItemsSource="{Binding SelectableCards.CardSet.Buttons}" 
+            ItemsSource="{Binding CardGroup.CardZone.Buttons}" 
             BorderThickness="0"
-            Visibility="{Binding Path=SelectableCards.ShowCardSetButtons, Converter={StaticResource BoolToVisibility}}">
+            Visibility="{Binding Path=CardGroup.ShowCardZoneButtons, Converter={StaticResource BoolToVisibility}}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardButtonStyle}">

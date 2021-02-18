@@ -1,18 +1,22 @@
 ﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Services;
-using ArkhamOverlay.Utils;
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.Data {
-    public delegate void CardToggledEvent(ICardButton card);
+    public delegate void CardToggledEvent(IButton card);
 
-    public class Card : IHasImageButton {
-        public Card() {
+    /// <summary>
+    /// All information about a card, including images from either arkham db or local stored
+    /// </summary>
+    public class CardInfo : IHasImageButton {
+        public CardInfo() {
         }
 
-        public Card(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false, bool isBonded = false) {
+        public CardInfo(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false, bool isBonded = false) {
             Code = arkhamDbCard.Code;
             Count = count;
             Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")";
@@ -33,7 +37,7 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-        public Card(LocalManifestCard localCard, bool cardBack) {
+        public CardInfo(LocalManifestCard localCard, bool cardBack) {
             Code = "";
             Count = 1;
             Name = localCard.Name;
@@ -107,18 +111,7 @@ namespace ArkhamOverlay.Data {
 
         public bool IsPlayerCard { get; private set; }
 
-        public Card FlipSideCard { get; set; }
-
-        public event Action<bool> IsDisplayedOnOverlayChanged;
-        
-        private bool _isDisplayedOnOverlay = false;
-        public bool IsDisplayedOnOverlay {
-            get => _isDisplayedOnOverlay;
-            set {
-                _isDisplayedOnOverlay = value;
-                IsDisplayedOnOverlayChanged?.Invoke(_isDisplayedOnOverlay);
-            }
-        }
+        public CardInfo FlipSideCard { get; set; }
 
         private CardType GetCardType(string typeCode) {
             if(Enum.TryParse(typeCode, ignoreCase: true, out CardType type)) {

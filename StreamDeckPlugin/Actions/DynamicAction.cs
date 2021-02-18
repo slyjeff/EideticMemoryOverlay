@@ -4,6 +4,7 @@ using System.Timers;
 using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
+using ArkhamOverlay.Events;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
@@ -14,7 +15,7 @@ using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
-    public class DynamicAction : StreamDeckAction<ActionWithDeckSettings>, IDynamicActionInfoContext {
+    public class DynamicAction : StreamDeckAction<ActionWithDeckSettings>, IButtonContext {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore = ServiceLocator.GetService<IDynamicActionInfoStore>();
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
@@ -32,15 +33,15 @@ namespace StreamDeckPlugin.Actions {
             _keyPressTimer.Elapsed += KeyHeldDown;
         }
 
-        public DynamicActionMode Mode { get; private set; } 
+        public ButtonMode ButtonMode { get; private set; } 
 
-        public Deck Deck {
+        public CardGroupId CardGroupId {
             get {
                 if (_settings == null) {
-                    return Deck.Player1;
+                    return CardGroupId.Player1;
                 }
 
-                return _settings.Deck.AsDeck();
+                return _settings.Deck.AsCardGroupId();
             }
         }
 
@@ -69,7 +70,7 @@ namespace StreamDeckPlugin.Actions {
             _eventBus.SubscribeToPageChangedEvent(PageChanged);
             _eventBus.SubscribeToModeToggledEvent(ModeToggled);
 
-            SetMode(DynamicActionMode.Pool);
+            SetButtonMode(ButtonMode.Pool);
  
             return Task.CompletedTask;
         }
@@ -110,7 +111,7 @@ namespace StreamDeckPlugin.Actions {
                 _keyIsDown = false;
                 _keyPressTimer.Enabled = false;
 
-                SendClick(isLeftClick: false);
+                SendClick(MouseButton.Right);
             }
         }
 
@@ -123,21 +124,21 @@ namespace StreamDeckPlugin.Actions {
                 _keyPressTimer.Enabled = false;
 
                 _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-                SendClick(isLeftClick: true);
+                SendClick(MouseButton.Left);
 
                 return Task.CompletedTask;
             }
         }
 
-        private void SendClick(bool isLeftClick) {
-            _eventBus.PublishDynamicButtonClickRequest(Deck, Index, Mode, isLeftClick);
+        private void SendClick(MouseButton mouseButton) {
+            _eventBus.PublishButtonClickRequest(CardGroupId, ButtonMode, Index, mouseButton, string.Empty);
 
             //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
         }
 
         private void GetButtonInfo() {
-            _eventBus.PublishGetButtonInfoRequest(Deck, Index, Mode);
+            _eventBus.PublishGetButtonInfoRequest(CardGroupId, ButtonMode, Index);
         }
 
         private void DynamicActionChanged(DynamicActionInfoChangedEvent dynamicActionInfoChangedEvent) {
@@ -169,21 +170,21 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void ModeToggled(ModeToggledEvent modeToggledEvent) {
-            SetMode(Mode == DynamicActionMode.Pool ? DynamicActionMode.Set : DynamicActionMode.Pool);
+            SetButtonMode(ButtonMode == ButtonMode.Pool ? ButtonMode.Zone : ButtonMode.Pool);
         }
 
-        public void SetMode(DynamicActionMode mode) {
+        public void SetButtonMode(ButtonMode buttonMode) {
             _page = 0;
-            Mode = mode;
+            ButtonMode = buttonMode;
 
             UpdateButtonToNewDynamicAction();
         }
 
         private void UpdateButtonToNewDynamicAction() {
-            var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(Deck, Index, Mode);
+            var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(this);
             if (dynamicActionInfo == null) {
                 SetTitleAsync(string.Empty);
-                ClearImage();
+                SetImageAsync(string.Empty);
 
                 GetButtonInfo();
                 return;
@@ -194,16 +195,7 @@ namespace StreamDeckPlugin.Actions {
         private void UpdateButtonDisplay(IDynamicActionInfo dynamicActionInfo) {
             _lastSetTitle = dynamicActionInfo.Text;
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
-
-            if (_imageService.HasImage(dynamicActionInfo.ImageId)) {
-                SetImageAsync(_imageService.GetImage(dynamicActionInfo));
-            } else {
-                ClearImage();
-            }
-        }
-
-        private void ClearImage() {
-            SetImageAsync(string.Empty);
+            SetImageAsync(_imageService.GetImage(dynamicActionInfo));
         }
     }
 }

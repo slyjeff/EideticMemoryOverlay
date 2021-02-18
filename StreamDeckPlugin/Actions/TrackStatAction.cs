@@ -24,25 +24,25 @@ namespace StreamDeckPlugin.Actions {
         public TrackStatAction(StatType statType) {
             StatType = statType;
 
-            _eventBus.SubscribeToStatUpdatedEvent(StatUpdated);
+            _eventBus.SubscribeToStatUpdated(StatUpdated);
 
             _keyPressTimer.Enabled = false;
             _keyPressTimer.Elapsed += KeyHeldDown;
         }
 
-        private void StatUpdated(StatUpdatedEvent statUpdatedEvent) {
-            if (statUpdatedEvent.Deck == Deck && statUpdatedEvent.StatType == StatType) {
+        private void StatUpdated(StatUpdated statUpdatedEvent) {
+            if (statUpdatedEvent.CardGroupId == CardGroupId && statUpdatedEvent.StatType == StatType) {
                 UpdateValue(statUpdatedEvent.Value);
             }
         }
 
-        public Deck Deck {
+        public CardGroupId CardGroupId {
             get {
                 if (_settings == null) {
-                    return Deck.Player1;
+                    return CardGroupId.Player1;
                 }
 
-                return _settings.Deck.AsDeck();
+                return _settings.Deck.AsCardGroupId();
             }
         }
 
@@ -51,7 +51,7 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<TrackStatSettings>();
 
-            _eventBus.PublishGetStatValueRequest(Deck, StatType);
+            _eventBus.PublishGetStatValueRequest(CardGroupId, StatType);
 
             return SetTitleAsync(_value.ToString());
         }
@@ -90,13 +90,13 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void SendStatValueRequest(bool increase) {
-            _eventBus.PublishChangeStatValueRequest(Deck, StatType, increase);
+            _eventBus.PublishChangeStatValueRequest(CardGroupId, StatType, increase);
         }
 
         protected async override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
 
-            _eventBus.PublishGetStatValueRequest(Deck, StatType);
+            _eventBus.PublishGetStatValueRequest(CardGroupId, StatType);
 
             await SetSettingsAsync(_settings);
         }
