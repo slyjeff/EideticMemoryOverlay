@@ -1,6 +1,8 @@
 ﻿using ArkhamOverlay.Common;
 using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Utils;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace StreamDeckPlugin.Services {
     public interface IDynamicActionInfo : IButtonContext {
@@ -8,6 +10,7 @@ namespace StreamDeckPlugin.Services {
         string ImageId { get; set; }
         string Text { get; set; }
         bool IsToggled { get; set; }
+        IList<ButtonOption> ButtonOptions {get; set;}
     }
 
 
@@ -16,6 +19,7 @@ namespace StreamDeckPlugin.Services {
             CardGroupId = buttonContex.CardGroupId;
             ButtonMode = buttonContex.ButtonMode;
             Index = buttonContex.Index;
+            ButtonOptions = new List<ButtonOption>();
         }
 
         public CardGroupId CardGroupId { get; }
@@ -25,6 +29,7 @@ namespace StreamDeckPlugin.Services {
         public bool IsImageAvailable { get; set; }
         public string Text { get; set; }
         public bool IsToggled { get; set; }
+        public IList<ButtonOption> ButtonOptions { get; set; }
     }
 
     static class DynamicActionInfoExtensions {
@@ -32,7 +37,8 @@ namespace StreamDeckPlugin.Services {
             return dynamicActionInfo.Text != cardInfo.Name
                 || dynamicActionInfo.IsToggled != cardInfo.IsToggled
                 || dynamicActionInfo.ImageId != cardInfo.Name
-                || dynamicActionInfo.IsImageAvailable != cardInfo.ImageAvailable;
+                || dynamicActionInfo.IsImageAvailable != cardInfo.ImageAvailable
+                || dynamicActionInfo.ButtonOptions.SequenceEqual(cardInfo.ButtonOptions);
         }
 
         static internal void UpdateFromCardInfo(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {
@@ -40,6 +46,7 @@ namespace StreamDeckPlugin.Services {
             dynamicActionInfo.IsToggled = cardInfo.IsToggled;
             dynamicActionInfo.ImageId = cardInfo.Name;
             dynamicActionInfo.IsImageAvailable = cardInfo.ImageAvailable;
+            dynamicActionInfo.ButtonOptions = cardInfo.ButtonOptions;
         }
     }
 }

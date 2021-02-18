@@ -1,4 +1,4 @@
-﻿namespace ArkhamOverlay.Utils {
+﻿namespace ArkhamOverlay.Common.Utils {
     public delegate string ResolvePlaceholderDelegate(string parameterName);
 
     public class ButtonOption {
@@ -9,6 +9,14 @@
 
         public string Option { get; }
         public string Text { get; }
+
+        public override bool Equals(object obj) {
+            if (obj is ButtonOption buttonOption) {
+                return (Option == buttonOption.Option)
+                    && (Text == buttonOption.Text);
+            }
+            return false;
+        }
 
         /// <summary>
         /// Look for placeholders in the text (text in <<xxxx>> format) and perform the callback to replace with actual values
@@ -38,6 +46,5 @@
 
             return text + Text.Substring(index); ;
         }
-
     }
 }

@@ -1,6 +1,6 @@
 ﻿using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Data;
-using ArkhamOverlay.Utils;
 using System.Windows.Media;
 
 namespace ArkhamOverlay.CardButtons {

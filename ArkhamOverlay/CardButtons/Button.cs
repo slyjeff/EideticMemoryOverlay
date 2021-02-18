@@ -1,4 +1,5 @@
-﻿using ArkhamOverlay.Utils;
+﻿using ArkhamOverlay.Common.Utils;
+using ArkhamOverlay.Utils;
 using PageController;
 using System.Collections.Generic;
 using System.Windows.Media;

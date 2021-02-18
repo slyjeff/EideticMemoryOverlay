@@ -59,6 +59,7 @@
     <Compile Include="Events\ShowDeckListRequest.cs" />
     <Compile Include="Events\StatUpdated.cs" />
     <Compile Include="Events\TakeSnapshotRequest.cs" />
+    <Compile Include="Utils\ButtonOption.cs" />
     <Compile Include="Utils\EnumUtils.cs" />
     <Compile Include="Utils\ServiceLocator.cs" />
     <Compile Include="Tcp\AoTcpRequest.cs" />

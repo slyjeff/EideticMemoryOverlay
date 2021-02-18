@@ -7,14 +7,10 @@ using ArkhamOverlay.Common.Tcp.Requests;
 using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Data;
-using ArkhamOverlay.Events;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Specialized;
 using System.Net.Sockets;
 using System.Text;
-using System.Windows;
-using System.Windows.Threading;
 
 namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
@@ -195,11 +191,12 @@ namespace ArkhamOverlay.Services {
 
             var cardInfoReponse = (cardButton == null)
                 ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
-                : new CardInfoResponse { 
+                : new CardInfoResponse {
                     CardButtonType = GetCardType(cardImageButton?.CardInfo),
                     Name = cardButton.Text.Replace("Right Click", "Long Press"),
                     IsToggled = cardButton.IsToggled,
-                    ImageAvailable = cardImageButton?.CardInfo.ButtonImageAsBytes != null
+                    ImageAvailable = cardImageButton?.CardInfo.ButtonImageAsBytes != null,
+                    ButtonOptions = cardButton.Options
                 };
 
             Send(socket, cardInfoReponse.ToString());
