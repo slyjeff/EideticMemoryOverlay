@@ -127,7 +127,7 @@
     <Compile Include="Events\ModeToggledEvent.cs" />
     <Compile Include="Events\PageChangedEvent.cs" />
     <Compile Include="Events\DynamicActionInfoChangedEvent.cs" />
-    <Compile Include="Services\DynamicActionIndexService.cs" />
+    <Compile Include="Services\DynamicActionManager.cs" />
     <Compile Include="Services\DynamicActionInfo.cs" />
     <Compile Include="Services\ImageService.cs" />
     <Compile Include="Services\DynamicActionInfoStore.cs" />
