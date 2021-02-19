@@ -62,17 +62,17 @@ namespace StreamDeckPlugin.Actions {
             }
         }
 
-        private int _relativeIndex = -1;
+        private int _positionInGroup = -1;
         public int _dynamicActionCount = 0;
 
         /// <summary>
         /// Called by the DynamicActionIndexService to set information necessary for calculating its index
         /// </summary>
-        /// <param name="relativeIndex">The index of the Dynamic Action relative to all other Dynamic Actions assigned to the same Card Group</param>
+        /// <param name="positionInGroup">The position of the Dynamic Action relative to all other Dynamic Actions assigned to the same Card Group</param>
         /// <param name="">The total number of Dynamic Actions in this Dynamic Action's Card Group</param>
-        public void UpdateIndexInformation(int relativeIndex, int dynamicActionCount) {
+        public void UpdateIndexInformation(int positionInGroup, int dynamicActionCount) {
             var logicalIndexBeforeUpdate = Index;
-            _relativeIndex = relativeIndex;
+            _positionInGroup = positionInGroup;
             _dynamicActionCount = dynamicActionCount;
 
             //don't request new information if our index hasn't changed
@@ -84,8 +84,8 @@ namespace StreamDeckPlugin.Actions {
         /// <summary>
         /// Index of the Button in the UI this Dynamic Action corresponds to
         /// </summary>
-        /// <remarks>Takes into account the Relative Index as well as the page</remarks>
-        public int Index { get { return (_page * _dynamicActionCount) + _relativeIndex; } }
+        /// <remarks>Takes into account the position in group as well as the page</remarks>
+        public int Index { get { return (_page * _dynamicActionCount) + _positionInGroup; } }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _coordinates = args.Payload.Coordinates;
@@ -212,7 +212,7 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void UpdateButtonToNewDynamicAction() {
-            if (_relativeIndex == -1) {
+            if (_positionInGroup == -1) {
                 //we don't know our position yet, so don't try to display anything
                 return;
             }
