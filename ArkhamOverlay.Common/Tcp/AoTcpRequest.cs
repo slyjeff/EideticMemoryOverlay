@@ -4,11 +4,9 @@
         GetButtonInfo,
         GetButtonImage,
         UpdateStatInfo,
-        UpdateInvestigatorImage,
         RegisterForUpdates,
         StatValue,
         ChangeStatValue,
-        GetInvestigatorImage,
         EventBus,
     };
 }

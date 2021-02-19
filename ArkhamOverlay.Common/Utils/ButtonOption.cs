@@ -1,5 +1,5 @@
 ﻿namespace ArkhamOverlay.Common.Utils {
-    public delegate string ResolvePlaceholderDelegate(string parameterName);
+    public delegate string ResolvePlaceholderDelegate(string placeholderName);
 
     public class ButtonOption {
         public ButtonOption(string option, string text) {

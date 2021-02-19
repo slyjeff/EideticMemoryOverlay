@@ -23,6 +23,7 @@ namespace StreamDeckPlugin {
             container.Configure(x => {
                 x.For<IEventBus>().Use(eventBus);
                 x.For<ICrossAppEventBus>().Use(eventBus);
+                x.For<ICardGroupStore>().Use<CardGroupStore>().Singleton();
                 x.For<IDynamicActionManager>().Use<DynamicActionManager>().Singleton();
                 x.For<IDynamicActionInfoStore>().Use<DynamicActionInfoStore>().Singleton();
                 x.For<ISendEventHandler>().Use<SendEventHandler>().Singleton();

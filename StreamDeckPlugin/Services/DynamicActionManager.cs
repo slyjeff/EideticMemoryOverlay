@@ -1,8 +1,10 @@
-﻿using ArkhamOverlay.Common.Enums;
+﻿using ArkhamOverlay.Common;
+using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
 using StreamDeckPlugin.Actions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
@@ -85,11 +87,13 @@ namespace StreamDeckPlugin.Services {
         private readonly object _dynamicActionsLock = new object();
         private readonly IEventBus _eventBus;
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
+        private readonly ICardGroupStore _cardGroupStore;
         private bool _recalculateInProgress = false;
 
-        public DynamicActionManager(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore) {
+        public DynamicActionManager(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore, ICardGroupStore cardGroupStore) {
             _eventBus = eventBus;
             _dynamicActionInfoStore = dynamicActionInfoStore;
+            _cardGroupStore = cardGroupStore;
         }
 
         /// <summary>
@@ -172,8 +176,12 @@ namespace StreamDeckPlugin.Services {
                     if (buttonOptionIndex < buttonOptions.Count) {
                         var option = buttonOptions[buttonOptionIndex++];
                         var text = option.GetTextResolvingPlaceholders(ResolveOptionPlaceholder);
+                        if (string.IsNullOrEmpty(text)) {
+                            action.SetOption(new DynamicActionOption(buttonContext, string.Empty, string.Empty));
+                        } else {
+                            action.SetOption(new DynamicActionOption(buttonContext, option.Option, text));
+                        }
 
-                        action.SetOption(new DynamicActionOption(buttonContext, option.Option, text));
                         continue;
                     }
 
@@ -198,8 +206,13 @@ namespace StreamDeckPlugin.Services {
         /// <param name="placeholder">The placeholder to resolve</param>
         /// <returns>The actual value the placeholder represents</returns>
         /// <remarks>Example "player1" (represented by <<xxxx>></xxxx> in the text) will resolve to the name of player 1 in game data</remarks>
-        private string ResolveOptionPlaceholder(string parameterName) {
-            return parameterName;
+        private string ResolveOptionPlaceholder(string placeholder) {
+            if (Enum.TryParse(placeholder, out CardGroupId cardGroupId)) {
+                var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
+                return (cardGroupInfo == default(ICardGroupInfo)) ? null : cardGroupInfo.Name;
+            }
+
+            return null;
         }
 
         /// <summary>

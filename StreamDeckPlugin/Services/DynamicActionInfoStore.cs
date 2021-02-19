@@ -17,9 +17,12 @@ namespace StreamDeckPlugin.Services {
         private readonly IList<DynamicActionInfo> _dynamicActionInfoList = new List<DynamicActionInfo>();
 
         private readonly IEventBus _eventBus;
+        private readonly IImageService _imageService;
 
-        public DynamicActionInfoStore(IEventBus eventBus) {
+        public DynamicActionInfoStore(IEventBus eventBus, IImageService imageService) {
             _eventBus = eventBus;
+            _imageService = imageService;
+
             eventBus.SubscribeToImageLoadedEvent(e => ImageLoaded(e.ImageId));
             eventBus.SubscribeToCardInfoVisibilityChanged(e => CardInfoVisibilityChanged(e.Name, e.IsVisible));
             eventBus.SubscribeToButtonInfoChanged(ButtonInfoChanged);
@@ -49,8 +52,7 @@ namespace StreamDeckPlugin.Services {
             if (dynamicActionInfo == null) {
                 AddDynamicActionInfo(buttonContex, cardInfo);
             } else {
-                //don't raise events within a lock
-                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
+                PublishChangeEventsForChangedActions(dynamicActionInfo);
             }
         }
 
@@ -74,12 +76,8 @@ namespace StreamDeckPlugin.Services {
                 changedActionInfoList.Add(dynamicActionInfo);
             }
 
-            //don't raise events within a lock
-            foreach (var dynamicActionInfo in changedActionInfoList) {
-                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
-            }
+            PublishChangeEventsForChangedActions(changedActionInfoList);
         }
-
 
         private void ImageLoaded(string imageId) {
             var dynamicActionInfoWithImageItems = new List<DynamicActionInfo>();
@@ -89,9 +87,7 @@ namespace StreamDeckPlugin.Services {
                                                   select dynamicActionInfo).ToList();
             }
 
-            foreach (var dynamicActionInfo in dynamicActionInfoWithImageItems) {
-                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
-            }
+            PublishChangeEventsForChangedActions(dynamicActionInfoWithImageItems);
         }
 
         private void CardInfoVisibilityChanged(string name, bool isVisible) {
@@ -105,10 +101,7 @@ namespace StreamDeckPlugin.Services {
                 }
             }
 
-            //don't raise events within a lock
-            foreach (var dynamicActionInfo in changedActionInfoList) {
-                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
-            }
+            PublishChangeEventsForChangedActions(changedActionInfoList);
         }
 
         private void ButtonInfoChanged(ButtonInfoChanged eventData) {
@@ -123,7 +116,6 @@ namespace StreamDeckPlugin.Services {
             var changedActionInfoList = new List<DynamicActionInfo>();
             lock (_cacheLock) {
                 var dynamicActionToRemove = _dynamicActionInfoList.FirstOrDefaultWithContext(e);
-                //changedActionInfoList.Add(dynamicActionToRemove);
                 _dynamicActionInfoList.Remove(dynamicActionToRemove);
 
                 var lastIndex = dynamicActionToRemove.Index;
@@ -144,10 +136,7 @@ namespace StreamDeckPlugin.Services {
                 changedActionInfoList.Add(blankDynamicAction);
             }
 
-            //don't raise events within a lock
-            foreach (var dynamicActionInfo in changedActionInfoList) {
-                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
-            }
+            PublishChangeEventsForChangedActions(changedActionInfoList);
         }
 
         private void ButtonTextChanged(ButtonTextChanged e) {
@@ -159,10 +148,7 @@ namespace StreamDeckPlugin.Services {
                 }
             }
 
-            //don't raise events within a lock
-            foreach (var dynamicActionInfo in dynamicActionsToChange) {
-                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
-            }
+            PublishChangeEventsForChangedActions(dynamicActionsToChange);
         }
 
         private void ButtonToggled(ButtonToggled e) {
@@ -174,9 +160,20 @@ namespace StreamDeckPlugin.Services {
                 }
             }
 
-            //don't raise events within a lock
-            foreach (var dynamicActionInfo in dynamicActionsToChange) {
-                _eventBus.PublishDynamicActionInfoChanged(dynamicActionInfo);
+            PublishChangeEventsForChangedActions(dynamicActionsToChange);
+        }
+
+        private void PublishChangeEventsForChangedActions(DynamicActionInfo action) {
+            PublishChangeEventsForChangedActions(new List<DynamicActionInfo> { action });
+        }
+
+        private void PublishChangeEventsForChangedActions(IEnumerable<DynamicActionInfo> changedActions) {
+            foreach (var action in changedActions) {
+                if (action.IsImageAvailable) {
+                    _imageService.LoadImage(action.ImageId, action.CardGroupId, action.ButtonMode, action.Index);
+                }
+
+                _eventBus.PublishDynamicActionInfoChanged(action);
             }
         }
     }
