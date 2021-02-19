@@ -58,7 +58,9 @@ namespace StreamDeckPlugin.Services {
                 _cardGroupInfoCache[eventData.CardGroupId] = eventData;
             }
 
-            _imageService.LoadImage(eventData.ImageId, eventData.CardGroupId);
+            if (eventData.IsImageAvailable) {
+                _imageService.LoadImage(eventData.ImageId, eventData.CardGroupId);
+            }
             _eventBus.PublishStreamDeckCardGroupInfoChanged(eventData);
 
             UpdateCardGroupInfo(eventData);            
