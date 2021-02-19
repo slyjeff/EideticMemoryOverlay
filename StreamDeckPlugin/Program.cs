@@ -28,7 +28,8 @@ namespace StreamDeckPlugin {
                 x.For<IDynamicActionInfoStore>().Use<DynamicActionInfoStore>().Singleton();
                 x.For<ISendEventHandler>().Use<SendEventHandler>().Singleton();
                 x.For<IImageService>().Use<ImageService>().Singleton();
-                x.For<IRequestHandler>().Use<TcpRequestHandler>();
+                x.For<ITcpRequestHandler>().Use<TcpRequestHandler>().Singleton();
+                x.For<IRequestHandler>().Use(c => c.GetInstance<ITcpRequestHandler>());
                 x.For<IReceiveSocketService>().Use<ReceiveSocketService>();
                 x.For<IEstablishConnectionToUiService>().Use<EstablishConnectionToUiService>();
             });

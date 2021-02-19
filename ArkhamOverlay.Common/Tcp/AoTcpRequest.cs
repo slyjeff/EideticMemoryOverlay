@@ -3,6 +3,7 @@
         Unknown,
         GetButtonInfo,
         GetButtonImage,
+        ConnectionIsAlive,
         UpdateStatInfo,
         RegisterForUpdates,
         StatValue,

@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Events\CardGroupChanged.cs" />
     <Compile Include="ICardGroupInfo.cs" />
+    <Compile Include="Tcp\Requests\ConnectIsAliveRequest.cs" />
     <Compile Include="Tcp\Requests\ButtonImageRequest.cs" />
     <Compile Include="Utils\ButtonContext.cs" />
     <Compile Include="Events\ButtonClickRequest.cs" />

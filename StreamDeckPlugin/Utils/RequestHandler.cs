@@ -8,7 +8,11 @@ using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Common.Services;
 
 namespace StreamDeckPlugin.Utils {
-    public class TcpRequestHandler : IRequestHandler {
+    public interface ITcpRequestHandler : IRequestHandler {
+        bool RequestReceivedRecently { get; set; }
+    }
+
+    public class TcpRequestHandler : ITcpRequestHandler {
         private readonly ICrossAppEventBus _crossAppEventBus;
 
         public TcpRequestHandler(ICrossAppEventBus crossAppEventBus) {
@@ -22,6 +26,9 @@ namespace StreamDeckPlugin.Utils {
 
             Console.WriteLine("Handling Request: " + request.RequestType.ToString());
             switch (request.RequestType) {
+                case AoTcpRequest.ConnectionIsAlive:
+                    HandleConnectionIsAliveRequest(request);
+                    break;
                 case AoTcpRequest.EventBus:
                     HandleEventBusRequest(request);
                     break;
@@ -47,6 +54,9 @@ namespace StreamDeckPlugin.Utils {
             } catch (Exception e) {
                 Console.WriteLine(e.ToString());
             }
+        }
+        private void HandleConnectionIsAliveRequest(TcpRequest request) {
+            Send(request.Socket, new OkResponse().ToString());
         }
 
         private void HandleEventBusRequest(TcpRequest request) {

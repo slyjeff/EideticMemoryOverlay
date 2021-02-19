@@ -129,13 +129,14 @@ namespace ArkhamOverlay.Services {
 
         private void HandleRegisterForUpdates(TcpRequest request) {
             _logger.LogMessage("Handling register for update request");
-            var registerForUpdatesRequest = JsonConvert.DeserializeObject<RegisterForUpdatesRequest>(request.Body);
-            if (!_broadcastService.Ports.Contains(registerForUpdatesRequest.Port)) {
-                _broadcastService.Ports.Add(registerForUpdatesRequest.Port);
-                SendAllStats();
-                SendAllCardGroupInfo();
-            }
             SendOkResponse(request.Socket);
+
+            var registerForUpdatesRequest = JsonConvert.DeserializeObject<RegisterForUpdatesRequest>(request.Body);
+
+            _broadcastService.AddPort(registerForUpdatesRequest.Port);
+
+            SendAllStats();
+            SendAllCardGroupInfo();
         }
 
         private void SendAllStats() {
