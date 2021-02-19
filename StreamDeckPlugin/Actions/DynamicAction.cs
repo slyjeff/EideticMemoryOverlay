@@ -137,13 +137,9 @@ namespace StreamDeckPlugin.Actions {
                 _keyIsDown = false;
                 _keyPressTimer.Enabled = false;
 
-                //check to see if there are options- if there is more than one, we need to show a menu
-                var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(this);
-                if (dynamicActionInfo != null && dynamicActionInfo.ButtonOptions.Count > 1) {
-                    _dynamicActionManager.ShowMenu(this, dynamicActionInfo.ButtonOptions);
+                if (_dynamicActionManager.ShowMenuIfNecessary(this)) {
                     return;
                 }
-                
                 SendClick(MouseButton.Right);
             }
         }
@@ -187,7 +183,6 @@ namespace StreamDeckPlugin.Actions {
             _dynamicActionOption = dynamicActionOption;
             UpdateButtonToNewDynamicAction();
         }
-
 
         private void SendClick(MouseButton mouseButton) {
             _eventBus.PublishButtonClickRequest(CardGroupId, ButtonMode, Index, mouseButton, string.Empty);
@@ -247,7 +242,7 @@ namespace StreamDeckPlugin.Actions {
 
             if (_dynamicActionOption != null) {
                 //we are displaying a menu option, not our normal stuff
-                SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.ButtonOption.Text));
+                SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
                 SetImageAsync(ImageUtils.BlankImage());
                 return;
             }

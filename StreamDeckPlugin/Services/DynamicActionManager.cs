@@ -15,22 +15,29 @@ namespace StreamDeckPlugin.Services {
         /// <summary>
         /// Create DynamicActionOption with a reference to the original dynamic action requesting the menu and the menu option to display
         /// </summary>
-        /// <param name="buttonOption">The original dynamic action requesting the menu</param>
-        /// <param name="action">The menu option to display</param>
-        public DynamicActionOption(ButtonOption buttonOption, DynamicAction action) {
-            ButtonOption = buttonOption;
-            Action = action;
+        /// <param name="buttonContext">Button context for the button that requires the menu</param>
+        /// <param name="option">Option to pass to the right click request if this dynamic action is selected</param>
+        /// <param name="text">Text to displaay for the menu</param>
+        public DynamicActionOption(IButtonContext buttonContext, string option, string text) {
+            ButtonContext = buttonContext;
+            Option = option;
+            Text = text;
         }
 
         /// <summary>
-        /// The original dynamic action requesting the menu
+        /// Button context for the button that requires the menu
         /// </summary>
-        public DynamicAction Action { get; }
+        public IButtonContext ButtonContext{ get; }
 
         /// <summary>
-        /// The menu option to display
+        /// Option to pass to the right click request if this dynamic action is selected
         /// </summary>
-        public ButtonOption ButtonOption { get; }
+        public string Option { get; }
+
+        /// <summary>
+        /// Text to displaay for the menu
+        /// </summary>
+        public string Text { get; }
     }
 
     /// <summary>
@@ -57,11 +64,11 @@ namespace StreamDeckPlugin.Services {
         void ReclaculateIndexes();
 
         /// <summary>
-        /// Use dynamic actions to display a menu of options, and then publish and event with the chosen option
+        /// If there is more than one option based on this button context, use dynamic actions to display a menu of options, and then publish and event with the chosen option
         /// </summary>
-        /// <param name="dynamicAction">Action that is initiating this menu</param>
-        /// <param name="buttonOptions">List of options to present to the user</param>
-        void ShowMenu(DynamicAction dynamicAction, IList<ButtonOption> buttonOptions);
+        /// <param name="buttonContext">Button Context used to determine if a menu needs to be shown (more than one option is available)</param>
+        /// <returns>Whether a menu is necessary</returns>
+        bool ShowMenuIfNecessary(IButtonContext buttonContext);
 
         /// <summary>
         /// Execute the logic appropriate for the selected option
@@ -77,10 +84,12 @@ namespace StreamDeckPlugin.Services {
         private readonly IList<DynamicAction> _dynamicActions = new List<DynamicAction>();
         private readonly object _dynamicActionsLock = new object();
         private readonly IEventBus _eventBus;
+        private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
         private bool _recalculateInProgress = false;
 
-        public DynamicActionManager(IEventBus eventBus) {
+        public DynamicActionManager(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore) {
             _eventBus = eventBus;
+            _dynamicActionInfoStore = dynamicActionInfoStore;
         }
 
         /// <summary>
@@ -146,30 +155,51 @@ namespace StreamDeckPlugin.Services {
         }
 
         /// <summary>
-        /// Use dynamic actions to display a menu of options, and then publish and event with the chosen option
+        /// Displays a menu if necessary
         /// </summary>
-        /// <param name="dynamicAction">Action that is initiating this menu</param>
-        /// <param name="buttonOptions">List of options to present to the user</param>
-        public void ShowMenu(DynamicAction dynamicAction, IList<ButtonOption> buttonOptions) {
+        /// <param name="buttonContext">Button Context used to determine if a menu needs to be shown (more than one option is available)</param>
+        /// <returns>Whether a menu is necessary</returns>
+        public bool ShowMenuIfNecessary(IButtonContext buttonContext) {
+            var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(buttonContext);
+            if (dynamicActionInfo == null || dynamicActionInfo.ButtonOptions.Count <= 1) {
+                return false;
+            }
+            var buttonOptions = dynamicActionInfo.ButtonOptions;
+
             lock (_dynamicActionsLock) {
                 var buttonOptionIndex = 0;
-                foreach (var action in GetActionsForCardGroup(dynamicAction.CardGroupId)) {
+                foreach (var action in GetActionsForCardGroup(buttonContext.CardGroupId)) {
                     if (buttonOptionIndex < buttonOptions.Count) {
-                        action.SetOption(new DynamicActionOption(buttonOptions[buttonOptionIndex++], dynamicAction));
+                        var option = buttonOptions[buttonOptionIndex++];
+                        var text = option.GetTextResolvingPlaceholders(ResolveOptionPlaceholder);
+
+                        action.SetOption(new DynamicActionOption(buttonContext, option.Option, text));
                         continue;
                     }
 
                     if (buttonOptionIndex == buttonOptions.Count) {
                         //show a cancel button
-                        action.SetOption(new DynamicActionOption(new ButtonOption(string.Empty, "Cancel"), dynamicAction));
+                        action.SetOption(new DynamicActionOption(buttonContext, string.Empty, "Cancel"));
                         buttonOptionIndex++;
                         continue;
                     }
 
                     //show a blank screen (these buttons will still cancel)
-                    action.SetOption(new DynamicActionOption(new ButtonOption(string.Empty, string.Empty), dynamicAction));
+                    action.SetOption(new DynamicActionOption(buttonContext, string.Empty, string.Empty));
                 }
             }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Callback to resolve placeholder in a menu item so we can provide more contextual information
+        /// </summary>
+        /// <param name="placeholder">The placeholder to resolve</param>
+        /// <returns>The actual value the placeholder represents</returns>
+        /// <remarks>Example "player1" (represented by <<xxxx>></xxxx> in the text) will resolve to the name of player 1 in game data</remarks>
+        private string ResolveOptionPlaceholder(string parameterName) {
+            return parameterName;
         }
 
         /// <summary>
@@ -177,21 +207,21 @@ namespace StreamDeckPlugin.Services {
         /// </summary>
         /// <param name="dynamicActionOption">Originally received from the dynamic action manager; contains the information necessary to handle this menu item</param>
         public void OptionSelected(DynamicActionOption dynamicActionOption) {
-            var dynamicAction = dynamicActionOption.Action;
+            var buttonContext = dynamicActionOption.ButtonContext;
 
             //return dynamic actions back to their normal mode
             lock (_dynamicActionsLock) {
-                foreach (var action in GetActionsForCardGroup(dynamicAction.CardGroupId)) {
+                foreach (var action in GetActionsForCardGroup(buttonContext.CardGroupId)) {
                     action.SetOption(null);
                 }
             }
 
-            var option = dynamicActionOption.ButtonOption.Option;
+            var option = dynamicActionOption.Option;
             if (string.IsNullOrEmpty(option)) {
                 return;
             }
 
-            _eventBus.PublishButtonClickRequest(dynamicAction.CardGroupId, dynamicAction.ButtonMode, dynamicAction.Index, MouseButton.Right, option);
+            _eventBus.PublishButtonClickRequest(buttonContext.CardGroupId, buttonContext.ButtonMode, buttonContext.Index, MouseButton.Right, option);
         }
 
 
