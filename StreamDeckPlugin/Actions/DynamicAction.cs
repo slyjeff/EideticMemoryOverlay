@@ -176,22 +176,6 @@ namespace StreamDeckPlugin.Actions {
         }
 
         /// <summary>
-        /// Called by the dynamic action manager to set information necessary for calculating its index
-        /// </summary>
-        /// <param name="relativeIndex">The index of the Dynamic Action relative to all other Dynamic Actions assigned to the same Card Group</param>
-        /// <param name="">The total number of Dynamic Actions in this Dynamic Action's Card Group</param>
-        public void UpdateIndexInformation(int relativeIndex, int dynamicActionCount) {
-            var logicalIndexBeforeUpdate = Index;
-            _relativeIndex = relativeIndex;
-            _dynamicActionCount = dynamicActionCount;
-
-            //don't request new information if our index hasn't changed
-            if (Index != logicalIndexBeforeUpdate) {
-                UpdateButtonToNewDynamicAction();
-            }
-        }
-
-        /// <summary>
         /// Called by the dynamic action manager to make this action display an option instead of its normal text
         /// </summary>
         /// <param name="dynamicActionOption">option to display to ther user, and pass back to the dynamic action manager when the button is pressed</param>
