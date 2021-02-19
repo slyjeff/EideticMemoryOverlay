@@ -17,6 +17,7 @@ namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
     public class DynamicAction : StreamDeckAction<ActionWithDeckSettings>, IButtonContext {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore = ServiceLocator.GetService<IDynamicActionInfoStore>();
+        private readonly IDynamicActionIndexService _dynamicActionIndexService = ServiceLocator.GetService<IDynamicActionIndexService>();
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
 
@@ -45,7 +46,10 @@ namespace StreamDeckPlugin.Actions {
             }
         }
 
-        public int Index {
+        /// <summary>
+        /// The index of the Dynamic Action determined by its physical location
+        /// </summary>
+        public int PhysicalIndex {
             get {
                 var rows = 4;
                 var columns = 16;
@@ -54,18 +58,42 @@ namespace StreamDeckPlugin.Actions {
                     rows = device.Size.Rows;
                     columns = device.Size.Columns;
                 }
-
-                var buttonsPerPage = rows * columns - 4; //4 because the return to parent, show hand, left, and right buttons take up four slots
-
-                return (_page * buttonsPerPage) + (_coordinates.Row * columns + _coordinates.Column) - 1;
+                return _coordinates.Column + _coordinates.Row * columns;
             }
         }
+
+        private int _positionInGroup = -1;
+        public int _dynamicActionCount = 0;
+
+        /// <summary>
+        /// Called by the DynamicActionIndexService to set information necessary for calculating its index
+        /// </summary>
+        /// <param name="positionInGroup">The position of the Dynamic Action relative to all other Dynamic Actions assigned to the same Card Group</param>
+        /// <param name="">The total number of Dynamic Actions in this Dynamic Action's Card Group</param>
+        public void UpdateIndexInformation(int positionInGroup, int dynamicActionCount) {
+            var logicalIndexBeforeUpdate = Index;
+            _positionInGroup = positionInGroup;
+            _dynamicActionCount = dynamicActionCount;
+
+            //don't request new information if our index hasn't changed
+            if (Index != logicalIndexBeforeUpdate) {
+                UpdateButtonToNewDynamicAction();
+            }
+        }
+
+        /// <summary>
+        /// Index of the Button in the UI this Dynamic Action corresponds to
+        /// </summary>
+        /// <remarks>Takes into account the position in group as well as the page</remarks>
+        public int Index { get { return (_page * _dynamicActionCount) + _positionInGroup; } }
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _coordinates = args.Payload.Coordinates;
             _deviceId = args.Device;
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-            
+
+            _dynamicActionIndexService.RegisterAction(this);
+
             _eventBus.SubscribeToDynamicActionInfoChangedEvent(DynamicActionChanged);
             _eventBus.SubscribeToPageChangedEvent(PageChanged);
             _eventBus.SubscribeToModeToggledEvent(ModeToggled);
@@ -79,11 +107,14 @@ namespace StreamDeckPlugin.Actions {
             _eventBus.UnsubscribeFromModeToggledEvent(ModeToggled);
             _eventBus.UnsubscribeFromPageChangedEvent(PageChanged);
             _eventBus.UnsubscribeFromDynamicActionInfoChangedEvent(DynamicActionChanged);
+            _dynamicActionIndexService.UnregisterAction(this);
             return Task.CompletedTask;
         }
 
         protected override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
+
+            _dynamicActionIndexService.ReclaculateIndexes();
 
             SetSettingsAsync(_settings);
 
@@ -181,6 +212,11 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void UpdateButtonToNewDynamicAction() {
+            if (_positionInGroup == -1) {
+                //we don't know our position yet, so don't try to display anything
+                return;
+            }
+
             var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(this);
             if (dynamicActionInfo == null) {
                 SetTitleAsync(string.Empty);
