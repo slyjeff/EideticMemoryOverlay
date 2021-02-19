@@ -4,6 +4,7 @@ using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
 using StreamDeckPlugin.Actions;
+using StreamDeckPlugin.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +20,13 @@ namespace StreamDeckPlugin.Services {
         /// </summary>
         /// <param name="buttonContext">Button context for the button that requires the menu</param>
         /// <param name="option">Option to pass to the right click request if this dynamic action is selected</param>
-        /// <param name="text">Text to displaay for the menu</param>
-        public DynamicActionOption(IButtonContext buttonContext, string option, string text) {
+        /// <param name="text">Text to display for the menu</param>
+        /// <param name="image">Image to display for the menu- will use a blank image if null or empty</param>
+        public DynamicActionOption(IButtonContext buttonContext, string option = null, string text = null, string image = null) {
             ButtonContext = buttonContext;
             Option = option;
             Text = text;
+            Image = string.IsNullOrEmpty(image) ? ImageUtils.BlankImage() : image;
         }
 
         /// <summary>
@@ -37,9 +40,14 @@ namespace StreamDeckPlugin.Services {
         public string Option { get; }
 
         /// <summary>
-        /// Text to displaay for the menu
+        /// Text to display for the menu
         /// </summary>
         public string Text { get; }
+
+        /// <summary>
+        /// Image to display for the menu
+        /// </summary>
+        public string Image { get; }
     }
 
     /// <summary>
@@ -88,12 +96,14 @@ namespace StreamDeckPlugin.Services {
         private readonly IEventBus _eventBus;
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
         private readonly ICardGroupStore _cardGroupStore;
+        private readonly IImageService _imageService;
         private bool _recalculateInProgress = false;
 
-        public DynamicActionManager(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore, ICardGroupStore cardGroupStore) {
+        public DynamicActionManager(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore, ICardGroupStore cardGroupStore, IImageService imageService) {
             _eventBus = eventBus;
             _dynamicActionInfoStore = dynamicActionInfoStore;
             _cardGroupStore = cardGroupStore;
+            _imageService = imageService;
         }
 
         /// <summary>
@@ -168,51 +178,29 @@ namespace StreamDeckPlugin.Services {
             if (dynamicActionInfo == null || dynamicActionInfo.ButtonOptions.Count <= 1) {
                 return false;
             }
-            var buttonOptions = dynamicActionInfo.ButtonOptions;
 
             lock (_dynamicActionsLock) {
-                var buttonOptionIndex = 0;
+                var options = CreateDynamicActionOptions(dynamicActionInfo);
+                var optionIndex = 0;
                 foreach (var action in GetActionsForCardGroup(buttonContext.CardGroupId)) {
-                    if (buttonOptionIndex < buttonOptions.Count) {
-                        var option = buttonOptions[buttonOptionIndex++];
-                        var text = option.GetTextResolvingPlaceholders(ResolveOptionPlaceholder);
-                        if (string.IsNullOrEmpty(text)) {
-                            action.SetOption(new DynamicActionOption(buttonContext, string.Empty, string.Empty));
-                        } else {
-                            action.SetOption(new DynamicActionOption(buttonContext, option.Option, text));
-                        }
-
+                    if (optionIndex < options.Count) {
+                        action.SetOption(options[optionIndex++]);
                         continue;
                     }
 
-                    if (buttonOptionIndex == buttonOptions.Count) {
+                    if (optionIndex == options.Count) {
                         //show a cancel button
                         action.SetOption(new DynamicActionOption(buttonContext, string.Empty, "Cancel"));
-                        buttonOptionIndex++;
+                        optionIndex++;
                         continue;
                     }
 
                     //show a blank screen (these buttons will still cancel)
-                    action.SetOption(new DynamicActionOption(buttonContext, string.Empty, string.Empty));
+                    action.SetOption(new DynamicActionOption(buttonContext));
                 }
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// Callback to resolve placeholder in a menu item so we can provide more contextual information
-        /// </summary>
-        /// <param name="placeholder">The placeholder to resolve</param>
-        /// <returns>The actual value the placeholder represents</returns>
-        /// <remarks>Example "player1" (represented by <<xxxx>></xxxx> in the text) will resolve to the name of player 1 in game data</remarks>
-        private string ResolveOptionPlaceholder(string placeholder) {
-            if (Enum.TryParse(placeholder, out CardGroupId cardGroupId)) {
-                var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
-                return (cardGroupInfo == default(ICardGroupInfo)) ? null : cardGroupInfo.Name;
-            }
-
-            return null;
         }
 
         /// <summary>
@@ -237,6 +225,56 @@ namespace StreamDeckPlugin.Services {
             _eventBus.PublishButtonClickRequest(buttonContext.CardGroupId, buttonContext.ButtonMode, buttonContext.Index, MouseButton.Right, option);
         }
 
+        /// <summary>
+        /// Create a list of dynamic action options for the specificed dynamic action
+        /// </summary>
+        /// <param name="dynamicActionInfo">Creat options based on this information</param>
+        /// <returns>A list of dynamic action options including dynamicly resolved actions and images if applicable</returns>
+        private IList<DynamicActionOption> CreateDynamicActionOptions(IDynamicActionInfo dynamicActionInfo) {
+            var options = new List<DynamicActionOption>();
+            foreach (var buttonOption in dynamicActionInfo.ButtonOptions) {
+                var option = CreateDynamicActionOption(buttonOption, dynamicActionInfo);
+                if (option == null) {
+                    continue;
+                }
+
+                options.Add(option);
+            }
+
+            return options;
+        }
+
+        /// <summary>
+        /// Create a dynamic action option, resolving placeholders from a button option
+        /// </summary>
+        /// <param name="buttonOption">The button option that is the basis for this dynamic action option</param>
+        /// <param name="buttonContext">The button context that is the source of the menu</param>
+        /// <returns>A Dynamic action option with resovled text and possibly an image, if appicable</returns>
+        private DynamicActionOption CreateDynamicActionOption(ButtonOption buttonOption, IButtonContext buttonContext) {
+            var image = string.Empty;
+            
+            var text = buttonOption.GetTextResolvingPlaceholders(placeholder => {
+                if (Enum.TryParse(placeholder, out CardGroupId cardGroupId)) {
+                    var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
+                    if (cardGroupInfo == default(ICardGroupInfo)) {
+                        return null;
+                    }
+
+                    //if this is a card group, grab the image name and assign it to this button
+                    image = _imageService.GetImage(cardGroupInfo.ImageId);
+                    
+                    return cardGroupInfo.Name;
+                }
+
+                return null;
+            });
+
+            if (string.IsNullOrEmpty(text)) {
+                return default;
+            }
+
+            return new DynamicActionOption(buttonContext, buttonOption.Option, text, image);
+        }
 
         /// <summary>
         /// Get all dynamic actions for a card group, ordered by physical id

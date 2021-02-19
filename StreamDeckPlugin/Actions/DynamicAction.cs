@@ -243,7 +243,7 @@ namespace StreamDeckPlugin.Actions {
             if (_dynamicActionOption != null) {
                 //we are displaying a menu option, not our normal stuff
                 SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
-                SetImageAsync(ImageUtils.BlankImage());
+                SetImageAsync(_dynamicActionOption.Image);
                 return;
             }
 

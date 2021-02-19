@@ -22,7 +22,6 @@ namespace StreamDeckPlugin.Services {
         /// <param name="buttonMode">ButtonMode for the image- may be null if the image is for the Card Group </param>
         /// <param name="index">Index of the image- may be null if the image is for the Card Group</param>
         void LoadImage(string imageId, CardGroupId cardGroupId, ButtonMode? buttonMode = null, int? index = null);
-   
     }
 
     public class ImageService : IImageService {
