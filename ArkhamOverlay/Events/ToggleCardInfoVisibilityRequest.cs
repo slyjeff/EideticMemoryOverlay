@@ -11,7 +11,7 @@ namespace ArkhamOverlay.Events {
         public CardInfo CardInfo { get; }
     }
 
-    public static class ToggleCardVisibilityRequestExtensions {
+    public static class ToggleCardInfoVisibilityRequestExtensions {
         public static void PublishToggleCardInfoVisibilityRequest(this IEventBus eventBus, CardInfo cardInfo) {
             eventBus.Publish(new ToggleCardInfoVisibilityRequest(cardInfo));
         }

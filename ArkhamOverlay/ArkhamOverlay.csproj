@@ -142,7 +142,7 @@
     <Compile Include="Events\ClearAllCardsForCardGroupRequest.cs" />
     <Compile Include="Events\CardZoneVisibilityToggled.cs" />
     <Compile Include="Events\ToggleCardZoneVisibilityRequest.cs" />
-    <Compile Include="Events\ToggleCardTemplateVisibilityRequest.cs" />
+    <Compile Include="Events\ToggleCardInfoVisibilityRequest.cs" />
     <Compile Include="Events\StatTrackingVisibilityChangedEvent.cs" />
     <Compile Include="Pages\LocalImages\LocalImagesController.cs" />
     <Compile Include="Pages\LocalImages\LocalImagesView.xaml.cs">

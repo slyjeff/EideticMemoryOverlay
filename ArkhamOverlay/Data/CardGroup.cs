@@ -22,7 +22,7 @@ namespace ArkhamOverlay.Data {
     }
 
     /// <summary>
-    /// A logical grouping of cards that contains a pool (cards avaialbe for use by this card group) and (optionally) CardZone(s) that
+    /// A logical grouping of cards that contains a pool (cards avaiable for use by this card group) and (optionally) CardZone(s) that
     /// represent physical locations of instances of cards in the real world
     /// </summary>
     public class CardGroup : ViewModel, ICardGroup, INotifyPropertyChanged {
@@ -110,7 +110,6 @@ namespace ArkhamOverlay.Data {
         /// <summary>
         /// The first Card Zone assigned to this CardGroup. Will be default(CardZone) if no Card Zone is assigned
         /// </summary>
-        /// <remarks>This will eventually go away as we start supporting multiple Card Zones more fully</remarks>
         public CardZone CardZone { get { return GetCardZone(0); } }
 
         private bool _showCardZoneButtons;
@@ -159,7 +158,6 @@ namespace ArkhamOverlay.Data {
             return index < CardZone.Buttons.Count ? CardZone.Buttons[index] : default(Button);
         }
 
-
         /// <summary>
         /// Remove all CardInfos from the pool and all card zones
         /// </summary>
@@ -193,6 +191,7 @@ namespace ArkhamOverlay.Data {
                 return cards;
             }
 
+            //todo: change sorting in card group to be enumartion based rather than looking at the first card
             //don't sort scenario cards- easier to find when acts/agendas are in order
             if (firstCard.Type == CardType.Scenario) {
                 return cards;
@@ -215,7 +214,7 @@ namespace ArkhamOverlay.Data {
         }
 
         /// <summary>
-        /// When card temlate visibility has changed, look through all of our buttons to see if we need to show that they are visible
+        /// When card info visibility has changed, look through all of our buttons to see if we need to show that they are visible
         /// </summary>
         /// <param name="e">CardInfoVisibilityChanged</param>
         private void CardInfoVisibilityChangedHandler(CardInfoVisibilityChanged e) {
