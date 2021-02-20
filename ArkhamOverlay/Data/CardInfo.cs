@@ -12,7 +12,6 @@ namespace ArkhamOverlay.Data {
     /// <summary>
     /// All information about a card, including images from either arkham db or local stored
     /// </summary>
-    /// <remarks>Eventually this will be an abstract class so that different games can inheret from it and add game specific information here.</remarks>
     public class CardInfo : IHasImageButton {
         public CardInfo() {
         }
