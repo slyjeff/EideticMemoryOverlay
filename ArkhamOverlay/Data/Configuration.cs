@@ -21,6 +21,15 @@ namespace ArkhamOverlay.Data {
             Packs = new List<Pack>();
         }
 
+        private string _lastSavedFileName;
+        public string LastSavedFileName {
+            get => _lastSavedFileName;
+            set {
+                _lastSavedFileName = value;
+                OnConfigurationChange();
+            }
+        }
+
         private bool _trackHealthAndSanity;
         public bool TrackHealthAndSanity {
             get => _trackHealthAndSanity;

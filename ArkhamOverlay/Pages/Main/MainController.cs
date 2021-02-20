@@ -13,6 +13,7 @@ using PageController;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
@@ -142,17 +143,46 @@ namespace ArkhamOverlay.Pages.Main {
 
         [Command]
         public void SaveGame() {
-            var fileName = ViewModel.AppData.Game.Name + ".json";
+            var fileName = ViewModel.AppData.Game.FileName;
+            if (!File.Exists(fileName)) {
+                SaveGameAs();
+                return;
+            }
+
+            SaveGameToFile(fileName);
+        }
+
+        [Command]
+        public void SaveGameAs() {
+            var fileName = Path.GetFileName(ViewModel.AppData.Game.FileName);
+            var directory = Path.GetDirectoryName(fileName);
+
+            var dialog = new SaveFileDialog {
+                FileName = fileName,
+                DefaultExt = "aho",
+                Filter = "Arkham Horror Overlay (*.aho)|*.aho",
+                InitialDirectory = string.IsNullOrEmpty(directory) ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) : directory
+            };
+
+            if (dialog.ShowDialog() == true) {
+                SaveGameToFile(dialog.FileName);
+            }
+        }
+
+        private void SaveGameToFile(string fileName) {
             _logger.LogMessage($"Main window: saving game to {fileName}.");
             _gameFileService.Save(fileName);
+            MessageBox.Show("File Saved", "Arkham Overlay", MessageBoxButton.OK);
         }
+
 
         [Command]
         public void LoadGame() {
             _logger.LogMessage("Main window: load game clicked.");
             var dialog = new OpenFileDialog {
-                DefaultExt = "json",
-                InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
+                DefaultExt = "aho",
+                Filter = "Arkham Horror Overlay (*.aho)|*.aho",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             };
 
             if (dialog.ShowDialog() == true) {
