@@ -11,6 +11,7 @@ namespace ArkhamOverlay.Services {
         public string Encounter_Code { get; set; }
         public string Encounter_Name { get; set; }
         public string Type_Code { get; set; }
+        public string Text { get; set; }
     }
 
     public class ArkhamDbFullCard : ArkhamDbCard {

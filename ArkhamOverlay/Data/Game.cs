@@ -184,7 +184,9 @@ namespace ArkhamOverlay.Data {
         private void HandleButtonRightClick(CardGroup cardGroup, IButton button, string selectedOption) {
             if (button is CardInfoButton cardInfoButton) {
                 if (string.IsNullOrEmpty(selectedOption)) {
-                    CreateCard(cardInfoButton, cardGroup);
+                    if (cardGroup.CardZone != null) {
+                        CreateCard(cardInfoButton, cardGroup);
+                    }
                     return;
                 }
 
