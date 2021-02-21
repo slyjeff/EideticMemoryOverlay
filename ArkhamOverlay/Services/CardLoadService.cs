@@ -94,6 +94,10 @@ namespace ArkhamOverlay.Services {
             _logger.LogMessage($"Loading investigator card for player {player.ID}.");
 
             var playerCard = _arkhamDbService.GetCard(player.InvestigatorCode);
+
+            player.Health.Max = playerCard.Health;
+            player.Sanity.Max = playerCard.Sanity;
+
             FixArkhamDbCardImageSource(playerCard);
             var localCard = _localCardsService.GetCardById(arkhamDbDeck.Investigator_Code);
             if (localCard != null) {

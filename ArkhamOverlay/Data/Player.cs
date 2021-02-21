@@ -84,7 +84,6 @@ namespace ArkhamOverlay.Data {
             }
         }
 
-
         public ImageSource BaseStateLineImage { get; private set; }
         public ImageSource FullInvestigatorImage { get; private set; }
 
@@ -181,11 +180,23 @@ namespace ArkhamOverlay.Data {
             }
         }
 
+        public int Max { get; set; }
+
+        public string DisplayValue {
+            get {
+                if (Max > 0) {
+                    return $"{Value}/{Max}";
+                }
+                return Value.ToString();
+            }
+        }
+
         public ICommand Increase { get; }
         public ICommand Decrease { get; }
 
         private void ValueChanged() {
             NotifyPropertyChanged(nameof(Value));
+            NotifyPropertyChanged(nameof(DisplayValue));
             _eventBus.PublishStatUpdated(_deck, _statType, _value);
         }
     }

@@ -54,7 +54,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Text" Value="{Binding Value}"/>
+            <Setter Property="Text" Value="{Binding DisplayValue}"/>
             <Setter Property="FontSize" Value="{Binding DataContext.StatFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
             <Setter Property="FontFamily" Value="{StaticResource ArkhamHorrorFont}"/>
         </Style>
