@@ -16,11 +16,13 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         public virtual AppData AppData { get; set; }
         public virtual double OverlayFontSize { get; set; }
+        public virtual double StatFontSize { get; set; }
         public virtual double DeckListItemWidth { get; set; }
         public virtual double DeckListHeight { get; set; }
         public virtual Thickness DeckListMargin { get; set; }
         public virtual bool ShowDeckList { get; set; }
         public virtual double StatImageSize { get; set; }
+        public virtual double InvestigatorImageSize { get; set; }
 
         public virtual IList<DeckListItem> DeckList { get; set; }
         public virtual ObservableCollection<OverlayCardViewModel> TopZoneCards { get; set; }

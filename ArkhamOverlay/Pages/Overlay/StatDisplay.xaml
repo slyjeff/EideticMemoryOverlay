@@ -15,9 +15,10 @@
              Margin="10"
              Visibility ="{Binding StatTrackingVisibility}">
     <Border.Resources>
+        <FontFamily x:Key="ArkhamHorrorFont">/Fonts/#AH LCG</FontFamily>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <Style x:Key="StatText" TargetType="{x:Type utils:OutlinedTextBlock}">
-            <Setter Property="FontSize" Value="{Binding DataContext.OverlayFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Setter Property="FontSize" Value="{Binding DataContext.StatFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
             <Setter Property="Text" Value="{Binding Name}" />
             <Setter Property="Fill" Value="{Binding PlayerNameBrush}" />
             <Setter Property="StrokeThickness" Value="4"/>
@@ -40,45 +41,54 @@
             <Setter Property="Source" Value="{Binding Image}"/>
         </Style>
 
+        <Style x:Key="InvestigatorImage" TargetType="{x:Type Image}">
+            <Setter Property="Height" Value="{Binding DataContext.InvestigatorImageSize, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Setter Property="Source" Value="{Binding FullInvestigatorImage}"/>
+        </Style>
+
+
         <Style x:Key="TrackValueText" TargetType="{x:Type utils:OutlinedTextBlock}">
             <Setter Property="Fill" Value="White"/>
             <Setter Property="Stroke" Value="Black"/>
-            <Setter Property="StrokeThickness" Value="4"/>
+            <Setter Property="StrokeThickness" Value="3"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Text" Value="{Binding Value}"/>
-            <Setter Property="FontSize" Value="{Binding DataContext.OverlayFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
-            <Setter Property="Margin" Value="0,0,0,3"/>
+            <Setter Property="FontSize" Value="{Binding DataContext.StatFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Setter Property="FontFamily" Value="{StaticResource ArkhamHorrorFont}"/>
         </Style>
     </Border.Resources>
-    <StackPanel Orientation="Vertical">
-        <utils:OutlinedTextBlock Style="{DynamicResource StatText}" />
-        <StackPanel x:Name="Images"  Orientation="Horizontal" Margin="2, 0, -10, 0">
-            <Grid DataContext="{Binding Health}"
-                                  Margin="0,0,10,0"
-                                  Visibility="{Binding DataContext.AppData.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
-                <Image Style="{DynamicResource TrackValueImage}" />
-                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
-            </Grid>
-            <Grid DataContext="{Binding Sanity}"
-                                  Margin="0,0,10,0"
-                                  Visibility="{Binding DataContext.AppData.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
-                <Image Style="{DynamicResource TrackValueImage}" />
-                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
-            </Grid>
-            <Grid DataContext="{Binding Resources}"
-                                  Margin="0,0,10,0"
-                                  Visibility="{Binding DataContext.AppData.Configuration.TrackResources, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
-                <Image Style="{DynamicResource TrackValueImage}" />
-                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
-            </Grid>
-            <Grid DataContext="{Binding Clues}"
-                                  Margin="0,0,10,0"
-                                  Visibility="{Binding DataContext.AppData.Configuration.TrackClues, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
-                <Image Style="{DynamicResource TrackValueImage}" />
-                <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
-            </Grid>
+    <StackPanel Orientation="Horizontal">
+        <Image Style="{DynamicResource InvestigatorImage}" VerticalAlignment="top" />
+        <StackPanel Orientation="Vertical">
+            <Image Source="{Binding BaseStateLineImage}"  Height="{Binding DataContext.StatImageSize, RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <StackPanel x:Name="Images"  Orientation="Horizontal" Margin="2, 0, -10, 0" HorizontalAlignment="Center" >
+                <Grid DataContext="{Binding Health}"
+                                        Margin="0,0,10,0"
+                                        Visibility="{Binding DataContext.AppData.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
+                    <Image Style="{DynamicResource TrackValueImage}"/>
+                    <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
+                </Grid>
+                <Grid DataContext="{Binding Sanity}"
+                                        Margin="0,0,10,0"
+                                        Visibility="{Binding DataContext.AppData.Configuration.TrackHealthAndSanity, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
+                    <Image Style="{DynamicResource TrackValueImage}" />
+                    <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
+                </Grid>
+                <Grid DataContext="{Binding Resources}"
+                                        Margin="0,0,10,0"
+                                        Visibility="{Binding DataContext.AppData.Configuration.TrackResources, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
+                    <Image Style="{DynamicResource TrackValueImage}" />
+                    <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
+                </Grid>
+                <Grid DataContext="{Binding Clues}"
+                                        Margin="0,0,10,0"
+                                        Visibility="{Binding DataContext.AppData.Configuration.TrackClues, Converter={StaticResource BoolToVisibility}, RelativeSource={RelativeSource AncestorType=Window}}">
+                    <Image Style="{DynamicResource TrackValueImage}" />
+                    <utils:OutlinedTextBlock Style="{DynamicResource TrackValueText}"/>
+                </Grid>
+            </StackPanel>
         </StackPanel>
     </StackPanel>
 </Border>
