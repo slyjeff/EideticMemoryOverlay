@@ -62,15 +62,6 @@ namespace StreamDeckPlugin.Services {
                 _imageService.LoadImage(eventData.ImageId, eventData.CardGroupId);
             }
             _eventBus.PublishStreamDeckCardGroupInfoChanged(eventData);
-
-            UpdateCardGroupInfo(eventData);            
-        }
-
-        /// <summary>
-        /// Add or update the data about this card group in the store
-        /// </summary>
-        /// <param name="cardGroupInfo">Info about the card group</param>
-        public void UpdateCardGroupInfo(ICardGroupInfo cardGroupInfo) {
         }
 
         /// <summary>
