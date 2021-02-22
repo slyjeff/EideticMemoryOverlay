@@ -3,6 +3,7 @@
 namespace ArkhamOverlay.CardButtons {
     public interface IHasImageButton {
         string Name { get; }
+        string Code { get; }
         CardType ImageCardType { get; }
         string ImageSource { get; set; }
         ImageSource Image { get; set; }
