@@ -383,7 +383,7 @@ namespace ArkhamOverlay.Pages.Overlay {
                 overlayCards.RemoveOverlayCards(overlayCard);
             }
 
-            _eventBus.PublishCardInfoVisibilityChanged(overlayCard.CardInfo.Name, false);
+            _eventBus.PublishCardInfoVisibilityChanged(overlayCard.CardInfo.Code, false);
         }
 
         private void ShowCardInfo(CardInfo cardInfo) {
@@ -399,7 +399,7 @@ namespace ArkhamOverlay.Pages.Overlay {
                 overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newOverlayCard;
             }
 
-            _eventBus.PublishCardInfoVisibilityChanged(cardInfo.Name, true); 
+            _eventBus.PublishCardInfoVisibilityChanged(cardInfo.Code, true); 
         }
         #endregion
 

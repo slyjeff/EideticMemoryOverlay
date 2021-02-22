@@ -12,7 +12,7 @@ namespace StreamDeckPlugin.Services {
         string GetImage(string imageId);
         string GetImage(IDynamicActionInfo dynamicActionInfo);
         bool HasImage(string imageId);
-        void UpdateButtonImage(string name, byte[] bytes);
+        void UpdateButtonImage(string imageId, byte[] bytes);
 
         /// <summary>
         /// Check to see if this image is stored- if it is not, retrieve it
