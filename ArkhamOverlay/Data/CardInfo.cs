@@ -29,6 +29,7 @@ namespace ArkhamOverlay.Data {
             IsBonded = isBonded;
             if (cardBack) {
                 Name += " (Back)";
+                Code += "-Back";
             }
 
             //stometimes if we are closing, this will be null and we can just bail
