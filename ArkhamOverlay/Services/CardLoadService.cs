@@ -275,7 +275,7 @@ namespace ArkhamOverlay.Services {
                 }
             }
 
-            var localCards = _localCardsService.LoadLocalCardsFromPacks(_appData.Game.LocalPacks);
+            var allLocalCards = _localCardsService.LoadLocalCards();
 
             var cards = new List<CardInfo>();
             foreach (var pack in packsToLoad) {
@@ -287,7 +287,7 @@ namespace ArkhamOverlay.Services {
                     }
 
                     // Look for corresponding local card and grab its image. Remove it from the list to avoid duplicates
-                    FindCardImageSource(arkhamDbCard, localCards, removeLocalCard: true);
+                    FindCardImageSource(arkhamDbCard, allLocalCards, removeLocalCard: true);
 
                     var newCard = new CardInfo(arkhamDbCard, 1, isPlayerCard: false);
                     _cardImageService.LoadImage(newCard);
@@ -302,6 +302,7 @@ namespace ArkhamOverlay.Services {
                 }
             }
 
+            var localCards = _localCardsService.LoadLocalCardsFromPacks(_appData.Game.LocalPacks);
             foreach (var localCard in localCards) {
                 var newLocalCard = new CardInfo(localCard, false);
                 _cardImageService.LoadImage(newLocalCard);
