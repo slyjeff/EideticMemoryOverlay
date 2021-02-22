@@ -74,17 +74,17 @@ namespace ArkhamOverlay.Services {
 
             var cardGroup = _appData.Game.GetCardGroup(buttonImageRequest.CardGroupId);
             byte[] imageAsBytes = null;
-            var code = string.Empty;
+            var imageId = string.Empty;
             if (!buttonImageRequest.ButtonMode.HasValue || !buttonImageRequest.Index.HasValue) {
                 SendButtonImageResponse(request.Socket, cardGroup.Name, cardGroup.ButtonImageAsBytes);
             } else {
                 if (cardGroup.GetButton(buttonImageRequest.ButtonMode.Value, buttonImageRequest.Index.Value) is CardInfoButton cardButton) {
-                    code = cardButton.CardInfo.Code;
+                    imageId = cardButton.CardInfo.ImageId;
                     imageAsBytes = cardButton.CardInfo.ButtonImageAsBytes;
                 }
             }
 
-            SendButtonImageResponse(request.Socket, code, imageAsBytes);
+            SendButtonImageResponse(request.Socket, imageId, imageAsBytes);
         }
 
         private void HandleRequestStatValue(TcpRequest request) {
@@ -166,7 +166,7 @@ namespace ArkhamOverlay.Services {
                     CardButtonType = GetCardType(cardImageButton?.CardInfo),
                     Name = cardButton.Text.Replace("Right Click", "Long Press"),
                     IsToggled = cardButton.IsToggled,
-                    Code = cardImageButton?.CardInfo.Code,
+                    Code = cardImageButton?.CardInfo.ImageId,
                     ImageAvailable = cardImageButton?.CardInfo.ButtonImageAsBytes != null,
                     ButtonOptions = cardButton.Options
                 };
