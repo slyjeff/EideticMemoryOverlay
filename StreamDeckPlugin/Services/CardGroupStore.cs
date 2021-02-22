@@ -20,7 +20,7 @@ namespace StreamDeckPlugin.Services {
     }
 
     /// <summary>
-    /// Stores information foreach card group
+    /// Stores information for each card group
     /// </summary>
     public class CardGroupStore : ICardGroupStore {
         private readonly object _cacheLock = new object();
