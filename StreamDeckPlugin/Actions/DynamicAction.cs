@@ -132,7 +132,7 @@ namespace StreamDeckPlugin.Actions {
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
 
             if (_dynamicActionOption != null) {
-                //we are showing a menyu item, so alert the dynamic action manager instead of our normal behavior
+                //we are showing a menu item, so alert the dynamic action manager instead of our normal behavior
                 _dynamicActionManager.OptionSelected(_dynamicActionOption);
 
                 return Task.CompletedTask;

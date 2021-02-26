@@ -156,10 +156,12 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         private void CalculateOverlayFontSize() {
             ViewModel.OverlayFontSize = _appData.Configuration.OverlayHeight / 24;
+            ViewModel.StatFontSize = ViewModel.OverlayFontSize * .75;
         }
 
         private void CalculateStatImageSize() {
             ViewModel.StatImageSize = _appData.Configuration.OverlayHeight / 18;
+            ViewModel.InvestigatorImageSize = ViewModel.StatImageSize * 2;
         }
 
         private void CalculateDeckListItemWidth() {
@@ -381,7 +383,7 @@ namespace ArkhamOverlay.Pages.Overlay {
                 overlayCards.RemoveOverlayCards(overlayCard);
             }
 
-            _eventBus.PublishCardInfoVisibilityChanged(overlayCard.CardInfo.Name, false);
+            _eventBus.PublishCardInfoVisibilityChanged(overlayCard.CardInfo.ImageId, false);
         }
 
         private void ShowCardInfo(CardInfo cardInfo) {
@@ -393,11 +395,11 @@ namespace ArkhamOverlay.Pages.Overlay {
             if (overlayCardToReplace == null) {
                 overlayCards.AddOverlayCard(newOverlayCard);
             } else {
-                _eventBus.PublishCardInfoVisibilityChanged(overlayCardToReplace.CardInfo.Name, false);
+                _eventBus.PublishCardInfoVisibilityChanged(overlayCardToReplace.CardInfo.ImageId, false);
                 overlayCards[overlayCards.IndexOf(overlayCardToReplace)] = newOverlayCard;
             }
 
-            _eventBus.PublishCardInfoVisibilityChanged(cardInfo.Name, true); 
+            _eventBus.PublishCardInfoVisibilityChanged(cardInfo.ImageId, true); 
         }
         #endregion
 

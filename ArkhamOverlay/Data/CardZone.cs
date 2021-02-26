@@ -70,7 +70,7 @@ namespace ArkhamOverlay.Data {
             var index = Buttons.IndexOf(button);
             var isImageAvailable = button?.CardInfo.ButtonImageAsBytes != null;
 
-            _eventBus.PublishButtonInfoChanged(CardGroupId, ButtonMode.Zone, index, button.Text, button.IsToggled, isImageAvailable, action, button.Options);
+            _eventBus.PublishButtonInfoChanged(CardGroupId, ButtonMode.Zone, index, button.Text, button.CardInfo.ImageId, button.IsToggled, isImageAvailable, action, button.Options);
         }
 
         private void PublishButtonRemoved(int index) {

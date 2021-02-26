@@ -6,7 +6,5 @@ namespace ArkhamOverlay.Pages.Overlay {
         public StatDisplay() {
             InitializeComponent();
         }
-
-        public HorizontalAlignment ImageAlignment { get => Images.HorizontalAlignment; set => Images.HorizontalAlignment = value; }
     }
 }

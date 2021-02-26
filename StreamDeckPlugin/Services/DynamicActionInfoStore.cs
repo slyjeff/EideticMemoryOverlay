@@ -24,7 +24,7 @@ namespace StreamDeckPlugin.Services {
             _imageService = imageService;
 
             eventBus.SubscribeToImageLoadedEvent(e => ImageLoaded(e.ImageId));
-            eventBus.SubscribeToCardInfoVisibilityChanged(e => CardInfoVisibilityChanged(e.Name, e.IsVisible));
+            eventBus.SubscribeToCardInfoVisibilityChanged(e => CardInfoVisibilityChanged(e.Code, e.IsVisible));
             eventBus.SubscribeToButtonInfoChanged(ButtonInfoChanged);
             eventBus.SubscribeToButtonRemoved(ButtonRemoved);
             eventBus.SubscribeToButtonTextChanged(ButtonTextChanged);
@@ -90,11 +90,11 @@ namespace StreamDeckPlugin.Services {
             PublishChangeEventsForChangedActions(dynamicActionInfoWithImageItems);
         }
 
-        private void CardInfoVisibilityChanged(string name, bool isVisible) {
+        private void CardInfoVisibilityChanged(string code, bool isVisible) {
             var changedActionInfoList = new List<DynamicActionInfo>();
             lock (_cacheLock) {
                 foreach (var dynamicActionInfo in _dynamicActionInfoList) {
-                    if (dynamicActionInfo.ImageId == name && dynamicActionInfo.IsToggled != isVisible) {
+                    if (dynamicActionInfo.ImageId == code && dynamicActionInfo.IsToggled != isVisible) {
                         dynamicActionInfo.IsToggled = isVisible;
                         changedActionInfoList.Add(dynamicActionInfo);
                     }
