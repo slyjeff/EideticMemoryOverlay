@@ -20,7 +20,7 @@ namespace StreamDeckPlugin.Services {
     }
 
     /// <summary>
-    /// Stores information foreach card group
+    /// Stores information for each card group
     /// </summary>
     public class CardGroupStore : ICardGroupStore {
         private readonly object _cacheLock = new object();
@@ -62,15 +62,6 @@ namespace StreamDeckPlugin.Services {
                 _imageService.LoadImage(eventData.ImageId, eventData.CardGroupId);
             }
             _eventBus.PublishStreamDeckCardGroupInfoChanged(eventData);
-
-            UpdateCardGroupInfo(eventData);            
-        }
-
-        /// <summary>
-        /// Add or update the data about this card group in the store
-        /// </summary>
-        /// <param name="cardGroupInfo">Info about the card group</param>
-        public void UpdateCardGroupInfo(ICardGroupInfo cardGroupInfo) {
         }
 
         /// <summary>

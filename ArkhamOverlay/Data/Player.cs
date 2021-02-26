@@ -81,7 +81,7 @@ namespace ArkhamOverlay.Data {
                 _buttonImage = value;
                 NotifyPropertyChanged(nameof(ButtonImage));
 
-                //the buttuon image is set when the source image is loaded- but we need some other images for the overlay.
+                //the button image is set when the source image is loaded- but we need some other images for the overlay.
                 LoadOverlayImages();
             }
         }

@@ -106,7 +106,7 @@ namespace StreamDeckPlugin.Actions {
                 _value = value;
                 SetTitleAsync(_value.ToString());
             } catch {
-                //sometimes this happens before we are set up, and the interals throw an exception
+                //sometimes this happens before we are set up, and the internals throw an exception
             }
         }
     }
