@@ -224,7 +224,7 @@ namespace ArkhamOverlay.Data {
             }
 
             foreach (var button in cardImageButtons) {
-                if (e.Name == button.CardInfo.Name) {
+                if (e.Code == button.CardInfo.ImageId) {
                     button.IsToggled = e.IsVisible;
                 }
             }

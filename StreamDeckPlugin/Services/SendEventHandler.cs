@@ -74,7 +74,7 @@ namespace StreamDeckPlugin.Services {
 
             var response = SendRequest<ButtonImageResponse>(request);
             if (response != null) {
-                _imageService.UpdateButtonImage(response.Name, response.Bytes);
+                _imageService.UpdateButtonImage(response.Code, response.Bytes);
             }
         }
 

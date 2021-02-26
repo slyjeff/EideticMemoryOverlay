@@ -36,7 +36,7 @@ namespace StreamDeckPlugin.Services {
         static internal bool CardInfoHasChanged(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {
             return dynamicActionInfo.Text != cardInfo.Name
                 || dynamicActionInfo.IsToggled != cardInfo.IsToggled
-                || dynamicActionInfo.ImageId != cardInfo.Name
+                || dynamicActionInfo.ImageId != cardInfo.Code
                 || dynamicActionInfo.IsImageAvailable != cardInfo.ImageAvailable
                 || dynamicActionInfo.ButtonOptions.SequenceEqual(cardInfo.ButtonOptions);
         }
@@ -44,7 +44,7 @@ namespace StreamDeckPlugin.Services {
         static internal void UpdateFromCardInfo(this IDynamicActionInfo dynamicActionInfo, ICardInfo cardInfo) {
             dynamicActionInfo.Text = cardInfo.Name.Replace("Right Click", "Long Press");
             dynamicActionInfo.IsToggled = cardInfo.IsToggled;
-            dynamicActionInfo.ImageId = cardInfo.Name;
+            dynamicActionInfo.ImageId = cardInfo.Code;
             dynamicActionInfo.IsImageAvailable = cardInfo.ImageAvailable;
             dynamicActionInfo.ButtonOptions = cardInfo.ButtonOptions;
         }

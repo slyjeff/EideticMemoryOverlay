@@ -18,6 +18,7 @@ namespace ArkhamOverlay.Data {
 
         public CardInfo(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false, bool isBonded = false) {
             Code = arkhamDbCard.Code;
+            ImageId = Code;
             Count = count;
             Name = arkhamDbCard.Xp == "0" || string.IsNullOrEmpty(arkhamDbCard.Xp) ? arkhamDbCard.Name : arkhamDbCard.Name + " (" + arkhamDbCard.Xp + ")";
             NameWithoutXp = arkhamDbCard.Name;
@@ -29,6 +30,7 @@ namespace ArkhamOverlay.Data {
             IsBonded = isBonded;
             if (cardBack) {
                 Name += " (Back)";
+                ImageId += "-Back";
             }
 
             //stometimes if we are closing, this will be null and we can just bail
@@ -38,10 +40,12 @@ namespace ArkhamOverlay.Data {
         }
 
         public CardInfo(LocalManifestCard localCard, bool cardBack) {
-            Code = "";
+            Code = localCard.ArkhamDbId;
+            ImageId = Code;
             Count = 1;
             Name = localCard.Name;
             NameWithoutXp = localCard.Name;
+            
             Xp = 0;
             Faction = Faction.Other;
             Type = (CardType)Enum.Parse(typeof(CardType), localCard.CardType);
@@ -49,6 +53,7 @@ namespace ArkhamOverlay.Data {
             IsPlayerCard = false;
             if (cardBack) {
                 Name += " (Back)";
+                ImageId += "-Back";
             }
 
             //stometimes if we are closing, this will be null and we can just bail
@@ -61,6 +66,7 @@ namespace ArkhamOverlay.Data {
         public string NameWithoutXp { get; }
         public int Xp { get; }
         public string Code { get; }
+        public string ImageId { get; }
         public Faction Faction { get; set; }
         public int Count { get; set; }
         public string ImageSource { get; set; }

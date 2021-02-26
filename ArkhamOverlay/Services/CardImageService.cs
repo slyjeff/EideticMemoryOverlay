@@ -34,9 +34,9 @@ namespace ArkhamOverlay.Services {
             try {
                 _logger.LogMessage($"Loading image for button {hasImageButton.Name}");
 
-                if (_cache.IsInCache(hasImageButton.Name)) {
+                if (_cache.IsInCache(hasImageButton.ImageId)) {
                     _logger.LogMessage($"Found image in cache for button {hasImageButton.Name}");
-                    hasImageButton.Image = _cache.GetFromCache(hasImageButton.Name);
+                    hasImageButton.Image = _cache.GetFromCache(hasImageButton.ImageId);
                     if (hasImageButton.Image is BitmapImage bitmapImage && bitmapImage.IsDownloading) {
                         bitmapImage.DownloadCompleted += (s, e) => {
                             CropImage(hasImageButton);
@@ -51,11 +51,11 @@ namespace ArkhamOverlay.Services {
                 if (uri.IsFile) {
                     var localImage = ImageUtils.LoadLocalImage(uri);
                     hasImageButton.Image = localImage;
-                    _cache.SaveTocache(hasImageButton.Name, localImage);
+                    _cache.SaveTocache(hasImageButton.ImageId, localImage);
                     CropImage(hasImageButton);
                 } else {
                     var bitmapImage = new BitmapImage(uri);
-                    _cache.SaveTocache(hasImageButton.Name, bitmapImage);
+                    _cache.SaveTocache(hasImageButton.ImageId, bitmapImage);
                     bitmapImage.DownloadCompleted += (s, e) => {
                         CropImage(hasImageButton);
                     };
