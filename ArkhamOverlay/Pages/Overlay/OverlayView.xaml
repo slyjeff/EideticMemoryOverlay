@@ -42,12 +42,12 @@
                    x:Name="Stats">
             <DockPanel DockPanel.Dock="Top" LastChildFill="false" Margin="0, -5, 0, 0">
                 <overlay:StatDisplay DockPanel.Dock="Left"  DataContext="{Binding AppData.Game.Players[0]}" />
-                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}" ImageAlignment="Right" />
+                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}" />
             </DockPanel>
 
             <DockPanel DockPanel.Dock="Bottom"  LastChildFill="false"  Margin="0, -5, 0, 10">
                 <overlay:StatDisplay  DockPanel.Dock="Left" DataContext="{Binding AppData.Game.Players[2]}" />
-                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[3]}" ImageAlignment="Right"/>
+                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[3]}" />
             </DockPanel>
         </DockPanel>
 

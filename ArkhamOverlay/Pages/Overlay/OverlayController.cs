@@ -156,10 +156,12 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         private void CalculateOverlayFontSize() {
             ViewModel.OverlayFontSize = _appData.Configuration.OverlayHeight / 24;
+            ViewModel.StatFontSize = ViewModel.OverlayFontSize * .75;
         }
 
         private void CalculateStatImageSize() {
             ViewModel.StatImageSize = _appData.Configuration.OverlayHeight / 18;
+            ViewModel.InvestigatorImageSize = ViewModel.StatImageSize * 2;
         }
 
         private void CalculateDeckListItemWidth() {

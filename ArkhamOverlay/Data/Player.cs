@@ -11,6 +11,7 @@ using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Common.Events;
 using ArkhamOverlay.Events;
+using ArkhamOverlay.Utils;
 
 namespace ArkhamOverlay.Data {
     public class Player : ViewModel, IHasImageButton {
@@ -71,14 +72,27 @@ namespace ArkhamOverlay.Data {
                 NotifyPropertyChanged(nameof(Image));
             }
         }
-
         private ImageSource _buttonImage;
         public ImageSource ButtonImage {
             get => _buttonImage;
             set {
                 _buttonImage = value;
                 NotifyPropertyChanged(nameof(ButtonImage));
+
+                //the button image is set when the source image is loaded- but we need some other images for the overlay.
+                LoadOverlayImages();
             }
+        }
+
+        public ImageSource BaseStateLineImage { get; private set; }
+        public ImageSource FullInvestigatorImage { get; private set; }
+
+        private void LoadOverlayImages() {
+            BaseStateLineImage = ImageUtils.CropBaseStatLine(_image);
+            NotifyPropertyChanged(nameof(BaseStateLineImage));
+
+            FullInvestigatorImage = ImageUtils.CropFullInvestigator(_image);
+            NotifyPropertyChanged(nameof(FullInvestigatorImage));
         }
 
         private byte[] _buttonImageAsBytes;
@@ -166,18 +180,30 @@ namespace ArkhamOverlay.Data {
             }
         }
 
+        public int Max { get; set; }
+
+        public string DisplayValue {
+            get {
+                if (Max > 0) {
+                    return $"{Value}/{Max}";
+                }
+                return Value.ToString();
+            }
+        }
+
         public ICommand Increase { get; }
         public ICommand Decrease { get; }
 
         private void ValueChanged() {
             NotifyPropertyChanged(nameof(Value));
+            NotifyPropertyChanged(nameof(DisplayValue));
             _eventBus.PublishStatUpdated(_deck, _statType, _value);
         }
     }
 
     public class UpdateStateCommand : ICommand {
-        private Stat _stat;
-        private bool _increase;
+        private readonly Stat _stat;
+        private readonly bool _increase;
         public UpdateStateCommand(Stat stat, bool increase) {
             _stat = stat;
             _increase = increase;
