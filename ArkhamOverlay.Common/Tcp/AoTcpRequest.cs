@@ -3,12 +3,11 @@
         Unknown,
         GetButtonInfo,
         GetButtonImage,
+        ConnectionIsAlive,
         UpdateStatInfo,
-        UpdateInvestigatorImage,
         RegisterForUpdates,
         StatValue,
         ChangeStatValue,
-        GetInvestigatorImage,
         EventBus,
     };
 }

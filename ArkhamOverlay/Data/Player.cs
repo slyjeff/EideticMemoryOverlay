@@ -86,6 +86,7 @@ namespace ArkhamOverlay.Data {
             get => _buttonImageAsBytes;
             set {
                 _buttonImageAsBytes = value;
+                CardGroup.ButtonImageAsBytes = value;
                 NotifyPropertyChanged(nameof(ButtonImageAsBytes));
             }
         }

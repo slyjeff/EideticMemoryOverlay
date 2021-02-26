@@ -17,7 +17,7 @@ namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
     public class DynamicAction : StreamDeckAction<ActionWithDeckSettings>, IButtonContext {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore = ServiceLocator.GetService<IDynamicActionInfoStore>();
-        private readonly IDynamicActionIndexService _dynamicActionIndexService = ServiceLocator.GetService<IDynamicActionIndexService>();
+        private readonly IDynamicActionManager _dynamicActionManager = ServiceLocator.GetService<IDynamicActionManager>();
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
 
@@ -25,9 +25,11 @@ namespace StreamDeckPlugin.Actions {
         private ActionWithDeckSettings _settings = new ActionWithDeckSettings();
 
         private string _deviceId;
-        private Timer _keyPressTimer = new Timer(700);
+        private readonly Timer _keyPressTimer = new Timer(700);
         private string _lastSetTitle;
         private int _page;
+        private DynamicActionOption _dynamicActionOption;
+
 
         public DynamicAction() {
             _keyPressTimer.Enabled = false;
@@ -92,7 +94,7 @@ namespace StreamDeckPlugin.Actions {
             _deviceId = args.Device;
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
 
-            _dynamicActionIndexService.RegisterAction(this);
+            _dynamicActionManager.RegisterAction(this);
 
             _eventBus.SubscribeToDynamicActionInfoChangedEvent(DynamicActionChanged);
             _eventBus.SubscribeToPageChangedEvent(PageChanged);
@@ -107,14 +109,14 @@ namespace StreamDeckPlugin.Actions {
             _eventBus.UnsubscribeFromModeToggledEvent(ModeToggled);
             _eventBus.UnsubscribeFromPageChangedEvent(PageChanged);
             _eventBus.UnsubscribeFromDynamicActionInfoChangedEvent(DynamicActionChanged);
-            _dynamicActionIndexService.UnregisterAction(this);
+            _dynamicActionManager.UnregisterAction(this);
             return Task.CompletedTask;
         }
 
         protected override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
 
-            _dynamicActionIndexService.ReclaculateIndexes();
+            _dynamicActionManager.ReclaculateIndexes();
 
             SetSettingsAsync(_settings);
 
@@ -125,10 +127,19 @@ namespace StreamDeckPlugin.Actions {
 
         private object _keyUpLock = new object();
         private bool _keyIsDown = false;
+
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-            _keyIsDown = true;
 
+            if (_dynamicActionOption != null) {
+                //we are showing a menu item, so alert the dynamic action manager instead of our normal behavior
+                _dynamicActionManager.OptionSelected(_dynamicActionOption);
+
+                return Task.CompletedTask;
+            }
+
+
+            _keyIsDown = true;
             _keyPressTimer.Enabled = true;
 
             return Task.CompletedTask;
@@ -142,6 +153,9 @@ namespace StreamDeckPlugin.Actions {
                 _keyIsDown = false;
                 _keyPressTimer.Enabled = false;
 
+                if (_dynamicActionManager.ShowMenuIfNecessary(this)) {
+                    return;
+                }
                 SendClick(MouseButton.Right);
             }
         }
@@ -159,6 +173,15 @@ namespace StreamDeckPlugin.Actions {
 
                 return Task.CompletedTask;
             }
+        }
+
+        /// <summary>
+        /// Called by the dynamic action manager to make this action display an option instead of its normal text
+        /// </summary>
+        /// <param name="dynamicActionOption">option to display to ther user, and pass back to the dynamic action manager when the button is pressed</param>
+        public void SetOption(DynamicActionOption dynamicActionOption) {
+            _dynamicActionOption = dynamicActionOption;
+            UpdateButtonToNewDynamicAction();
         }
 
         private void SendClick(MouseButton mouseButton) {
@@ -214,6 +237,13 @@ namespace StreamDeckPlugin.Actions {
         private void UpdateButtonToNewDynamicAction() {
             if (_positionInGroup == -1) {
                 //we don't know our position yet, so don't try to display anything
+                return;
+            }
+
+            if (_dynamicActionOption != null) {
+                //we are displaying a menu option, not our normal stuff
+                SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
+                SetImageAsync(_dynamicActionOption.Image);
                 return;
             }
 

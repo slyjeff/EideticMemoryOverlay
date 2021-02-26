@@ -3,12 +3,13 @@ using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using System;
+using System.Collections.Generic;
 
 namespace ArkhamOverlay.Events {
     public enum ChangeAction { Add, Update }
 
     public class ButtonInfoChanged : ICrossAppEvent, IButtonContext, ICardInfo {
-        public ButtonInfoChanged(CardGroupId cardGroupId, ButtonMode buttonMode, int index, string name, bool isToggled, bool imageAvailable, ChangeAction action) {
+        public ButtonInfoChanged(CardGroupId cardGroupId, ButtonMode buttonMode, int index, string name, bool isToggled, bool imageAvailable, ChangeAction action, IList<ButtonOption> buttonOptions) {
             CardGroupId = cardGroupId;
             ButtonMode = buttonMode;
             Index = index;
@@ -16,6 +17,7 @@ namespace ArkhamOverlay.Events {
             IsToggled = isToggled;
             ImageAvailable = imageAvailable;
             Action = action;
+            ButtonOptions = buttonOptions;
         }
 
         public CardGroupId CardGroupId { get; }
@@ -25,11 +27,12 @@ namespace ArkhamOverlay.Events {
         public bool IsToggled { get; }
         public bool ImageAvailable { get; }
         public ChangeAction Action { get; }
+        public IList<ButtonOption> ButtonOptions { get; }
     }
 
     public static class ButtonInfoChangedExtensions {
-        public static void PublishButtonInfoChanged(this IEventBus eventBus, CardGroupId cardGroupId, ButtonMode buttonMode, int index, string name, bool isToggled, bool imageAvailable, ChangeAction action) {
-            eventBus.Publish(new ButtonInfoChanged(cardGroupId, buttonMode, index, name, isToggled, imageAvailable, action));
+        public static void PublishButtonInfoChanged(this IEventBus eventBus, CardGroupId cardGroupId, ButtonMode buttonMode, int index, string name, bool isToggled, bool imageAvailable, ChangeAction action, IList<ButtonOption> buttonOptions) {
+            eventBus.Publish(new ButtonInfoChanged(cardGroupId, buttonMode, index, name, isToggled, imageAvailable, action, buttonOptions));
         }
 
         public static void SubscribeToButtonInfoChanged(this IEventBus eventBus, Action<ButtonInfoChanged> callback) {

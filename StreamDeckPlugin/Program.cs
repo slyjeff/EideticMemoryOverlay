@@ -23,11 +23,13 @@ namespace StreamDeckPlugin {
             container.Configure(x => {
                 x.For<IEventBus>().Use(eventBus);
                 x.For<ICrossAppEventBus>().Use(eventBus);
-                x.For<IDynamicActionIndexService>().Use<DynamicActionIndexService>().Singleton();
+                x.For<ICardGroupStore>().Use<CardGroupStore>().Singleton();
+                x.For<IDynamicActionManager>().Use<DynamicActionManager>().Singleton();
                 x.For<IDynamicActionInfoStore>().Use<DynamicActionInfoStore>().Singleton();
                 x.For<ISendEventHandler>().Use<SendEventHandler>().Singleton();
                 x.For<IImageService>().Use<ImageService>().Singleton();
-                x.For<IRequestHandler>().Use<TcpRequestHandler>();
+                x.For<ITcpRequestHandler>().Use<TcpRequestHandler>().Singleton();
+                x.For<IRequestHandler>().Use(c => c.GetInstance<ITcpRequestHandler>());
                 x.For<IReceiveSocketService>().Use<ReceiveSocketService>();
                 x.For<IEstablishConnectionToUiService>().Use<EstablishConnectionToUiService>();
             });

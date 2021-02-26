@@ -74,11 +74,11 @@
                         <Border.InputBindings>
                            <MouseBinding 
                                         MouseAction="LeftClick" 
-                                        Command="{Binding DataContext.CardTemplateLeftClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        Command="{Binding DataContext.CardInfoLeftClick, RelativeSource={RelativeSource AncestorType=Window}}" 
                                         CommandParameter="{Binding}"/>
                             <MouseBinding 
                                         MouseAction="RightClick" 
-                                        Command="{Binding DataContext.CardTemplateRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        Command="{Binding DataContext.CardInfoRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
                                         CommandParameter="{Binding}"/>
                         </Border.InputBindings>
                     </Border>

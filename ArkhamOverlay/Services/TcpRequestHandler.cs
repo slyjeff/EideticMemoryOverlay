@@ -10,11 +10,8 @@ using ArkhamOverlay.Data;
 using ArkhamOverlay.Events;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Specialized;
 using System.Net.Sockets;
 using System.Text;
-using System.Windows;
-using System.Windows.Threading;
 
 namespace ArkhamOverlay.Services {
     internal class TcpRequestHandler : IRequestHandler {
@@ -33,7 +30,7 @@ namespace ArkhamOverlay.Services {
         }
 
         public void HandleRequest(TcpRequest request) {
-            _logger.LogMessage($"Handling Request: {request.RequestType.ToString()}");
+            _logger.LogMessage($"Handling Request: {request.RequestType}");
             switch (request.RequestType) {
                 case AoTcpRequest.GetButtonInfo:
                     HandleGetButtonInfo(request);
@@ -49,9 +46,6 @@ namespace ArkhamOverlay.Services {
                     break;
                 case AoTcpRequest.ChangeStatValue:
                     HandleChangeStatValue(request);
-                    break;
-                case AoTcpRequest.GetInvestigatorImage:
-                    HandleGetInvesigatorImageRequest(request);
                     break;
                 case AoTcpRequest.EventBus:
                     HandleEventBusRequest(request);
@@ -77,8 +71,20 @@ namespace ArkhamOverlay.Services {
         private void HandleGetButtonImage(TcpRequest request) {
             _logger.LogMessage("Handling button image request");
             var buttonImageRequest = JsonConvert.DeserializeObject<ButtonImageRequest>(request.Body);
-            var cardButton = GetCardButton(buttonImageRequest);
-            SendButtonImageResponse(request.Socket, cardButton as CardInfoButton);
+
+            var cardGroup = _appData.Game.GetCardGroup(buttonImageRequest.CardGroupId);
+            byte[] imageAsBytes = null;
+            var name = string.Empty;
+            if (!buttonImageRequest.ButtonMode.HasValue || !buttonImageRequest.Index.HasValue) {
+                SendButtonImageResponse(request.Socket, cardGroup.Name, cardGroup.ButtonImageAsBytes);
+            } else {
+                if (cardGroup.GetButton(buttonImageRequest.ButtonMode.Value, buttonImageRequest.Index.Value) is CardInfoButton cardButton) {
+                    name = cardButton.CardInfo.Name;
+                    imageAsBytes = cardButton.CardInfo.ButtonImageAsBytes;
+                }
+            }
+
+            SendButtonImageResponse(request.Socket, name, imageAsBytes);
         }
 
         private void HandleRequestStatValue(TcpRequest request) {
@@ -121,35 +127,16 @@ namespace ArkhamOverlay.Services {
             return cardGroup.GetButton(context);
         }
 
-        private bool _alreadyRegisteredEvents = false;
-
-        private object _registerLock = new object();
         private void HandleRegisterForUpdates(TcpRequest request) {
             _logger.LogMessage("Handling register for update request");
-            var registerForUpdatesRequest = JsonConvert.DeserializeObject<RegisterForUpdatesRequest>(request.Body);
-            if (!_broadcastService.Ports.Contains(registerForUpdatesRequest.Port)) {
-                _broadcastService.Ports.Add(registerForUpdatesRequest.Port);
-            }
-            
-            lock (_registerLock) {
-                if (!_alreadyRegisteredEvents) {
-                    var game = _appData.Game;
-                    foreach (var player in game.Players) {
-                        player.PropertyChanged += (s, e) => {
-                            if (e.PropertyName == nameof(Player.ButtonImageAsBytes)) {
-                                SendInvestigatorImage(player);
-                            }
-                        };
-                    }
-
-                    SendAllStats();
-                    SendAllInvestigatorImages();
-
-                    _alreadyRegisteredEvents = true;
-                }
-            }
-
             SendOkResponse(request.Socket);
+
+            var registerForUpdatesRequest = JsonConvert.DeserializeObject<RegisterForUpdatesRequest>(request.Body);
+
+            _broadcastService.AddPort(registerForUpdatesRequest.Port);
+
+            SendAllStats();
+            SendAllCardGroupInfo();
         }
 
         private void SendAllStats() {
@@ -162,32 +149,12 @@ namespace ArkhamOverlay.Services {
             }
         }
 
-        private void SendAllInvestigatorImages() {
-            var game = _appData.Game;
-            foreach (var player in game.Players) {
-                SendInvestigatorImage(player);
-            }
-        }
-
-        private void HandleGetInvesigatorImageRequest(TcpRequest request) {
-            _logger.LogMessage("Handling get invetsigator image request");
-            SendOkResponse(request.Socket);
-
-            var getInvestigatorImageRequest = JsonConvert.DeserializeObject<GetInvestigatorImageRequest>(request.Body);
-            var player = GetPlayer(getInvestigatorImageRequest.CardGroup);
-            SendInvestigatorImage(player);
-        }
-
-        private void SendInvestigatorImage(Player player) {
-            _logger.LogMessage("Sending Investigator Image");
-
-            var cardGroup = player.CardGroup.Id;
-            var request = new UpdateInvestigatorImageRequest {
-                CardGroup = cardGroup,
-                Bytes = player.ButtonImageAsBytes
-            };
-
-            _broadcastService.SendRequest(request);
+        private void SendAllCardGroupInfo() {
+            _logger.LogMessage("Sending All Card Group Info");
+            foreach (var cardGroupId in EnumUtil.GetValues<CardGroupId>()) {
+                var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
+                _eventBus.PublishCardGroupChanged(cardGroup.Id, cardGroup.Name, cardGroup.ButtonImageAsBytes != null, cardGroup.Name);
+           }
         }
 
         private void SendCardInfoResponse(Socket socket, IButton cardButton) {
@@ -195,20 +162,21 @@ namespace ArkhamOverlay.Services {
 
             var cardInfoReponse = (cardButton == null)
                 ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
-                : new CardInfoResponse { 
+                : new CardInfoResponse {
                     CardButtonType = GetCardType(cardImageButton?.CardInfo),
                     Name = cardButton.Text.Replace("Right Click", "Long Press"),
                     IsToggled = cardButton.IsToggled,
-                    ImageAvailable = cardImageButton?.CardInfo.ButtonImageAsBytes != null
+                    ImageAvailable = cardImageButton?.CardInfo.ButtonImageAsBytes != null,
+                    ButtonOptions = cardButton.Options
                 };
 
             Send(socket, cardInfoReponse.ToString());
         }
 
-        private void SendButtonImageResponse(Socket socket, CardInfoButton cardButton) {
+        private void SendButtonImageResponse(Socket socket, string name, byte[] imageAsBytes) {
             var buttonImageResponse = new ButtonImageResponse { 
-                Name = cardButton?.CardInfo.Name, 
-                Bytes = cardButton?.CardInfo.ButtonImageAsBytes 
+                Name = name, 
+                Bytes = imageAsBytes
             };
 
             Send(socket, buttonImageResponse.ToString());

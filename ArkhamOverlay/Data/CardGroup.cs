@@ -63,6 +63,7 @@ namespace ArkhamOverlay.Data {
             set {
                 if (Type == CardGroupType.Player) {
                     _playerName = value;
+                    _eventBus.PublishCardGroupChanged(Id, value, ButtonImageAsBytes != null, value);
                 }
             }
         }
@@ -70,6 +71,18 @@ namespace ArkhamOverlay.Data {
         public string CardZoneName { get { return _cardZones.Any() ? _cardZones[0].Name : ""; } }
 
         public List<IButton> CardButtons { get; set; }
+        
+        private byte[] _buttonImageAsBytes { get; set; }
+        /// <summary>
+        /// Image associated with this card group
+        /// </summary>
+        public byte[] ButtonImageAsBytes {
+            get => _buttonImageAsBytes;
+            set {
+                _buttonImageAsBytes = value;
+                _eventBus.PublishCardGroupChanged(Id, Name, value != null, Name);
+            }
+        }
 
         /// <summary>
         /// Add a Card Zone to this Card Group
@@ -115,24 +128,34 @@ namespace ArkhamOverlay.Data {
         public IEnumerable<CardInfo> CardPool { get => from button in CardButtons.OfType<CardInfoButton>() select button.CardInfo; }
 
         /// <summary>
-        /// Use the button context to find the button
+        /// Find a button
         /// </summary>
         /// <param name="context">Information to find the button</param>
-        /// <returns>The button identified by the context- will be default if not found</returns>
+        /// <returns>The button identified by the context- default if not found</returns>
         internal IButton GetButton(IButtonContext context) {
             if (context.CardGroupId != Id) {
                 return default(Button);
             }
 
-            if (context.ButtonMode == ButtonMode.Pool) {
-                return (context.Index < CardButtons.Count) ? CardButtons[context.Index] : default(Button);
+            return GetButton(context.ButtonMode, context.Index);
+        }
+
+        /// <summary>
+        /// Find a button
+        /// </summary>
+        /// <param name="buttonMode">Look in the pool or in card zones</param>
+        /// <param name="index">index of the button</param>
+        /// <returns>The button identified by the parameters- default if not found</returns>
+        internal IButton GetButton(ButtonMode buttonMode, int index) {
+            if (buttonMode == ButtonMode.Pool) {
+                return (index < CardButtons.Count) ? CardButtons[index] : default(Button);
             }
 
             if (CardZone == default(CardZone)) {
                 return default(Button);
             }
 
-            return context.Index < CardZone.Buttons.Count ? CardZone.Buttons[context.Index] : default(Button);
+            return index < CardZone.Buttons.Count ? CardZone.Buttons[index] : default(Button);
         }
 
         /// <summary>

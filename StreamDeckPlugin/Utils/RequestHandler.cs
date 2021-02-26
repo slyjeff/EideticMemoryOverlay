@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using StreamDeckPlugin.Events;
-using StreamDeckPlugin.Services;
 using System;
 using System.Net.Sockets;
 using System.Text;
@@ -10,14 +8,14 @@ using ArkhamOverlay.Common.Tcp.Responses;
 using ArkhamOverlay.Common.Services;
 
 namespace StreamDeckPlugin.Utils {
-    public class TcpRequestHandler : IRequestHandler {
-        private readonly IDynamicActionInfoStore _dynamicActionService;
-        private readonly IEventBus _eventBus;
+    public interface ITcpRequestHandler : IRequestHandler {
+        bool RequestReceivedRecently { get; set; }
+    }
+
+    public class TcpRequestHandler : ITcpRequestHandler {
         private readonly ICrossAppEventBus _crossAppEventBus;
 
-        public TcpRequestHandler(IDynamicActionInfoStore dynamicActionService, IEventBus eventBus, ICrossAppEventBus crossAppEventBus) {
-            _dynamicActionService = dynamicActionService;
-            _eventBus = eventBus;
+        public TcpRequestHandler(ICrossAppEventBus crossAppEventBus) {
             _crossAppEventBus = crossAppEventBus;
         }
 
@@ -28,22 +26,13 @@ namespace StreamDeckPlugin.Utils {
 
             Console.WriteLine("Handling Request: " + request.RequestType.ToString());
             switch (request.RequestType) {
-                case AoTcpRequest.UpdateInvestigatorImage:
-                    UpdateInvestigatorImage(request);
+                case AoTcpRequest.ConnectionIsAlive:
+                    HandleConnectionIsAliveRequest(request);
                     break;
                 case AoTcpRequest.EventBus:
                     HandleEventBusRequest(request);
                     break;
             }
-        }
-
-        private void UpdateInvestigatorImage(TcpRequest request) {
-            var updateInvestigatorImageRequest = JsonConvert.DeserializeObject<UpdateInvestigatorImageRequest>(request.Body);
-            if (updateInvestigatorImageRequest != null) {
-                _eventBus.PublishInvestigatorImageUpdatedEvent(updateInvestigatorImageRequest.CardGroup, updateInvestigatorImageRequest.Bytes);
-            }
-
-            Send(request.Socket, new OkResponse().ToString());
         }
 
         private static void Send(Socket socket, string data) {
@@ -65,6 +54,9 @@ namespace StreamDeckPlugin.Utils {
             } catch (Exception e) {
                 Console.WriteLine(e.ToString());
             }
+        }
+        private void HandleConnectionIsAliveRequest(TcpRequest request) {
+            Send(request.Socket, new OkResponse().ToString());
         }
 
         private void HandleEventBusRequest(TcpRequest request) {

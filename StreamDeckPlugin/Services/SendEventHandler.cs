@@ -28,7 +28,6 @@ namespace StreamDeckPlugin.Services {
 
             eventBus.SubscribeToEstablishConnectionToUiRequest(RegisterForUpdates);
             eventBus.SubscribeToGetButtonInfoRequest(GetCardInfo);
-            eventBus.SubscribeToGetInvestigatorImageRequest(GetInvestigatorImage);
             eventBus.SubscribeToGetStatValueRequest(GetStatValue);
             eventBus.SubscribeToStatValueRequest(ChangeStatValue);
             eventBus.SubscribeToGetButtonImageRequest(GetButtonImageRequestHandler);
@@ -77,10 +76,6 @@ namespace StreamDeckPlugin.Services {
             if (response != null) {
                 _imageService.UpdateButtonImage(response.Name, response.Bytes);
             }
-        }
-
-        private void GetInvestigatorImage(Events.GetInvestigatorImageRequest getInvestigatorImageRequest) {
-            SendRequest(new ArkhamOverlay.Common.Tcp.Requests.GetInvestigatorImageRequest { CardGroup = getInvestigatorImageRequest.CardGroup });
         }
 
         private void GetStatValue(GetStatValueRequest getStatValueRequest) {

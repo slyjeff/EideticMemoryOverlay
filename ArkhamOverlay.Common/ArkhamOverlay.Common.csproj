@@ -48,6 +48,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\CardGroupChanged.cs" />
+    <Compile Include="ICardGroupInfo.cs" />
+    <Compile Include="Tcp\Requests\ConnectIsAliveRequest.cs" />
+    <Compile Include="Tcp\Requests\ButtonImageRequest.cs" />
     <Compile Include="Utils\ButtonContext.cs" />
     <Compile Include="Events\ButtonClickRequest.cs" />
     <Compile Include="Events\ButtonRemoved.cs" />
@@ -59,20 +63,18 @@
     <Compile Include="Events\ShowDeckListRequest.cs" />
     <Compile Include="Events\StatUpdated.cs" />
     <Compile Include="Events\TakeSnapshotRequest.cs" />
+    <Compile Include="Utils\ButtonOption.cs" />
     <Compile Include="Utils\EnumUtils.cs" />
     <Compile Include="Utils\ServiceLocator.cs" />
     <Compile Include="Tcp\AoTcpRequest.cs" />
     <Compile Include="Tcp\Requests\EventBusRequest.cs" />
     <Compile Include="Tcp\Requests\StatValueRequest.cs" />
     <Compile Include="Tcp\Requests\ChangeStatValueRequest.cs" />
-    <Compile Include="Tcp\Requests\GetInvestigatorImageRequest.cs" />
-    <Compile Include="Tcp\Requests\UpdateInvestigatorImageRequest.cs" />
     <Compile Include="Tcp\Responses\ChangeStatValueResponse.cs" />
     <Compile Include="Enums\StatType.cs" />
     <Compile Include="Enums\CardButtonType.cs" />
     <Compile Include="Enums\CardGroupId.cs" />
     <Compile Include="ICardInfo.cs" />
-    <Compile Include="Tcp\Requests\ButtonImageRequest.cs" />
     <Compile Include="Tcp\Requests\RegisterForUpdatesRequest.cs" />
     <Compile Include="Tcp\Requests\GetCardInfoRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

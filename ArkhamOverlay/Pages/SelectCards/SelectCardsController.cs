@@ -5,7 +5,6 @@ using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Data;
 using ArkhamOverlay.Events;
 using ArkhamOverlay.Services;
-using ArkhamOverlay.Utils;
 using PageController;
 using System;
 using System.Collections.Generic;

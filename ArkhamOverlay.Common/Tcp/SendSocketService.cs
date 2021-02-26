@@ -35,7 +35,7 @@ namespace ArkhamOverlay.Common.Tcp {
                     sender.Close();
                 }
             } catch {
-                //errorr connecting- will happen a lot if the app isn't there
+                //error connecting- will happen a lot if the app isn't there
                 return null;
             }
         }

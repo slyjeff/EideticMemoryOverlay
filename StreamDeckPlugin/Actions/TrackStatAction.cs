@@ -102,8 +102,12 @@ namespace StreamDeckPlugin.Actions {
         }
 
         public void UpdateValue(int value) {
-            _value = value;
-            SetTitleAsync(_value.ToString());
+            try {
+                _value = value;
+                SetTitleAsync(_value.ToString());
+            } catch {
+                //sometimes this happens before we are set up, and the internals throw an exception
+            }
         }
     }
 }

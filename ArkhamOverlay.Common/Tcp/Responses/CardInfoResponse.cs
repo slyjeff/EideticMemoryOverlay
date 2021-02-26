@@ -1,4 +1,6 @@
 ﻿using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Utils;
+using System.Collections.Generic;
 
 namespace ArkhamOverlay.Common.Tcp.Responses {
     public class CardInfoResponse : Response, ICardInfo {
@@ -6,5 +8,6 @@ namespace ArkhamOverlay.Common.Tcp.Responses {
         public string Name { get; set; }
         public bool IsToggled { get; set; }
         public bool ImageAvailable { get; set; }
+        public IList<ButtonOption> ButtonOptions { get; set; }
     }
 }
