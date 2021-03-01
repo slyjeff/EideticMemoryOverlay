@@ -153,10 +153,7 @@ namespace StreamDeckPlugin.Actions {
                 _keyIsDown = false;
                 _keyPressTimer.Enabled = false;
 
-                if (_dynamicActionManager.ShowMenuIfNecessary(this)) {
-                    return;
-                }
-                SendClick(MouseButton.Right);
+                _dynamicActionManager.ShowMenu(this);
             }
         }
 
@@ -169,10 +166,11 @@ namespace StreamDeckPlugin.Actions {
                 _keyPressTimer.Enabled = false;
 
                 _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-                SendClick(MouseButton.Left);
+                _eventBus.PublishButtonClickRequest(CardGroupId, ButtonMode, Index, MouseButton.Left);
 
-                return Task.CompletedTask;
             }
+            //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
+            return SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
         }
 
         /// <summary>
@@ -182,13 +180,6 @@ namespace StreamDeckPlugin.Actions {
         public void SetOption(DynamicActionOption dynamicActionOption) {
             _dynamicActionOption = dynamicActionOption;
             UpdateButtonToNewDynamicAction();
-        }
-
-        private void SendClick(MouseButton mouseButton) {
-            _eventBus.PublishButtonClickRequest(CardGroupId, ButtonMode, Index, mouseButton, string.Empty);
-
-            //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
-            SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
         }
 
         private void GetButtonInfo() {

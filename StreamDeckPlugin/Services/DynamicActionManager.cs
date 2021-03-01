@@ -1,5 +1,4 @@
-﻿using ArkhamOverlay.Common;
-using ArkhamOverlay.Common.Enums;
+﻿using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
@@ -22,7 +21,7 @@ namespace StreamDeckPlugin.Services {
         /// <param name="option">Option to pass to the right click request if this dynamic action is selected</param>
         /// <param name="text">Text to display for the menu</param>
         /// <param name="image">Image to display for the menu- will use a blank image if null or empty</param>
-        public DynamicActionOption(IButtonContext buttonContext, string option = null, string text = null, string image = null) {
+        public DynamicActionOption(IButtonContext buttonContext, ButtonOption option = null, string text = null, string image = null) {
             ButtonContext = buttonContext;
             Option = option;
             Text = text;
@@ -37,7 +36,7 @@ namespace StreamDeckPlugin.Services {
         /// <summary>
         /// Option to pass to the right click request if this dynamic action is selected
         /// </summary>
-        public string Option { get; }
+        public ButtonOption Option { get; }
 
         /// <summary>
         /// Text to display for the menu
@@ -74,11 +73,10 @@ namespace StreamDeckPlugin.Services {
         void ReclaculateIndexes();
 
         /// <summary>
-        /// If there is more than one option based on this button context, use dynamic actions to display a menu of options, and then publish and event with the chosen option
+        /// Displays a menu, or executes the action if there is only one
         /// </summary>
-        /// <param name="buttonContext">Button Context used to determine if a menu needs to be shown (more than one option is available)</param>
-        /// <returns>Whether a menu is necessary</returns>
-        bool ShowMenuIfNecessary(IButtonContext buttonContext);
+        /// <param name="buttonContext">Button Context used to determine what the available options are</param>
+        void ShowMenu(IButtonContext buttonContext);
 
         /// <summary>
         /// Execute the logic appropriate for the selected option
@@ -90,7 +88,7 @@ namespace StreamDeckPlugin.Services {
     /// <summary>
     /// Keep track of all the dynamic buttons so they can be managed as a group
     /// </summary>
-    public class DynamicActionManager : IDynamicActionManager {
+    public class DynamicActionManager : IDynamicActionManager, IButtonOptionResolver {
         private readonly IList<DynamicAction> _dynamicActions = new List<DynamicAction>();
         private readonly object _dynamicActionsLock = new object();
         private readonly IEventBus _eventBus;
@@ -169,14 +167,18 @@ namespace StreamDeckPlugin.Services {
         }
 
         /// <summary>
-        /// Displays a menu if necessary
+        /// Displays a menu, or executes the action if there is only one
         /// </summary>
-        /// <param name="buttonContext">Button Context used to determine if a menu needs to be shown (more than one option is available)</param>
-        /// <returns>Whether a menu is necessary</returns>
-        public bool ShowMenuIfNecessary(IButtonContext buttonContext) {
+        /// <param name="buttonContext">Button Context used to determine what the available options are</param>
+        public void ShowMenu(IButtonContext buttonContext) {
             var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(buttonContext);
-            if (dynamicActionInfo == null || dynamicActionInfo.ButtonOptions.Count <= 1) {
-                return false;
+            if (dynamicActionInfo == null || !dynamicActionInfo.ButtonOptions.Any()) {
+                return;
+            }
+
+            if (dynamicActionInfo.ButtonOptions.Count == 1) {
+                _eventBus.PublishButtonClickRequest(buttonContext.CardGroupId, buttonContext.ButtonMode, buttonContext.Index, MouseButton.Right, dynamicActionInfo.ButtonOptions.First());
+                return;
             }
 
             lock (_dynamicActionsLock) {
@@ -190,7 +192,7 @@ namespace StreamDeckPlugin.Services {
 
                     if (optionIndex == options.Count) {
                         //show a cancel button
-                        action.SetOption(new DynamicActionOption(buttonContext, string.Empty, "Cancel"));
+                        action.SetOption(new DynamicActionOption(buttonContext, null, "Cancel"));
                         optionIndex++;
                         continue;
                     }
@@ -199,8 +201,6 @@ namespace StreamDeckPlugin.Services {
                     action.SetOption(new DynamicActionOption(buttonContext));
                 }
             }
-
-            return true;
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace StreamDeckPlugin.Services {
             }
 
             var option = dynamicActionOption.Option;
-            if (string.IsNullOrEmpty(option)) {
+            if (option == null) {
                 return;
             }
 
@@ -251,29 +251,14 @@ namespace StreamDeckPlugin.Services {
         /// <param name="buttonContext">The button context that is the source of the menu</param>
         /// <returns>A Dynamic action option with resovled text and possibly an image, if appicable</returns>
         private DynamicActionOption CreateDynamicActionOption(ButtonOption buttonOption, IButtonContext buttonContext) {
-            var image = string.Empty;
-            
-            var text = buttonOption.GetTextResolvingPlaceholders(placeholder => {
-                if (Enum.TryParse(placeholder, out CardGroupId cardGroupId)) {
-                    var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
-                    if (cardGroupInfo == default(ICardGroupInfo)) {
-                        return null;
-                    }
-
-                    //if this is a card group, grab the image name and assign it to this button
-                    image = _imageService.GetImage(cardGroupInfo.ImageId);
-                    
-                    return cardGroupInfo.Name;
-                }
-
-                return null;
-            });
-
+            var text = buttonOption.GetText(this);
             if (string.IsNullOrEmpty(text)) {
                 return default;
             }
 
-            return new DynamicActionOption(buttonContext, buttonOption.Option, text, image);
+            var image = _imageService.GetImage(_imageService.GetImage(buttonOption.GetImageId(this)));
+
+            return new DynamicActionOption(buttonContext, buttonOption, text, image);
         }
 
         /// <summary>
@@ -286,6 +271,40 @@ namespace StreamDeckPlugin.Services {
                    where dynamicAction.CardGroupId == cardGroupId
                    orderby dynamicAction.PhysicalIndex
                    select dynamicAction;
+        }
+
+        /// <summary>
+        /// Used by button option to get a name for the card group when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group to resolve</param>
+        /// <returns>The name of the card group</returns>
+        string IButtonOptionResolver.GetCardGroupName(CardGroupId cardGroupId) {
+            var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
+            return cardGroupInfo.Name;
+        }
+
+        /// <summary>
+        /// Used by button option to get a name for the card zone when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group of the card zone</param>
+        /// <param name="zoneIndex">Zone to resolve</param>
+        /// <returns>Name of the zone</returns>
+        string IButtonOptionResolver.GetCardZoneName(CardGroupId cardGroupId, int zoneIndex) {
+            return "Hand";
+        }
+
+        /// <summary>
+        /// Used by button option to get the image ID for a button when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group of the card zone</param>
+        /// <param name="zoneIndex">Zone to resolve</param>
+        /// <returns>Image Id for the card group</returns>
+        string IButtonOptionResolver.GetImageId(CardGroupId cardGroupId, int zoneIndex) {
+            var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
+            if (cardGroupInfo != default) {
+                return cardGroupInfo.ImageId;
+            }
+            return string.Empty;
         }
     }
 }

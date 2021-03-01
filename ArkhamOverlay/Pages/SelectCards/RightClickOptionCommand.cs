@@ -1,12 +1,13 @@
-﻿using System;
+﻿using ArkhamOverlay.Common.Utils;
+using System;
 using System.Windows.Input;
 
 namespace ArkhamOverlay.Pages.SelectCards {
     public class RightClickOptionCommand : ICommand {
-        private readonly string _option;
-        private readonly Action<string> _optionSelectedCallback;
+        private readonly ButtonOption _option;
+        private readonly Action<ButtonOption> _optionSelectedCallback;
 
-        public RightClickOptionCommand(string option, string text, Action<string> optionSelectedCallback) {
+        public RightClickOptionCommand(ButtonOption option, string text, Action<ButtonOption> optionSelectedCallback) {
             _option = option;
             Text = text;
             _optionSelectedCallback = optionSelectedCallback;

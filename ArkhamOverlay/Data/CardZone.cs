@@ -32,37 +32,45 @@ namespace ArkhamOverlay.Data {
         /// <summary>
         /// Create a card and add it to the first zone
         /// </summary>
-        /// <param name="cardInfoButton">Card Info to use to create the card</param>
-        public void CreateCard(CardInfoButton cardInfoButton) {
-            var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardInfo == cardInfoButton.CardInfo.FlipSideCard);
+        /// <param name="button">Button that initiated this create- contains card info and toggle state</param>
+        public void CreateCard(CardImageButton button) {
+            var cardSetButtonToReplace = Buttons.FirstOrDefault(x => x.CardInfo == button.CardInfo.FlipSideCard);
             if (cardSetButtonToReplace != null) {
                 var index = Buttons.IndexOf(cardSetButtonToReplace);
-                var newButton = new CardButton(cardInfoButton);
+                var newButton = new CardButton(button);
                 Buttons[index] = newButton;
                 PublishButtonInfoChanged(newButton, ChangeAction.Update);
             } else {
-                var existingCopyCount = Buttons.Count(x => x.CardInfo == cardInfoButton.CardInfo);
+                var existingCopyCount = Buttons.Count(x => x.CardInfo == button.CardInfo);
 
                 //don't add more than one copy unless it's a player card
-                if (!cardInfoButton.CardInfo.IsPlayerCard && existingCopyCount > 0) {
+                if (!button.CardInfo.IsPlayerCard && existingCopyCount > 0) {
                     return;
                 }
 
                 //if there's an act and this is an agenda, always add it to the left
                 var index = Buttons.Count();
-                if (cardInfoButton.CardInfo.Type == CardType.Agenda && Buttons.Any(x => x.CardInfo.Type == CardType.Act)) {
+                if (button.CardInfo.Type == CardType.Agenda && Buttons.Any(x => x.CardInfo.Type == CardType.Act)) {
                     index = Buttons.IndexOf(Buttons.First(x => x.CardInfo.Type == CardType.Act));
                 }
 
-                var newButton = new CardButton(cardInfoButton);
+                var newButton = new CardButton(button);
                 Buttons.Insert(index, newButton);
                 PublishButtonInfoChanged(newButton, ChangeAction.Add);
             }
         }
 
-        public void RemoveCard(CardButton cardButton) {
-            var indexOfRemovedCard = Buttons.IndexOf(cardButton);
-            Buttons.Remove(cardButton);
+        /// <summary>
+        /// If this button is in the list, remove it
+        /// </summary>
+        /// <param name="button">Button to remove</param>
+        internal void RemoveButton(CardButton button) {
+            var indexOfRemovedCard = Buttons.IndexOf(button);
+            if (indexOfRemovedCard == -1) {
+                return;
+            }
+
+            Buttons.Remove(button);
             PublishButtonRemoved(indexOfRemovedCard); 
         }
 

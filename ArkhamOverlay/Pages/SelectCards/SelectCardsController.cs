@@ -12,7 +12,7 @@ using System.Linq;
 using System.Windows.Controls;
 
 namespace ArkhamOverlay.Pages.SelectCards {
-    public class SelectCardsController : Controller<SelectCardsView, SelectCardsViewModel> {
+    public class SelectCardsController : Controller<SelectCardsView, SelectCardsViewModel>, IButtonOptionResolver {
         private readonly LoggingService _logger;
         private readonly AppData _appData;
         private readonly IEventBus _eventBus;
@@ -55,7 +55,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
             _logger.LogMessage($"Left clicking button {button.Text}");
 
             var index = ViewModel.CardGroup.CardButtons.IndexOf(button);
-            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, index, MouseButton.Left, string.Empty);
+            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, index, MouseButton.Left);
         }
 
         [Command]
@@ -70,7 +70,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
         public void CardLeftClick(CardButton button) {
             _logger.LogMessage($"Left clicking button {button.Text}");
             var index = ViewModel.CardGroup.CardZone.Buttons.IndexOf(button);
-            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Zone, index, MouseButton.Left, string.Empty);
+            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Zone, index, MouseButton.Left);
         }
 
         [Command]
@@ -88,16 +88,18 @@ namespace ArkhamOverlay.Pages.SelectCards {
         /// <param name="button">The button clicked</param>
         private void RightClick(ButtonMode buttonMode, int index, IButton button) {
             try {
-                if (button is CardImageButton cardImageButton) {
-                    if (cardImageButton.Options.Any()) {
-                        var contextMenu = View.FindResource("cmSelectPlayer") as ContextMenu;
-                        contextMenu.ItemsSource = CreateRightClickOptions(cardImageButton.Options, selectedOption => _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, index, MouseButton.Right, selectedOption));
-                        contextMenu.IsOpen = true;
-                        return;
-                    }
+                if (!button.Options.Any()) {
+                    return;
                 }
 
-                _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, buttonMode, index, MouseButton.Right, string.Empty);
+                if (button.Options.Count == 1) {
+                    _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, buttonMode, index, MouseButton.Right, button.Options.First());
+                    return;
+                }
+
+                var contextMenu = View.FindResource("cmSelectPlayer") as ContextMenu;
+                contextMenu.ItemsSource = CreateRightClickOptions(button.Options, selectedOption => _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, index, MouseButton.Right, selectedOption));
+                contextMenu.IsOpen = true;
             } catch (Exception e) {
                 _logger.LogException(e, "Error Handling Right Click");
             }
@@ -109,31 +111,49 @@ namespace ArkhamOverlay.Pages.SelectCards {
         /// <param name="options">The options the user may selectd from when clicking this button</param>
         /// <param name="callback">What to do when the user selects an option</param>
         /// <returns>A list of menu items</returns>
-        private IEnumerable<RightClickOptionCommand> CreateRightClickOptions(IEnumerable<ButtonOption> options, Action<string> callback) {
+        private IEnumerable<RightClickOptionCommand> CreateRightClickOptions(IEnumerable<ButtonOption> options, Action<ButtonOption> callback) {
             var commands = new List<RightClickOptionCommand>();
             foreach (var option in options) {
-                var text = option.GetTextResolvingPlaceholders(ResolveMenuItemPlaceholder);
+                var text = option.GetText(this);
                 if (!string.IsNullOrEmpty(text)) {
-                    commands.Add(new RightClickOptionCommand(option.Option, text, callback));
+                    commands.Add(new RightClickOptionCommand(option, text, callback));
                 }
             }
 
             return commands;
         }
 
-        /// <summary>
-        /// Callback to resolve placeholder in a menu item so we can provide more contextual information
-        /// </summary>
-        /// <param name="placeholder">The placeholder to resolve</param>
-        /// <returns>The actual value the placeholder represents</returns>
-        /// <remarks>Example "player1" (represented by <<xxxx>></xxxx> in the text) will resolve to the name of player 1 in game data</remarks>
-        private string ResolveMenuItemPlaceholder(string placeholder) {
-            if (Enum.TryParse(placeholder, out CardGroupId cardGroupId)) {
-                var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
-                return cardGroup.Name;
-            }
 
-            return null;
+        /// <summary>
+        /// Used by button option to get a name for the card group when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group to resolve</param>
+        /// <returns>The name of the card group</returns>
+        string IButtonOptionResolver.GetCardGroupName(CardGroupId cardGroupId) {
+            var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
+            return cardGroup.Name;
         }
+
+        /// <summary>
+        /// Used by button option to get a name for the card zone when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group of the card zone</param>
+        /// <param name="zoneIndex">Zone to resolve</param>
+        /// <returns>Name of the zone</returns>
+        string IButtonOptionResolver.GetCardZoneName(CardGroupId cardGroupId, int zoneIndex) {
+            return "Hand";
+        }
+
+        /// <summary>
+        /// Used by button option to get the image ID for a button when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group of the card zone</param>
+        /// <param name="zoneIndex">Zone to resolve</param>
+        /// <returns>Image Id for the card group</returns>
+        string IButtonOptionResolver.GetImageId(CardGroupId cardGroupId, int zoneIndex) {
+            var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
+            return cardGroup.Name;
+        }
+
     }
 }

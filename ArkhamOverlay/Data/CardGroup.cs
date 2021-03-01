@@ -180,10 +180,21 @@ namespace ArkhamOverlay.Data {
                 UpdateShowCardZoneButtonName();
             }
 
-            playerButtons.AddRange(from card in SortCards(cards) select new CardInfoButton(card));
+            playerButtons.AddRange(from card in SortCards(cards) select new CardInfoButton(card, Id));
             CardButtons = playerButtons;
             NotifyPropertyChanged(nameof(CardButtons));
         }
+
+        /// <summary>
+        /// Look through all card zones to find this button and remove it
+        /// </summary>
+        /// <param name="button">The button to remove</param>
+        internal void RemoveCard(CardButton button) {
+            foreach (var zone in _cardZones) {
+                zone.RemoveButton(button);
+            }
+        }
+
 
         private IEnumerable<CardInfo> SortCards(IEnumerable<CardInfo> cards) {
             var firstCard = cards.FirstOrDefault();
