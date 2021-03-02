@@ -9,6 +9,7 @@ namespace StreamDeckPlugin.Events {
             CardGroupId = cardGroup;
             ButtonMode = buttonMode;
             ZoneIndex = zoneIndex;
+            Index = index;
         }
 
         public CardGroupId CardGroupId { get; }

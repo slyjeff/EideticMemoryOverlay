@@ -170,7 +170,7 @@ namespace StreamDeckPlugin.Services {
         private void PublishChangeEventsForChangedActions(IEnumerable<DynamicActionInfo> changedActions) {
             foreach (var action in changedActions) {
                 if (action.IsImageAvailable) {
-                    _imageService.LoadImage(action.ImageId, action.CardGroupId, action.ButtonMode, action.Index);
+                    _imageService.LoadImage(action.ImageId, action.CardGroupId, action.ButtonMode, action.ZoneIndex, action.Index);
                 }
 
                 _eventBus.PublishDynamicActionInfoChanged(action);
