@@ -32,6 +32,7 @@ namespace ArkhamOverlay.Data {
         public Visibility IsVisible { get { return Buttons.Any() ? Visibility.Visible : Visibility.Collapsed; } }
 
         public IEnumerable<ICard> Cards { get => Buttons; }
+        public int ZoneIndex { get; set; }
 
         /// <summary>
         /// Create a card and add it to the first zone
@@ -114,11 +115,11 @@ namespace ArkhamOverlay.Data {
             var index = Buttons.IndexOf(button);
             var isImageAvailable = button?.CardInfo.ButtonImageAsBytes != null;
 
-            _eventBus.PublishButtonInfoChanged(CardGroupId, ButtonMode.Zone, index, button.Text, button.CardInfo.ImageId, button.IsToggled, isImageAvailable, action, button.Options);
+            _eventBus.PublishButtonInfoChanged(CardGroupId, ButtonMode.Zone, ZoneIndex, index, button.Text, button.CardInfo.ImageId, button.IsToggled, isImageAvailable, action, button.Options);
         }
 
         private void PublishButtonRemoved(int index) {
-            _eventBus.PublishButtonRemoved(CardGroupId, ButtonMode.Zone, index);
+            _eventBus.PublishButtonRemoved(CardGroupId, ButtonMode.Zone, ZoneIndex, index);
         }
     }
 }

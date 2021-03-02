@@ -84,7 +84,12 @@ namespace StreamDeckPlugin.Actions {
         }
 
         /// <summary>
-        /// Index of the Button in the UI this Dynamic Action corresponds to
+        /// Index of the zone in the UI that contains the button this Dynamic Action corresponds to
+        /// </summary>
+        public int ZoneIndex { get { return 0; } }
+
+        /// <summary>
+        /// Index of the button in the UI this Dynamic Action corresponds to
         /// </summary>
         /// <remarks>Takes into account the position in group as well as the page</remarks>
         public int Index { get { return (_page * _dynamicActionCount) + _positionInGroup; } }
@@ -166,7 +171,7 @@ namespace StreamDeckPlugin.Actions {
                 _keyPressTimer.Enabled = false;
 
                 _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-                _eventBus.PublishButtonClickRequest(CardGroupId, ButtonMode, Index, MouseButton.Left);
+                _eventBus.PublishButtonClickRequest(CardGroupId, ButtonMode, ZoneIndex, Index, MouseButton.Left);
 
             }
             //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
@@ -183,7 +188,7 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void GetButtonInfo() {
-            _eventBus.PublishGetButtonInfoRequest(CardGroupId, ButtonMode, Index);
+            _eventBus.PublishGetButtonInfoRequest(CardGroupId, ButtonMode, ZoneIndex, Index);
         }
 
         private void DynamicActionChanged(DynamicActionInfoChangedEvent dynamicActionInfoChangedEvent) {

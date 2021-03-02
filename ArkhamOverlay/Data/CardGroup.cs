@@ -17,6 +17,7 @@ namespace ArkhamOverlay.Data {
 
         List<IButton> CardButtons { get; }
         CardZone CardZone { get; }
+        IList<CardZone> CardZones { get; }
 
         bool Loading { get; }
     }
@@ -93,6 +94,7 @@ namespace ArkhamOverlay.Data {
         public void AddCardZone(CardZone cardZone) {
             cardZone.Buttons.CollectionChanged += (s, e) => CardZoneUpdated();
             cardZone.CardGroupId = Id;
+            cardZone.ZoneIndex = _cardZones.Count;
             _cardZones.Add(cardZone);
         }
 
@@ -109,7 +111,7 @@ namespace ArkhamOverlay.Data {
             return _cardZones[index];
         }
 
-        public IEnumerable<CardZone> CardZones { get { return from cardZone in _cardZones select cardZone; } }
+        public IList<CardZone> CardZones { get { return (from cardZone in _cardZones select cardZone).ToList(); } }
 
         /// <summary>
         /// The first Card Zone assigned to this CardGroup. Will be default(CardZone) if no Card Zone is assigned
@@ -141,25 +143,27 @@ namespace ArkhamOverlay.Data {
                 return default(Button);
             }
 
-            return GetButton(context.ButtonMode, context.Index);
+            return GetButton(context.ButtonMode, context.ZoneIndex, context.Index);
         }
 
         /// <summary>
         /// Find a button
         /// </summary>
         /// <param name="buttonMode">Look in the pool or in card zones</param>
+        /// <param name="zoneIndex">index of zone the button- does not apply for pool</param>
         /// <param name="index">index of the button</param>
         /// <returns>The button identified by the parameters- default if not found</returns>
-        internal IButton GetButton(ButtonMode buttonMode, int index) {
+        internal IButton GetButton(ButtonMode buttonMode, int zoneIndex, int index) {
             if (buttonMode == ButtonMode.Pool) {
                 return (index < CardButtons.Count) ? CardButtons[index] : default(Button);
             }
 
-            if (CardZone == default(CardZone)) {
+            var cardZone = GetCardZone(zoneIndex);
+            if (cardZone == default(CardZone)) {
                 return default(Button);
             }
 
-            return index < CardZone.Buttons.Count ? CardZone.Buttons[index] : default(Button);
+            return index < cardZone.Buttons.Count ? cardZone.Buttons[index] : default(Button);
         }
 
         /// <summary>
@@ -255,9 +259,8 @@ namespace ArkhamOverlay.Data {
             }
 
             _showCardZoneButton.IsToggled = e.IsVisible;
-            _eventBus.PublishButtonToggled(Id, ButtonMode.Pool, CardButtons.IndexOf(_showCardZoneButton), e.IsVisible);
+            _eventBus.PublishButtonToggled(Id, ButtonMode.Pool, 0, CardButtons.IndexOf(_showCardZoneButton), e.IsVisible);
         }
-
 
         private void CardZoneUpdated() {
             UpdateShowCardZoneButtonName();
@@ -274,7 +277,7 @@ namespace ArkhamOverlay.Data {
             } else {
                 _showCardZoneButton.Text = "Right Click to add cards to " + _cardZones[0].Name;
             }
-            _eventBus.PublishButtonTextChanged(Id, 0, CardButtons.IndexOf(_showCardZoneButton), _showCardZoneButton.Text);
+            _eventBus.PublishButtonTextChanged(Id, 0, 0, CardButtons.IndexOf(_showCardZoneButton), _showCardZoneButton.Text);
         }
     }
 }

@@ -177,7 +177,7 @@ namespace StreamDeckPlugin.Services {
             }
 
             if (dynamicActionInfo.ButtonOptions.Count == 1) {
-                _eventBus.PublishButtonClickRequest(buttonContext.CardGroupId, buttonContext.ButtonMode, buttonContext.Index, MouseButton.Right, dynamicActionInfo.ButtonOptions.First());
+                _eventBus.PublishButtonClickRequest(buttonContext.CardGroupId, buttonContext.ButtonMode, buttonContext.ZoneIndex, buttonContext.Index, MouseButton.Right, dynamicActionInfo.ButtonOptions.First());
                 return;
             }
 
@@ -222,7 +222,7 @@ namespace StreamDeckPlugin.Services {
                 return;
             }
 
-            _eventBus.PublishButtonClickRequest(buttonContext.CardGroupId, buttonContext.ButtonMode, buttonContext.Index, MouseButton.Right, option);
+            _eventBus.PublishButtonClickRequest(buttonContext.CardGroupId, buttonContext.ButtonMode, buttonContext.ZoneIndex, buttonContext.Index, MouseButton.Right, option);
         }
 
         /// <summary>

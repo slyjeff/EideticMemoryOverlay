@@ -79,7 +79,7 @@ namespace ArkhamOverlay.Services {
             if (!buttonImageRequest.ButtonMode.HasValue || !buttonImageRequest.Index.HasValue) {
                 SendButtonImageResponse(request.Socket, cardGroup.Name, cardGroup.ButtonImageAsBytes);
             } else {
-                if (cardGroup.GetButton(buttonImageRequest.ButtonMode.Value, buttonImageRequest.Index.Value) is CardInfoButton cardButton) {
+                if (cardGroup.GetButton(buttonImageRequest.ButtonMode.Value, buttonImageRequest.ZoneIndex.Value, buttonImageRequest.Index.Value) is CardInfoButton cardButton) {
                     imageId = cardButton.CardInfo.ImageId;
                     imageAsBytes = cardButton.CardInfo.ButtonImageAsBytes;
                 }

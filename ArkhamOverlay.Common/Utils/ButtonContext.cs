@@ -16,6 +16,7 @@ namespace ArkhamOverlay.Common.Utils {
     public interface IButtonContext {
         CardGroupId CardGroupId { get; }
         ButtonMode ButtonMode { get; }
+        int ZoneIndex { get; }
         int Index { get; }
     }
 

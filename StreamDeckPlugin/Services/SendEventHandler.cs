@@ -56,6 +56,7 @@ namespace StreamDeckPlugin.Services {
             var request = new GetCardInfoRequest {
                 CardGroupId = getButtonInfoRequest.CardGroupId,
                 ButtonMode = getButtonInfoRequest.ButtonMode,
+                ZoneIndex = getButtonInfoRequest.ZoneIndex,
                 Index = getButtonInfoRequest.Index,
             };
 
@@ -69,6 +70,7 @@ namespace StreamDeckPlugin.Services {
             var request = new ButtonImageRequest {
                 CardGroupId = getButtonImageRequest.CardGroupId,
                 ButtonMode = getButtonImageRequest.ButtonMode,
+                ZoneIndex = getButtonImageRequest.ZoneIndex,
                 Index = getButtonImageRequest.Index,
             };
 

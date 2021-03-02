@@ -8,6 +8,7 @@ namespace ArkhamOverlay.Common.Tcp.Requests {
 
         public CardGroupId CardGroupId { get; set; }
         public ButtonMode? ButtonMode { get; set;  }
+        public int? ZoneIndex { get; set; }
         public int? Index { get; set; }
     }
 }

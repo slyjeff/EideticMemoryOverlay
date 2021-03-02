@@ -55,7 +55,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
             _logger.LogMessage($"Left clicking button {button.Text}");
 
             var index = ViewModel.CardGroup.CardButtons.IndexOf(button);
-            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, index, MouseButton.Left);
+            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, 0, index, MouseButton.Left);
         }
 
         [Command]
@@ -63,42 +63,88 @@ namespace ArkhamOverlay.Pages.SelectCards {
             _logger.LogMessage($"Right clicking button {button.Text}");
 
             var index = ViewModel.CardGroup.CardButtons.IndexOf(button);
-            RightClick(ButtonMode.Pool, index, button);
+            RightClick(ButtonMode.Pool, 0, index, button);
         }
 
         [Command]
         public void CardLeftClick(CardButton button) {
             _logger.LogMessage($"Left clicking button {button.Text}");
-            var index = ViewModel.CardGroup.CardZone.Buttons.IndexOf(button);
-            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Zone, index, MouseButton.Left);
+
+            var buttonLocation = FindButtonLocation(button);
+            if (buttonLocation == default) {
+                return;
+            }
+
+            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Zone, buttonLocation.ZoneIndex, buttonLocation.Index, MouseButton.Left);
         }
 
         [Command]
         public void CardRightClick(CardButton button) {
             _logger.LogMessage($"Right clicking button {button.Text}");
-            var index = ViewModel.CardGroup.CardZone.Buttons.IndexOf(button);
-            RightClick(ButtonMode.Zone, index, button);
+            
+            var buttonLocation = FindButtonLocation(button);
+            if (buttonLocation == default) {
+                return;
+            }
+
+            RightClick(ButtonMode.Zone, buttonLocation.ZoneIndex, buttonLocation.Index, button);
+        }
+
+        /// <summary>
+        /// Represents the location of a button in a card group by zone and index
+        /// </summary>
+        private class ButtonLocation {
+            /// <summary>
+            /// Index of the zone within the card group
+            /// </summary>
+            public int ZoneIndex;
+
+            /// <summary>
+            /// Index of the button within the zone
+            /// </summary>
+            public int Index;
+        }
+        
+        /// <summary>
+        /// Find the location of a button within the card group
+        /// </summary>
+        /// <param name="button">The button</param>
+        /// <returns></returns>
+        private ButtonLocation FindButtonLocation(CardButton button) {
+            foreach (var zone in ViewModel.CardGroup.CardZones) {
+                var index = zone.Buttons.IndexOf(button);
+                if (index == -1) {
+                    continue;
+                }
+
+                return new ButtonLocation {
+                    ZoneIndex = ViewModel.CardGroup.CardZones.IndexOf(zone),
+                    Index = index
+                };
+            }
+            return default;
         }
 
         /// <summary>
         /// Handle right click, popping a menu if the button requires it
         /// </summary>
         /// <param name="buttonMode">Whether this is a pool or zone button</param>
-        /// <param name="index">Location of the button</param>
+        /// <param name="zoneIndex">Which zone in the button is in</param>
+        /// <param name="index">Location of the button within the zone/pool</param>
         /// <param name="button">The button clicked</param>
-        private void RightClick(ButtonMode buttonMode, int index, IButton button) {
+        private void RightClick(ButtonMode buttonMode, int zoneIndex, int index, IButton button) {
             try {
                 if (!button.Options.Any()) {
                     return;
                 }
 
                 if (button.Options.Count == 1) {
-                    _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, buttonMode, index, MouseButton.Right, button.Options.First());
+                    _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, buttonMode, zoneIndex, index, MouseButton.Right, button.Options.First());
                     return;
                 }
 
                 var contextMenu = View.FindResource("cmSelectPlayer") as ContextMenu;
-                contextMenu.ItemsSource = CreateRightClickOptions(button.Options, selectedOption => _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, buttonMode, index, MouseButton.Right, selectedOption));
+                contextMenu.ItemsSource = CreateRightClickOptions(button.Options, selectedOption => _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, buttonMode, zoneIndex, index, MouseButton.Right, selectedOption));
                 contextMenu.IsOpen = true;
             } catch (Exception e) {
                 _logger.LogException(e, "Error Handling Right Click");

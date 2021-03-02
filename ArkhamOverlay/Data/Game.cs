@@ -209,7 +209,6 @@ namespace ArkhamOverlay.Data {
                 return;
             }
 
-
             if (buttonOption.Operation == ButtonOptionOperation.Remove) {
                 cardGroup.RemoveCard(button as CardButton);
                 return;
@@ -246,7 +245,7 @@ namespace ArkhamOverlay.Data {
                 return options;
             }
 
-            var cardZones = cardGroup.CardZones.ToList();
+            var cardZones = cardGroup.CardZones;
             foreach (var cardZone in cardZones) {
                 if (cardZone != destinationCardZone) {
                     options.Add(new ButtonOption(ButtonOptionOperation.Move, cardGroup.Id, cardZones.IndexOf(cardZone)));
