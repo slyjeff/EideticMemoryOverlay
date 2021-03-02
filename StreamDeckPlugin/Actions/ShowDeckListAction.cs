@@ -9,7 +9,6 @@ using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
-using System;
 using System.Threading.Tasks;
 
 namespace StreamDeckPlugin.Actions {
