@@ -63,7 +63,8 @@ namespace ArkhamOverlay.Data {
             set {
                 if (Type == CardGroupType.Player) {
                     _playerName = value;
-                    _eventBus.PublishCardGroupChanged(Id, value, ButtonImageAsBytes != null, value);
+                    var zoneNames = (from zone in _cardZones select zone.Name).ToList();
+                    _eventBus.PublishCardGroupChanged(Id, value, ButtonImageAsBytes != null, value, zoneNames);
                 }
             }
         }
@@ -80,7 +81,8 @@ namespace ArkhamOverlay.Data {
             get => _buttonImageAsBytes;
             set {
                 _buttonImageAsBytes = value;
-                _eventBus.PublishCardGroupChanged(Id, Name, value != null, Name);
+                var zoneNames = (from zone in _cardZones select zone.Name).ToList();
+                _eventBus.PublishCardGroupChanged(Id, Name, value != null, Name, zoneNames);
             }
         }
 

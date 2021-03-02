@@ -33,13 +33,14 @@ namespace ArkhamOverlay.Data {
         /// Create a card and add it to the first zone
         /// </summary>
         /// <param name="button">Button that initiated this create- contains card info and toggle state</param>
+        /// <param name="options">Options this button should offer on a right click</param>
         /// <returns>The newly created button</returns>
-        public CardButton CreateCardButton(CardImageButton button) {
+        public void CreateCardButton(CardImageButton button, IEnumerable<ButtonOption> options) {
             var buttonToReplace = Buttons.FirstOrDefault(x => x.CardInfo == button.CardInfo.FlipSideCard);
             if (buttonToReplace != null) {
-                return ReplaceButton(button, buttonToReplace);
+                ReplaceButton(button, buttonToReplace, options);
             }
-            return AddButton(button);
+            AddButton(button, options);
         }
 
         /// <summary>
@@ -47,27 +48,30 @@ namespace ArkhamOverlay.Data {
         /// </summary>
         /// <param name="button">Button that intiated this create- contains card info and toggle state</param>
         /// <param name="buttonToReplace">The button to replace</param>
-        /// <returns>The newly created button</returns>
-        private CardButton ReplaceButton(CardImageButton button, CardButton buttonToReplace) {
+        /// <param name="options">Options this button should offer on a right click</param>
+        private void ReplaceButton(CardImageButton button, CardButton buttonToReplace, IEnumerable<ButtonOption> options) {
             var index = Buttons.IndexOf(buttonToReplace);
             var newButton = new CardButton(button);
+
+            foreach (var option in options) {
+                newButton.Options.Add(option);
+            }
+
             Buttons[index] = newButton;
             PublishButtonInfoChanged(newButton, ChangeAction.Update);
-            return newButton;
         }
 
         /// <summary>
         /// Create a new button and add it to the end of the list
         /// </summary>
         /// <param name="button">Button that intiated this create- contains card info and toggle state</param>
-        /// <param name="buttonToReplace">The button to replace</param>
-        /// <returns>The newly created button</returns>
-        private CardButton AddButton(CardImageButton button) {
+        /// <param name="options">Options this button should offer on a right click</param>
+        private void AddButton(CardImageButton button, IEnumerable<ButtonOption> options) {
             var existingCopyCount = Buttons.Count(x => x.CardInfo == button.CardInfo);
 
             //don't add more than one copy unless it's a player card
             if (!button.CardInfo.IsPlayerCard && existingCopyCount > 0) {
-                return null;
+                return;
             }
 
             //if there's an act and this is an agenda, always add it to the left
@@ -77,9 +81,13 @@ namespace ArkhamOverlay.Data {
             }
 
             var newButton = new CardButton(button);
+            
+            foreach (var option in options) {
+                newButton.Options.Add(option);
+            }
+
             Buttons.Insert(index, newButton);
             PublishButtonInfoChanged(newButton, ChangeAction.Add);
-            return newButton;
         }
 
         /// <summary>

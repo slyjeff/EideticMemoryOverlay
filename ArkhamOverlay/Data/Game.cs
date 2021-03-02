@@ -228,32 +228,32 @@ namespace ArkhamOverlay.Data {
             }
 
             _logger.LogMessage($"Adding card {button.CardInfo.Name} to {destinationCardGroup.CardZone.Name} of {destinationCardGroup.Name} ");
-            var newButton = destinationCardZone.CreateCardButton(button);
-            AddOptionsToButton(newButton, destinationCardGroup, destinationCardZone);
+            destinationCardZone.CreateCardButton(button, CreateButtonOptions(destinationCardGroup, destinationCardZone, button.CardInfo));
         }
 
         /// <summary>
-        /// Populate the right click options for a button
+        /// Create the right click options for a button
         /// </summary>
-        /// <param name="button">The button to add options to</param>
         /// <param name="cardGroup">Card group that contains the button</param>
         /// <param name="destinationCardZone">Card Zone that contains the button</param>
-        private void AddOptionsToButton(CardButton button, CardGroup cardGroup, CardZone destinationCardZone) {
-            if (button == default) {
-                return;
-            }
+        /// <param name="cardInfo">Information bout the card for this button</param>
+        /// <returns>Options to assign to a right click button</returns>
+        private IEnumerable<ButtonOption> CreateButtonOptions(CardGroup cardGroup, CardZone destinationCardZone, CardInfo cardInfo) {
+            var options = new List<ButtonOption>();
 
-            button.Options.Add(new ButtonOption(ButtonOptionOperation.Remove));
-            if (!button.CardInfo.IsPlayerCard) {
-                return;
+            options.Add(new ButtonOption(ButtonOptionOperation.Remove));
+            if (!cardInfo.IsPlayerCard) {
+                return options;
             }
 
             var cardZones = cardGroup.CardZones.ToList();
             foreach (var cardZone in cardZones) {
                 if (cardZone != destinationCardZone) {
-                    button.Options.Add(new ButtonOption(ButtonOptionOperation.Move, cardGroup.Id, cardZones.IndexOf(cardZone)));
+                    options.Add(new ButtonOption(ButtonOptionOperation.Move, cardGroup.Id, cardZones.IndexOf(cardZone)));
                 }
             }
+
+            return options;
         }
     }
 }

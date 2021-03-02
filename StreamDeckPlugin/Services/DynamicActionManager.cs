@@ -256,7 +256,7 @@ namespace StreamDeckPlugin.Services {
                 return default;
             }
 
-            var image = _imageService.GetImage(_imageService.GetImage(buttonOption.GetImageId(this)));
+            var image = _imageService.GetImage(buttonOption.GetImageId(this));
 
             return new DynamicActionOption(buttonContext, buttonOption, text, image);
         }
@@ -290,7 +290,16 @@ namespace StreamDeckPlugin.Services {
         /// <param name="zoneIndex">Zone to resolve</param>
         /// <returns>Name of the zone</returns>
         string IButtonOptionResolver.GetCardZoneName(CardGroupId cardGroupId, int zoneIndex) {
-            return "Hand";
+            var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
+            if (cardGroupInfo == default) {
+                return string.Empty;
+            }
+
+            if (zoneIndex >= cardGroupInfo.Zones.Count) {
+                return string.Empty;
+            }
+
+            return cardGroupInfo.Zones[zoneIndex];
         }
 
         /// <summary>

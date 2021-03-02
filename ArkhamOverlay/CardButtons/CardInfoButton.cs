@@ -13,7 +13,6 @@ namespace ArkhamOverlay.CardButtons {
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, cardGroupId, 0));
             }
 
-
             if (!cardInfo.IsPlayerCard && cardInfo.IsHidden) {
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player1, 0));
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player2, 0));

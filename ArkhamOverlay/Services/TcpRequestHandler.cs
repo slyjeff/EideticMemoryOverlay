@@ -10,6 +10,7 @@ using ArkhamOverlay.Data;
 using ArkhamOverlay.Events;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
@@ -153,7 +154,8 @@ namespace ArkhamOverlay.Services {
             _logger.LogMessage("Sending All Card Group Info");
             foreach (var cardGroupId in EnumUtil.GetValues<CardGroupId>()) {
                 var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
-                _eventBus.PublishCardGroupChanged(cardGroup.Id, cardGroup.Name, cardGroup.ButtonImageAsBytes != null, cardGroup.Name);
+                var zoneNames = (from zone in cardGroup.CardZones select zone.Name).ToList();
+                _eventBus.PublishCardGroupChanged(cardGroup.Id, cardGroup.Name, cardGroup.ButtonImageAsBytes != null, cardGroup.Name, zoneNames);
            }
         }
 
