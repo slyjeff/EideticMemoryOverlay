@@ -198,7 +198,7 @@ namespace ArkhamOverlay.Data {
         /// <param name="buttonOption">Option the user selected from a right click menu, if applicable</param>
         private void HandleButtonRightClick(CardGroup cardGroup, CardImageButton button, ButtonOption buttonOption) {
             //button should always be set- if it's not, we have an issue
-            if (buttonOption == null) {
+            if (button == null) {
                 _logger.LogError($"Right Button Click for {cardGroup.Name} was not a button with an image");
                 return;
             }
@@ -221,14 +221,39 @@ namespace ArkhamOverlay.Data {
 
             //whether add or move, we need to add the card to the specified zone
             var destinationCardGroup = GetCardGroup(buttonOption.CardGroupId);
-            var cardZone = destinationCardGroup.GetCardZone(buttonOption.ZoneIndex);
-            if (cardZone == default) {
+            var destinationCardZone = destinationCardGroup.GetCardZone(buttonOption.ZoneIndex);
+            if (destinationCardZone == default) {
                 _logger.LogError($"Cannot add card {button.CardInfo.Name} to {destinationCardGroup.Name} because zone with index {buttonOption.ZoneIndex} does not exist");
                 return;
             }
 
             _logger.LogMessage($"Adding card {button.CardInfo.Name} to {destinationCardGroup.CardZone.Name} of {destinationCardGroup.Name} ");
-            cardZone.CreateCard(button);
+            var newButton = destinationCardZone.CreateCardButton(button);
+            AddOptionsToButton(newButton, destinationCardGroup, destinationCardZone);
+        }
+
+        /// <summary>
+        /// Populate the right click options for a button
+        /// </summary>
+        /// <param name="button">The button to add options to</param>
+        /// <param name="cardGroup">Card group that contains the button</param>
+        /// <param name="destinationCardZone">Card Zone that contains the button</param>
+        private void AddOptionsToButton(CardButton button, CardGroup cardGroup, CardZone destinationCardZone) {
+            if (button == default) {
+                return;
+            }
+
+            button.Options.Add(new ButtonOption(ButtonOptionOperation.Remove));
+            if (!button.CardInfo.IsPlayerCard) {
+                return;
+            }
+
+            var cardZones = cardGroup.CardZones.ToList();
+            foreach (var cardZone in cardZones) {
+                if (cardZone != destinationCardZone) {
+                    button.Options.Add(new ButtonOption(ButtonOptionOperation.Move, cardGroup.Id, cardZones.IndexOf(cardZone)));
+                }
+            }
         }
     }
 }

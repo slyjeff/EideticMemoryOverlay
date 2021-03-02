@@ -107,6 +107,8 @@ namespace ArkhamOverlay.Data {
             return _cardZones[index];
         }
 
+        public IEnumerable<CardZone> CardZones { get { return from cardZone in _cardZones select cardZone; } }
+
         /// <summary>
         /// The first Card Zone assigned to this CardGroup. Will be default(CardZone) if no Card Zone is assigned
         /// </summary>
@@ -194,7 +196,6 @@ namespace ArkhamOverlay.Data {
                 zone.RemoveButton(button);
             }
         }
-
 
         private IEnumerable<CardInfo> SortCards(IEnumerable<CardInfo> cards) {
             var firstCard = cards.FirstOrDefault();

@@ -98,7 +98,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
                 }
 
                 var contextMenu = View.FindResource("cmSelectPlayer") as ContextMenu;
-                contextMenu.ItemsSource = CreateRightClickOptions(button.Options, selectedOption => _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, index, MouseButton.Right, selectedOption));
+                contextMenu.ItemsSource = CreateRightClickOptions(button.Options, selectedOption => _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, buttonMode, index, MouseButton.Right, selectedOption));
                 contextMenu.IsOpen = true;
             } catch (Exception e) {
                 _logger.LogException(e, "Error Handling Right Click");
@@ -123,7 +123,6 @@ namespace ArkhamOverlay.Pages.SelectCards {
             return commands;
         }
 
-
         /// <summary>
         /// Used by button option to get a name for the card group when displaying an option
         /// </summary>
@@ -141,7 +140,12 @@ namespace ArkhamOverlay.Pages.SelectCards {
         /// <param name="zoneIndex">Zone to resolve</param>
         /// <returns>Name of the zone</returns>
         string IButtonOptionResolver.GetCardZoneName(CardGroupId cardGroupId, int zoneIndex) {
-            return "Hand";
+            var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
+            var cardZone = cardGroup.GetCardZone(zoneIndex);
+            if (cardZone == default) {
+                return string.Empty;
+            }
+            return cardZone.Name;
         }
 
         /// <summary>
