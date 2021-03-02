@@ -19,6 +19,13 @@ namespace ArkhamOverlay.CardButtons {
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player3, 0));
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player4, 0));
             }
+
+            if (!cardInfo.IsHidden && cardInfo.Type == CardType.Treachery || cardInfo.Type == CardType.Enemy) {
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player1, 1));
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player2, 1));
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player3, 1));
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player4, 1));
+            }
         }
     }
 }
