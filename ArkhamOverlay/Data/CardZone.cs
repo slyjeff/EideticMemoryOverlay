@@ -3,9 +3,11 @@ using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
+using PageController;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 
 namespace ArkhamOverlay.Data {
     public enum CardZoneLocation { Top, Bottom }
@@ -13,7 +15,7 @@ namespace ArkhamOverlay.Data {
     /// <summary>
     /// Represents a physical location (hand, act/agenda bar) and contains a list of instances of cards
     /// </summary>
-    public class CardZone {
+    public class CardZone : ViewModel {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         public CardZone(string name, CardZoneLocation location) {
             Name = name;
@@ -26,6 +28,8 @@ namespace ArkhamOverlay.Data {
         public CardGroupId CardGroupId { get; set; }
 
         public ObservableCollection<CardButton> Buttons { get; }
+        
+        public Visibility IsVisible { get { return Buttons.Any() ? Visibility.Visible : Visibility.Collapsed; } }
 
         public IEnumerable<ICard> Cards { get => Buttons; }
 
@@ -41,6 +45,7 @@ namespace ArkhamOverlay.Data {
                 ReplaceButton(button, buttonToReplace, options);
             }
             AddButton(button, options);
+            NotifyPropertyChanged(nameof(IsVisible));
         }
 
         /// <summary>
@@ -101,7 +106,8 @@ namespace ArkhamOverlay.Data {
             }
 
             Buttons.Remove(button);
-            PublishButtonRemoved(indexOfRemovedCard); 
+            PublishButtonRemoved(indexOfRemovedCard);
+            NotifyPropertyChanged(nameof(IsVisible));
         }
 
         private void PublishButtonInfoChanged(CardButton button, ChangeAction action) {

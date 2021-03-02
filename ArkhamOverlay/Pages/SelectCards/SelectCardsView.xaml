@@ -90,40 +90,53 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-        <TextBlock Margin="5, 10, 0, 2"
-                   Foreground="White"
-                   FontWeight="Bold"
-                   Text="{Binding CardGroup.CardZoneName}"
-                   Visibility="{Binding Path=CardGroup.ShowCardZoneButtons, Converter={StaticResource BoolToVisibility}}"/>
-        <ItemsControl 
-            ItemsSource="{Binding CardGroup.CardZone.Buttons}" 
-            BorderThickness="0"
-            Visibility="{Binding Path=CardGroup.ShowCardZoneButtons, Converter={StaticResource BoolToVisibility}}">
+        <ItemsControl ItemsSource="{Binding CardGroup.CardZones}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border Style="{StaticResource CardButtonStyle}">
-                        <Grid>
-                            <Image Style="{StaticResource ImageStyle}"/>
-                            <TextBlock Style="{StaticResource TextBlockStyle}"/>
-                        </Grid>
-                        <Border.InputBindings>
-                            <MouseBinding 
-                                        MouseAction="LeftClick" 
-                                        Command="{Binding DataContext.CardLeftClick, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                        CommandParameter="{Binding}"/>
-                            <MouseBinding 
-                                        MouseAction="RightClick" 
-                                        Command="{Binding DataContext.CardRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                        CommandParameter="{Binding}"/>
-                        </Border.InputBindings>
-                    </Border>
+                    <StackPanel Orientation="Vertical" Visibility="{Binding IsVisible}">
+                        <TextBlock Margin="5, 10, 0, 2"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            Text="{Binding Name}"
+                         />
+                        <ItemsControl 
+                            ItemsSource="{Binding Buttons}" 
+                            BorderThickness="0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource CardButtonStyle}">
+                                        <Grid>
+                                            <Image Style="{StaticResource ImageStyle}"/>
+                                            <TextBlock Style="{StaticResource TextBlockStyle}"/>
+                                        </Grid>
+                                        <Border.InputBindings>
+                                            <MouseBinding 
+                                                        MouseAction="LeftClick" 
+                                                        Command="{Binding DataContext.CardLeftClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                                        CommandParameter="{Binding}"/>
+                                            <MouseBinding 
+                                                        MouseAction="RightClick" 
+                                                        Command="{Binding DataContext.CardRightClick, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                                        CommandParameter="{Binding}"/>
+                                        </Border.InputBindings>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel></WrapPanel>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel></WrapPanel>
+                    <StackPanel Orientation="Vertical"></StackPanel>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
+
         </ItemsControl>
     </StackPanel>
 </Window>
