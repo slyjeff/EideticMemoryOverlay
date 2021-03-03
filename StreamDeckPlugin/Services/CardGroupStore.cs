@@ -69,9 +69,12 @@ namespace StreamDeckPlugin.Services {
         /// </summary>
         /// <param name="imageId">Publish event for all card groups with this image id</param>
         private void ImageLoaded(string imageId) {
-            var cardGroupsForImage = from cardGroupInfo in _cardGroupInfoCache.Values
+            IList<ICardGroupInfo> cardGroupsForImage;
+            lock (_cacheLock) {
+                cardGroupsForImage = (from cardGroupInfo in _cardGroupInfoCache.Values
                                      where cardGroupInfo.ImageId == imageId
-                                     select cardGroupInfo;
+                                     select cardGroupInfo).ToList();
+            }
 
             foreach (var cardGroupInfo in cardGroupsForImage) {
                 _eventBus.PublishStreamDeckCardGroupInfoChanged(cardGroupInfo);
