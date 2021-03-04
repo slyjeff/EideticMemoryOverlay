@@ -15,12 +15,13 @@ using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
     [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
-    public class DynamicAction : StreamDeckAction<ActionWithDeckSettings>, IButtonContext {
+    public class DynamicAction : StreamDeckAction<ActionWithDeckSettings> {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore = ServiceLocator.GetService<IDynamicActionInfoStore>();
         private readonly IDynamicActionManager _dynamicActionManager = ServiceLocator.GetService<IDynamicActionManager>();
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly IImageService _imageService = ServiceLocator.GetService<IImageService>();
 
+        private IDynamicActionInfo _dynamicActionInfo;
         private Coordinates _coordinates = new Coordinates();
         private ActionWithDeckSettings _settings = new ActionWithDeckSettings();
 
@@ -30,10 +31,10 @@ namespace StreamDeckPlugin.Actions {
         private int _page;
         private DynamicActionOption _dynamicActionOption;
 
-
         public DynamicAction() {
             _keyPressTimer.Enabled = false;
             _keyPressTimer.Elapsed += KeyHeldDown;
+            ButtonMode = ButtonMode.Pool;
         }
 
         public ButtonMode ButtonMode { get; private set; } 
@@ -47,6 +48,10 @@ namespace StreamDeckPlugin.Actions {
                 return _settings.Deck.AsCardGroupId();
             }
         }
+
+        public int Page { get { return _page; } }
+        public int PhysicalRow { get { return _coordinates.Row; } }
+        public int PhysicalColumn { get { return _coordinates.Column; } }
 
         /// <summary>
         /// The index of the Dynamic Action determined by its physical location
@@ -64,36 +69,6 @@ namespace StreamDeckPlugin.Actions {
             }
         }
 
-        private int _positionInGroup = -1;
-        public int _dynamicActionCount = 0;
-
-        /// <summary>
-        /// Called by the DynamicActionIndexService to set information necessary for calculating its index
-        /// </summary>
-        /// <param name="positionInGroup">The position of the Dynamic Action relative to all other Dynamic Actions assigned to the same Card Group</param>
-        /// <param name="">The total number of Dynamic Actions in this Dynamic Action's Card Group</param>
-        public void UpdateIndexInformation(int positionInGroup, int dynamicActionCount) {
-            var logicalIndexBeforeUpdate = Index;
-            _positionInGroup = positionInGroup;
-            _dynamicActionCount = dynamicActionCount;
-
-            //don't request new information if our index hasn't changed
-            if (Index != logicalIndexBeforeUpdate) {
-                UpdateButtonToNewDynamicAction();
-            }
-        }
-
-        /// <summary>
-        /// Index of the zone in the UI that contains the button this Dynamic Action corresponds to
-        /// </summary>
-        public int ZoneIndex { get { return 0; } }
-
-        /// <summary>
-        /// Index of the button in the UI this Dynamic Action corresponds to
-        /// </summary>
-        /// <remarks>Takes into account the position in group as well as the page</remarks>
-        public int Index { get { return (_page * _dynamicActionCount) + _positionInGroup; } }
-
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _coordinates = args.Payload.Coordinates;
             _deviceId = args.Device;
@@ -105,8 +80,6 @@ namespace StreamDeckPlugin.Actions {
             _eventBus.SubscribeToPageChangedEvent(PageChanged);
             _eventBus.SubscribeToModeToggledEvent(ModeToggled);
 
-            SetButtonMode(ButtonMode.Pool);
- 
             return Task.CompletedTask;
         }
 
@@ -121,16 +94,16 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
 
-            _dynamicActionManager.ReclaculateIndexes();
+            _dynamicActionManager.RefreshAllActions();
 
             SetSettingsAsync(_settings);
 
-            GetButtonInfo();
+            UpdateButtonToNewDynamicAction();
 
             return Task.CompletedTask;
         }
 
-        private object _keyUpLock = new object();
+        private readonly object _keyUpLock = new object();
         private bool _keyIsDown = false;
 
         protected override Task OnKeyDown(ActionEventArgs<KeyPayload> args) {
@@ -170,9 +143,10 @@ namespace StreamDeckPlugin.Actions {
                 _keyIsDown = false;
                 _keyPressTimer.Enabled = false;
 
-                _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
-                _eventBus.PublishButtonClickRequest(CardGroupId, ButtonMode, ZoneIndex, Index, MouseButton.Left);
-
+                if (_dynamicActionInfo != default) {
+                    _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
+                    _eventBus.PublishButtonClickRequest(_dynamicActionInfo.CardGroupId, _dynamicActionInfo.ButtonMode, _dynamicActionInfo.ZoneIndex, _dynamicActionInfo.Index, MouseButton.Left);
+                }
             }
             //setting the card name, just because we want the button to update to show the opration is finished (no longer have the "pressed in" look)
             return SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
@@ -187,23 +161,32 @@ namespace StreamDeckPlugin.Actions {
             UpdateButtonToNewDynamicAction();
         }
 
-        private void GetButtonInfo() {
-            _eventBus.PublishGetButtonInfoRequest(CardGroupId, ButtonMode, ZoneIndex, Index);
+        /// <summary>
+        /// Refresh what information is being displayed on the button update it
+        /// </summary>
+        public void UpdateButtonToNewDynamicAction() {
+            if (_dynamicActionOption != null) {
+                //we are displaying a menu option, not our normal stuff
+                SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
+                SetImageAsync(_dynamicActionOption.Image);
+                return;
+            }
+
+            _dynamicActionInfo = _dynamicActionManager.GetInfoForAction(this);
+            if (_dynamicActionInfo == default) {
+                SetTitleAsync(string.Empty);
+                SetImageAsync(string.Empty);
+                return;
+            }
+            UpdateButtonDisplay();
         }
 
         private void DynamicActionChanged(DynamicActionInfoChangedEvent dynamicActionInfoChangedEvent) {
-            //we don't know anything about ourselves yet, so we can't really respond to changes
-            if (_deviceId == null) {
+            if (_dynamicActionInfo != dynamicActionInfoChangedEvent.DynamicActionInfo) {
                 return;
             }
 
-            var dynamicActionInfo = dynamicActionInfoChangedEvent.DynamicActionInfo;
-
-            if (!dynamicActionInfo.HasSameContext(this)) {
-                return;
-            }
-
-            UpdateButtonDisplay(dynamicActionInfo);
+            UpdateButtonDisplay();
         }
 
         private void PageChanged(PageChangedEvent pageChangedEvent) {
@@ -230,34 +213,10 @@ namespace StreamDeckPlugin.Actions {
             UpdateButtonToNewDynamicAction();
         }
 
-        private void UpdateButtonToNewDynamicAction() {
-            if (_positionInGroup == -1) {
-                //we don't know our position yet, so don't try to display anything
-                return;
-            }
-
-            if (_dynamicActionOption != null) {
-                //we are displaying a menu option, not our normal stuff
-                SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
-                SetImageAsync(_dynamicActionOption.Image);
-                return;
-            }
-
-            var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(this);
-            if (dynamicActionInfo == null) {
-                SetTitleAsync(string.Empty);
-                SetImageAsync(string.Empty);
-
-                GetButtonInfo();
-                return;
-            }
-            UpdateButtonDisplay(dynamicActionInfo);
-        }
-
-        private void UpdateButtonDisplay(IDynamicActionInfo dynamicActionInfo) {
-            _lastSetTitle = dynamicActionInfo.Text;
+        private void UpdateButtonDisplay() {
+            _lastSetTitle = _dynamicActionInfo.Text;
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
-            SetImageAsync(_imageService.GetImage(dynamicActionInfo));
+            SetImageAsync(_imageService.GetImage(_dynamicActionInfo));
         }
     }
 }

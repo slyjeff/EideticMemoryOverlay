@@ -1,4 +1,5 @@
 ﻿using ArkhamOverlay.Common;
+using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
@@ -10,6 +11,7 @@ namespace StreamDeckPlugin.Services {
     public interface IDynamicActionInfoStore {
         void UpdateDynamicActionInfo(IButtonContext buttonContext, ICardInfo cardInfo);
         IDynamicActionInfo GetDynamicActionInfo(IButtonContext buttonContext);
+        IEnumerable<IDynamicActionInfo> GetDynamicActionInfoForGroup(CardGroupId cardGroupId);
     }
 
     public class DynamicActionInfoStore : IDynamicActionInfoStore {
@@ -77,6 +79,14 @@ namespace StreamDeckPlugin.Services {
             }
 
             PublishChangeEventsForChangedActions(changedActionInfoList);
+        }
+
+        public IEnumerable<IDynamicActionInfo> GetDynamicActionInfoForGroup(CardGroupId cardGroupId) {
+            lock (_cacheLock) {
+                return (from dynamicActionInfo in _dynamicActionInfoList
+                        where dynamicActionInfo.CardGroupId == cardGroupId
+                        select dynamicActionInfo).ToList();
+            }
         }
 
         private void ImageLoaded(string imageId) {
