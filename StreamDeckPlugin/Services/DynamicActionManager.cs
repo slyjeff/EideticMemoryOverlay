@@ -102,13 +102,14 @@ namespace StreamDeckPlugin.Services {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
         private readonly ICardGroupStore _cardGroupStore;
         private readonly IImageService _imageService;
-        private bool _registrationInProgress = false;
 
         public DynamicActionManager(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore, ICardGroupStore cardGroupStore, IImageService imageService) {
             _eventBus = eventBus;
             _dynamicActionInfoStore = dynamicActionInfoStore;
             _cardGroupStore = cardGroupStore;
             _imageService = imageService;
+
+            _eventBus.SubscribeToDynamicActionInfoChangedEvent(DynamicActionChanged);
         }
 
         /// <summary>
@@ -124,20 +125,6 @@ namespace StreamDeckPlugin.Services {
 
                 _dynamicActions.Add(dynamicAction);
             }
-
-            //add a delay so we can gather all the information, then display the buttons
-            if (_registrationInProgress) {
-                return;
-            }
-            _registrationInProgress = true;
-
-            var delayRecalculateTimer = new Timer(100);
-            delayRecalculateTimer.Elapsed += (s, e) => {
-                delayRecalculateTimer.Enabled = false;
-                _registrationInProgress = false;
-                RefreshAllActions();
-            };
-            delayRecalculateTimer.Enabled = true;
         }
 
         /// <summary>
@@ -155,15 +142,11 @@ namespace StreamDeckPlugin.Services {
         /// Update all actions to make ssure they show the proper information
         /// </summary>
         public void RefreshAllActions() {
-            if (_registrationInProgress) {
-                return;
-            }
-
             IList<DynamicAction> allActions;
             lock (_dynamicActionsLock) {
                 allActions = _dynamicActions.ToList();
             }
-
+            
             foreach (var action in allActions) {
                 action.UpdateButtonToNewDynamicAction();
             }
@@ -240,6 +223,30 @@ namespace StreamDeckPlugin.Services {
         }
 
         /// <summary>
+        /// Whenver a dynamic action changes, find it ant notify it to update
+        /// </summary>
+        /// <param name="dynamicActionInfoChangedEvent"></param>
+        private void DynamicActionChanged(DynamicActionInfoChangedEvent eventData) {
+            var info = eventData.DynamicActionInfo;
+            if (info.ButtonMode == ButtonMode.Zone) {
+                //todo : implement this logic
+                return;
+            }
+
+            IList<DynamicAction> actions;
+            lock (_dynamicActionsLock) {
+                actions = GetActionsForCardGroup(info.CardGroupId).ToList();
+            }
+
+            var actionsPerPage = actions.Count;
+            var page = info.Index / actionsPerPage;
+            var actionIndex = info.Index % actionsPerPage;
+            if (actions[actionIndex].Page == page) {
+                actions[actionIndex].UpdateButtonToNewDynamicAction(info);
+            }
+        }
+
+        /// <summary>
         /// Create a list of dynamic action options for the specificed dynamic action
         /// </summary>
         /// <param name="dynamicActionInfo">Creat options based on this information</param>
@@ -302,18 +309,17 @@ namespace StreamDeckPlugin.Services {
             var actionsPerPage = actions.Count;
             var index = dynamicAction.Page * actionsPerPage + relativeIndex;
 
-            var dynamicActionInfoList = (from info in _dynamicActionInfoStore.GetDynamicActionInfoForGroup(dynamicAction.CardGroupId)
-                                        where info.ButtonMode == ButtonMode.Pool
-                                        orderby info.Index
-                                        select info).ToList();
+            var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfoForGroup(dynamicAction.CardGroupId)
+                                        .FirstOrDefault(x => x.ButtonMode == ButtonMode.Pool && x.Index == index);
 
-
-            if (dynamicActionInfoList.Count() > index) {
-                return dynamicActionInfoList[index];
+            if (dynamicActionInfo == default)  {
+                _eventBus.PublishGetButtonInfoRequest(dynamicAction.CardGroupId, ButtonMode.Pool, 0, index);
+                //try again, now that we've retrieved it
+                dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfoForGroup(dynamicAction.CardGroupId)
+                                    .FirstOrDefault(x => x.ButtonMode == ButtonMode.Pool && x.Index == index);
             }
 
-            _eventBus.PublishGetButtonInfoRequest(dynamicAction.CardGroupId, ButtonMode.Pool, 0, index);
-            return default;
+            return dynamicActionInfo;
         }
 
         /// <summary>

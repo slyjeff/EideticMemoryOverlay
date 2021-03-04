@@ -29,6 +29,8 @@ namespace StreamDeckPlugin.Actions {
         private readonly Timer _keyPressTimer = new Timer(700);
         private string _lastSetTitle;
         private int _page;
+
+        private bool _initializing = false;
         private DynamicActionOption _dynamicActionOption;
 
         public DynamicAction() {
@@ -74,11 +76,19 @@ namespace StreamDeckPlugin.Actions {
             _deviceId = args.Device;
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
 
-            _dynamicActionManager.RegisterAction(this);
-
-            _eventBus.SubscribeToDynamicActionInfoChangedEvent(DynamicActionChanged);
             _eventBus.SubscribeToPageChangedEvent(PageChanged);
             _eventBus.SubscribeToModeToggledEvent(ModeToggled);
+
+            _initializing = true;
+            var delayUpdateTimer = new Timer(50);
+            delayUpdateTimer.Elapsed += (s, e) => {
+                delayUpdateTimer.Enabled = false;
+                _initializing = true;
+                UpdateButtonToNewDynamicAction();
+            };
+            delayUpdateTimer.Enabled = true;
+
+            _dynamicActionManager.RegisterAction(this);
 
             return Task.CompletedTask;
         }
@@ -86,7 +96,6 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnWillDisappear(ActionEventArgs<AppearancePayload> args) {
             _eventBus.UnsubscribeFromModeToggledEvent(ModeToggled);
             _eventBus.UnsubscribeFromPageChangedEvent(PageChanged);
-            _eventBus.UnsubscribeFromDynamicActionInfoChangedEvent(DynamicActionChanged);
             _dynamicActionManager.UnregisterAction(this);
             return Task.CompletedTask;
         }
@@ -94,11 +103,13 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
 
-            _dynamicActionManager.RefreshAllActions();
+            //_dynamicActionManager.RefreshAllActions();
 
             SetSettingsAsync(_settings);
 
-            UpdateButtonToNewDynamicAction();
+            if (!_initializing) {
+                UpdateButtonToNewDynamicAction();
+            }
 
             return Task.CompletedTask;
         }
@@ -164,7 +175,8 @@ namespace StreamDeckPlugin.Actions {
         /// <summary>
         /// Refresh what information is being displayed on the button update it
         /// </summary>
-        public void UpdateButtonToNewDynamicAction() {
+        /// <param name="dynamicActionInfo">Information to use for updating the display</param>
+        public void UpdateButtonToNewDynamicAction(IDynamicActionInfo dynamicActionInfo) {
             if (_dynamicActionOption != null) {
                 //we are displaying a menu option, not our normal stuff
                 SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
@@ -172,7 +184,7 @@ namespace StreamDeckPlugin.Actions {
                 return;
             }
 
-            _dynamicActionInfo = _dynamicActionManager.GetInfoForAction(this);
+            _dynamicActionInfo = dynamicActionInfo;
             if (_dynamicActionInfo == default) {
                 SetTitleAsync(string.Empty);
                 SetImageAsync(string.Empty);
@@ -181,12 +193,19 @@ namespace StreamDeckPlugin.Actions {
             UpdateButtonDisplay();
         }
 
-        private void DynamicActionChanged(DynamicActionInfoChangedEvent dynamicActionInfoChangedEvent) {
-            if (_dynamicActionInfo != dynamicActionInfoChangedEvent.DynamicActionInfo) {
+        /// <summary>
+        /// Refresh what information is being displayed on the button update it
+        /// </summary>
+        /// <remarks>Retrieves the information since it is not provided</remarks>
+        public void UpdateButtonToNewDynamicAction() {
+            if (_dynamicActionOption != null) {
+                //we are displaying a menu option, not our normal stuff
+                SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
+                SetImageAsync(_dynamicActionOption.Image);
                 return;
             }
 
-            UpdateButtonDisplay();
+            UpdateButtonToNewDynamicAction(_dynamicActionManager.GetInfoForAction(this));
         }
 
         private void PageChanged(PageChangedEvent pageChangedEvent) {
