@@ -103,12 +103,10 @@ namespace StreamDeckPlugin.Actions {
         protected override Task OnSendToPlugin(ActionEventArgs<JObject> args) {
             _settings.Deck = args.Payload["deck"].Value<string>();
 
-            //_dynamicActionManager.RefreshAllActions();
-
             SetSettingsAsync(_settings);
 
             if (!_initializing) {
-                UpdateButtonToNewDynamicAction();
+                _dynamicActionManager.RefreshAllActions();
             }
 
             return Task.CompletedTask;
