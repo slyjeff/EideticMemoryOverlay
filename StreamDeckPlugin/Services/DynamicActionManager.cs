@@ -5,6 +5,7 @@ using ArkhamOverlay.Events;
 using StreamDeckPlugin.Actions;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -178,17 +179,12 @@ namespace StreamDeckPlugin.Services {
 
             lock (_dynamicActionsLock) {
                 var options = CreateDynamicActionOptions(dynamicActionInfo);
+                var actions = GetActionsForCardGroup(dynamicActionInfo.CardGroupId).ToList();
+                var menuStartPosition = FindMenuStartPosition(actions, dynamicAction, options.Count);
                 var optionIndex = 0;
-                foreach (var action in GetActionsForCardGroup(dynamicActionInfo.CardGroupId)) {
-                    if (optionIndex < options.Count) {
+                foreach (var action in actions) {
+                    if (actions.IndexOf(action) >= menuStartPosition && optionIndex < options.Count) {
                         action.SetOption(options[optionIndex++]);
-                        continue;
-                    }
-
-                    if (optionIndex == options.Count) {
-                        //show a cancel button
-                        action.SetOption(new DynamicActionOption(dynamicActionInfo, null, "Cancel"));
-                        optionIndex++;
                         continue;
                     }
 
@@ -266,8 +262,23 @@ namespace StreamDeckPlugin.Services {
 
                 options.Add(option);
             }
-
+            options.Add(new DynamicActionOption(dynamicActionInfo, null, "Cancel"));
             return options;
+        }
+
+        /// <summary>
+        /// Find a comfortable place to put the menu
+        /// </summary>
+        /// <param name="actions">list of actions in which to etermine the best starting position of the menu</param>
+        /// <param name="dynamicAction">action that initiated the menu (where the user's finger currently is)</param>
+        /// <param name="menuLength">number of items in the menu</param>
+        /// <returns>Best start position for menu</returns>
+        private int FindMenuStartPosition(IList<DynamicAction> actions, DynamicAction dynamicAction, int menuLength) {
+            var actionPosition = actions.IndexOf(dynamicAction);
+            var beginningOfRow = actions.IndexOf(actions.First(x => x.PhysicalRow == dynamicAction.PhysicalRow));
+            var endOfRow = actions.IndexOf(actions.Last(x => x.PhysicalRow == dynamicAction.PhysicalRow));
+
+            return Math.Max(beginningOfRow, Math.Min(actionPosition, endOfRow - menuLength + 1));
         }
 
         /// <summary>

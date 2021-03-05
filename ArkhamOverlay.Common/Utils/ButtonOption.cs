@@ -82,11 +82,18 @@ namespace ArkhamOverlay.Common.Utils {
             }
 
             var zoneName = resolver.GetCardZoneName(CardGroupId, ZoneIndex);
+            if (string.IsNullOrEmpty(zoneName)) {
+                return string.Empty;
+            }
+            
             if (Operation == ButtonOptionOperation.Move) {
                 return $"Move to {zoneName}";
             }
 
             var cardGroupName = resolver.GetCardGroupName(CardGroupId);
+            if (string.IsNullOrEmpty(cardGroupName)) {
+                return string.Empty;
+            }
             return $"Add to {zoneName} of {cardGroupName}";
         }
 
