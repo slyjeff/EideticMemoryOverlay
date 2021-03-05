@@ -250,28 +250,6 @@ namespace StreamDeckPlugin.Services {
             }
         }
 
-        /// <summary>
-        /// A zone card button has changed for a card in the pool, so update the dynamic action accordingly
-        /// </summary>
-        /// <param name="dynamicActionInfo">Info for the action that has changed</param>
-        private void ZoneDynamicActionChanged(IDynamicActionInfo dynamicActionInfo) {
-            IList<DynamicAction> actions;
-            lock (_dynamicActionsLock) {
-                actions = GetActionsForCardGroup(dynamicActionInfo.CardGroupId).ToList();
-            }
-
-            var actionsPerPage = actions.Count;
-            if (actionsPerPage == 0) {
-                return;
-            }
-
-            var page = dynamicActionInfo.Index / actionsPerPage;
-            var actionIndex = dynamicActionInfo.Index % actionsPerPage;
-            if (actions[actionIndex].Page == page) {
-                actions[actionIndex].UpdateButtonToNewDynamicAction(dynamicActionInfo);
-            }
-        }
-
 
         /// <summary>
         /// Create a list of dynamic action options for the specificed dynamic action
