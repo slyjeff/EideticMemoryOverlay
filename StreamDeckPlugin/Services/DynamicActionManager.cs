@@ -5,10 +5,8 @@ using ArkhamOverlay.Events;
 using StreamDeckPlugin.Actions;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
 
 namespace StreamDeckPlugin.Services {
     /// <summary>
@@ -239,6 +237,10 @@ namespace StreamDeckPlugin.Services {
             }
 
             var actionsPerPage = actions.Count;
+            if (actionsPerPage == 0) {
+                return;
+            }
+
             var page = info.Index / actionsPerPage;
             var actionIndex = info.Index % actionsPerPage;
             if (actions[actionIndex].Page == page) {
@@ -336,7 +338,6 @@ namespace StreamDeckPlugin.Services {
             var actionsPerPage = actions.Count;
             var relativeIndex = actions.IndexOf(dynamicAction);
             var pagedRelativeIndex = dynamicAction.Page * actionsPerPage + relativeIndex;
-            //var index = ;
 
             var dynamicActionInfoList = (from info in _dynamicActionInfoStore.GetDynamicActionInfoForGroup(dynamicAction.CardGroupId)
                                          where info.ButtonMode == ButtonMode.Zone
@@ -344,10 +345,19 @@ namespace StreamDeckPlugin.Services {
                                          select info).ToList();
 
             var actionIndex = 0;
-            var zoneIndex = 0;
-            var index = 0;
-            
+            var lastZoneIndex = 0;
+            var lastIndex = 0;
+
             foreach (var actionInfo in dynamicActionInfoList) {
+                if (actionInfo.ZoneIndex > lastZoneIndex) {
+                    //we need to find the next physical row
+                    actionIndex = FindIndexOfNextPhysicalRow(actions, actionIndex);
+                    actionIndex += actionInfo.Index;
+                } else {
+                    //move to the next action index
+                    actionIndex += actionInfo.Index - lastIndex;
+                }
+
                 if (actionIndex == pagedRelativeIndex) {
                     //we found it
                     return actionInfo;
@@ -358,19 +368,12 @@ namespace StreamDeckPlugin.Services {
                     return default;
                 }
 
-                if (actionInfo.ZoneIndex > zoneIndex) {
-                    //we need to find the next physical row
-                    actionIndex = FindIndexOfNextPhysicalRow(actions, actionIndex);
-                } else {
-                    //move to the next action index
-                    actionIndex++;
-                }
-
-                index++;
+                lastZoneIndex = actionInfo.ZoneIndex;
+                lastIndex = actionInfo.Index;
             }
 
             //if we ran through all the info and haven't gotten here, return null, but request the info
-            _eventBus.PublishGetButtonInfoRequest(dynamicAction.CardGroupId, ButtonMode.Zone, zoneIndex, index);
+            //_eventBus.PublishGetButtonInfoRequest(dynamicAction.CardGroupId, ButtonMode.Zone, zoneIndex, index);
             return default;
         }
 
@@ -384,7 +387,7 @@ namespace StreamDeckPlugin.Services {
             var index = startingIndex;
             var row = actions[index].PhysicalRow;
             var lastColumn = actions[index].PhysicalColumn;
-            while (index++ < actions.Count) {
+            while (index < actions.Count) {
                 if (actions[index].PhysicalRow != row) {
                     //the row changed- we are on a new row
                     return index;
@@ -396,6 +399,7 @@ namespace StreamDeckPlugin.Services {
                 }
 
                 lastColumn = actions[index].PhysicalColumn;
+                index++;
             }
             return actions.Count;
         }
