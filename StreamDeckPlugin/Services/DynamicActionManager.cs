@@ -225,15 +225,39 @@ namespace StreamDeckPlugin.Services {
         /// </summary>
         /// <param name="dynamicActionInfoChangedEvent"></param>
         private void DynamicActionChanged(DynamicActionInfoChangedEvent eventData) {
-            var info = eventData.DynamicActionInfo;
-            if (info.ButtonMode == ButtonMode.Zone) {
-                //todo : implement this logic
+            if (eventData.DynamicActionInfo.ButtonMode == ButtonMode.Pool) {
+                PoolDynamicActionChanged(eventData.DynamicActionInfo);
                 return;
             }
 
+            //if a zone button has change, just refresh everthing, as often other buttons have to shift
+            RefreshAllActions();
+        }
+
+        /// <summary>
+        /// A pool card button has changed for a card in the pool, so update the dynamic action accordingly
+        /// </summary>
+        /// <param name="dynamicActionInfo">Info for the action that has changed</param>
+        private void PoolDynamicActionChanged(IDynamicActionInfo dynamicActionInfo) {
             IList<DynamicAction> actions;
             lock (_dynamicActionsLock) {
-                actions = GetActionsForCardGroup(info.CardGroupId).ToList();
+                actions = GetActionsForCardGroup(dynamicActionInfo.CardGroupId).ToList();
+            }
+
+            var actionsPerPage = actions.Count;
+            if (actionsPerPage == 0) {
+                return;
+            }
+        }
+
+        /// <summary>
+        /// A zone card button has changed for a card in the pool, so update the dynamic action accordingly
+        /// </summary>
+        /// <param name="dynamicActionInfo">Info for the action that has changed</param>
+        private void ZoneDynamicActionChanged(IDynamicActionInfo dynamicActionInfo) {
+            IList<DynamicAction> actions;
+            lock (_dynamicActionsLock) {
+                actions = GetActionsForCardGroup(dynamicActionInfo.CardGroupId).ToList();
             }
 
             var actionsPerPage = actions.Count;
@@ -241,12 +265,13 @@ namespace StreamDeckPlugin.Services {
                 return;
             }
 
-            var page = info.Index / actionsPerPage;
-            var actionIndex = info.Index % actionsPerPage;
+            var page = dynamicActionInfo.Index / actionsPerPage;
+            var actionIndex = dynamicActionInfo.Index % actionsPerPage;
             if (actions[actionIndex].Page == page) {
-                actions[actionIndex].UpdateButtonToNewDynamicAction(info);
+                actions[actionIndex].UpdateButtonToNewDynamicAction(dynamicActionInfo);
             }
         }
+
 
         /// <summary>
         /// Create a list of dynamic action options for the specificed dynamic action

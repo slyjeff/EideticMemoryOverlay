@@ -59,7 +59,7 @@ namespace StreamDeckPlugin.Services {
         }
 
         public void AddDynamicActionInfo(IButtonContext buttonContex, ICardInfo cardInfo) {
-            var changedActionInfoList = new List<DynamicActionInfo>();
+            DynamicActionInfo changedAction;
             lock (_cacheLock) {
                 var itemExistsAtLocation = _dynamicActionInfoList.FirstOrDefaultWithContext(buttonContex) != null;
                 if (itemExistsAtLocation) {
@@ -67,18 +67,17 @@ namespace StreamDeckPlugin.Services {
                     foreach (var dynamicActioninfo in _dynamicActionInfoList) {
                         if (dynamicActioninfo.IsAtSameIndexOrAfter(buttonContex)) {
                             dynamicActioninfo.Index++;
-                            changedActionInfoList.Add(dynamicActioninfo);
                         }
                     }
                 }
 
-                var dynamicActionInfo = new DynamicActionInfo(buttonContex);
-                dynamicActionInfo.UpdateFromCardInfo(cardInfo);
-                _dynamicActionInfoList.Add(dynamicActionInfo);
-                changedActionInfoList.Add(dynamicActionInfo);
+                changedAction = new DynamicActionInfo(buttonContex);
+                changedAction.UpdateFromCardInfo(cardInfo);
+                _dynamicActionInfoList.Add(changedAction);
             }
 
-            PublishChangeEventsForChangedActions(changedActionInfoList);
+            //we only have to change the one action that changed, as the handler is smart enough to refresh everything else around
+            PublishChangeEventsForChangedActions(changedAction);
         }
 
         public IEnumerable<IDynamicActionInfo> GetDynamicActionInfoForGroup(CardGroupId cardGroupId) {
@@ -123,33 +122,27 @@ namespace StreamDeckPlugin.Services {
         }
 
         private void ButtonRemoved(ButtonRemoved e) {
-            var changedActionInfoList = new List<DynamicActionInfo>();
+            DynamicActionInfo removedActionInfo;
             lock (_cacheLock) {
-                var dynamicActionToRemove = _dynamicActionInfoList.FirstOrDefaultWithContext(e);
-                if (dynamicActionToRemove == null) {
+                removedActionInfo = _dynamicActionInfoList.FirstOrDefaultWithContext(e);
+                if (removedActionInfo == null) {
                     return;
                 }
-                _dynamicActionInfoList.Remove(dynamicActionToRemove);
+                _dynamicActionInfoList.Remove(removedActionInfo);
 
-                var lastIndex = dynamicActionToRemove.Index;
+                var lastIndex = removedActionInfo.Index;
                 foreach (var dynamicActioninfo in _dynamicActionInfoList) {
                     if (dynamicActioninfo.IsAfter(e)) {
                         if (dynamicActioninfo.Index > lastIndex) {
                             lastIndex = dynamicActioninfo.Index;
                         }
                         dynamicActioninfo.Index--;
-                        changedActionInfoList.Add(dynamicActioninfo);
                     }
                 }
-
-                //we have to add a blank action info at the end so we blank out the previously last item (the list is now shorter)
-                var blankDynamicAction = new DynamicActionInfo(e) {
-                    Index = lastIndex
-                };
-                changedActionInfoList.Add(blankDynamicAction);
             }
 
-            PublishChangeEventsForChangedActions(changedActionInfoList);
+            //we only have to change the one action that changed, as the handler is smart enough to refresh everything else around
+            PublishChangeEventsForChangedActions(removedActionInfo);
         }
 
         private void ButtonTextChanged(ButtonTextChanged e) {

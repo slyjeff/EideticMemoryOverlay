@@ -9,7 +9,7 @@ namespace ArkhamOverlay.CardButtons {
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, cardGroupId, 0));
             }
 
-            if (cardInfo.Type == CardType.Act || cardInfo.Type == CardType.Agenda) {
+            if (cardInfo.Type == CardType.Act || cardInfo.Type == CardType.Agenda || cardInfo.Type == CardType.Location) {
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, cardGroupId, 0));
             }
 
