@@ -9,7 +9,7 @@ namespace ArkhamOverlay.CardButtons {
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, cardGroupId, 0));
             }
 
-            if (cardInfo.Type == CardType.Act || cardInfo.Type == CardType.Agenda || cardInfo.Type == CardType.Location) {
+            if (cardInfo.Type == CardType.Act || cardInfo.Type == CardType.Agenda) {
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, cardGroupId, 0));
             }
 
@@ -20,7 +20,7 @@ namespace ArkhamOverlay.CardButtons {
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player4, 0));
             }
 
-            if (!cardInfo.IsHidden && cardInfo.Type == CardType.Treachery || cardInfo.Type == CardType.Enemy) {
+            if (!cardInfo.IsHidden && cardInfo.Type == CardType.Treachery || cardInfo.Type == CardType.Enemy || cardInfo.Type == CardType.Location) {
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player1, 1));
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player2, 1));
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player3, 1));

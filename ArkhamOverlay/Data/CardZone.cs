@@ -75,11 +75,6 @@ namespace ArkhamOverlay.Data {
         private void AddButton(CardImageButton button, IEnumerable<ButtonOption> options) {
             var existingCopyCount = Buttons.Count(x => x.CardInfo == button.CardInfo);
 
-            //don't add more than one copy unless it's a player card
-            if (!button.CardInfo.IsPlayerCard && existingCopyCount > 0) {
-                return;
-            }
-
             //if there's an act and this is an agenda, always add it to the left
             var index = Buttons.Count();
             if (button.CardInfo.Type == CardType.Agenda && Buttons.Any(x => x.CardInfo.Type == CardType.Act)) {
