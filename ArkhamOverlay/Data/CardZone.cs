@@ -19,19 +19,38 @@ namespace ArkhamOverlay.Data {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         public CardZone(string name, CardZoneLocation location) {
             Name = name;
-            Buttons = new ObservableCollection<CardButton>();
+            Buttons = new ObservableCollection<IButton> {
+                new ShowCardZoneButton(this)
+            };
             Location = location;
         }
-
         public string Name { get; }
         public CardZoneLocation Location { get; }
         public CardGroupId CardGroupId { get; set; }
 
-        public ObservableCollection<CardButton> Buttons { get; }
-        
-        public Visibility IsVisible { get { return Buttons.Any() ? Visibility.Visible : Visibility.Collapsed; } }
+        public ObservableCollection<IButton> Buttons { get; }
+        public IEnumerable<CardButton> CardButtons { get => Buttons.OfType<CardButton>(); }
+        public IEnumerable<ICard> Cards { get => Buttons.OfType<ICard>(); }
+        public void ClearButtons() {
+            var showZoneButton = Buttons[0];
+            Buttons.Clear();
+            Buttons.Add(showZoneButton);
+        }
 
-        public IEnumerable<ICard> Cards { get => Buttons; }
+        public Visibility IsVisible { get { return Buttons.Count > 1 ? Visibility.Visible : Visibility.Collapsed; } }
+
+        /// <summary>
+        /// Whether or not this card zone is curently being displayed on the overlay
+        /// </summary>
+        public bool IsDisplayedOnOverlay { 
+            get { return Buttons[0].IsToggled; }
+            set {
+                var button = (ShowCardZoneButton)Buttons[0];
+                button.IsToggled = value;
+                _eventBus.PublishButtonInfoChanged(CardGroupId, ButtonMode.Zone, ZoneIndex, 0, button.Text, button.IsToggled, ChangeAction.Update);
+            }
+        }
+
         public int ZoneIndex { get; set; }
 
         /// <summary>
@@ -41,7 +60,7 @@ namespace ArkhamOverlay.Data {
         /// <param name="options">Options this button should offer on a right click</param>
         /// <returns>The newly created button</returns>
         public void CreateCardButton(CardImageButton button, IEnumerable<ButtonOption> options) {
-            var buttonToReplace = Buttons.FirstOrDefault(x => x.CardInfo == button.CardInfo.FlipSideCard);
+            var buttonToReplace = CardButtons.FirstOrDefault(x => x.CardInfo == button.CardInfo.FlipSideCard);
             if (buttonToReplace != null) {
                 ReplaceButton(button, buttonToReplace, options);
             }
@@ -73,12 +92,12 @@ namespace ArkhamOverlay.Data {
         /// <param name="button">Button that intiated this create- contains card info and toggle state</param>
         /// <param name="options">Options this button should offer on a right click</param>
         private void AddButton(CardImageButton button, IEnumerable<ButtonOption> options) {
-            var existingCopyCount = Buttons.Count(x => x.CardInfo == button.CardInfo);
+            var existingCopyCount = CardButtons.Count(x => x.CardInfo == button.CardInfo);
 
             //if there's an act and this is an agenda, always add it to the left
             var index = Buttons.Count();
-            if (button.CardInfo.Type == CardType.Agenda && Buttons.Any(x => x.CardInfo.Type == CardType.Act)) {
-                index = Buttons.IndexOf(Buttons.First(x => x.CardInfo.Type == CardType.Act));
+            if (button.CardInfo.Type == CardType.Agenda && CardButtons.Any(x => x.CardInfo.Type == CardType.Act)) {
+                index = Buttons.IndexOf(CardButtons.First(x => x.CardInfo.Type == CardType.Act));
             }
 
             var newButton = new CardButton(button);

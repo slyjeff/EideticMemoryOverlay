@@ -67,7 +67,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
         }
 
         [Command]
-        public void CardLeftClick(CardButton button) {
+        public void CardLeftClick(IButton button) {
             _logger.LogMessage($"Left clicking button {button.Text}");
 
             var buttonLocation = FindButtonLocation(button);
@@ -110,7 +110,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
         /// </summary>
         /// <param name="button">The button</param>
         /// <returns></returns>
-        private ButtonLocation FindButtonLocation(CardButton button) {
+        private ButtonLocation FindButtonLocation(IButton button) {
             foreach (var zone in ViewModel.CardGroup.CardZones) {
                 var index = zone.Buttons.IndexOf(button);
                 if (index == -1) {

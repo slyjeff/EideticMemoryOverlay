@@ -256,14 +256,14 @@ namespace ArkhamOverlay.Pages.Overlay {
         #region Event Handlers
 
         private void ButtonInfoChangedHandler(ButtonInfoChanged e) {
-            if (e.ButtonMode == ButtonMode.Zone) {
-                UpdateCardZone(GetCardZoneFromCardGroupId(e.CardGroupId));
+            if (e.ButtonMode == ButtonMode.Zone && e.Index > 0) {
+                UpdateCardZone(GetCardZoneForGardGroup(e.CardGroupId, e.ZoneIndex));
             }
         }
 
         private void ButtonRemovedHandler(ButtonRemoved e) {
-            if (e.ButtonMode == ButtonMode.Zone) {
-                UpdateCardZone(GetCardZoneFromCardGroupId(e.CardGroupId));
+            if (e.ButtonMode == ButtonMode.Zone && e.Index > 0) {
+                UpdateCardZone(GetCardZoneForGardGroup(e.CardGroupId, e.ZoneIndex));
             }
         }
 
@@ -311,8 +311,7 @@ namespace ArkhamOverlay.Pages.Overlay {
 
         private void ClearAllCardsForCardGroupRequestHandler(ClearAllCardsForCardGroupRequest request) {
             var cardGroup = request.CardGroup;
-            var cardZone = cardGroup.CardZone;
-            if (cardZone != default(CardZone)) {
+            foreach (var cardZone in cardGroup.CardZones) {
                 if (IsCardZoneVisible(cardZone)) {
                     ToggleCardZone(cardZone);
                 }
@@ -478,10 +477,10 @@ namespace ArkhamOverlay.Pages.Overlay {
             return ViewModel.EncounterCardInfos.Union(ViewModel.PlayerCardInfos);
         }
 
-        private CardZone GetCardZoneFromCardGroupId(CardGroupId cardGroupId) {
+        private CardZone GetCardZoneForGardGroup(CardGroupId cardGroupId, int zoneIndex) {
             foreach (var cardGroup in _appData.Game.AllCardGroups) {
                 if (cardGroup.Id == cardGroupId) {
-                    return cardGroup.CardZone;
+                    return cardGroup.GetCardZone(zoneIndex);
                 }
             }
             return null;

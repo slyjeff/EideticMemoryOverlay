@@ -12,13 +12,9 @@ namespace ArkhamOverlay.Data {
     public interface ICardGroup {
         CardGroupId Id { get; }
         CardGroupType Type { get; }
-        
         string Name { get; }
-
         List<IButton> CardButtons { get; }
-        CardZone CardZone { get; }
         IList<CardZone> CardZones { get; }
-
         bool Loading { get; }
     }
 
@@ -29,7 +25,6 @@ namespace ArkhamOverlay.Data {
     public class CardGroup : ViewModel, ICardGroup, INotifyPropertyChanged {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private string _playerName = string.Empty;
-        private ShowCardZoneButton _showCardZoneButton = null;
         private readonly IList<CardZone> _cardZones = new List<CardZone>();
 
         public CardGroup(CardGroupId id) {
@@ -39,7 +34,6 @@ namespace ArkhamOverlay.Data {
             _cardZones = new List<CardZone>();
 
             _eventBus.SubscribeToCardInfoVisibilityChanged(CardInfoVisibilityChangedHandler);
-            _eventBus.SubscribeToCardZoneVisibilityToggled(CardZoneVisibilityToggledHandler);
         }
 
         public CardGroupType Type { get; }
@@ -92,7 +86,6 @@ namespace ArkhamOverlay.Data {
         /// </summary>
         /// <param name="cardZone">Card Zone to add</param>
         public void AddCardZone(CardZone cardZone) {
-            cardZone.Buttons.CollectionChanged += (s, e) => CardZoneUpdated();
             cardZone.CardGroupId = Id;
             cardZone.ZoneIndex = _cardZones.Count;
             _cardZones.Add(cardZone);
@@ -112,23 +105,6 @@ namespace ArkhamOverlay.Data {
         }
 
         public IList<CardZone> CardZones { get { return (from cardZone in _cardZones select cardZone).ToList(); } }
-
-        /// <summary>
-        /// The first Card Zone assigned to this CardGroup. Will be default(CardZone) if no Card Zone is assigned
-        /// </summary>
-        public CardZone CardZone { get { return GetCardZone(0); } }
-
-        private bool _showCardZoneButtons;
-        /// <summary>
-        /// Whether card zones should be displayed on the UI
-        /// </summary>
-        public bool ShowCardZoneButtons { 
-            get => _showCardZoneButtons;
-            set {
-                _showCardZoneButtons = value;
-                NotifyPropertyChanged(nameof(ShowCardZoneButtons));
-            }
-        }
 
         public bool Loading { get; internal set; }
         public IEnumerable<CardInfo> CardPool { get => from button in CardButtons.OfType<CardInfoButton>() select button.CardInfo; }
@@ -172,7 +148,7 @@ namespace ArkhamOverlay.Data {
         internal void ClearCards() {
             CardButtons.Clear();
             foreach (var cardZone in _cardZones) {
-                cardZone.Buttons.Clear();
+                cardZone.ClearButtons();
             }
             NotifyPropertyChanged(nameof(CardButtons));
         }
@@ -181,12 +157,6 @@ namespace ArkhamOverlay.Data {
             var clearButton = new ClearButton();
 
             var playerButtons = new List<IButton> { clearButton };
-
-            if (_cardZones.Count > 0) {
-                _showCardZoneButton = new ShowCardZoneButton();
-                playerButtons.Add(_showCardZoneButton);
-                UpdateShowCardZoneButtonName();
-            }
 
             playerButtons.AddRange(from card in SortCards(cards) select new CardInfoButton(card, Id));
             CardButtons = playerButtons;
@@ -238,7 +208,7 @@ namespace ArkhamOverlay.Data {
         private void CardInfoVisibilityChangedHandler(CardInfoVisibilityChanged e) {
             var cardImageButtons = CardButtons.OfType<CardImageButton>();
             foreach (var cardZone in _cardZones) {
-                cardImageButtons = cardImageButtons.Union(cardZone.Buttons.OfType<CardImageButton>());
+                cardImageButtons = cardImageButtons.Union(cardZone.CardButtons.OfType<CardImageButton>());
             }
 
             foreach (var button in cardImageButtons) {
@@ -246,38 +216,6 @@ namespace ArkhamOverlay.Data {
                     button.IsToggled = e.IsVisible;
                 }
             }
-        }
-
-        /// <summary>
-        /// When the card zone for this card group has been toggled, update the card zone toggle button pressed state
-        /// </summary>
-        /// <param name="e">CardZoneVisibilityToggled</param>
-        private void CardZoneVisibilityToggledHandler(CardZoneVisibilityToggled e) {
-            var cardZone = e.CardZone;
-            if (cardZone != CardZone) {
-                return;
-            }
-
-            _showCardZoneButton.IsToggled = e.IsVisible;
-            _eventBus.PublishButtonToggled(Id, ButtonMode.Pool, 0, CardButtons.IndexOf(_showCardZoneButton), e.IsVisible);
-        }
-
-        private void CardZoneUpdated() {
-            UpdateShowCardZoneButtonName();
-            ShowCardZoneButtons = _cardZones[0].Buttons.Count > 0;
-        }
-
-        private void UpdateShowCardZoneButtonName() {
-            if (_showCardZoneButton == null) {
-                return;
-            }
-
-            if (_cardZones[0].Buttons.Any()) {
-                _showCardZoneButton.Text = "Show " + _cardZones[0].Name + " (" + _cardZones[0].Buttons.Count + ")";
-            } else {
-                _showCardZoneButton.Text = "Right Click to add cards to " + _cardZones[0].Name;
-            }
-            _eventBus.PublishButtonTextChanged(Id, 0, 0, CardButtons.IndexOf(_showCardZoneButton), _showCardZoneButton.Text);
         }
     }
 }

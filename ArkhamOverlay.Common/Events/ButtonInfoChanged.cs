@@ -35,6 +35,10 @@ namespace ArkhamOverlay.Events {
     }
 
     public static class ButtonInfoChangedExtensions {
+        public static void PublishButtonInfoChanged(this IEventBus eventBus, CardGroupId cardGroupId, ButtonMode buttonMode, int zoneIndex, int index, string name, bool isToggled, ChangeAction action) {
+            eventBus.Publish(new ButtonInfoChanged(cardGroupId, buttonMode, zoneIndex, index, name, string.Empty, isToggled, false, action, new List<ButtonOption>()));
+        }
+
         public static void PublishButtonInfoChanged(this IEventBus eventBus, CardGroupId cardGroupId, ButtonMode buttonMode, int zoneIndex, int index, string name, string code, bool isToggled, bool imageAvailable, ChangeAction action, IList<ButtonOption> buttonOptions) {
             eventBus.Publish(new ButtonInfoChanged(cardGroupId, buttonMode, zoneIndex, index, name, code, isToggled, imageAvailable, action, buttonOptions));
         }

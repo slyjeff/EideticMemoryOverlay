@@ -177,9 +177,9 @@ namespace ArkhamOverlay.Data {
                 return;
             }
 
-            if (button is ShowCardZoneButton) {
-                _logger.LogMessage($"Requesting toggle for {cardGroup.Name} {cardGroup.CardZone.Name} visibility");
-                _eventBus.PublishToggleCardZoneVisibilityRequest(cardGroup.CardZone);
+            if (button is ShowCardZoneButton showCardZoneButton) {
+                _logger.LogMessage($"Requesting toggle for {cardGroup.Name} {showCardZoneButton.CardZone} visibility");
+                _eventBus.PublishToggleCardZoneVisibilityRequest(showCardZoneButton.CardZone);
                 return;
             }
 
@@ -226,7 +226,7 @@ namespace ArkhamOverlay.Data {
                 return;
             }
 
-            _logger.LogMessage($"Adding card {button.CardInfo.Name} to {destinationCardGroup.CardZone.Name} of {destinationCardGroup.Name} ");
+            _logger.LogMessage($"Adding card {button.CardInfo.Name} to {destinationCardZone.Name} of {destinationCardGroup.Name} ");
             destinationCardZone.CreateCardButton(button, CreateButtonOptions(destinationCardGroup, destinationCardZone, button.CardInfo));
         }
 
