@@ -37,7 +37,6 @@ namespace StreamDeckPlugin.Actions {
             _eventBus.SubscribeToStreamDeckCardGroupInfoChanged(CardGroupInfoChangedHandler);
         }
 
-
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();
 

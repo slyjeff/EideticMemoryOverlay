@@ -52,6 +52,7 @@
     <Compile Include="ICardGroupInfo.cs" />
     <Compile Include="Tcp\Requests\ConnectIsAliveRequest.cs" />
     <Compile Include="Tcp\Requests\ButtonImageRequest.cs" />
+    <Compile Include="Tcp\Responses\RegisterForUpdatesResponse.cs" />
     <Compile Include="Utils\ButtonContext.cs" />
     <Compile Include="Events\ButtonClickRequest.cs" />
     <Compile Include="Events\ButtonRemoved.cs" />

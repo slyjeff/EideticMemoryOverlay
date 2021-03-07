@@ -14,11 +14,13 @@ namespace StreamDeckPlugin.Services {
 
     public class SendEventHandler : ISendEventHandler {
         private readonly IEventBus _eventBus;
+        private readonly ICardGroupStore _cardGroupStore;
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
         private readonly IImageService _imageService;
 
-        public SendEventHandler(IEventBus eventBus, ICrossAppEventBus crossAppEventBus, IDynamicActionInfoStore dynamicActionInfoStore, IImageService imageService) {
+        public SendEventHandler(IEventBus eventBus, ICrossAppEventBus crossAppEventBus, ICardGroupStore cardGroupStore, IDynamicActionInfoStore dynamicActionInfoStore, IImageService imageService) {
             _eventBus = eventBus;
+            _cardGroupStore = cardGroupStore;
             _dynamicActionInfoStore = dynamicActionInfoStore;
             _imageService = imageService;
 
@@ -49,7 +51,16 @@ namespace StreamDeckPlugin.Services {
         #region Event Handlers
         public void RegisterForUpdates(EstablishConnectionToUiRequest registerForUpdatesRequest) {
             var request = new RegisterForUpdatesRequest { Port = StreamDeckTcpInfo.Port };
-            SendRequest<OkResponse>(request);
+            var response = SendRequest<RegisterForUpdatesResponse>(request);
+            if (response != null) {
+                foreach (var cardGroupInfo in response.CardGroupInfo) {
+                    _cardGroupStore.UpdateCardGroupInfo(cardGroupInfo);
+                }
+
+                foreach (var button in response.Buttons) {
+                    _dynamicActionInfoStore.UpdateDynamicActionInfo(button, button);
+                }
+            }
         }
 
         private void GetCardInfo(GetButtonInfoRequest getButtonInfoRequest) {

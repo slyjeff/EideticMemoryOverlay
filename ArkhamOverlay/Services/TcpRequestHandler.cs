@@ -10,6 +10,7 @@ using ArkhamOverlay.Data;
 using ArkhamOverlay.Events;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -130,14 +131,54 @@ namespace ArkhamOverlay.Services {
 
         private void HandleRegisterForUpdates(TcpRequest request) {
             _logger.LogMessage("Handling register for update request");
-            SendOkResponse(request.Socket);
 
             var registerForUpdatesRequest = JsonConvert.DeserializeObject<RegisterForUpdatesRequest>(request.Body);
 
             _broadcastService.AddPort(registerForUpdatesRequest.Port);
 
             SendAllStats();
-            SendAllCardGroupInfo();
+
+            var cardGroupInfoList = new List<CardGroupInfo>();
+            var buttonInfoList = new List<ButtonInfo>();
+            foreach (var cardGroup in _appData.Game.AllCardGroups) {
+                cardGroupInfoList.Add(new CardGroupInfo {
+                    CardGroupId = cardGroup.Id,
+                    Name = cardGroup.Name,
+                    IsImageAvailable  = cardGroup.ButtonImageAsBytes != null,
+                    ImageId  = cardGroup.Name,
+                    Zones = (from zone in cardGroup.CardZones select zone.Name).ToList()
+                });
+
+                var poolButtonIndex = 0;
+                foreach (var button in cardGroup.CardButtons) {
+                    buttonInfoList.Add(CreateButtonInfo(cardGroup.Id, ButtonMode.Pool, 0, poolButtonIndex++, button));
+                }
+
+                foreach (var zone in cardGroup.CardZones) {
+                    var zoneButtonIndex = 0;
+                    foreach (var button in zone.Buttons) {
+                        buttonInfoList.Add(CreateButtonInfo(cardGroup.Id, ButtonMode.Zone, zone.ZoneIndex, zoneButtonIndex, button));
+                    }
+                }
+            }
+
+            SendRegisterForUpdatesResponse(request.Socket, cardGroupInfoList, buttonInfoList);
+        }
+
+        private static ButtonInfo CreateButtonInfo(CardGroupId cardGroupId, ButtonMode buttonMode, int zoneIndex, int index, IButton button) {
+            var cardImageButton = button as CardImageButton;
+
+            return new ButtonInfo {
+                CardGroupId = cardGroupId,
+                ButtonMode = buttonMode,
+                ZoneIndex = zoneIndex,
+                Index = index,
+                Name = button.Text,
+                Code = cardImageButton == null ? string.Empty : cardImageButton.CardInfo.Code,
+                IsToggled = button.IsToggled,
+                ImageAvailable = cardImageButton != null && cardImageButton.CardInfo.ButtonImageAsBytes != null,
+                ButtonOptions = button.Options
+            };
         }
 
         private void SendAllStats() {
@@ -148,14 +189,6 @@ namespace ArkhamOverlay.Services {
                 _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Resources, player.Resources.Value);
                 _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Clues, player.Clues.Value);
             }
-        }
-
-        private void SendAllCardGroupInfo() {
-            _logger.LogMessage("Sending All Card Group Info");
-            foreach (var cardGroupId in EnumUtil.GetValues<CardGroupId>()) {
-                var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
-                cardGroup.PublishCardGroupChanged(); //todo: this doesn't need to broadcast to all listeners- change this to a response in this case
-           }
         }
 
         private void SendCardInfoResponse(Socket socket, IButton cardButton) {
@@ -184,6 +217,14 @@ namespace ArkhamOverlay.Services {
             Send(socket, buttonImageResponse.ToString());
         }
 
+        private void SendRegisterForUpdatesResponse(Socket socket, IList<CardGroupInfo> cardGroupInfo, IList<ButtonInfo> buttonInfoList) {
+            var registerForUpdatesResponse = new RegisterForUpdatesResponse {
+                CardGroupInfo = cardGroupInfo,
+                Buttons = buttonInfoList
+            };
+
+            Send(socket, registerForUpdatesResponse.ToString());
+        }
 
         private void SendOkResponse(Socket socket) {
             Send(socket, new OkResponse().ToString());

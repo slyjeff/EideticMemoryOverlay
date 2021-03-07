@@ -17,6 +17,12 @@ namespace StreamDeckPlugin.Services {
         /// <param name="cardGroupId">Id of the card group info to retrieve</param>
         /// <returns>Card group info</returns>
         ICardGroupInfo GetCardGroupInfo(CardGroupId cardGroupId);
+
+        /// <summary>
+        /// Update the store with new card group info and raise events to notify the app that the data has changed
+        /// </summary>
+        /// <param name="cardGroupInfo">Info about the card group that has changed</param>
+        void UpdateCardGroupInfo(ICardGroupInfo cardGroupInfo);
     }
 
     /// <summary>
@@ -50,18 +56,26 @@ namespace StreamDeckPlugin.Services {
         }
 
         /// <summary>
-        /// Respond to a Card Group changing by updating the store
+        /// Update the store with new card group info and raise events to notify the app that the data has changed
         /// </summary>
-        /// <param name="eventData">Info about the card group</param>
-        private void CardGroupChangedHandler(CardGroupChanged eventData) {
+        /// <param name="cardGroupInfo">Info about the card group that has changed</param>
+        public void UpdateCardGroupInfo(ICardGroupInfo cardGroupInfo) {
             lock (_cacheLock) {
-                _cardGroupInfoCache[eventData.CardGroupId] = eventData;
+                _cardGroupInfoCache[cardGroupInfo.CardGroupId] = cardGroupInfo;
             }
 
-            if (eventData.IsImageAvailable) {
-                _imageService.LoadImage(eventData.ImageId, eventData.CardGroupId);
+            if (cardGroupInfo.IsImageAvailable) {
+                _imageService.LoadImage(cardGroupInfo.ImageId, cardGroupInfo.CardGroupId);
             }
-            _eventBus.PublishStreamDeckCardGroupInfoChanged(eventData);
+            _eventBus.PublishStreamDeckCardGroupInfoChanged(cardGroupInfo);
+        }
+
+        /// <summary>
+        /// Respond to a Card Group changing by updating the store
+        /// </summary>
+        /// <param name="cardGroupInfo">Info about the card group that has changed</param>
+        private void CardGroupChangedHandler(CardGroupChanged eventData) {
+            UpdateCardGroupInfo(eventData);
         }
 
         /// <summary>
