@@ -337,14 +337,6 @@ namespace StreamDeckPlugin.Services {
             var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfoForGroup(dynamicAction.CardGroupId)
                                         .FirstOrDefault(x => x.ButtonMode == ButtonMode.Pool && x.Index == index);
 
-            //todo: I don't think we need this code any more, but just making sure- remove it eventually
-            //if (dynamicActionInfo == default)  {
-            //    _eventBus.PublishGetButtonInfoRequest(dynamicAction.CardGroupId, ButtonMode.Pool, 0, index);
-            //    //try again, now that we've retrieved it
-            //    dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfoForGroup(dynamicAction.CardGroupId)
-            //                        .FirstOrDefault(x => x.ButtonMode == ButtonMode.Pool && x.Index == index);
-            //}
-
             return dynamicActionInfo;
         }
 
