@@ -248,8 +248,10 @@ namespace StreamDeckPlugin.Services {
             if (actionsPerPage == 0) {
                 return;
             }
-        }
 
+            var actionIndex = dynamicActionInfo.Index % actionsPerPage;
+            actions[actionIndex].UpdateButtonToNewDynamicAction(dynamicActionInfo);
+        }
 
         /// <summary>
         /// Create a list of dynamic action options for the specificed dynamic action
