@@ -6,9 +6,7 @@ using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using StreamDeckPlugin.Events;
-using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
-using System;
 using System.Threading.Tasks;
 using System.Timers;
 

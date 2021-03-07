@@ -106,7 +106,7 @@ namespace StreamDeckPlugin.Actions {
             SetSettingsAsync(_settings);
 
             if (!_initializing) {
-                _dynamicActionManager.RefreshAllActions();
+                _dynamicActionManager.RefreshAllActions(CardGroupId, ButtonMode);
             }
 
             return Task.CompletedTask;
@@ -177,7 +177,7 @@ namespace StreamDeckPlugin.Actions {
         public void UpdateButtonToNewDynamicAction(IDynamicActionInfo dynamicActionInfo) {
             if (_dynamicActionOption != null) {
                 //we are displaying a menu option, not our normal stuff
-                _lastSetTitle = _dynamicActionInfo.Text;
+                _lastSetTitle = _dynamicActionOption.Text;
                 SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
                 SetImageAsync(_dynamicActionOption.Image);
                 return;
@@ -185,11 +185,13 @@ namespace StreamDeckPlugin.Actions {
 
             _dynamicActionInfo = dynamicActionInfo;
             if (_dynamicActionInfo == default) {
-                _lastSetTitle = _dynamicActionInfo.Text;
+                _lastSetTitle = string.Empty;
                 SetTitleAsync(string.Empty);
                 SetImageAsync(string.Empty);
                 return;
             }
+
+            _lastSetTitle = _dynamicActionInfo.Text;
             UpdateButtonDisplay();
         }
 
@@ -200,7 +202,7 @@ namespace StreamDeckPlugin.Actions {
         public void UpdateButtonToNewDynamicAction() {
             if (_dynamicActionOption != null) {
                 //we are displaying a menu option, not our normal stuff
-                _lastSetTitle = _dynamicActionInfo.Text;
+                _lastSetTitle = _dynamicActionOption.Text;
                 SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
                 SetImageAsync(_dynamicActionOption.Image);
                 return;
@@ -234,7 +236,6 @@ namespace StreamDeckPlugin.Actions {
         }
 
         private void UpdateButtonDisplay() {
-            _lastSetTitle = _dynamicActionInfo.Text;
             SetTitleAsync(TextUtils.WrapTitle(_lastSetTitle));
             SetImageAsync(_imageService.GetImage(_dynamicActionInfo));
         }

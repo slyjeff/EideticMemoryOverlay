@@ -157,7 +157,7 @@ namespace ArkhamOverlay.Services {
                 foreach (var zone in cardGroup.CardZones) {
                     var zoneButtonIndex = 0;
                     foreach (var button in zone.Buttons) {
-                        buttonInfoList.Add(CreateButtonInfo(cardGroup.Id, ButtonMode.Zone, zone.ZoneIndex, zoneButtonIndex, button));
+                        buttonInfoList.Add(CreateButtonInfo(cardGroup.Id, ButtonMode.Zone, zone.ZoneIndex, zoneButtonIndex++, button));
                     }
                 }
             }

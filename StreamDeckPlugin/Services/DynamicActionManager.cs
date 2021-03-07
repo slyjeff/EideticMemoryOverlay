@@ -74,9 +74,11 @@ namespace StreamDeckPlugin.Services {
         IDynamicActionInfo GetInfoForAction(DynamicAction dynamicAction);
 
         /// <summary>
-        /// Update all actions to make ssure they show the proper information
+        /// Update all actions for a group to make sure they show the proper information
         /// </summary>
-        void RefreshAllActions();
+        /// <param name="buttonMode">Refresh buttons in this card group</param>
+        /// <param name="buttonMode">Refresh buttons in this mode</param>
+        void RefreshAllActions(CardGroupId cardGroupId, ButtonMode buttonMode);
 
         /// <summary>
         /// Displays a menu, or executes the action if there is only one
@@ -138,15 +140,17 @@ namespace StreamDeckPlugin.Services {
         }
 
         /// <summary>
-        /// Update all actions to make ssure they show the proper information
+        /// Update all actions to make sure they show the proper information
         /// </summary>
-        public void RefreshAllActions() {
+        /// <param name="buttonMode">Refresh buttons in this card group</param>
+        /// <param name="buttonMode">Refresh buttons in this mode</param>
+        public void RefreshAllActions(CardGroupId cardGroupId, ButtonMode buttonMode) {
             IList<DynamicAction> allActions;
             lock (_dynamicActionsLock) {
                 allActions = _dynamicActions.ToList();
             }
             
-            foreach (var action in allActions) {
+            foreach (var action in allActions.Where(x => x.CardGroupId == cardGroupId && x.ButtonMode == buttonMode)) {
                 action.UpdateButtonToNewDynamicAction();
             }
         }
@@ -226,8 +230,8 @@ namespace StreamDeckPlugin.Services {
                 return;
             }
 
-            //if a zone button has change, just refresh everthing, as often other buttons have to shift
-            RefreshAllActions();
+            //if a zone button has changed and we are showing zones, just refresh everything, as often other buttons have to shift
+            RefreshAllActions(eventData.DynamicActionInfo.CardGroupId, ButtonMode.Zone);
         }
 
         /// <summary>
