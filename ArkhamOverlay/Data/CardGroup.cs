@@ -58,8 +58,6 @@ namespace ArkhamOverlay.Data {
             set {
                 if (Type == CardGroupType.Player) {
                     _playerName = value;
-                    var zoneNames = (from zone in _cardZones select zone.Name).ToList();
-                    _eventBus.PublishCardGroupChanged(Id, value, ButtonImageAsBytes != null, value, zoneNames);
                 }
             }
         }
@@ -76,9 +74,16 @@ namespace ArkhamOverlay.Data {
             get => _buttonImageAsBytes;
             set {
                 _buttonImageAsBytes = value;
-                var zoneNames = (from zone in _cardZones select zone.Name).ToList();
-                _eventBus.PublishCardGroupChanged(Id, Name, value != null, Name, zoneNames);
+                PublishCardGroupChanged();
             }
+        }
+
+        /// <summary>
+        /// Notify listeners that the card group has changed
+        /// </summary>
+        public void PublishCardGroupChanged() {
+            var zoneNames = (from zone in _cardZones select zone.Name).ToList();
+            _eventBus.PublishCardGroupChanged(Id, Name, ButtonImageAsBytes != null, Name, zoneNames);
         }
 
         /// <summary>
@@ -172,7 +177,6 @@ namespace ArkhamOverlay.Data {
                 zone.RemoveButton(button);
             }
         }
-
         private IEnumerable<CardInfo> SortCards(IEnumerable<CardInfo> cards) {
             var firstCard = cards.FirstOrDefault();
             if (firstCard == null) {

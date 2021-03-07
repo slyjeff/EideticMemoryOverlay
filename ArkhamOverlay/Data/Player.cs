@@ -120,6 +120,7 @@ namespace ArkhamOverlay.Data {
             NotifyPropertyChanged(nameof(Name));
             NotifyPropertyChanged(nameof(PlayerNameBrush));
             NotifyPropertyChanged(nameof(StatTrackingVisibility));
+            CardGroup.PublishCardGroupChanged();
         }
 
         public Stat Health { get; }

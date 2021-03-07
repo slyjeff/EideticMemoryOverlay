@@ -154,8 +154,7 @@ namespace ArkhamOverlay.Services {
             _logger.LogMessage("Sending All Card Group Info");
             foreach (var cardGroupId in EnumUtil.GetValues<CardGroupId>()) {
                 var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
-                var zoneNames = (from zone in cardGroup.CardZones select zone.Name).ToList();
-                _eventBus.PublishCardGroupChanged(cardGroup.Id, cardGroup.Name, cardGroup.ButtonImageAsBytes != null, cardGroup.Name, zoneNames);
+                cardGroup.PublishCardGroupChanged(); //todo: this doesn't need to broadcast to all listeners- change this to a response in this case
            }
         }
 
