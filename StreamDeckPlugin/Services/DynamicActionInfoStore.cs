@@ -16,7 +16,7 @@ namespace StreamDeckPlugin.Services {
 
     public class DynamicActionInfoStore : IDynamicActionInfoStore {
         private readonly object _cacheLock = new object();
-        private readonly IList<DynamicActionInfo> _dynamicActionInfoList = new List<DynamicActionInfo>();
+        private readonly List<DynamicActionInfo> _dynamicActionInfoList = new List<DynamicActionInfo>();
 
         private readonly IEventBus _eventBus;
         private readonly IImageService _imageService;
@@ -25,6 +25,7 @@ namespace StreamDeckPlugin.Services {
             _eventBus = eventBus;
             _imageService = imageService;
 
+            eventBus.SubscribeToCardGroupButtonsChanged(CardGroupButtonsChangedHandler);
             eventBus.SubscribeToImageLoadedEvent(e => ImageLoaded(e.ImageId));
             eventBus.SubscribeToCardInfoVisibilityChanged(e => CardInfoVisibilityChanged(e.Code, e.IsVisible));
             eventBus.SubscribeToButtonInfoChanged(ButtonInfoChanged);
@@ -86,6 +87,46 @@ namespace StreamDeckPlugin.Services {
                         where dynamicActionInfo.CardGroupId == cardGroupId
                         select dynamicActionInfo).ToList();
             }
+        }
+
+        /// <summary>
+        /// Clear the current list of buttons for this card group and replace it with a new list
+        /// </summary>
+        /// <param name="eventData">Event data containing list of new buttons</param>
+        private void CardGroupButtonsChangedHandler(CardGroupButtonsChanged eventData) {
+            IList<DynamicActionInfo> actionsUpdated = new List<DynamicActionInfo>();
+
+            lock (_cacheLock) {
+                var removedActions = (from dynamicActionInfo in _dynamicActionInfoList
+                                  where dynamicActionInfo.CardGroupId == eventData.CardGroupId
+                                  select dynamicActionInfo).ToList();
+
+                foreach (var actionToRemove in removedActions) {
+                    _dynamicActionInfoList.Remove(actionToRemove);
+                }
+
+                foreach (var button in eventData.Buttons) {
+                    var changedAction = new DynamicActionInfo(button);
+                    changedAction.UpdateFromCardInfo(button);
+                    _dynamicActionInfoList.Add(changedAction);
+                    actionsUpdated.Add(changedAction);
+                }
+
+                //if we removed in pool buttons that were not replaced, we need to issue an update for them
+                foreach (var removedAction in removedActions) {
+                    if (removedAction.ButtonMode != ButtonMode.Pool) {
+                        continue;
+                    }
+
+                    if (actionsUpdated.FirstOrDefaultWithContext(removedAction) != default) {
+                        continue;
+                    }
+
+                    actionsUpdated.Add(new DynamicActionInfo(removedAction));
+                }
+            }
+
+            PublishChangeEventsForChangedActions(actionsUpdated);
         }
 
         private void ImageLoaded(string imageId) {

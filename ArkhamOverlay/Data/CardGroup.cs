@@ -115,6 +115,28 @@ namespace ArkhamOverlay.Data {
         public IEnumerable<CardInfo> CardPool { get => from button in CardButtons.OfType<CardInfoButton>() select button.CardInfo; }
 
         /// <summary>
+        /// Get a list of all buttons in this card group- used for sending update events
+        /// </summary>
+        /// <returns>list of button info for every button in this card group</returns>
+        public IList<ButtonInfo> GetButtonInfo() {
+            var buttonInfoList = new List<ButtonInfo>();
+
+            var poolButtonIndex = 0;
+            foreach (var button in CardButtons) {
+                buttonInfoList.Add(CreateButtonInfo(ButtonMode.Pool, 0, poolButtonIndex++, button));
+            }
+
+            foreach (var zone in CardZones) {
+                var zoneButtonIndex = 0;
+                foreach (var button in zone.Buttons) {
+                    buttonInfoList.Add(CreateButtonInfo(ButtonMode.Zone, zone.ZoneIndex, zoneButtonIndex++, button));
+                }
+            }
+
+            return buttonInfoList;
+        }
+
+        /// <summary>
         /// Find a button
         /// </summary>
         /// <param name="context">Information to find the button</param>
@@ -159,13 +181,60 @@ namespace ArkhamOverlay.Data {
         }
 
         internal void LoadCards(IEnumerable<CardInfo> cards) {
+            ClearCards();
+
             var clearButton = new ClearButton();
 
             var playerButtons = new List<IButton> { clearButton };
 
-            playerButtons.AddRange(from card in SortCards(cards) select new CardInfoButton(card, Id));
+            var cardInfoButtons = (from card in SortCards(cards) select new CardInfoButton(card, Id)).ToList();
+            playerButtons.AddRange(cardInfoButtons);
             CardButtons = playerButtons;
             NotifyPropertyChanged(nameof(CardButtons));
+
+            RegisterButtonImageLoadCallbacks(cardInfoButtons);
+            _eventBus.PublishCardGroupButtonsChanged(Id, GetButtonInfo());
+        }
+
+        /// <summary>
+        /// Create an object with information required for update events
+        /// </summary>
+        /// <param name="buttonMode">Whether this is a pool or zone button</param>
+        /// <param name="zoneIndex">Index of the zone, if applicable</param>
+        /// <param name="index">Index of the button</param>
+        /// <param name="button">Get info from this button</param>
+        /// <returns>Object with information required for update events</returns>
+        private ButtonInfo CreateButtonInfo(ButtonMode buttonMode, int zoneIndex, int index, IButton button) {
+            var cardImageButton = button as CardImageButton;
+
+            return new ButtonInfo {
+                CardGroupId = Id,
+                ButtonMode = buttonMode,
+                ZoneIndex = zoneIndex,
+                Index = index,
+                Name = button.Text,
+                Code = cardImageButton == null ? string.Empty : cardImageButton.CardInfo.Code,
+                IsToggled = button.IsToggled,
+                ImageAvailable = cardImageButton != null && cardImageButton.CardInfo.ButtonImageAsBytes != null,
+                ButtonOptions = button.Options
+            };
+        }
+
+        /// <summary>
+        /// For any buttons that don't have images loaded, register events that will publish a change when the images finally load
+        /// </summary>
+        /// <param name="buttons"></param>
+        private void RegisterButtonImageLoadCallbacks(IList<CardInfoButton> buttons) {
+            foreach (var button in CardButtons.OfType<CardInfoButton>()) {
+                var cardInfo = button.CardInfo;
+                if (cardInfo.ButtonImageAsBytes != null) {
+                    return;
+                }
+
+                button.CardInfo.ButtonImageLoaded += () => {
+                    _eventBus.PublishButtonInfoChanged(Id, ButtonMode.Pool, 0, CardButtons.IndexOf(button), button.Text, button.CardInfo.ImageId, button.IsToggled, true, ChangeAction.Update, button.Options);
+                };
+            }
         }
 
         /// <summary>

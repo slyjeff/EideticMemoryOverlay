@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace ArkhamOverlay.Services {
     public class CardLoadService {
@@ -127,6 +129,7 @@ namespace ArkhamOverlay.Services {
                         _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingCards);
                         try {
                             LoadPlayerCards(player);
+
                             _loadingStatusService.ReportPlayerStatus(player.ID, Status.Finished);
                         } catch (Exception ex) {
                             _logger.LogException(ex, $"Error loading player cards for player {player.ID}");
@@ -185,9 +188,11 @@ namespace ArkhamOverlay.Services {
 
                     _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
 
-                    _appData.Game.ScenarioCards.LoadCards(scenarioCards);
-                    _appData.Game.LocationCards.LoadCards(locations);
-                    _appData.Game.EncounterDeckCards.LoadCards(treacheries);
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                        _appData.Game.ScenarioCards.LoadCards(scenarioCards);
+                        _appData.Game.LocationCards.LoadCards(locations);
+                        _appData.Game.EncounterDeckCards.LoadCards(treacheries);
+                    }));
                 } catch (Exception ex) {
                     _logger.LogException(ex, "Error loading encounter cards.");
                     _loadingStatusService.ReportEncounterCardsStatus(Status.Error);
@@ -236,7 +241,9 @@ namespace ArkhamOverlay.Services {
                         _logger.LogError($"Could not find player {player.ID} card: {slot.Key}");
                     }
                 }
-                player.CardGroup.LoadCards(cards);
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
+                    player.CardGroup.LoadCards(cards);
+                }));
             } catch (Exception ex) {
                 _logger.LogException(ex, $"Error loading cards for player {player.ID}.");
             } finally {

@@ -144,41 +144,14 @@ namespace ArkhamOverlay.Services {
                 cardGroupInfoList.Add(new CardGroupInfo {
                     CardGroupId = cardGroup.Id,
                     Name = cardGroup.Name,
-                    IsImageAvailable  = cardGroup.ButtonImageAsBytes != null,
-                    ImageId  = cardGroup.Name,
+                    IsImageAvailable = cardGroup.ButtonImageAsBytes != null,
+                    ImageId = cardGroup.Name,
                     Zones = (from zone in cardGroup.CardZones select zone.Name).ToList()
                 });
-
-                var poolButtonIndex = 0;
-                foreach (var button in cardGroup.CardButtons) {
-                    buttonInfoList.Add(CreateButtonInfo(cardGroup.Id, ButtonMode.Pool, 0, poolButtonIndex++, button));
-                }
-
-                foreach (var zone in cardGroup.CardZones) {
-                    var zoneButtonIndex = 0;
-                    foreach (var button in zone.Buttons) {
-                        buttonInfoList.Add(CreateButtonInfo(cardGroup.Id, ButtonMode.Zone, zone.ZoneIndex, zoneButtonIndex++, button));
-                    }
-                }
+                buttonInfoList.AddRange(cardGroup.GetButtonInfo());
             }
 
             SendRegisterForUpdatesResponse(request.Socket, cardGroupInfoList, buttonInfoList);
-        }
-
-        private static ButtonInfo CreateButtonInfo(CardGroupId cardGroupId, ButtonMode buttonMode, int zoneIndex, int index, IButton button) {
-            var cardImageButton = button as CardImageButton;
-
-            return new ButtonInfo {
-                CardGroupId = cardGroupId,
-                ButtonMode = buttonMode,
-                ZoneIndex = zoneIndex,
-                Index = index,
-                Name = button.Text,
-                Code = cardImageButton == null ? string.Empty : cardImageButton.CardInfo.Code,
-                IsToggled = button.IsToggled,
-                ImageAvailable = cardImageButton != null && cardImageButton.CardInfo.ButtonImageAsBytes != null,
-                ButtonOptions = button.Options
-            };
         }
 
         private void SendAllStats() {

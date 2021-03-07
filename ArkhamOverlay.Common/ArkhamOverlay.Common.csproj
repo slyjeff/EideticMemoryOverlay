@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\CardGroupButtonsChanged.cs" />
     <Compile Include="Events\CardGroupChanged.cs" />
     <Compile Include="ICardGroupInfo.cs" />
     <Compile Include="Tcp\Requests\ConnectIsAliveRequest.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Events\ShowDeckListRequest.cs" />
     <Compile Include="Events\StatUpdated.cs" />
     <Compile Include="Events\TakeSnapshotRequest.cs" />
+    <Compile Include="Utils\ButtonInfo.cs" />
     <Compile Include="Utils\ButtonOption.cs" />
     <Compile Include="Utils\EnumUtils.cs" />
     <Compile Include="Utils\ServiceLocator.cs" />

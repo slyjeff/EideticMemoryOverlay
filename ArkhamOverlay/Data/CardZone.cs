@@ -4,10 +4,12 @@ using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
 using PageController;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace ArkhamOverlay.Data {
     public enum CardZoneLocation { Top, Bottom }
@@ -35,6 +37,7 @@ namespace ArkhamOverlay.Data {
             var showZoneButton = Buttons[0];
             Buttons.Clear();
             Buttons.Add(showZoneButton);
+            NotifyPropertyChanged(nameof(IsVisible));
         }
 
         public Visibility IsVisible { get { return Buttons.Count > 1 ? Visibility.Visible : Visibility.Collapsed; } }
