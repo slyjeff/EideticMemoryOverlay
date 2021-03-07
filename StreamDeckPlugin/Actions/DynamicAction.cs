@@ -177,6 +177,7 @@ namespace StreamDeckPlugin.Actions {
         public void UpdateButtonToNewDynamicAction(IDynamicActionInfo dynamicActionInfo) {
             if (_dynamicActionOption != null) {
                 //we are displaying a menu option, not our normal stuff
+                _lastSetTitle = _dynamicActionInfo.Text;
                 SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
                 SetImageAsync(_dynamicActionOption.Image);
                 return;
@@ -184,6 +185,7 @@ namespace StreamDeckPlugin.Actions {
 
             _dynamicActionInfo = dynamicActionInfo;
             if (_dynamicActionInfo == default) {
+                _lastSetTitle = _dynamicActionInfo.Text;
                 SetTitleAsync(string.Empty);
                 SetImageAsync(string.Empty);
                 return;
@@ -198,6 +200,7 @@ namespace StreamDeckPlugin.Actions {
         public void UpdateButtonToNewDynamicAction() {
             if (_dynamicActionOption != null) {
                 //we are displaying a menu option, not our normal stuff
+                _lastSetTitle = _dynamicActionInfo.Text;
                 SetTitleAsync(TextUtils.WrapTitle(_dynamicActionOption.Text));
                 SetImageAsync(_dynamicActionOption.Image);
                 return;
