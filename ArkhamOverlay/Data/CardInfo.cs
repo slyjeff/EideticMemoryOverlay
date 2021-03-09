@@ -3,6 +3,7 @@ using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 
@@ -42,7 +43,7 @@ namespace ArkhamOverlay.Data {
         }
 
         public CardInfo(LocalManifestCard localCard, bool cardBack) {
-            Code = localCard.ArkhamDbId;
+            Code = string.IsNullOrEmpty(localCard.ArkhamDbId) ? Path.GetFileName(localCard.FilePath) : localCard.ArkhamDbId;
             ImageId = Code;
             Count = 1;
             Name = localCard.Name;
