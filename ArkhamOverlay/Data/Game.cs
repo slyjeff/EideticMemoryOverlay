@@ -160,7 +160,7 @@ namespace ArkhamOverlay.Data {
         }
 
         /// <summary>
-        /// When a button is clicked, look at the context, see if it's a button in this card group, and execute the appropraite logic
+        /// When a button is clicked, look at the context, see if it's a button in this card group, and execute the appropriate logic
         /// </summary>
         /// <param name="eventData">Event specific information</param>
         private void ButtonClickRequestHandler(ButtonClickRequest eventData) {

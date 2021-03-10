@@ -24,17 +24,17 @@ namespace ArkhamOverlay.Services {
     /// </summary>
     public class ZoneButton {
         /// <summary>
-        /// Card Group the button blongs to
+        /// Card Group the button belongs to
         /// </summary>
         public CardGroupId CardGroupId { get; set; }
 
         /// <summary>
-        /// Zone in the card group that the button blongs to
+        /// Zone in the card group that the button belongs to
         /// </summary>
         public int ZoneIndex { get; set; }
 
         /// <summary>
-        /// Identify the button by name
+        /// Name of the button
         /// </summary>
         public string Name { get; set; } 
     }
@@ -119,7 +119,7 @@ namespace ArkhamOverlay.Services {
         internal void Save(string fileName) {
             _logger.LogMessage($"Saving game file: {fileName}.");
             var gameFile = new GameFile();
-            _appData.Game.CopyTo(gameFile); ;
+            _appData.Game.CopyTo(gameFile);
 
             foreach (var player in _appData.Game.Players) {
                 gameFile.DeckIds.Add(player.DeckId);
