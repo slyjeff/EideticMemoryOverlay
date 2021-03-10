@@ -1,11 +1,14 @@
-﻿using ArkhamOverlay.Common.Events;
+﻿using ArkhamOverlay.CardButtons;
+using ArkhamOverlay.Common.Enums;
+using ArkhamOverlay.Common.Events;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Data;
-using ArkhamOverlay.Pages.Main;
+using ArkhamOverlay.Events;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace ArkhamOverlay.Services {
     public interface IGame {
@@ -16,23 +19,41 @@ namespace ArkhamOverlay.Services {
         IList<string> LocalPacks { get; }
     }
 
+    /// <summary>
+    /// Information about a button in a zone for saving and recreating state
+    /// </summary>
+    public class ZoneButton {
+        /// <summary>
+        /// Card Group the button blongs to
+        /// </summary>
+        public CardGroupId CardGroupId { get; set; }
+
+        /// <summary>
+        /// Zone in the card group that the button blongs to
+        /// </summary>
+        public int ZoneIndex { get; set; }
+
+        /// <summary>
+        /// Identify the button by name
+        /// </summary>
+        public string Name { get; set; } 
+    }
+
     public class GameFile : IGame {
         public GameFile() {
             EncounterSets = new List<EncounterSet>();
             LocalPacks = new List<string>();
             DeckIds = new List<string>();
+            ZoneButtons = new List<ZoneButton>();
         }
 
         public string Name { get; set; }
-
         public string Scenario { get; set; }
         public string SnapshotDirectory { get; set; }
-
         public IList<string> DeckIds { get; set; }
-
         public IList<EncounterSet> EncounterSets { get; set; }
-
         public IList<string> LocalPacks { get; set; }
+        public IList<ZoneButton> ZoneButtons { get; set; }
     }
 
     public class GameFileService {
@@ -41,6 +62,7 @@ namespace ArkhamOverlay.Services {
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
+        private IList<ZoneButton> _zoneButtons;
 
         public GameFileService(AppData appData, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
             _appData = appData;
@@ -48,6 +70,8 @@ namespace ArkhamOverlay.Services {
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
             _eventBus = eventBus;
+
+            eventBus.SubscribeToCardGroupButtonsChanged(CardGroupButtonsChangedHandler);
         }
 
         internal void Load(string fileName = "") {
@@ -60,6 +84,7 @@ namespace ArkhamOverlay.Services {
                 try {
                     _eventBus.PublishClearAllCardsRequest();
                     var gameFile = JsonConvert.DeserializeObject<GameFile>(File.ReadAllText(fileName));
+                    _zoneButtons = gameFile.ZoneButtons;
 
                     var game = _appData.Game;
                     game.ClearAllCardsLists();
@@ -74,8 +99,7 @@ namespace ArkhamOverlay.Services {
                             try {
                                 _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.LoadingCards);
                                 _cardLoadService.LoadPlayer(game.Players[index]);
-                            }
-                            catch (Exception ex) {
+                            } catch (Exception ex) {
                                 _logger.LogException(ex, $"Error loading player {game.Players[index].ID}.");
                                 _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.Error);
                             }
@@ -95,10 +119,14 @@ namespace ArkhamOverlay.Services {
         internal void Save(string fileName) {
             _logger.LogMessage($"Saving game file: {fileName}.");
             var gameFile = new GameFile();
-            _appData.Game.CopyTo(gameFile);
+            _appData.Game.CopyTo(gameFile); ;
+
             foreach (var player in _appData.Game.Players) {
                 gameFile.DeckIds.Add(player.DeckId);
             }
+
+            AddDeckIdsToGameFile(gameFile);
+            AddZoneButtonsToGameFile(gameFile);
 
             try {
                 File.WriteAllText(fileName, JsonConvert.SerializeObject(gameFile));
@@ -106,6 +134,66 @@ namespace ArkhamOverlay.Services {
                 _logger.LogMessage($"Finished writing to game file: {fileName}.");
             } catch (Exception ex) {
                 _logger.LogException(ex, $"Error saving game file: {fileName}.");
+            }
+        }
+
+        /// <summary>
+        /// Add all deck ids to the game file so they can be recreated
+        /// </summary>
+        /// <param name="gameFile">Add the deck ids to this file</param>
+        private void AddDeckIdsToGameFile(GameFile gameFile) {
+            foreach (var player in _appData.Game.Players) {
+                gameFile.DeckIds.Add(player.DeckId);
+            }
+        }
+
+        /// <summary>
+        /// Save all buttons assigned to zones to the game file so the state can be recreated
+        /// </summary>
+        /// <param name="gameFile">Add the buttons to this file</param>
+        private void AddZoneButtonsToGameFile(GameFile gameFile) {
+            foreach (var cardGroup in _appData.Game.AllCardGroups) {
+                foreach (var cardZone in cardGroup.CardZones) {
+                    foreach (var button in cardZone.CardButtons) {
+                        gameFile.ZoneButtons.Add(new ZoneButton {
+                            CardGroupId = cardGroup.Id,
+                            ZoneIndex = cardZone.ZoneIndex,
+                            Name = button.CardInfo.Name
+                        });
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when cards are loaded for a card group
+        /// </summary>
+        /// <param name="eventData">List of the cards that have changed</param>
+        private void CardGroupButtonsChangedHandler(CardGroupButtonsChanged eventData) {
+            if (_zoneButtons == default) {
+                return;
+            }
+
+            var zoneButtonsFound = new List<ZoneButton>();
+
+            //look through all the zone buttons and if this group of changed (presumably added) buttons contains a match we can use to create the button
+            foreach (var zoneButton in _zoneButtons) {
+                var matchingButton = eventData.Buttons.FirstOrDefault(x => x.Name == zoneButton.Name);
+                if (matchingButton == default) {
+                    continue;
+                }
+                
+                //we'll need to remove this once we are done, so we don't keep trying to add it
+                zoneButtonsFound.Add(zoneButton);
+
+                var cardGroup = _appData.Game.GetCardGroup(matchingButton.CardGroupId);
+                var button = cardGroup.GetButton(matchingButton) as CardImageButton;
+                _appData.Game.AddCardToZone(zoneButton.CardGroupId, zoneButton.ZoneIndex, button);
+            }
+
+            //once we've loaded this zone button we can stop loading it
+            foreach (var zoneButtonFound in zoneButtonsFound) {
+                _zoneButtons.Remove(zoneButtonFound);
             }
         }
     }

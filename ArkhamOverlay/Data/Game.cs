@@ -142,6 +142,24 @@ namespace ArkhamOverlay.Data {
         }
 
         /// <summary>
+        /// Add a card (create a button) to a zone
+        /// </summary>
+        /// <param name="cardGroupId">Add to a zone of this card group</param>
+        /// <param name="zoneIndex">Add to this zone</param>
+        /// <param name="button">Source button for creating this new button</param>
+        public void AddCardToZone(CardGroupId cardGroupId, int zoneIndex, CardImageButton button) {
+            var destinationCardGroup = GetCardGroup(cardGroupId);
+            var destinationCardZone = destinationCardGroup.GetCardZone(zoneIndex);
+            if (destinationCardZone == default) {
+                _logger.LogError($"Cannot add card {button.CardInfo.Name} to {destinationCardGroup.Name} because zone with index {zoneIndex} does not exist");
+                return;
+            }
+
+            _logger.LogMessage($"Adding card {button.CardInfo.Name} to {destinationCardZone.Name} of {destinationCardGroup.Name} ");
+            destinationCardZone.CreateCardButton(button, CreateButtonOptions(destinationCardGroup, destinationCardZone, button.CardInfo));
+        }
+
+        /// <summary>
         /// When a button is clicked, look at the context, see if it's a button in this card group, and execute the appropraite logic
         /// </summary>
         /// <param name="eventData">Event specific information</param>
@@ -219,15 +237,7 @@ namespace ArkhamOverlay.Data {
             }
 
             //whether add or move, we need to add the card to the specified zone
-            var destinationCardGroup = GetCardGroup(buttonOption.CardGroupId);
-            var destinationCardZone = destinationCardGroup.GetCardZone(buttonOption.ZoneIndex);
-            if (destinationCardZone == default) {
-                _logger.LogError($"Cannot add card {button.CardInfo.Name} to {destinationCardGroup.Name} because zone with index {buttonOption.ZoneIndex} does not exist");
-                return;
-            }
-
-            _logger.LogMessage($"Adding card {button.CardInfo.Name} to {destinationCardZone.Name} of {destinationCardGroup.Name} ");
-            destinationCardZone.CreateCardButton(button, CreateButtonOptions(destinationCardGroup, destinationCardZone, button.CardInfo));
+            AddCardToZone(buttonOption.CardGroupId, buttonOption.ZoneIndex, button);
         }
 
         /// <summary>
