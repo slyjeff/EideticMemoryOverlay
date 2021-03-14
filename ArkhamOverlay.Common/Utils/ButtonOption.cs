@@ -73,9 +73,9 @@ namespace ArkhamOverlay.Common.Utils {
         /// <summary>
         /// Get the text, using the resolver to provide names for card groups and zones
         /// </summary>
-        /// <param name="resolver">Reslover used to provide dynamic values when displaying option text</param>
+        /// <param name="resolver">Resolver used to provide dynamic values when displaying option text</param>
         /// <returns>The text with dynamic information replaced with values</returns>
-        /// <remarks>If a placholder cannot be resolved, the string returns as empty, so consumers know to ignore this option</remarks>
+        /// <remarks>If a value cannot be resolved, the string returns as empty, so consumers know to ignore this option</remarks>
         public string GetText(IButtonOptionResolver resolver) {
             if (Operation == ButtonOptionOperation.Remove) {
                 return "Remove Card";
