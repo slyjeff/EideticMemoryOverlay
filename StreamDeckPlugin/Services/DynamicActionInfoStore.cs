@@ -83,9 +83,7 @@ namespace StreamDeckPlugin.Services {
 
         public IEnumerable<IDynamicActionInfo> GetDynamicActionInfoForGroup(CardGroupId cardGroupId) {
             lock (_cacheLock) {
-                return (from dynamicActionInfo in _dynamicActionInfoList
-                        where dynamicActionInfo.CardGroupId == cardGroupId
-                        select dynamicActionInfo).ToList();
+                return _dynamicActionInfoList.Where(x => x.CardGroupId == cardGroupId).ToList();
             }
         }
 
@@ -97,13 +95,9 @@ namespace StreamDeckPlugin.Services {
             IList<DynamicActionInfo> actionsUpdated = new List<DynamicActionInfo>();
 
             lock (_cacheLock) {
-                var removedActions = (from dynamicActionInfo in _dynamicActionInfoList
-                                  where dynamicActionInfo.CardGroupId == eventData.CardGroupId
-                                  select dynamicActionInfo).ToList();
+                var removedActions = _dynamicActionInfoList.Where(x => x.CardGroupId == eventData.CardGroupId).ToList();
 
-                foreach (var actionToRemove in removedActions) {
-                    _dynamicActionInfoList.Remove(actionToRemove);
-                }
+                _dynamicActionInfoList.RemoveAll(x => x.CardGroupId == eventData.CardGroupId);
 
                 foreach (var button in eventData.Buttons) {
                     var changedAction = new DynamicActionInfo(button);

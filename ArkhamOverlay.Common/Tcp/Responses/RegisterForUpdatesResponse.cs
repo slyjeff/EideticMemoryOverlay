@@ -16,7 +16,7 @@ namespace ArkhamOverlay.Common.Tcp.Responses {
     }
 
     /// <summary>
-    /// When a connetion is established, send all state information
+    /// When a connection is established, send all state information
     /// </summary>
     public class RegisterForUpdatesResponse : Response {
         /// <summary>
