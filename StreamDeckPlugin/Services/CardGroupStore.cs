@@ -85,9 +85,7 @@ namespace StreamDeckPlugin.Services {
         private void ImageLoaded(string imageId) {
             IList<ICardGroupInfo> cardGroupsForImage;
             lock (_cacheLock) {
-                cardGroupsForImage = (from cardGroupInfo in _cardGroupInfoCache.Values
-                                     where cardGroupInfo.ImageId == imageId
-                                     select cardGroupInfo).ToList();
+                cardGroupsForImage = _cardGroupInfoCache.Values.Where(x => x.ImageId == imageId).ToList();
             }
 
             foreach (var cardGroupInfo in cardGroupsForImage) {

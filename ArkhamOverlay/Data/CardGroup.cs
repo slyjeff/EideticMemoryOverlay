@@ -82,7 +82,7 @@ namespace ArkhamOverlay.Data {
         /// Notify listeners that the card group has changed
         /// </summary>
         public void PublishCardGroupChanged() {
-            var zoneNames = (from zone in _cardZones select zone.Name).ToList();
+            var zoneNames = _cardZones.Select(x => x.Name).ToList();
             _eventBus.PublishCardGroupChanged(Id, Name, ButtonImageAsBytes != null, Name, zoneNames);
         }
 
@@ -109,7 +109,7 @@ namespace ArkhamOverlay.Data {
             return _cardZones[index];
         }
 
-        public IList<CardZone> CardZones { get { return (from cardZone in _cardZones select cardZone).ToList(); } }
+        public IList<CardZone> CardZones { get { return _cardZones; } }
 
         public bool Loading { get; internal set; }
         public IEnumerable<CardInfo> CardPool { get => from button in CardButtons.OfType<CardInfoButton>() select button.CardInfo; }
