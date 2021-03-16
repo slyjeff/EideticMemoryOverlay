@@ -256,14 +256,16 @@ namespace ArkhamOverlay.Pages.Overlay {
         #region Event Handlers
 
         private void ButtonInfoChangedHandler(ButtonInfoChanged e) {
+            //todo: index 0 = the "show" button- find a better way to do this
             if (e.ButtonMode == ButtonMode.Zone && e.Index > 0) {
-                UpdateCardZone(GetCardZoneForGardGroup(e.CardGroupId, e.ZoneIndex));
+                UpdateCardZone(GetCardZoneForCardGroup(e.CardGroupId, e.ZoneIndex));
             }
         }
 
         private void ButtonRemovedHandler(ButtonRemoved e) {
+            //todo: index 0 = the "show" button- find a better way to do this
             if (e.ButtonMode == ButtonMode.Zone && e.Index > 0) {
-                UpdateCardZone(GetCardZoneForGardGroup(e.CardGroupId, e.ZoneIndex));
+                UpdateCardZone(GetCardZoneForCardGroup(e.CardGroupId, e.ZoneIndex));
             }
         }
 
@@ -477,7 +479,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             return ViewModel.EncounterCardInfos.Union(ViewModel.PlayerCardInfos);
         }
 
-        private CardZone GetCardZoneForGardGroup(CardGroupId cardGroupId, int zoneIndex) {
+        private CardZone GetCardZoneForCardGroup(CardGroupId cardGroupId, int zoneIndex) {
             foreach (var cardGroup in _appData.Game.AllCardGroups) {
                 if (cardGroup.Id == cardGroupId) {
                     return cardGroup.GetCardZone(zoneIndex);

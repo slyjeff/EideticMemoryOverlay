@@ -66,8 +66,19 @@ namespace ArkhamOverlay.Common.Utils {
             ZoneIndex = zoneIndex;
         }
 
+        /// <summary>
+        /// What kind of action this button represents
+        /// </summary>
         public ButtonOptionOperation Operation { get; set; }
+
+        /// <summary>
+        /// The destination Card Group of this action
+        /// </summary>
         public CardGroupId CardGroupId { get; set; }
+
+        /// <summary>
+        /// The destination zone of this action
+        /// </summary>
         public int ZoneIndex { get; set; }
 
         /// <summary>

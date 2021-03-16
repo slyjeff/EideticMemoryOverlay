@@ -55,7 +55,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
             _logger.LogMessage($"Left clicking button {button.Text}");
 
             var index = ViewModel.CardGroup.CardButtons.IndexOf(button);
-            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, 0, index, MouseButton.Left);
+            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, zoneIndex: 0, index, MouseButton.Left);
         }
 
         [Command]
@@ -63,7 +63,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
             _logger.LogMessage($"Right clicking button {button.Text}");
 
             var index = ViewModel.CardGroup.CardButtons.IndexOf(button);
-            RightClick(ButtonMode.Pool, 0, index, button);
+            RightClick(ButtonMode.Pool, zoneIndex: 0, index, button);
         }
 
         [Command]
