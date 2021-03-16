@@ -112,18 +112,19 @@ namespace ArkhamOverlay.Data {
         public IList<CardZone> CardZones { get { return _cardZones; } }
 
         public bool Loading { get; internal set; }
-        public IEnumerable<CardInfo> CardPool { get => from button in CardButtons.OfType<CardInfoButton>() select button.CardInfo; }
+        public IEnumerable<CardInfo> CardPool { get => CardButtons.OfType<CardInfoButton>().Select(x => x.CardInfo); }
 
         /// <summary>
-        /// Get a list of all buttons in this card group- used for sending update events
+        /// Get a list of all buttons in this card group 
         /// </summary>
         /// <returns>list of button info for every button in this card group</returns>
+        /// <remark>used for sending update events</remark>
         public IList<ButtonInfo> GetButtonInfo() {
             var buttonInfoList = new List<ButtonInfo>();
 
             var poolButtonIndex = 0;
             foreach (var button in CardButtons) {
-                buttonInfoList.Add(CreateButtonInfo(ButtonMode.Pool, 0, poolButtonIndex++, button));
+                buttonInfoList.Add(CreateButtonInfo(ButtonMode.Pool, zoneIndex: 0, poolButtonIndex++, button));
             }
 
             foreach (var zone in CardZones) {
@@ -185,12 +186,12 @@ namespace ArkhamOverlay.Data {
 
             var playerButtons = new List<IButton> { clearButton };
 
-            var cardInfoButtons = (from card in SortCards(cards) select new CardInfoButton(card, Id)).ToList();
+            var cardInfoButtons = SortCards(cards).Select(x => new CardInfoButton(x, Id)).ToList();
             playerButtons.AddRange(cardInfoButtons);
             CardButtons = playerButtons;
             NotifyPropertyChanged(nameof(CardButtons));
 
-            RegisterButtonImageLoadCallbacks(cardInfoButtons);
+            RegisterButtonImageLoadCallbacks();
             _eventBus.PublishCardGroupButtonsChanged(Id, GetButtonInfo());
         }
 
@@ -221,8 +222,7 @@ namespace ArkhamOverlay.Data {
         /// <summary>
         /// For any buttons that don't have images loaded, register events that will publish a change when the images finally load
         /// </summary>
-        /// <param name="buttons"></param>
-        private void RegisterButtonImageLoadCallbacks(IList<CardInfoButton> buttons) {
+        private void RegisterButtonImageLoadCallbacks() {
             foreach (var button in CardButtons.OfType<CardInfoButton>()) {
                 var cardInfo = button.CardInfo;
                 if (cardInfo.ButtonImageAsBytes != null) {
@@ -230,7 +230,7 @@ namespace ArkhamOverlay.Data {
                 }
 
                 button.CardInfo.ButtonImageLoaded += () => {
-                    _eventBus.PublishButtonInfoChanged(Id, ButtonMode.Pool, 0, CardButtons.IndexOf(button), button.Text, button.CardInfo.ImageId, button.IsToggled, true, ChangeAction.Update, button.Options);
+                    _eventBus.PublishButtonInfoChanged(Id, ButtonMode.Pool, zoneIndex: 0, CardButtons.IndexOf(button), button.Text, button.CardInfo.ImageId, button.IsToggled, imageAvailable: true, ChangeAction.Update, button.Options);
                 };
             }
         }

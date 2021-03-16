@@ -59,7 +59,6 @@ namespace ArkhamOverlay.Data {
         /// </summary>
         /// <param name="button">Button that initiated this create- contains card info and toggle state</param>
         /// <param name="options">Options this button should offer on a right click</param>
-        /// <returns>The newly created button</returns>
         public void CreateCardButton(CardImageButton button, IEnumerable<ButtonOption> options) {
             var buttonToReplace = CardButtons.FirstOrDefault(x => x.CardInfo == button.CardInfo.FlipSideCard);
             if (buttonToReplace != null) {
@@ -70,7 +69,7 @@ namespace ArkhamOverlay.Data {
         }
 
         /// <summary>
-        /// Replace an existing button with a new  button
+        /// Replace an existing button with a new button
         /// </summary>
         /// <param name="button">Button that intiated this create- contains card info and toggle state</param>
         /// <param name="buttonToReplace">The button to replace</param>
@@ -93,8 +92,6 @@ namespace ArkhamOverlay.Data {
         /// <param name="button">Button that intiated this create- contains card info and toggle state</param>
         /// <param name="options">Options this button should offer on a right click</param>
         private void AddButton(CardImageButton button, IEnumerable<ButtonOption> options) {
-            var existingCopyCount = CardButtons.Count(x => x.CardInfo == button.CardInfo);
-
             //if there's an act and this is an agenda, always add it to the left
             var index = Buttons.Count();
             if (button.CardInfo.Type == CardType.Agenda && CardButtons.Any(x => x.CardInfo.Type == CardType.Act)) {
@@ -115,7 +112,7 @@ namespace ArkhamOverlay.Data {
         /// If this button is in the list, remove it
         /// </summary>
         /// <param name="button">Button to remove</param>
-        internal void RemoveButton(CardButton button) {
+        public void RemoveButton(CardButton button) {
             var indexOfRemovedCard = Buttons.IndexOf(button);
             if (indexOfRemovedCard == -1) {
                 return;

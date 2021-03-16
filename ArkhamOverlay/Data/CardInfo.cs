@@ -29,7 +29,7 @@ namespace ArkhamOverlay.Data {
             ImageSource = cardBack ? arkhamDbCard.BackImageSrc : arkhamDbCard.ImageSrc;
             IsPlayerCard = isPlayerCard;
             IsBonded = isBonded;
-            IsHidden = !string.IsNullOrEmpty(arkhamDbCard.Text) && arkhamDbCard.Text.Contains("Hidden");
+            IsHidden = !string.IsNullOrEmpty(arkhamDbCard.Text) && arkhamDbCard.Text.Contains(" Hidden.");
 
             if (cardBack) {
                 Name += " (Back)";

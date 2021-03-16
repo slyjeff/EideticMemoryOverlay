@@ -79,6 +79,7 @@ namespace ArkhamOverlay.Services {
             var imageId = string.Empty;
             if (!buttonImageRequest.ButtonMode.HasValue || !buttonImageRequest.Index.HasValue) {
                 SendButtonImageResponse(request.Socket, cardGroup.Name, cardGroup.ButtonImageAsBytes);
+                return;
             } else {
                 if (cardGroup.GetButton(buttonImageRequest.ButtonMode.Value, buttonImageRequest.ZoneIndex.Value, buttonImageRequest.Index.Value) is CardInfoButton cardButton) {
                     imageId = cardButton.CardInfo.ImageId;

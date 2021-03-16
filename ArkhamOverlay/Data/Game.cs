@@ -196,7 +196,7 @@ namespace ArkhamOverlay.Data {
             }
 
             if (button is ShowCardZoneButton showCardZoneButton) {
-                _logger.LogMessage($"Requesting toggle for {cardGroup.Name} {showCardZoneButton.CardZone} visibility");
+                _logger.LogMessage($"Requesting toggle for {cardGroup.Name} {showCardZoneButton.CardZone.Name} visibility");
                 _eventBus.PublishToggleCardZoneVisibilityRequest(showCardZoneButton.CardZone);
                 return;
             }
