@@ -182,8 +182,6 @@ namespace ArkhamOverlay.Data {
         }
 
         internal void LoadCards(IEnumerable<CardInfo> cards) {
-            ClearCards();
-
             var clearButton = new ClearButton();
 
             var playerButtons = new List<IButton> { clearButton };

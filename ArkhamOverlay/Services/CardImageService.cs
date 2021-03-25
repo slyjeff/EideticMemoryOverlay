@@ -20,7 +20,7 @@ namespace ArkhamOverlay.Services {
             if (string.IsNullOrEmpty(hasImageButton.ImageSource)) {
                 return;
             }
-
+            
             if (Application.Current.Dispatcher.CheckAccess()) {
                 DoLoadImage(hasImageButton);
             } else {

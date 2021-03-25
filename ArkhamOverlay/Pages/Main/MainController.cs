@@ -246,7 +246,13 @@ namespace ArkhamOverlay.Pages.Main {
             if (!string.IsNullOrEmpty(player.DeckId)) {
                 try {
                     _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingDeck);
+                    var originalName = player.Name;
                     _cardLoadService.LoadPlayer(player);
+
+                    //if this is a new character, clear all cards from card zones
+                    if (originalName != player.Name) {
+                        player.CardGroup.ClearCards();
+                    }
 
                     var worker = new BackgroundWorker();
                     worker.DoWork += (x, y) => {
