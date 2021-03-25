@@ -13,6 +13,7 @@ namespace ArkhamOverlay.Services {
         public string Type_Code { get; set; }
         public int Health { get; set; }
         public int Sanity { get; set; }
+        public string Text { get; set; }
     }
 
     public class ArkhamDbFullCard : ArkhamDbCard {

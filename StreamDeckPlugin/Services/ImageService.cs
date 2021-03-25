@@ -48,8 +48,9 @@ namespace StreamDeckPlugin.Services {
         /// <param name="imageId">Id of the image in the cache- used to store and retrieve it</param>
         /// <param name="cardGroupId">Card Group for the image</param>
         /// <param name="buttonMode">ButtonMode for the image- may be null if the image is for the Card Group </param>
+        /// <param name="zoneIndex">Zone Index of the image- may be null if the image is for the Card Group</param>
         /// <param name="index">Index of the image- may be null if the image is for the Card Group</param>
-        void LoadImage(string imageId, CardGroupId cardGroupId, ButtonMode? buttonMode = null, int? index = null);
+        void LoadImage(string imageId, CardGroupId cardGroupId, ButtonMode? buttonMode = null, int? zoneIndex = null, int? index = null);
     }
 
     public class ImageService : IImageService {
@@ -69,8 +70,9 @@ namespace StreamDeckPlugin.Services {
         /// <param name="imageId">Id of the image in the cache- used to store and retrieve it</param>
         /// <param name="cardGroupId">Card Group for the image</param>
         /// <param name="buttonMode">ButtonMode for the image- may be null if the image is for the Card Group </param>
+        /// <param name="zoneIndex">Zone Index of the image- may be null if the image is for the Card Group</param>
         /// <param name="index">Index of the image- may be null if the image is for the Card Group</param>
-        public void LoadImage(string imageId, CardGroupId cardGroupId, ButtonMode? buttonMode = null, int? index = null) {
+        public void LoadImage(string imageId, CardGroupId cardGroupId, ButtonMode? buttonMode = null, int? zoneIndex = null, int? index = null) {
             if (string.IsNullOrEmpty(imageId)) {
                 return;
             }
@@ -79,7 +81,7 @@ namespace StreamDeckPlugin.Services {
                 return;
             }
 
-            _eventBus.PublishGetButtonImageRequest(cardGroupId, buttonMode, index);
+            _eventBus.PublishGetButtonImageRequest(cardGroupId, buttonMode, zoneIndex, index);
         }
 
         /// <summary>

@@ -1,19 +1,31 @@
 ﻿using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Data;
-using System.Windows.Media;
 
 namespace ArkhamOverlay.CardButtons {
     public class CardInfoButton : CardImageButton {
-        public CardInfoButton(CardInfo cardInfo) : base(cardInfo, false) {
-            if (!cardInfo.IsPlayerCard && (cardInfo.Type == CardType.Treachery) || (cardInfo.Type == CardType.Enemy)) {
-                Options.Add(new ButtonOption(CardGroupId.Player1.ToString(), $"Add to <<{CardGroupId.Player1}>>'s hand"));
-                Options.Add(new ButtonOption(CardGroupId.Player2.ToString(), $"Add to <<{CardGroupId.Player2}>>'s hand"));
-                Options.Add(new ButtonOption(CardGroupId.Player3.ToString(), $"Add to <<{CardGroupId.Player3}>>'s hand"));
-                Options.Add(new ButtonOption(CardGroupId.Player4.ToString(), $"Add to <<{CardGroupId.Player4}>>'s hand"));
+        public CardInfoButton(CardInfo cardInfo, CardGroupId cardGroupId) : base(cardInfo, false) {
+            if (cardInfo.IsPlayerCard) {
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, cardGroupId, zoneIndex: 0));
+            }
+
+            if (cardInfo.Type == CardType.Act || cardInfo.Type == CardType.Agenda) {
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, cardGroupId, zoneIndex: 0));
+            }
+
+            if (!cardInfo.IsPlayerCard && cardInfo.IsHidden) {
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player1, zoneIndex: 0));
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player2, zoneIndex: 0));
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player3, zoneIndex: 0));
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player4, zoneIndex: 0));
+            }
+
+            if (!cardInfo.IsHidden && cardInfo.Type == CardType.Treachery || cardInfo.Type == CardType.Enemy || cardInfo.Type == CardType.Location) {
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player1, zoneIndex: 1));
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player2, zoneIndex: 1));
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player3, zoneIndex: 1));
+                Options.Add(new ButtonOption(ButtonOptionOperation.Add, CardGroupId.Player4, zoneIndex: 1));
             }
         }
-
-        public override ImageSource ButtonImage { get { return CardInfo.ButtonImage; } }
     }
 }

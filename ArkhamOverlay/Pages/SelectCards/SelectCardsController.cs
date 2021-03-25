@@ -12,7 +12,7 @@ using System.Linq;
 using System.Windows.Controls;
 
 namespace ArkhamOverlay.Pages.SelectCards {
-    public class SelectCardsController : Controller<SelectCardsView, SelectCardsViewModel> {
+    public class SelectCardsController : Controller<SelectCardsView, SelectCardsViewModel>, IButtonOptionResolver {
         private readonly LoggingService _logger;
         private readonly AppData _appData;
         private readonly IEventBus _eventBus;
@@ -55,7 +55,7 @@ namespace ArkhamOverlay.Pages.SelectCards {
             _logger.LogMessage($"Left clicking button {button.Text}");
 
             var index = ViewModel.CardGroup.CardButtons.IndexOf(button);
-            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, index, MouseButton.Left, string.Empty);
+            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, zoneIndex: 0, index, MouseButton.Left);
         }
 
         [Command]
@@ -63,41 +63,89 @@ namespace ArkhamOverlay.Pages.SelectCards {
             _logger.LogMessage($"Right clicking button {button.Text}");
 
             var index = ViewModel.CardGroup.CardButtons.IndexOf(button);
-            RightClick(ButtonMode.Pool, index, button);
+            RightClick(ButtonMode.Pool, zoneIndex: 0, index, button);
         }
 
         [Command]
-        public void CardLeftClick(CardButton button) {
+        public void CardLeftClick(IButton button) {
             _logger.LogMessage($"Left clicking button {button.Text}");
-            var index = ViewModel.CardGroup.CardZone.Buttons.IndexOf(button);
-            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Zone, index, MouseButton.Left, string.Empty);
+
+            var buttonLocation = FindButtonLocation(button);
+            if (buttonLocation == default) {
+                return;
+            }
+
+            _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Zone, buttonLocation.ZoneIndex, buttonLocation.Index, MouseButton.Left);
         }
 
         [Command]
         public void CardRightClick(CardButton button) {
             _logger.LogMessage($"Right clicking button {button.Text}");
-            var index = ViewModel.CardGroup.CardZone.Buttons.IndexOf(button);
-            RightClick(ButtonMode.Zone, index, button);
+            
+            var buttonLocation = FindButtonLocation(button);
+            if (buttonLocation == default) {
+                return;
+            }
+
+            RightClick(ButtonMode.Zone, buttonLocation.ZoneIndex, buttonLocation.Index, button);
+        }
+
+        /// <summary>
+        /// Represents the location of a button in a card group by zone and index
+        /// </summary>
+        private class ButtonLocation {
+            /// <summary>
+            /// Index of the zone within the card group
+            /// </summary>
+            public int ZoneIndex;
+
+            /// <summary>
+            /// Index of the button within the zone
+            /// </summary>
+            public int Index;
+        }
+        
+        /// <summary>
+        /// Find the location of a button within the card group
+        /// </summary>
+        /// <param name="button">The button</param>
+        /// <returns></returns>
+        private ButtonLocation FindButtonLocation(IButton button) {
+            foreach (var zone in ViewModel.CardGroup.CardZones) {
+                var index = zone.Buttons.IndexOf(button);
+                if (index == -1) {
+                    continue;
+                }
+
+                return new ButtonLocation {
+                    ZoneIndex = ViewModel.CardGroup.CardZones.IndexOf(zone),
+                    Index = index
+                };
+            }
+            return default;
         }
 
         /// <summary>
         /// Handle right click, popping a menu if the button requires it
         /// </summary>
         /// <param name="buttonMode">Whether this is a pool or zone button</param>
-        /// <param name="index">Location of the button</param>
+        /// <param name="zoneIndex">Which zone in the button is in</param>
+        /// <param name="index">Location of the button within the zone/pool</param>
         /// <param name="button">The button clicked</param>
-        private void RightClick(ButtonMode buttonMode, int index, IButton button) {
+        private void RightClick(ButtonMode buttonMode, int zoneIndex, int index, IButton button) {
             try {
-                if (button is CardImageButton cardImageButton) {
-                    if (cardImageButton.Options.Any()) {
-                        var contextMenu = View.FindResource("cmSelectPlayer") as ContextMenu;
-                        contextMenu.ItemsSource = CreateRightClickOptions(cardImageButton.Options, selectedOption => _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, ButtonMode.Pool, index, MouseButton.Right, selectedOption));
-                        contextMenu.IsOpen = true;
-                        return;
-                    }
+                if (!button.Options.Any()) {
+                    return;
                 }
 
-                _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, buttonMode, index, MouseButton.Right, string.Empty);
+                if (button.Options.Count == 1) {
+                    _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, buttonMode, zoneIndex, index, MouseButton.Right, button.Options.First());
+                    return;
+                }
+
+                var contextMenu = View.FindResource("cmSelectPlayer") as ContextMenu;
+                contextMenu.ItemsSource = CreateRightClickOptions(button.Options, selectedOption => _eventBus.PublishButtonClickRequest(ViewModel.CardGroup.Id, buttonMode, zoneIndex, index, MouseButton.Right, selectedOption));
+                contextMenu.IsOpen = true;
             } catch (Exception e) {
                 _logger.LogException(e, "Error Handling Right Click");
             }
@@ -109,12 +157,12 @@ namespace ArkhamOverlay.Pages.SelectCards {
         /// <param name="options">The options the user may selectd from when clicking this button</param>
         /// <param name="callback">What to do when the user selects an option</param>
         /// <returns>A list of menu items</returns>
-        private IEnumerable<RightClickOptionCommand> CreateRightClickOptions(IEnumerable<ButtonOption> options, Action<string> callback) {
+        private IEnumerable<RightClickOptionCommand> CreateRightClickOptions(IEnumerable<ButtonOption> options, Action<ButtonOption> callback) {
             var commands = new List<RightClickOptionCommand>();
             foreach (var option in options) {
-                var text = option.GetTextResolvingPlaceholders(ResolveMenuItemPlaceholder);
+                var text = option.GetText(this);
                 if (!string.IsNullOrEmpty(text)) {
-                    commands.Add(new RightClickOptionCommand(option.Option, text, callback));
+                    commands.Add(new RightClickOptionCommand(option, text, callback));
                 }
             }
 
@@ -122,18 +170,40 @@ namespace ArkhamOverlay.Pages.SelectCards {
         }
 
         /// <summary>
-        /// Callback to resolve placeholder in a menu item so we can provide more contextual information
+        /// Used by button option to get a name for the card group when displaying an option
         /// </summary>
-        /// <param name="placeholder">The placeholder to resolve</param>
-        /// <returns>The actual value the placeholder represents</returns>
-        /// <remarks>Example "player1" (represented by <<xxxx>></xxxx> in the text) will resolve to the name of player 1 in game data</remarks>
-        private string ResolveMenuItemPlaceholder(string placeholder) {
-            if (Enum.TryParse(placeholder, out CardGroupId cardGroupId)) {
-                var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
-                return cardGroup.Name;
-            }
-
-            return null;
+        /// <param name="cardGroupId">Card group to resolve</param>
+        /// <returns>The name of the card group</returns>
+        string IButtonOptionResolver.GetCardGroupName(CardGroupId cardGroupId) {
+            var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
+            return cardGroup.Name;
         }
+
+        /// <summary>
+        /// Used by button option to get a name for the card zone when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group of the card zone</param>
+        /// <param name="zoneIndex">Zone to resolve</param>
+        /// <returns>Name of the zone</returns>
+        string IButtonOptionResolver.GetCardZoneName(CardGroupId cardGroupId, int zoneIndex) {
+            var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
+            var cardZone = cardGroup.GetCardZone(zoneIndex);
+            if (cardZone == default) {
+                return string.Empty;
+            }
+            return cardZone.Name;
+        }
+
+        /// <summary>
+        /// Used by button option to get the image ID for a button when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group of the card zone</param>
+        /// <param name="zoneIndex">Zone to resolve</param>
+        /// <returns>Image Id for the card group</returns>
+        string IButtonOptionResolver.GetImageId(CardGroupId cardGroupId, int zoneIndex) {
+            var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
+            return cardGroup.Name;
+        }
+
     }
 }

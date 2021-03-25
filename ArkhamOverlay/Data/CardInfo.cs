@@ -29,6 +29,8 @@ namespace ArkhamOverlay.Data {
             ImageSource = cardBack ? arkhamDbCard.BackImageSrc : arkhamDbCard.ImageSrc;
             IsPlayerCard = isPlayerCard;
             IsBonded = isBonded;
+            IsHidden = !string.IsNullOrEmpty(arkhamDbCard.Text) && arkhamDbCard.Text.Contains(" Hidden.");
+
             if (cardBack) {
                 Name += " (Back)";
                 ImageId += "-Back";
@@ -73,8 +75,18 @@ namespace ArkhamOverlay.Data {
         public string ImageSource { get; set; }
         public ImageSource Image { get; set; }
         public ImageSource ButtonImage { get; set; }
-        public byte[] ButtonImageAsBytes { get; set; }
+
+        private byte[] _buttonImageAsBytes;
+        public byte[] ButtonImageAsBytes { 
+            get => _buttonImageAsBytes;
+            set {
+                _buttonImageAsBytes = value;
+                ButtonImageLoaded?.Invoke();
+            }
+        }
+
         public bool IsBonded { get; }
+        public bool IsHidden { get; }
 
         public CardType Type { get; }
         
@@ -119,6 +131,8 @@ namespace ArkhamOverlay.Data {
         public bool IsPlayerCard { get; private set; }
 
         public CardInfo FlipSideCard { get; set; }
+
+        public event Action ButtonImageLoaded;
 
         private CardType GetCardType(string typeCode) {
             if(Enum.TryParse(typeCode, ignoreCase: true, out CardType type)) {

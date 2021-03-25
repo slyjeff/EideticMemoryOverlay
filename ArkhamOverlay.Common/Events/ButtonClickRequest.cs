@@ -7,24 +7,26 @@ namespace ArkhamOverlay.Events {
     public enum MouseButton { Left, Right }
 
     public class ButtonClickRequest : ICrossAppEvent, IButtonContext {
-        public ButtonClickRequest(CardGroupId cardGroupId, ButtonMode buttonMode, int index, MouseButton mouseButton, string selectedOption) {
+        public ButtonClickRequest(CardGroupId cardGroupId, ButtonMode buttonMode, int zoneIndex, int index, MouseButton mouseButton, ButtonOption buttonOption) {
             CardGroupId = cardGroupId;
             ButtonMode = buttonMode;
+            ZoneIndex = zoneIndex;
             Index = index;
             MouseButton = mouseButton;
-            SelectedOption = selectedOption;
+            ButtonOption = buttonOption;
         }
 
         public CardGroupId CardGroupId { get; }
         public ButtonMode ButtonMode { get; }
+        public int ZoneIndex { get; }
         public int Index { get; }
         public MouseButton MouseButton { get; }
-        public string SelectedOption { get; }
+        public ButtonOption ButtonOption{ get; }
     }
 
     public static class ButtonClickRequestExtensions {
-        public static void PublishButtonClickRequest(this IEventBus eventBus, CardGroupId cardGroupId, ButtonMode buttonMode, int index, MouseButton mouseButton, string seletedOption) {
-            eventBus.Publish(new ButtonClickRequest(cardGroupId, buttonMode, index, mouseButton, seletedOption));
+        public static void PublishButtonClickRequest(this IEventBus eventBus, CardGroupId cardGroupId, ButtonMode buttonMode, int zoneIndex, int index, MouseButton mouseButton, ButtonOption buttonOption = null) {
+            eventBus.Publish(new ButtonClickRequest(cardGroupId, buttonMode, zoneIndex, index, mouseButton, buttonOption));
         }
 
         public static void SubscribeToButtonClickRequest(this IEventBus eventBus, Action<ButtonClickRequest> callback) {

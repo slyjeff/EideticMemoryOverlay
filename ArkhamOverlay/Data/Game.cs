@@ -1,6 +1,7 @@
 ﻿using ArkhamOverlay.CardButtons;
 using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
+using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
 using ArkhamOverlay.Services;
 using PageController;
@@ -157,7 +158,7 @@ namespace ArkhamOverlay.Data {
                 if (eventData.MouseButton == MouseButton.Left) {
                     HandleButtonLeftClick(cardGroup, button);
                 } else {
-                    HandleButtonRightClick(cardGroup, button, eventData.SelectedOption);
+                    HandleButtonRightClick(cardGroup, button as CardImageButton, eventData.ButtonOption);
                 }
             } catch (Exception exception) {
                 _logger.LogException(exception, "Error handling button click");
@@ -176,9 +177,9 @@ namespace ArkhamOverlay.Data {
                 return;
             }
 
-            if (button is ShowCardZoneButton) {
-                _logger.LogMessage($"Requesting toggle for {cardGroup.Name} {cardGroup.CardZone.Name} visibility");
-                _eventBus.PublishToggleCardZoneVisibilityRequest(cardGroup.CardZone);
+            if (button is ShowCardZoneButton showCardZoneButton) {
+                _logger.LogMessage($"Requesting toggle for {cardGroup.Name} {showCardZoneButton.CardZone.Name} visibility");
+                _eventBus.PublishToggleCardZoneVisibilityRequest(showCardZoneButton.CardZone);
                 return;
             }
 
@@ -192,36 +193,66 @@ namespace ArkhamOverlay.Data {
         /// <summary>
         /// Execute the appropriate right click logic for a button
         /// </summary>
-        /// <param name="button">The button clicked</param>
         /// <param name="cardGroup">The Card Group this card was clicked in</param>
-        /// <param name="selectedOption">Option the user selected from a right click menu, if applicable</param>
-        private void HandleButtonRightClick(CardGroup cardGroup, IButton button, string selectedOption) {
-            if (button is CardInfoButton cardInfoButton) {
-                if (string.IsNullOrEmpty(selectedOption)) {
-                    CreateCard(cardInfoButton, cardGroup);
-                    return;
-                }
-
-                var cardGroupId = (CardGroupId)Enum.Parse(typeof(CardGroupId), selectedOption);
-                var cardGroupToAddTo = GetCardGroup(cardGroupId);
-                CreateCard(cardInfoButton, cardGroupToAddTo);
+        /// <param name="button">The button clicked</param>
+        /// <param name="buttonOption">Option the user selected from a right click menu, if applicable</param>
+        private void HandleButtonRightClick(CardGroup cardGroup, CardImageButton button, ButtonOption buttonOption) {
+            //button should always be set- if it's not, we have an issue
+            if (button == null) {
+                _logger.LogError($"Right Button Click for {cardGroup.Name} was not a button with an image");
                 return;
             }
 
-            if (button is CardButton cardButton) {
-                cardGroup.CardZone.RemoveCard(cardButton);
+            //button option should always be set- if it's not, we have an issue
+            if (buttonOption == null) {
+                _logger.LogError($"Right Button Click for {cardGroup.Name} had no option selected");
                 return;
             }
+
+            if (buttonOption.Operation == ButtonOptionOperation.Remove) {
+                cardGroup.RemoveCard(button as CardButton);
+                return;
+            }
+
+            if (buttonOption.Operation == ButtonOptionOperation.Move) {
+                cardGroup.RemoveCard(button as CardButton);
+            }
+
+            //whether add or move, we need to add the card to the specified zone
+            var destinationCardGroup = GetCardGroup(buttonOption.CardGroupId);
+            var destinationCardZone = destinationCardGroup.GetCardZone(buttonOption.ZoneIndex);
+            if (destinationCardZone == default) {
+                _logger.LogError($"Cannot add card {button.CardInfo.Name} to {destinationCardGroup.Name} because zone with index {buttonOption.ZoneIndex} does not exist");
+                return;
+            }
+
+            _logger.LogMessage($"Adding card {button.CardInfo.Name} to {destinationCardZone.Name} of {destinationCardGroup.Name} ");
+            destinationCardZone.CreateCardButton(button, CreateButtonOptions(destinationCardGroup, destinationCardZone, button.CardInfo));
         }
 
         /// <summary>
-        /// Create a card and add it to a zone
+        /// Create the right click options for a button
         /// </summary>
-        /// <param name="cardInfoButton">The info to use for creating the card</param>
-        /// <param name="cardGroup">Add the card to this group</param>
-        private void CreateCard(CardInfoButton cardInfoButton, CardGroup cardGroup) {
-            _logger.LogMessage($"Adding card {cardInfoButton.CardInfo.Name} and adding it to {cardGroup.Name} {cardGroup.CardZone.Name}");
-            cardGroup.CardZone.CreateCard(cardInfoButton);
+        /// <param name="cardGroup">Card group that contains the button</param>
+        /// <param name="destinationCardZone">Card Zone that contains the button</param>
+        /// <param name="cardInfo">Information bout the card for this button</param>
+        /// <returns>Options to assign to a right click button</returns>
+        private IEnumerable<ButtonOption> CreateButtonOptions(CardGroup cardGroup, CardZone destinationCardZone, CardInfo cardInfo) {
+            var options = new List<ButtonOption>();
+
+            options.Add(new ButtonOption(ButtonOptionOperation.Remove));
+            if (!cardInfo.IsPlayerCard) {
+                return options;
+            }
+
+            var cardZones = cardGroup.CardZones;
+            foreach (var cardZone in cardZones) {
+                if (cardZone != destinationCardZone) {
+                    options.Add(new ButtonOption(ButtonOptionOperation.Move, cardGroup.Id, cardZones.IndexOf(cardZone)));
+                }
+            }
+
+            return options;
         }
     }
 }

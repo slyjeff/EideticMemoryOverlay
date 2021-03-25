@@ -16,21 +16,22 @@ namespace ArkhamOverlay.Common.Utils {
     public interface IButtonContext {
         CardGroupId CardGroupId { get; }
         ButtonMode ButtonMode { get; }
+        int ZoneIndex { get; }
         int Index { get; }
     }
 
     //todo: consider using IComparable
     public static class ButtonContextExtensions {
         public static bool HasSameContext(this IButtonContext a, IButtonContext b) {
-            return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.Index == b.Index;
+            return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.ZoneIndex == b.ZoneIndex && a.Index == b.Index;
         }
 
         public static bool IsAfter(this IButtonContext a, IButtonContext b) {
-            return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.Index > b.Index;
+            return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.ZoneIndex == b.ZoneIndex && a.Index > b.Index;
         }
 
         public static bool IsAtSameIndexOrAfter(this IButtonContext a, IButtonContext b) {
-            return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.Index >= b.Index;
+            return a.CardGroupId == b.CardGroupId && a.ButtonMode == b.ButtonMode && a.ZoneIndex == b.ZoneIndex && a.Index >= b.Index;
         }
 
 

@@ -9,7 +9,6 @@ using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Services;
-using System;
 using System.Threading.Tasks;
 
 namespace StreamDeckPlugin.Actions {
@@ -37,7 +36,6 @@ namespace StreamDeckPlugin.Actions {
         public ShowDeckListAction() {
             _eventBus.SubscribeToStreamDeckCardGroupInfoChanged(CardGroupInfoChangedHandler);
         }
-
 
         protected override Task OnWillAppear(ActionEventArgs<AppearancePayload> args) {
             _settings = args.Payload.GetSettings<ActionWithDeckSettings>();

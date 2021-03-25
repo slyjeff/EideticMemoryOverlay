@@ -10,6 +10,8 @@ using ArkhamOverlay.Data;
 using ArkhamOverlay.Events;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
@@ -77,8 +79,9 @@ namespace ArkhamOverlay.Services {
             var imageId = string.Empty;
             if (!buttonImageRequest.ButtonMode.HasValue || !buttonImageRequest.Index.HasValue) {
                 SendButtonImageResponse(request.Socket, cardGroup.Name, cardGroup.ButtonImageAsBytes);
+                return;
             } else {
-                if (cardGroup.GetButton(buttonImageRequest.ButtonMode.Value, buttonImageRequest.Index.Value) is CardInfoButton cardButton) {
+                if (cardGroup.GetButton(buttonImageRequest.ButtonMode.Value, buttonImageRequest.ZoneIndex.Value, buttonImageRequest.Index.Value) is CardInfoButton cardButton) {
                     imageId = cardButton.CardInfo.ImageId;
                     imageAsBytes = cardButton.CardInfo.ButtonImageAsBytes;
                 }
@@ -129,14 +132,27 @@ namespace ArkhamOverlay.Services {
 
         private void HandleRegisterForUpdates(TcpRequest request) {
             _logger.LogMessage("Handling register for update request");
-            SendOkResponse(request.Socket);
 
             var registerForUpdatesRequest = JsonConvert.DeserializeObject<RegisterForUpdatesRequest>(request.Body);
 
             _broadcastService.AddPort(registerForUpdatesRequest.Port);
 
             SendAllStats();
-            SendAllCardGroupInfo();
+
+            var cardGroupInfoList = new List<CardGroupInfo>();
+            var buttonInfoList = new List<ButtonInfo>();
+            foreach (var cardGroup in _appData.Game.AllCardGroups) {
+                cardGroupInfoList.Add(new CardGroupInfo {
+                    CardGroupId = cardGroup.Id,
+                    Name = cardGroup.Name,
+                    IsImageAvailable = cardGroup.ButtonImageAsBytes != null,
+                    ImageId = cardGroup.Name,
+                    Zones = (from zone in cardGroup.CardZones select zone.Name).ToList()
+                });
+                buttonInfoList.AddRange(cardGroup.GetButtonInfo());
+            }
+
+            SendRegisterForUpdatesResponse(request.Socket, cardGroupInfoList, buttonInfoList);
         }
 
         private void SendAllStats() {
@@ -147,14 +163,6 @@ namespace ArkhamOverlay.Services {
                 _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Resources, player.Resources.Value);
                 _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Clues, player.Clues.Value);
             }
-        }
-
-        private void SendAllCardGroupInfo() {
-            _logger.LogMessage("Sending All Card Group Info");
-            foreach (var cardGroupId in EnumUtil.GetValues<CardGroupId>()) {
-                var cardGroup = _appData.Game.GetCardGroup(cardGroupId);
-                _eventBus.PublishCardGroupChanged(cardGroup.Id, cardGroup.Name, cardGroup.ButtonImageAsBytes != null, cardGroup.Name);
-           }
         }
 
         private void SendCardInfoResponse(Socket socket, IButton cardButton) {
@@ -183,6 +191,14 @@ namespace ArkhamOverlay.Services {
             Send(socket, buttonImageResponse.ToString());
         }
 
+        private void SendRegisterForUpdatesResponse(Socket socket, IList<CardGroupInfo> cardGroupInfo, IList<ButtonInfo> buttonInfoList) {
+            var registerForUpdatesResponse = new RegisterForUpdatesResponse {
+                CardGroupInfo = cardGroupInfo,
+                Buttons = buttonInfoList
+            };
+
+            Send(socket, registerForUpdatesResponse.ToString());
+        }
 
         private void SendOkResponse(Socket socket) {
             Send(socket, new OkResponse().ToString());

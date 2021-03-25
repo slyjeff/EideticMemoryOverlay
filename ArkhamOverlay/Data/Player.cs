@@ -21,6 +21,8 @@ namespace ArkhamOverlay.Data {
         public Player(CardGroupId deck) {
             CardGroup = new CardGroup(deck);
             CardGroup.AddCardZone(new CardZone("Hand", CardZoneLocation.Bottom));
+            CardGroup.AddCardZone(new CardZone("Threat Area", CardZoneLocation.Bottom));
+            CardGroup.AddCardZone(new CardZone("Tableau", CardZoneLocation.Bottom));
 
             Health = new Stat(StatType.Health, deck);
             Sanity = new Stat(StatType.Sanity, deck);
@@ -118,6 +120,7 @@ namespace ArkhamOverlay.Data {
             NotifyPropertyChanged(nameof(Name));
             NotifyPropertyChanged(nameof(PlayerNameBrush));
             NotifyPropertyChanged(nameof(StatTrackingVisibility));
+            CardGroup.PublishCardGroupChanged();
         }
 
         public Stat Health { get; }

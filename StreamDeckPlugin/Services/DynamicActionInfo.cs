@@ -18,12 +18,14 @@ namespace StreamDeckPlugin.Services {
         public DynamicActionInfo(IButtonContext buttonContex) {
             CardGroupId = buttonContex.CardGroupId;
             ButtonMode = buttonContex.ButtonMode;
+            ZoneIndex = buttonContex.ZoneIndex;
             Index = buttonContex.Index;
             ButtonOptions = new List<ButtonOption>();
         }
 
         public CardGroupId CardGroupId { get; }
         public ButtonMode ButtonMode { get; }
+        public int ZoneIndex { get; set; }
         public int Index { get; set; }
         public string ImageId { get; set; }
         public bool IsImageAvailable { get; set; }

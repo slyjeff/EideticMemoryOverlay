@@ -1,14 +1,13 @@
-﻿using ArkhamOverlay.Common;
-using ArkhamOverlay.Common.Enums;
+﻿using ArkhamOverlay.Common.Enums;
 using ArkhamOverlay.Common.Services;
 using ArkhamOverlay.Common.Utils;
 using ArkhamOverlay.Events;
 using StreamDeckPlugin.Actions;
+using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
 
 namespace StreamDeckPlugin.Services {
     /// <summary>
@@ -22,7 +21,7 @@ namespace StreamDeckPlugin.Services {
         /// <param name="option">Option to pass to the right click request if this dynamic action is selected</param>
         /// <param name="text">Text to display for the menu</param>
         /// <param name="image">Image to display for the menu- will use a blank image if null or empty</param>
-        public DynamicActionOption(IButtonContext buttonContext, string option = null, string text = null, string image = null) {
+        public DynamicActionOption(IButtonContext buttonContext, ButtonOption option = null, string text = null, string image = null) {
             ButtonContext = buttonContext;
             Option = option;
             Text = text;
@@ -37,7 +36,7 @@ namespace StreamDeckPlugin.Services {
         /// <summary>
         /// Option to pass to the right click request if this dynamic action is selected
         /// </summary>
-        public string Option { get; }
+        public ButtonOption Option { get; }
 
         /// <summary>
         /// Text to display for the menu
@@ -68,17 +67,24 @@ namespace StreamDeckPlugin.Services {
         void UnregisterAction(DynamicAction dynamicAction);
 
         /// <summary>
-        /// Reveluate all indexes for a card group make sure they are correct, updating the index of dynamic actions that are incorrect
+        /// Using the dynamic action's positional information and state, find the correct dynamic action info
         /// </summary>
-        /// <remarks>This should be called whenever a dynamic action changes its card group</remarks>
-        void ReclaculateIndexes();
+        /// <param name="dynamicAction">Find information for this action</param>
+        /// <returns>Information for the dynamic action</returns>
+        IDynamicActionInfo GetInfoForAction(DynamicAction dynamicAction);
 
         /// <summary>
-        /// If there is more than one option based on this button context, use dynamic actions to display a menu of options, and then publish and event with the chosen option
+        /// Update all actions for a group to make sure they show the proper information
         /// </summary>
-        /// <param name="buttonContext">Button Context used to determine if a menu needs to be shown (more than one option is available)</param>
-        /// <returns>Whether a menu is necessary</returns>
-        bool ShowMenuIfNecessary(IButtonContext buttonContext);
+        /// <param name="buttonMode">Refresh buttons in this card group</param>
+        /// <param name="buttonMode">Refresh buttons in this mode</param>
+        void RefreshAllActions(CardGroupId cardGroupId, ButtonMode buttonMode);
+
+        /// <summary>
+        /// Displays a menu, or executes the action if there is only one
+        /// </summary>
+        /// <param name="dynamicAction">the dynamic action that was pressed to show the menu</param>
+        void ShowMenu(DynamicAction dynamicAction);
 
         /// <summary>
         /// Execute the logic appropriate for the selected option
@@ -90,20 +96,21 @@ namespace StreamDeckPlugin.Services {
     /// <summary>
     /// Keep track of all the dynamic buttons so they can be managed as a group
     /// </summary>
-    public class DynamicActionManager : IDynamicActionManager {
+    public class DynamicActionManager : IDynamicActionManager, IButtonOptionResolver {
         private readonly IList<DynamicAction> _dynamicActions = new List<DynamicAction>();
         private readonly object _dynamicActionsLock = new object();
         private readonly IEventBus _eventBus;
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore;
         private readonly ICardGroupStore _cardGroupStore;
         private readonly IImageService _imageService;
-        private bool _recalculateInProgress = false;
 
         public DynamicActionManager(IEventBus eventBus, IDynamicActionInfoStore dynamicActionInfoStore, ICardGroupStore cardGroupStore, IImageService imageService) {
             _eventBus = eventBus;
             _dynamicActionInfoStore = dynamicActionInfoStore;
             _cardGroupStore = cardGroupStore;
             _imageService = imageService;
+
+            _eventBus.SubscribeToDynamicActionInfoChangedEvent(DynamicActionChanged);
         }
 
         /// <summary>
@@ -119,20 +126,6 @@ namespace StreamDeckPlugin.Services {
 
                 _dynamicActions.Add(dynamicAction);
             }
-
-            //add a delay so we can gather all the information, then display the buttons
-            if (_recalculateInProgress) {
-                return;
-            }
-            _recalculateInProgress = true;
-
-            var delayRecalculateTimer = new Timer(50);
-            delayRecalculateTimer.Elapsed += (s, e) => {
-                delayRecalculateTimer.Enabled = false;
-                _recalculateInProgress = false;
-                ReclaculateIndexes();
-            };
-            delayRecalculateTimer.Enabled = true;
         }
 
         /// <summary>
@@ -147,60 +140,62 @@ namespace StreamDeckPlugin.Services {
         }
 
         /// <summary>
-        /// Reveluate all indexes for a card group make sure they are correct, updating the index of dynamic actions that are incorrect
+        /// Update all actions to make sure they show the proper information
         /// </summary>
-        /// <remarks>This should be called whenever a dynamic action changes its card group</remarks>
-        public void ReclaculateIndexes() {
-            if (_recalculateInProgress) {
-                return;
-            }
-
+        /// <param name="buttonMode">Refresh buttons in this card group</param>
+        /// <param name="buttonMode">Refresh buttons in this mode</param>
+        public void RefreshAllActions(CardGroupId cardGroupId, ButtonMode buttonMode) {
+            IList<DynamicAction> allActions;
             lock (_dynamicActionsLock) {
-                foreach (var cardGroupId in EnumUtil.GetValues<CardGroupId>()) {
-                    var actionsInCardGroup = GetActionsForCardGroup(cardGroupId).ToList();
-
-                    var relativeIndex = 0;
-                    var dynamicActionCount = actionsInCardGroup.Count();
-                    foreach (var action in actionsInCardGroup) {
-                        action.UpdateIndexInformation(relativeIndex++, dynamicActionCount);
-                    }
-                }
+                allActions = _dynamicActions.ToList();
+            }
+            
+            foreach (var action in allActions.Where(x => x.CardGroupId == cardGroupId && x.ButtonMode == buttonMode)) {
+                action.UpdateButtonToNewDynamicAction();
             }
         }
 
         /// <summary>
-        /// Displays a menu if necessary
+        /// Using the dynamic action's positional information and state, find the correct dynamic action info
         /// </summary>
-        /// <param name="buttonContext">Button Context used to determine if a menu needs to be shown (more than one option is available)</param>
-        /// <returns>Whether a menu is necessary</returns>
-        public bool ShowMenuIfNecessary(IButtonContext buttonContext) {
-            var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfo(buttonContext);
-            if (dynamicActionInfo == null || dynamicActionInfo.ButtonOptions.Count <= 1) {
-                return false;
+        /// <param name="dynamicAction">Find information for this action</param>
+        /// <returns>Information for the dynamic action</returns>
+        public IDynamicActionInfo GetInfoForAction(DynamicAction dynamicAction) {
+            return (dynamicAction.ButtonMode == ButtonMode.Pool)
+                ? GetInfoForPoolAction(dynamicAction)
+                : GetZoneInfoForZoneAction(dynamicAction);
+        }
+
+        /// <summary>
+        /// Displays a menu, or executes the action if there is only one
+        /// </summary>
+        /// <param name="dynamicAction">the dynamic action that was pressed to show the menu</param>
+        public void ShowMenu(DynamicAction dynamicAction) {
+            var dynamicActionInfo = GetInfoForAction(dynamicAction);
+            if (dynamicActionInfo == null || dynamicActionInfo.ButtonOptions == null || !dynamicActionInfo.ButtonOptions.Any()) {
+                return;
+            }
+
+            if (dynamicActionInfo.ButtonOptions.Count == 1) {
+                _eventBus.PublishButtonClickRequest(dynamicActionInfo.CardGroupId, dynamicActionInfo.ButtonMode, dynamicActionInfo.ZoneIndex, dynamicActionInfo.Index, MouseButton.Right, dynamicActionInfo.ButtonOptions.First());
+                return;
             }
 
             lock (_dynamicActionsLock) {
                 var options = CreateDynamicActionOptions(dynamicActionInfo);
+                var actions = GetActionsForCardGroup(dynamicActionInfo.CardGroupId).ToList();
+                var menuStartPosition = FindMenuStartPosition(actions, dynamicAction, options.Count);
                 var optionIndex = 0;
-                foreach (var action in GetActionsForCardGroup(buttonContext.CardGroupId)) {
-                    if (optionIndex < options.Count) {
+                foreach (var action in actions) {
+                    if (actions.IndexOf(action) >= menuStartPosition && optionIndex < options.Count) {
                         action.SetOption(options[optionIndex++]);
                         continue;
                     }
 
-                    if (optionIndex == options.Count) {
-                        //show a cancel button
-                        action.SetOption(new DynamicActionOption(buttonContext, string.Empty, "Cancel"));
-                        optionIndex++;
-                        continue;
-                    }
-
                     //show a blank screen (these buttons will still cancel)
-                    action.SetOption(new DynamicActionOption(buttonContext));
+                    action.SetOption(new DynamicActionOption(dynamicActionInfo));
                 }
             }
-
-            return true;
         }
 
         /// <summary>
@@ -218,11 +213,47 @@ namespace StreamDeckPlugin.Services {
             }
 
             var option = dynamicActionOption.Option;
-            if (string.IsNullOrEmpty(option)) {
+            if (option == null) {
                 return;
             }
 
-            _eventBus.PublishButtonClickRequest(buttonContext.CardGroupId, buttonContext.ButtonMode, buttonContext.Index, MouseButton.Right, option);
+            _eventBus.PublishButtonClickRequest(buttonContext.CardGroupId, buttonContext.ButtonMode, buttonContext.ZoneIndex, buttonContext.Index, MouseButton.Right, option);
+        }
+
+        /// <summary>
+        /// Whenver a dynamic action changes, find it ant notify it to update
+        /// </summary>
+        /// <param name="dynamicActionInfoChangedEvent"></param>
+        private void DynamicActionChanged(DynamicActionInfoChangedEvent eventData) {
+            if (eventData.DynamicActionInfo.ButtonMode == ButtonMode.Pool) {
+                PoolDynamicActionChanged(eventData.DynamicActionInfo);
+                return;
+            }
+
+            //if a zone button has changed and we are showing zones, just refresh everything, as often other buttons have to shift
+            RefreshAllActions(eventData.DynamicActionInfo.CardGroupId, ButtonMode.Zone);
+        }
+
+        /// <summary>
+        /// A pool card button has changed for a card in the pool, so update the dynamic action accordingly
+        /// </summary>
+        /// <param name="dynamicActionInfo">Info for the action that has changed</param>
+        private void PoolDynamicActionChanged(IDynamicActionInfo dynamicActionInfo) {
+            IList<DynamicAction> actions;
+            lock (_dynamicActionsLock) {
+                actions = GetActionsForCardGroup(dynamicActionInfo.CardGroupId).ToList();
+            }
+
+            var actionsPerPage = actions.Count;
+            if (actionsPerPage == 0) {
+                return;
+            }
+
+            var actionIndex = dynamicActionInfo.Index % actionsPerPage;
+            var actionToUpdate = actions[actionIndex];
+            if (actionToUpdate.ButtonMode == ButtonMode.Pool) {
+                actions[actionIndex].UpdateButtonToNewDynamicAction(dynamicActionInfo);
+            }
         }
 
         /// <summary>
@@ -240,8 +271,23 @@ namespace StreamDeckPlugin.Services {
 
                 options.Add(option);
             }
-
+            options.Add(new DynamicActionOption(dynamicActionInfo, null, "Cancel"));
             return options;
+        }
+
+        /// <summary>
+        /// Find a comfortable place to put the menu
+        /// </summary>
+        /// <param name="actions">list of actions in which to etermine the best starting position of the menu</param>
+        /// <param name="dynamicAction">action that initiated the menu (where the user's finger currently is)</param>
+        /// <param name="menuLength">number of items in the menu</param>
+        /// <returns>Best start position for menu</returns>
+        private int FindMenuStartPosition(IList<DynamicAction> actions, DynamicAction dynamicAction, int menuLength) {
+            var actionPosition = actions.IndexOf(dynamicAction);
+            var beginningOfRow = actions.IndexOf(actions.First(x => x.PhysicalRow == dynamicAction.PhysicalRow));
+            var endOfRow = actions.IndexOf(actions.Last(x => x.PhysicalRow == dynamicAction.PhysicalRow));
+
+            return Math.Max(beginningOfRow, Math.Min(actionPosition, endOfRow - menuLength + 1));
         }
 
         /// <summary>
@@ -251,29 +297,14 @@ namespace StreamDeckPlugin.Services {
         /// <param name="buttonContext">The button context that is the source of the menu</param>
         /// <returns>A Dynamic action option with resovled text and possibly an image, if appicable</returns>
         private DynamicActionOption CreateDynamicActionOption(ButtonOption buttonOption, IButtonContext buttonContext) {
-            var image = string.Empty;
-            
-            var text = buttonOption.GetTextResolvingPlaceholders(placeholder => {
-                if (Enum.TryParse(placeholder, out CardGroupId cardGroupId)) {
-                    var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
-                    if (cardGroupInfo == default(ICardGroupInfo)) {
-                        return null;
-                    }
-
-                    //if this is a card group, grab the image name and assign it to this button
-                    image = _imageService.GetImage(cardGroupInfo.ImageId);
-                    
-                    return cardGroupInfo.Name;
-                }
-
-                return null;
-            });
-
+            var text = buttonOption.GetText(this);
             if (string.IsNullOrEmpty(text)) {
                 return default;
             }
 
-            return new DynamicActionOption(buttonContext, buttonOption.Option, text, image);
+            var image = _imageService.GetImage(buttonOption.GetImageId(this));
+
+            return new DynamicActionOption(buttonContext, buttonOption, text, image);
         }
 
         /// <summary>
@@ -286,6 +317,150 @@ namespace StreamDeckPlugin.Services {
                    where dynamicAction.CardGroupId == cardGroupId
                    orderby dynamicAction.PhysicalIndex
                    select dynamicAction;
+        }
+
+        /// <summary>
+        /// Get dynamic action info for a pool action based on its card group and position
+        /// </summary>
+        /// <param name="dynamicAction">Find information for this action</param>
+        /// <returns>Information for the dynamic action</returns>
+        private IDynamicActionInfo GetInfoForPoolAction(DynamicAction dynamicAction) {
+            IList<DynamicAction> actions;
+            lock (_dynamicActionsLock) {
+                actions = GetActionsForCardGroup(dynamicAction.CardGroupId).ToList();
+            }
+
+            var relativeIndex = actions.IndexOf(dynamicAction);
+            var actionsPerPage = actions.Count;
+            var index = dynamicAction.Page * actionsPerPage + relativeIndex;
+
+            var dynamicActionInfo = _dynamicActionInfoStore.GetDynamicActionInfoForGroup(dynamicAction.CardGroupId)
+                                        .FirstOrDefault(x => x.ButtonMode == ButtonMode.Pool && x.Index == index);
+
+            return dynamicActionInfo;
+        }
+
+        /// <summary>
+        /// Get dynamic action info for a zone action based on its card group and position
+        /// </summary>
+        /// <param name="dynamicAction">Find information for this action</param>
+        /// <returns>Information for the dynamic action</returns>
+        private IDynamicActionInfo GetZoneInfoForZoneAction(DynamicAction dynamicAction) {
+            IList<DynamicAction> actions;
+            lock (_dynamicActionsLock) {
+                actions = GetActionsForCardGroup(dynamicAction.CardGroupId).ToList();
+            }
+
+            var actionsPerPage = actions.Count;
+            var relativeIndex = actions.IndexOf(dynamicAction);
+            var pagedRelativeIndex = dynamicAction.Page * actionsPerPage + relativeIndex;
+
+            var dynamicActionInfoList = (from info in _dynamicActionInfoStore.GetDynamicActionInfoForGroup(dynamicAction.CardGroupId)
+                                         where info.ButtonMode == ButtonMode.Zone
+                                         orderby info.ZoneIndex, info.Index
+                                         select info).ToList();
+
+            var actionIndex = 0;
+            var lastZoneIndex = 0;
+            var lastIndex = 0;
+
+            foreach (var actionInfo in dynamicActionInfoList) {
+                if (actionInfo.ZoneIndex > lastZoneIndex) {
+                    //we need to find the next physical row
+                    actionIndex = FindIndexOfNextPhysicalRow(actions, actionIndex);
+                    actionIndex += actionInfo.Index;
+                } else {
+                    //move to the next action index
+                    actionIndex += actionInfo.Index - lastIndex;
+                }
+
+                if (actionIndex == pagedRelativeIndex) {
+                    //we found it
+                    return actionInfo;
+                }
+
+                //there is no action info for this button, since we keep some buttons blank in between zones
+                if (actionIndex > pagedRelativeIndex) {
+                    return default;
+                }
+
+                lastZoneIndex = actionInfo.ZoneIndex;
+                lastIndex = actionInfo.Index;
+            }
+
+            //if we ran through all the info and haven't gotten here, return null, but request the info
+            //_eventBus.PublishGetButtonInfoRequest(dynamicAction.CardGroupId, ButtonMode.Zone, zoneIndex, index);
+            return default;
+        }
+
+        /// <summary>
+        /// Find the index of the next row of actions
+        /// </summary>
+        /// <param name="actions">Find the next row in this list of actions</param>
+        /// <param name="startingIndex">Find the next row after the row of the action at this index</param>
+        /// <returns>Index of the new row</returns>
+        private int FindIndexOfNextPhysicalRow(IList<DynamicAction> actions, int startingIndex) {
+            var index = startingIndex;
+            var row = actions[index].PhysicalRow;
+            var lastColumn = actions[index].PhysicalColumn;
+            while (index < actions.Count) {
+                if (actions[index].PhysicalRow != row) {
+                    //the row changed- we are on a new row
+                    return index;
+                }
+
+                if (actions[index].PhysicalColumn < lastColumn) {
+                    //the column moved back, which means we switched to a new page on the same row
+                    return index;
+                }
+
+                lastColumn = actions[index].PhysicalColumn;
+                index++;
+            }
+            return actions.Count;
+        }
+
+        /// <summary>
+        /// Used by button option to get a name for the card group when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group to resolve</param>
+        /// <returns>The name of the card group</returns>
+        string IButtonOptionResolver.GetCardGroupName(CardGroupId cardGroupId) {
+            var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
+            return cardGroupInfo.Name;
+        }
+
+        /// <summary>
+        /// Used by button option to get a name for the card zone when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group of the card zone</param>
+        /// <param name="zoneIndex">Zone to resolve</param>
+        /// <returns>Name of the zone</returns>
+        string IButtonOptionResolver.GetCardZoneName(CardGroupId cardGroupId, int zoneIndex) {
+            var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
+            if (cardGroupInfo == default) {
+                return string.Empty;
+            }
+
+            if (zoneIndex >= cardGroupInfo.Zones.Count) {
+                return string.Empty;
+            }
+
+            return cardGroupInfo.Zones[zoneIndex];
+        }
+
+        /// <summary>
+        /// Used by button option to get the image ID for a button when displaying an option
+        /// </summary>
+        /// <param name="cardGroupId">Card group of the card zone</param>
+        /// <param name="zoneIndex">Zone to resolve</param>
+        /// <returns>Image Id for the card group</returns>
+        string IButtonOptionResolver.GetImageId(CardGroupId cardGroupId, int zoneIndex) {
+            var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(cardGroupId);
+            if (cardGroupInfo != default) {
+                return cardGroupInfo.ImageId;
+            }
+            return string.Empty;
         }
     }
 }

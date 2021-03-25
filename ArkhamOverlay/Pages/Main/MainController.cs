@@ -95,8 +95,8 @@ namespace ArkhamOverlay.Pages.Main {
             if (controller == null) {
                 controller = _controllerFactory.CreateController<SelectCardsController>();
                 controller.CardGroup = cardGroup;
-                controller.Left = startingPosition.X == 0 ? left : startingPosition.X;
-                controller.Top = startingPosition.Y == 0 ? top : startingPosition.Y;
+                controller.Left = startingPosition.X <= 0 ? left : startingPosition.X;
+                controller.Top = startingPosition.Y <= 0 ? top : startingPosition.Y;
                 controller.Width = width;
 
                 controller.Closed += () => {

@@ -71,7 +71,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             _logger.LogMessage($"Hiding {_currentlyDisplayedCardZone.Name} in overlay.");
-            _eventBus.PublishCardZoneVisibilityToggled(_currentlyDisplayedCardZone, false);
+            _currentlyDisplayedCardZone.IsDisplayedOnOverlay = false;
             _currentlyDisplayedCardZone = null;
 
             _overlayCards.RemoveOverlayCards(_overlayCards.ToArray());
@@ -95,7 +95,7 @@ namespace ArkhamOverlay.Pages.Overlay {
             }
 
             _currentlyDisplayedCardZone = cardZone;
-            _eventBus.PublishCardZoneVisibilityToggled(_currentlyDisplayedCardZone, true);
+            _currentlyDisplayedCardZone.IsDisplayedOnOverlay = true;
         }
 
         private void AddCard(CardZone cardZone, ICard card) {
