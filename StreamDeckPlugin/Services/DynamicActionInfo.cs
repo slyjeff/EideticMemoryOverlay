@@ -1,6 +1,6 @@
-﻿using ArkhamOverlay.Common;
-using ArkhamOverlay.Common.Enums;
-using ArkhamOverlay.Common.Utils;
+﻿using Emo.Common;
+using Emo.Common.Enums;
+using Emo.Common.Utils;
 using System.Collections.Generic;
 using System.Linq;
 

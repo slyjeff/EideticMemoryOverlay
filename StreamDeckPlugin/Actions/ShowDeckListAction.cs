@@ -1,8 +1,8 @@
-﻿using ArkhamOverlay.Common;
-using ArkhamOverlay.Common.Enums;
-using ArkhamOverlay.Common.Events;
-using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Utils;
+﻿using Emo.Common;
+using Emo.Common.Enums;
+using Emo.Common.Events;
+using Emo.Common.Services;
+using Emo.Common.Utils;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;

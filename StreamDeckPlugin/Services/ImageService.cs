@@ -1,6 +1,6 @@
-﻿using ArkhamOverlay.Common.Enums;
-using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Utils;
+﻿using Emo.Common.Enums;
+using Emo.Common.Services;
+using Emo.Common.Utils;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Utils;
 using System;

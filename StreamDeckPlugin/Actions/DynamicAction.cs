@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
-using ArkhamOverlay.Common.Enums;
-using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Utils;
-using ArkhamOverlay.Events;
+using Emo.Common.Enums;
+using Emo.Common.Services;
+using Emo.Common.Utils;
+using Emo.Events;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;

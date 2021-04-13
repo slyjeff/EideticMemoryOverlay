@@ -1,4 +1,4 @@
-﻿using ArkhamOverlay.Common.Enums;
+﻿using Emo.Common.Enums;
 using SharpDeck;
 using SharpDeck.Manifest;
 

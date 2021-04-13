@@ -2,10 +2,10 @@
 using System;
 using System.Net.Sockets;
 using System.Text;
-using ArkhamOverlay.Common.Tcp;
-using ArkhamOverlay.Common.Tcp.Requests;
-using ArkhamOverlay.Common.Tcp.Responses;
-using ArkhamOverlay.Common.Services;
+using Emo.Common.Tcp;
+using Emo.Common.Tcp.Requests;
+using Emo.Common.Tcp.Responses;
+using Emo.Common.Services;
 
 namespace StreamDeckPlugin.Utils {
     public interface ITcpRequestHandler : IRequestHandler {

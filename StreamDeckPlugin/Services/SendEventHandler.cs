@@ -1,9 +1,8 @@
-﻿using ArkhamOverlay.Common.Enums;
-using ArkhamOverlay.Common.Events;
-using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Tcp;
-using ArkhamOverlay.Common.Tcp.Requests;
-using ArkhamOverlay.Common.Tcp.Responses;
+﻿using Emo.Common.Events;
+using Emo.Common.Services;
+using Emo.Common.Tcp;
+using Emo.Common.Tcp.Requests;
+using Emo.Common.Tcp.Responses;
 using Newtonsoft.Json;
 using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Utils;
@@ -36,7 +35,7 @@ namespace StreamDeckPlugin.Services {
         }
 
         private string SendRequest(Request request) {
-            return SendSocketService.SendRequest(request, TcpInfo.ArkhamOverlayPort);
+            return SendSocketService.SendRequest(request, TcpInfo.EmoPort);
         }
 
         private T SendRequest<T>(Request request) where T : Response {
@@ -101,7 +100,7 @@ namespace StreamDeckPlugin.Services {
         }
 
         private void ChangeStatValue(Events.ChangeStatValueRequest changeStatValueRequest) {
-            var response = SendRequest<StatValueResponse>(new ArkhamOverlay.Common.Tcp.Requests.ChangeStatValueRequest { Deck = changeStatValueRequest.Deck, StatType = changeStatValueRequest.StatType, Increase = changeStatValueRequest.Increase });
+            var response = SendRequest<StatValueResponse>(new Emo.Common.Tcp.Requests.ChangeStatValueRequest { Deck = changeStatValueRequest.Deck, StatType = changeStatValueRequest.StatType, Increase = changeStatValueRequest.Increase });
             if (response == null) {
                 return;
             }

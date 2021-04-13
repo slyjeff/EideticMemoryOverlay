@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Utils;
+using Emo.Common.Services;
+using Emo.Common.Utils;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
