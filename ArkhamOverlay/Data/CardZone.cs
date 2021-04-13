@@ -93,9 +93,14 @@ namespace ArkhamOverlay.Data {
         /// <param name="options">Options this button should offer on a right click</param>
         private void AddButton(CardImageButton button, IEnumerable<ButtonOption> options) {
             //if there's an act and this is an agenda, always add it to the left
-            var index = Buttons.Count();
+            var index = Buttons.Count;
             if (button.CardInfo.Type == CardType.Agenda && CardButtons.Any(x => x.CardInfo.Type == CardType.Act)) {
                 index = Buttons.IndexOf(CardButtons.First(x => x.CardInfo.Type == CardType.Act));
+            } else {
+                var buttonToInsertBefore = CardButtons.FirstOrDefault(x => string.Compare(x.CardInfo.Name.Replace("\"", ""), button.CardInfo.Name.Replace("\"", "")) >= 0);
+                if (buttonToInsertBefore != default(CardButton)) {
+                    index = Buttons.IndexOf(buttonToInsertBefore);
+                }
             }
 
             var newButton = new CardButton(button);
