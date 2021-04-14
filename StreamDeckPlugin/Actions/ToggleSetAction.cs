@@ -8,7 +8,7 @@ using StreamDeckPlugin.Events;
 using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
-    [StreamDeckAction("Toggle Set", "arkhamoverlay.toggleset")]
+    [StreamDeckAction("Toggle Set", "emo.toggleset")]
     public class ToggleSetAction : StreamDeckAction {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
 

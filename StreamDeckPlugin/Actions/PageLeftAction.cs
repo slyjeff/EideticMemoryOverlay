@@ -7,7 +7,7 @@ using SharpDeck.Manifest;
 using StreamDeckPlugin.Events;
 
 namespace StreamDeckPlugin.Actions {
-    [StreamDeckAction("Page Left", "arkhamoverlay.pageleft")]
+    [StreamDeckAction("Page Left", "emo.pageleft")]
     public class PageLeftAction : StreamDeckAction {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
 

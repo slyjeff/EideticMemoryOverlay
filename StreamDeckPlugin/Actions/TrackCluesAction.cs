@@ -4,7 +4,7 @@ using SharpDeck.Manifest;
 
 namespace StreamDeckPlugin.Actions {
 
-    [StreamDeckAction("Track Clues", "arkhamoverlay.trackclues")]
+    [StreamDeckAction("Track Clues", "emo.trackclues")]
     public class TrackCluesAction : TrackStatAction {
         public TrackCluesAction() : base(StatType.Clues) {
 

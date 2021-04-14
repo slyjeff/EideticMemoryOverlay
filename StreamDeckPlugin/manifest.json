@@ -1,11 +1,11 @@
 ﻿{
-    "Name": "Arkham Overlay",
+    "Name": "Eidetic Memory Overlay",
     "Version": "1.0.0",
     "Author": "Jeff Sylvester",
     "Actions": [
         {
             "Name": "Take Snapshot",
-            "UUID": "arkhamoverlay.takesnapshot",
+            "UUID": "emo.takesnapshot",
             "Tooltip": "Take Snapshot",
             "States": [
                 {
@@ -17,8 +17,8 @@
         },
         {
             "Name": "Clear Cards",
-            "UUID": "arkhamoverlay.clearcards",
-            "Tooltip": "Clear All Card From Arkham Overlay",
+            "UUID": "emo.clearcards",
+            "Tooltip": "Clear All Card From Eidetic Memory Overlay",
             "States": [
                 {
                     "FontSize": "9",
@@ -29,7 +29,7 @@
         },
         {
             "Name": "Show Deck List",
-            "UUID": "arkhamoverlay.showdecklist",
+            "UUID": "emo.showdecklist",
             "Tooltip": "Show or Hide the Deck List",
             "States": [
                 {
@@ -42,7 +42,7 @@
         },
         {
             "Name": "Track Health",
-            "UUID": "arkhamoverlay.trackhealth",
+            "UUID": "emo.trackhealth",
             "Tooltip": "Add Or Subtract Health Values",
             "States": [
                 {
@@ -55,7 +55,7 @@
         },
         {
             "Name": "Track Sanity",
-            "UUID": "arkhamoverlay.tracksanity",
+            "UUID": "emo.tracksanity",
             "Tooltip": "Add Or Subtract Sanity Values",
             "States": [
                 {
@@ -68,7 +68,7 @@
         },
         {
             "Name": "Track Resources",
-            "UUID": "arkhamoverlay.trackresources",
+            "UUID": "emo.trackresources",
             "Tooltip": "Add Or Subtract Resource Values",
             "States": [
                 {
@@ -81,7 +81,7 @@
         },
         {
             "Name": "Track Clues",
-            "UUID": "arkhamoverlay.trackclues",
+            "UUID": "emo.trackclues",
             "Tooltip": "Add Or Subtract Clues Values",
             "States": [
                 {
@@ -94,7 +94,7 @@
         },
         {
             "Name": "Toggle Act/Agenda Bar",
-            "UUID": "arkhamoverlay.toggleactagendabar",
+            "UUID": "emo.toggleactagendabar",
             "Tooltip": "Show or Hide the Act/Agenda Bar",
             "States": [
                 {
@@ -113,7 +113,7 @@
         },
         {
             "Name": "Dynamic Action",
-            "UUID": "arkhamoverlay.dynamicaction",
+            "UUID": "emo.dynamicaction",
             "Tooltip": "Take the contextual action based on grid location and deck",
             "States": [
                 {
@@ -125,7 +125,7 @@
         },
         {
             "Name": "Toggle Set",
-            "UUID": "arkhamoverlay.toggleset",
+            "UUID": "emo.toggleset",
             "Tooltip": "Toggle Hand",
             "States": [
                 {
@@ -137,7 +137,7 @@
         },
         {
             "Name": "Page Right",
-            "UUID": "arkhamoverlay.pageright",
+            "UUID": "emo.pageright",
             "Tooltip": "Display the next set of card buttons",
             "States": [
                 {
@@ -149,7 +149,7 @@
         },
         {
             "Name": "Page Left",
-            "UUID": "arkhamoverlay.pageleft",
+            "UUID": "emo.pageleft",
             "Tooltip": "Display the previouus set of card buttons",
             "States": [
                 {
@@ -160,10 +160,10 @@
             ]
         }
     ],
-    "Category": "Arkham Overlay",
-    "CodePath": "ArkahmOverlayPlugin.exe",
+    "Category": "Eidetic Memeory Overlay",
+    "CodePath": "EideticMemoryOverlayPlugin.exe",
     "PropertyInspectorPath": "index.html",                         
-    "Description": "Plugin for Arkham Overlay for Displaying Cards",
+    "Description": "Plugin for Eidetic Memory Overlay for Displaying Cards",
     "SDKVersion": 2,
     "Software": {
         "MinimumVersion": "4.1"

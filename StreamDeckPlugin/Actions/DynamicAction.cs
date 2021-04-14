@@ -14,7 +14,7 @@ using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
-    [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
+    [StreamDeckAction("Dynamic Action", "emo.dynamicaction")]
     public class DynamicAction : StreamDeckAction<ActionWithDeckSettings> {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore = ServiceLocator.GetService<IDynamicActionInfoStore>();
         private readonly IDynamicActionManager _dynamicActionManager = ServiceLocator.GetService<IDynamicActionManager>();

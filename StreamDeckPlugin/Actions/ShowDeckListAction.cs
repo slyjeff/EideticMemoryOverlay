@@ -16,7 +16,7 @@ namespace StreamDeckPlugin.Actions {
         public string Deck { get; set; }
     }
 
-    [StreamDeckAction("Show Deck List", "arkhamoverlay.showdecklist")]
+    [StreamDeckAction("Show Deck List", "emo.showdecklist")]
     public class ShowDeckListAction : StreamDeckAction {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private ActionWithDeckSettings _settings = new ActionWithDeckSettings();
