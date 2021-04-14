@@ -160,7 +160,7 @@ namespace Emo.Pages.Main {
             var dialog = new SaveFileDialog {
                 FileName = fileName,
                 DefaultExt = "aho",
-                Filter = "Arkham Horror Overlay (*.aho)|*.aho",
+                Filter = "Eidetic Memory Overlay (*.emo)|*.emo",
                 InitialDirectory = string.IsNullOrEmpty(directory) ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) : directory
             };
 

@@ -7,7 +7,7 @@
         xmlns:utils="clr-namespace:Emo.Utils"
         d:DataContext="{d:DesignInstance Type=overlay:OverlayViewModel}"
         mc:Ignorable="d"
-        Title="Arkham Overlay"
+        Title="Eidetic Memory Overlay"
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
         Left = "10"

@@ -12,7 +12,7 @@ namespace Emo.Services {
         public LoggingService() {
             var config = new LoggingConfiguration();
 
-            var logfileName = $"ArkhamOverlayLog_{DateTime.Now:yyyymmddhhmm}.txt";
+            var logfileName = $"EideticMemoryOverlayLog_{DateTime.Now:yyyymmddhhmm}.txt";
 
             // Targets where to log to: File
             var logfile = new FileTarget("logfile") { FileName = Path.GetTempPath() + logfileName };
