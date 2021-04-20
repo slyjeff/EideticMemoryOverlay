@@ -41,7 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Gloomhaven.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\EideticMemoryOverlay.GameApi\EideticMemoryOverlay.GameApi.csproj">
+      <Project>{2e8cfd71-810f-4587-a298-7069ddf14cd0}</Project>
+      <Name>EideticMemoryOverlay.GameApi</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
