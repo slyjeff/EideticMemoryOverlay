@@ -159,7 +159,7 @@ namespace Emo.Pages.Main {
 
             var dialog = new SaveFileDialog {
                 FileName = fileName,
-                DefaultExt = "aho",
+                DefaultExt = "emo",
                 Filter = "Eidetic Memory Overlay (*.emo)|*.emo",
                 InitialDirectory = string.IsNullOrEmpty(directory) ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) : directory
             };
@@ -180,8 +180,8 @@ namespace Emo.Pages.Main {
         public void LoadGame() {
             _logger.LogMessage("Main window: load game clicked.");
             var dialog = new OpenFileDialog {
-                DefaultExt = "aho",
-                Filter = "Arkham Horror Overlay (*.aho)|*.aho",
+                DefaultExt = "emo",
+                Filter = "Eidetic Memory Overlay (*.emo)|*.emo",
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             };
 
