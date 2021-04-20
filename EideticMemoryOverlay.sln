@@ -14,6 +14,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EideticMemoryOverlay.Common
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamDeckPlugin", "StreamDeckPlugin\StreamDeckPlugin.csproj", "{85A2BCC3-19C4-4D60-BEC5-BF4E922DCCCD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EideticMemoryOverlay.GameApi", "EideticMemoryOverlay.GameApi\EideticMemoryOverlay.GameApi.csproj", "{2E8CFD71-810F-4587-A298-7069DDF14CD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArkhamHorrorLcg", "Games\ArkhamHorrorLcg\ArkhamHorrorLcg.csproj", "{E83FF8B8-A2B2-4A4B-B292-8384D579A6D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarvelChampionsLcg", "Games\MarvelChampionsLcg\MarvelChampionsLcg.csproj", "{46F8951B-FD81-4708-8D70-8F4D4BD8A0CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gloomhaven", "Games\Gloomhaven\Gloomhaven.csproj", "{56A9AE92-64FF-49BD-8053-FE0470803888}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{3C46EC18-7BC7-44E8-878E-59E477463A27}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,9 +42,30 @@ Global
 		{85A2BCC3-19C4-4D60-BEC5-BF4E922DCCCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85A2BCC3-19C4-4D60-BEC5-BF4E922DCCCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85A2BCC3-19C4-4D60-BEC5-BF4E922DCCCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E8CFD71-810F-4587-A298-7069DDF14CD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E8CFD71-810F-4587-A298-7069DDF14CD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E8CFD71-810F-4587-A298-7069DDF14CD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E8CFD71-810F-4587-A298-7069DDF14CD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E83FF8B8-A2B2-4A4B-B292-8384D579A6D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E83FF8B8-A2B2-4A4B-B292-8384D579A6D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E83FF8B8-A2B2-4A4B-B292-8384D579A6D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E83FF8B8-A2B2-4A4B-B292-8384D579A6D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46F8951B-FD81-4708-8D70-8F4D4BD8A0CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46F8951B-FD81-4708-8D70-8F4D4BD8A0CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46F8951B-FD81-4708-8D70-8F4D4BD8A0CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46F8951B-FD81-4708-8D70-8F4D4BD8A0CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56A9AE92-64FF-49BD-8053-FE0470803888}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56A9AE92-64FF-49BD-8053-FE0470803888}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56A9AE92-64FF-49BD-8053-FE0470803888}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56A9AE92-64FF-49BD-8053-FE0470803888}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E83FF8B8-A2B2-4A4B-B292-8384D579A6D6} = {3C46EC18-7BC7-44E8-878E-59E477463A27}
+		{46F8951B-FD81-4708-8D70-8F4D4BD8A0CA} = {3C46EC18-7BC7-44E8-878E-59E477463A27}
+		{56A9AE92-64FF-49BD-8053-FE0470803888} = {3C46EC18-7BC7-44E8-878E-59E477463A27}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {80CF360C-CA10-4757-8809-5BB1DB024542}
