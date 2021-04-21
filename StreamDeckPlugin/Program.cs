@@ -1,6 +1,6 @@
-﻿using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Tcp;
-using ArkhamOverlay.Common.Utils;
+﻿using Emo.Common.Services;
+using Emo.Common.Tcp;
+using Emo.Common.Utils;
 using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 

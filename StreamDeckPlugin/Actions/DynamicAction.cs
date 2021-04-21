@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
-using ArkhamOverlay.Common.Enums;
-using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Utils;
-using ArkhamOverlay.Events;
+using Emo.Common.Enums;
+using Emo.Common.Services;
+using Emo.Common.Utils;
+using Emo.Events;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
@@ -14,7 +14,7 @@ using StreamDeckPlugin.Services;
 using StreamDeckPlugin.Utils;
 
 namespace StreamDeckPlugin.Actions {
-    [StreamDeckAction("Dynamic Action", "arkhamoverlay.dynamicaction")]
+    [StreamDeckAction("Dynamic Action", "emo.dynamicaction")]
     public class DynamicAction : StreamDeckAction<ActionWithDeckSettings> {
         private readonly IDynamicActionInfoStore _dynamicActionInfoStore = ServiceLocator.GetService<IDynamicActionInfoStore>();
         private readonly IDynamicActionManager _dynamicActionManager = ServiceLocator.GetService<IDynamicActionManager>();

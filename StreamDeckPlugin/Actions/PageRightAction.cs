@@ -1,13 +1,13 @@
 ﻿using System.Threading.Tasks;
-using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Utils;
+using Emo.Common.Services;
+using Emo.Common.Utils;
 using SharpDeck;
 using SharpDeck.Events.Received;
 using SharpDeck.Manifest;
 using StreamDeckPlugin.Events;
 
 namespace StreamDeckPlugin.Actions {
-    [StreamDeckAction("Page Right", "arkhamoverlay.pageright")]
+    [StreamDeckAction("Page Right", "emo.pageright")]
     public class PageRightAction : StreamDeckAction {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
 

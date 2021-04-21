@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{85A2BCC3-19C4-4D60-BEC5-BF4E922DCCCD}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>StreamDeckPlugin</RootNamespace>
-    <AssemblyName>ArkahmOverlayPlugin</AssemblyName>
+    <RootNamespace>EmoPlugin</RootNamespace>
+    <AssemblyName>EideticMemoryOverlayPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -221,9 +221,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ArkhamOverlay.Common\ArkhamOverlay.Common.csproj">
+    <ProjectReference Include="..\EideticMemoryOverlay.Common\EideticMemoryOverlay.Common.csproj">
       <Project>{434089c6-fa67-438d-8704-dab3e626eb10}</Project>
-      <Name>ArkhamOverlay.Common</Name>
+      <Name>EideticMemoryOverlay.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

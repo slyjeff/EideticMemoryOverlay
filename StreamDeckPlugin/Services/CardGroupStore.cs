@@ -1,7 +1,7 @@
-﻿using ArkhamOverlay.Common;
-using ArkhamOverlay.Common.Enums;
-using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Events;
+﻿using Emo.Common;
+using Emo.Common.Enums;
+using Emo.Common.Services;
+using Emo.Events;
 using StreamDeckPlugin.Events;
 using System.Collections.Generic;
 using System.Linq;

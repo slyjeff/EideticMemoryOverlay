@@ -1,8 +1,8 @@
-﻿using ArkhamOverlay.Common;
-using ArkhamOverlay.Common.Enums;
-using ArkhamOverlay.Common.Events;
-using ArkhamOverlay.Common.Services;
-using ArkhamOverlay.Common.Utils;
+﻿using Emo.Common;
+using Emo.Common.Enums;
+using Emo.Common.Events;
+using Emo.Common.Services;
+using Emo.Common.Utils;
 using Newtonsoft.Json.Linq;
 using SharpDeck;
 using SharpDeck.Events.Received;
@@ -16,7 +16,7 @@ namespace StreamDeckPlugin.Actions {
         public string Deck { get; set; }
     }
 
-    [StreamDeckAction("Show Deck List", "arkhamoverlay.showdecklist")]
+    [StreamDeckAction("Show Deck List", "emo.showdecklist")]
     public class ShowDeckListAction : StreamDeckAction {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private ActionWithDeckSettings _settings = new ActionWithDeckSettings();

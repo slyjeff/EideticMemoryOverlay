@@ -1,4 +1,4 @@
-﻿using ArkhamOverlay.Common.Services;
+﻿using Emo.Common.Services;
 using StreamDeckPlugin.Services;
 using System;
 
