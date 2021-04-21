@@ -1,4 +1,5 @@
-﻿using Emo.CardButtons;
+﻿using EideticMemoryOverlay.PluginApi;
+using Emo.CardButtons;
 using Emo.Common.Enums;
 using Emo.Common.Services;
 using Emo.Common.Utils;
@@ -14,10 +15,12 @@ namespace Emo.Data {
     public class Game : ViewModel, IGame {
         private readonly IEventBus _eventBus;
         private readonly LoggingService _logger;
+        private readonly IList<IPlugin> _plugins;
 
-        public Game(IEventBus eventBus, LoggingService logger) {
+        public Game(IEventBus eventBus, IPluginService pluginService, LoggingService logger) {
             _eventBus = eventBus;
-            _logger = logger; 
+            _logger = logger;
+            _plugins = pluginService.LoadPlugins();
 
             Players = new List<Player> { new Player(CardGroupId.Player1), new Player(CardGroupId.Player2), new Player(CardGroupId.Player3), new Player(CardGroupId.Player4) };
             EncounterSets = new List<EncounterSet>();

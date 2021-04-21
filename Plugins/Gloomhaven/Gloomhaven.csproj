@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E83FF8B8-A2B2-4A4B-B292-8384D579A6D6}</ProjectGuid>
+    <ProjectGuid>{56A9AE92-64FF-49BD-8053-FE0470803888}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ArkhamHorrorLcg</RootNamespace>
-    <AssemblyName>ArkhamHorrorLcg</AssemblyName>
+    <RootNamespace>Gloomhaven</RootNamespace>
+    <AssemblyName>EmoPlugin.Gloomhaven</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -41,13 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArkhamHorrorLcg.cs" />
+    <Compile Include="Gloomhaven.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\EideticMemoryOverlay.GameApi\EideticMemoryOverlay.GameApi.csproj">
+    <ProjectReference Include="..\..\EideticMemoryOverlay.PluginApi\EideticMemoryOverlay.PluginApi.csproj">
       <Project>{2e8cfd71-810f-4587-a298-7069ddf14cd0}</Project>
-      <Name>EideticMemoryOverlay.GameApi</Name>
+      <Name>EideticMemoryOverlay.PluginApi</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
