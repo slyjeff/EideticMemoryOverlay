@@ -1,5 +1,4 @@
-﻿using CommonServiceLocator;
-using EideticMemoryOverlay.PluginApi;
+﻿using EideticMemoryOverlay.PluginApi;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,10 +19,10 @@ namespace Emo.Services {
 
         public IList<IPlugin> LoadPlugins() {
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var gameAssemblies = Directory.GetFiles(directory, "EmoPlugin*.dll");
+            var pluginAssemblies = Directory.GetFiles(directory, "EmoPlugin*.dll");
             var plugins = new List<IPlugin>();
             var iPluginType = typeof(IPlugin);
-            foreach (var assemblyName in gameAssemblies) {
+            foreach (var assemblyName in pluginAssemblies) {
                 try {
                     var assembly = Assembly.LoadFile(assemblyName);
                     if (assembly == default) {
@@ -35,9 +34,8 @@ namespace Emo.Services {
                         plugins.Add((IPlugin)Activator.CreateInstance(pluginType));
                     }
                 } catch (Exception e) {
-                    _logger.LogException(e, $"Error loading game assembly {assemblyName}");
+                    _logger.LogException(e, $"Error loading plugin assembly {assemblyName}");
                 }
-
             }
 
             return plugins;
