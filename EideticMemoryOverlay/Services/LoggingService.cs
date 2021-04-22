@@ -1,11 +1,12 @@
-﻿using NLog;
+﻿using EideticMemoryOverlay.PluginApi;
+using NLog;
 using NLog.Config;
 using NLog.Targets;
 using System;
 using System.IO;
 
 namespace Emo.Services {
-    public class LoggingService {
+    public class LoggingService : ILoggingService {
         private const string _LOG_NAME = "overlayLog";
         private readonly Logger _logger;
 

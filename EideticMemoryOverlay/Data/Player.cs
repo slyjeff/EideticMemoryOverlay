@@ -1,5 +1,4 @@
 ﻿using Emo.Common.Enums;
-using Emo.CardButtons;
 using PageController;
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using Emo.Common.Utils;
 using Emo.Common.Events;
 using Emo.Events;
 using Emo.Utils;
+using EideticMemoryOverlay.PluginApi;
 
 namespace Emo.Data {
     public class Player : ViewModel, IHasImageButton {

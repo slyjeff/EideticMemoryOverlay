@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Emo.Services {
+namespace ArkhamHorrorLcg.ArkhamDb {
     public class ArkhamDbCard {
         public string Code { get; set; }
         public string Name { get; set; }

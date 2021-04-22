@@ -1,4 +1,4 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
 using System.Windows.Media;
 
 namespace Emo.CardButtons {

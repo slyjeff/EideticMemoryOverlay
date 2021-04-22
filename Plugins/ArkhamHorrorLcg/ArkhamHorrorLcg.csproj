@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,7 +44,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArkhamDb\ArkhamDbCard.cs" />
+    <Compile Include="ArkhamDb\ArkhamDbDeck.cs" />
+    <Compile Include="ArkhamDb\ArkhamDbPack.cs" />
+    <Compile Include="ArkhamDb\ArkhamDbService.cs" />
     <Compile Include="ArkhamHorrorLcg.cs" />
+    <Compile Include="ArkhamCardInfo.cs" />
+    <Compile Include="ArkhamLocalCard.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +59,9 @@
       <Project>{2e8cfd71-810f-4587-a298-7069ddf14cd0}</Project>
       <Name>EideticMemoryOverlay.PluginApi</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

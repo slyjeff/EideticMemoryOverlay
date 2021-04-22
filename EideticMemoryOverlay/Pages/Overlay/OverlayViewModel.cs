@@ -1,4 +1,5 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Data;
 using PageController;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

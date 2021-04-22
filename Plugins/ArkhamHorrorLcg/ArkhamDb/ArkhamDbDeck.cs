@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Emo.Services {
+namespace ArkhamHorrorLcg.ArkhamDb {
     public class ArkhamDbDeck {
         public string Id { get; set; }
 

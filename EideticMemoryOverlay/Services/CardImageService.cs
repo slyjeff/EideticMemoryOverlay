@@ -1,4 +1,4 @@
-﻿using Emo.CardButtons;
+﻿using EideticMemoryOverlay.PluginApi;
 using Emo.Utils;
 using System;
 using System.Runtime.Caching;

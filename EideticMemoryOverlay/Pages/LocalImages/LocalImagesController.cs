@@ -151,11 +151,11 @@ namespace Emo.Pages.LocalImages {
             try {
                 var manifest = new LocalPackManifest {
                     Name = pack.Name,
-                    Cards = new List<LocalManifestCard>()
+                    Cards = new List<Data.LocalCard>()
                 };
 
                 foreach (var card in pack.Cards) {
-                    var localManifestCard = new LocalManifestCard();
+                    var localManifestCard = new Data.LocalCard();
                     card.CopyTo(localManifestCard);
                     manifest.Cards.Add(localManifestCard);
                 }

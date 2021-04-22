@@ -1,4 +1,4 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,11 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Net;
 
-namespace Emo.Services {
+namespace ArkhamHorrorLcg.ArkhamDb {
     public class ArkhamDbService {
-        private readonly LoggingService _logger;
+        private readonly ILoggingService _logger;
 
-        public ArkhamDbService(LoggingService loggingService) {
+        public ArkhamDbService(ILoggingService loggingService) {
             _logger = loggingService;
         }
 

@@ -1,4 +1,5 @@
-﻿using Emo.Common.Services;
+﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Common.Services;
 using Emo.Common.Tcp;
 using Emo.Common.Utils;
 using Emo.Data;
@@ -28,6 +29,7 @@ namespace Emo {
             var eventBus = new UiEventBus();
             container.Configure(x => {
                 x.For<LoggingService>().Use<LoggingService>().Singleton();
+                x.For<ILoggingService>().Use<LoggingService>();
                 x.For<IEventBus>().Use(eventBus);
                 x.For<ICrossAppEventBus>().Use(eventBus);
                 x.For<IBroadcastService>().Use<BroadcastService>().Singleton();

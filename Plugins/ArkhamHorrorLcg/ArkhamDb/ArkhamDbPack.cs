@@ -1,4 +1,4 @@
-﻿namespace Emo.Services {
+﻿namespace ArkhamHorrorLcg.ArkhamDb {
     class ArkhamDbPack {
         public string Code { get; set; }
         public string Name { get; set; }

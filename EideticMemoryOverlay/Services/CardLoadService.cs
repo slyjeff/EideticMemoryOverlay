@@ -1,4 +1,5 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -252,7 +253,7 @@ namespace Emo.Services {
             _logger.LogMessage($"Finished loading cards for player {player.ID}.");
         }
 
-        private IEnumerable<CardInfo> GetBondedCards(ArkhamDbCard arkhamDbCard, List<LocalManifestCard> localCards) {
+        private IEnumerable<CardInfo> GetBondedCards(ArkhamDbCard arkhamDbCard, List<LocalCard> localCards) {
             if (arkhamDbCard is ArkhamDbFullCard fullCard && fullCard.Bonded_Cards?.Any() == true) {
                 foreach (var bondedCardInfo in fullCard.Bonded_Cards) {
                     ArkhamDbCard bondedArkhamDbCard = _arkhamDbService.GetCard(bondedCardInfo.Code);
@@ -325,7 +326,7 @@ namespace Emo.Services {
             return cards;
         }
 
-        private static void FindCardImageSource(ArkhamDbCard arkhamDbCard, List<LocalManifestCard> localCards, bool removeLocalCard = false) {
+        private static void FindCardImageSource(ArkhamDbCard arkhamDbCard, List<LocalCard> localCards, bool removeLocalCard = false) {
             FixArkhamDbCardImageSource(arkhamDbCard);
 
             var localCard = localCards.FirstOrDefault(c => c.ArkhamDbId == arkhamDbCard.Code);

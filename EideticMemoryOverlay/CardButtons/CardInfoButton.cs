@@ -1,6 +1,6 @@
-﻿using Emo.Common.Enums;
+﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Common.Enums;
 using Emo.Common.Utils;
-using Emo.Data;
 
 namespace Emo.CardButtons {
     public class CardInfoButton : CardImageButton {

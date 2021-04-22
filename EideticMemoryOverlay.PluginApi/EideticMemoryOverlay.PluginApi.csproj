@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,6 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CardInfo.cs" />
+    <Compile Include="IHasImageButton.cs" />
+    <Compile Include="ILoggingService.cs" />
+    <Compile Include="LocalCard.cs" />
     <Compile Include="PlugIn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

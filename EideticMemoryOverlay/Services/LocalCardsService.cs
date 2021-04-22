@@ -17,8 +17,8 @@ namespace Emo.Services {
             _logger = logger;
         }
 
-        public List<LocalManifestCard> LoadLocalCards() {
-            var cards = new List<LocalManifestCard>();
+        public List<LocalCard> LoadLocalCards() {
+            var cards = new List<LocalCard>();
 
             foreach (var manifest in GetLocalPackManifests()) {
                 _logger.LogMessage($"Loading Local Cards from {manifest.Name}.");
@@ -28,12 +28,12 @@ namespace Emo.Services {
             return LoadLocalCardsImpl(null);
         }
 
-        public List<LocalManifestCard> LoadLocalCardsFromPacks(IList<string> packsToLoad) {
+        public List<LocalCard> LoadLocalCardsFromPacks(IList<string> packsToLoad) {
             return LoadLocalCardsImpl(packsToLoad);
         }
 
-        public List<LocalManifestCard> LoadLocalCardsImpl(IList<string> packsToLoad) {
-            var cards = new List<LocalManifestCard>();
+        public List<LocalCard> LoadLocalCardsImpl(IList<string> packsToLoad) {
+            var cards = new List<LocalCard>();
 
             foreach (var manifest in GetLocalPackManifests()) {
                 if (packsToLoad != null && !packsToLoad.Any(x => string.Equals(x, manifest.Name, StringComparison.InvariantCulture))) {
@@ -74,7 +74,7 @@ namespace Emo.Services {
             return manifests;
         }
 
-        internal LocalManifestCard GetCardById(string ArkhamDbId) {
+        internal LocalCard GetCardById(string ArkhamDbId) {
             if (string.IsNullOrEmpty(ArkhamDbId)) {
                 return null;
             }
