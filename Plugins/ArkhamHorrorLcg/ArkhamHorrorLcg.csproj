@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ArkhamHorrorLcg</RootNamespace>
-    <AssemblyName>EmoPlugin.ArkhamHorrorLcg</AssemblyName>
+    <AssemblyName>EmoPlugIn.ArkhamHorrorLcg</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

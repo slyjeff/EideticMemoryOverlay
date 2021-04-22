@@ -1,7 +1,7 @@
 ﻿using EideticMemoryOverlay.PluginApi;
 
 namespace ArkhamHorrorLcg {
-    public class Gloomhaven : Plugin {
+    public class Gloomhaven : PlugIn {
         public Gloomhaven() : base("Gloomhaven") {
         }
 

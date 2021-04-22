@@ -15,13 +15,12 @@ namespace Emo.Data {
     public class Game : ViewModel, IGame {
         private readonly IEventBus _eventBus;
         private readonly LoggingService _logger;
-        private readonly IList<IPlugin> _plugins;
 
-        public Game(IEventBus eventBus, IPluginService pluginService, LoggingService logger) {
+        public Game(IEventBus eventBus, LoggingService logger) {
             _eventBus = eventBus;
             _logger = logger;
-            _plugins = pluginService.LoadPlugins();
 
+            PluginName = "Arkham Horror: The Card Game";
             Players = new List<Player> { new Player(CardGroupId.Player1), new Player(CardGroupId.Player2), new Player(CardGroupId.Player3), new Player(CardGroupId.Player4) };
             EncounterSets = new List<EncounterSet>();
             LocalPacks = new List<string>();
@@ -32,6 +31,8 @@ namespace Emo.Data {
 
             _eventBus.SubscribeToButtonClickRequest(ButtonClickRequestHandler);
         }
+
+        public string PluginName { get; set; }
 
         public string FileName { get; set; }
 

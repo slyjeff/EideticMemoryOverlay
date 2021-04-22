@@ -34,7 +34,7 @@ namespace Emo {
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
                 x.For<AppData>().Use<AppData>().Singleton();
                 x.For<Configuration>().Use<Configuration>().Singleton();
-                x.For<IPluginService>().Use<PluginService>();
+                x.For<IPlugInService>().Use<PlugInService>();
                 x.For<Game>().Use<Game>().Singleton();
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
             });

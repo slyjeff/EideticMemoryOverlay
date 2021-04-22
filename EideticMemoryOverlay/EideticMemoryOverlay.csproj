@@ -152,7 +152,7 @@
     <Compile Include="Pages\Overlay\CardZoneManager.cs" />
     <Compile Include="Pages\Overlay\OverlayCardExtensions.cs" />
     <Compile Include="Services\CardImageService.cs" />
-    <Compile Include="Services\PluginService.cs" />
+    <Compile Include="Services\PlugInService.cs" />
     <Compile Include="Services\LocalCardsService.cs" />
     <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Pages\SelectCards\RightClickOptionCommand.cs" />

@@ -1,10 +1,10 @@
 ﻿namespace EideticMemoryOverlay.PluginApi {
-    public interface IPlugin {
+    public interface IPlugIn {
         string Name { get; }
     }
     
-    public abstract class Plugin : IPlugin {
-        protected Plugin(string name) {
+    public abstract class PlugIn : IPlugIn {
+        protected PlugIn(string name) {
             Name = name;
         }
 

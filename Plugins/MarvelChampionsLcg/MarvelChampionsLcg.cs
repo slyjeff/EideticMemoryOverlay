@@ -1,7 +1,7 @@
 ﻿using EideticMemoryOverlay.PluginApi;
 
 namespace ArkhamHorrorLcg {
-    public class MarvelChampionsLcg : Plugin {
+    public class MarvelChampionsLcg : PlugIn {
         public MarvelChampionsLcg() : base("Marvel Champions") {
         }
 
