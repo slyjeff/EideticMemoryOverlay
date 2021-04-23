@@ -61,9 +61,10 @@
     <Compile Include="IHasImageButton.cs" />
     <Compile Include="ILoggingService.cs" />
     <Compile Include="LoadingStatusService.cs" />
-    <Compile Include="LocalCard.cs" />
-    <Compile Include="LocalCardsService.cs" />
-    <Compile Include="LocalPackManifest.cs" />
+    <Compile Include="LocalCards\EditableLocalCard.cs" />
+    <Compile Include="LocalCards\LocalCard.cs" />
+    <Compile Include="LocalCards\LocalCardsService.cs" />
+    <Compile Include="LocalCards\LocalPackManifest.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlugIn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

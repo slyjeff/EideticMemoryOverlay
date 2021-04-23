@@ -1,4 +1,4 @@
-﻿using EideticMemoryOverlay.PluginApi;
+﻿using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Data;
 using Emo.Services;
 using Emo.Utils;
@@ -13,11 +13,11 @@ using System.IO;
 using System.Linq;
 
 namespace Emo.Pages.LocalImages {
-    public class LocalImagesController : Controller<LocalImagesView, LocalImagesViewModel> {
+    public class LocalImagesController<T> : Controller<LocalImagesView, LocalImagesViewModel> where T : LocalCard, new() {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
 
-        public LocalImagesController(AppData appData, LoggingService logger, LocalCardsService localCardsService) {
+        public LocalImagesController(AppData appData, LoggingService logger, ILocalCardsService<T> localCardsService) {
             _appData = appData;
             _logger = logger;
             ViewModel.Configuration = appData.Configuration;
@@ -77,7 +77,7 @@ namespace Emo.Pages.LocalImages {
             return pack;
         }
 
-        private LocalCard LoadCard(LocalPack pack, string filePath) {
+        private EditableLocalCard LoadCard(LocalPack pack, string filePath) {
             if (string.Equals(Path.GetExtension(filePath), ".json", StringComparison.InvariantCulture)) {
                 return null;
             }
@@ -90,7 +90,7 @@ namespace Emo.Pages.LocalImages {
             try {
                 var card = pack.Cards.FirstOrDefault(x => string.Equals(x.FilePath, filePath, StringComparison.InvariantCulture));
                 if (card == null) {
-                    card = new LocalCard { FilePath = filePath } ;
+                    card = new EditableLocalCard { FilePath = filePath } ;
                     card.PropertyChanged += (s, e) => {
                         WriteManifest();
                     };
@@ -106,7 +106,7 @@ namespace Emo.Pages.LocalImages {
             }
         }
 
-        private void LoadCardImages(LocalCard card) {
+        private void LoadCardImages(EditableLocalCard card) {
             if (card.Image != null) {
                 return;
             }
@@ -124,17 +124,17 @@ namespace Emo.Pages.LocalImages {
 
         internal void ReadManifest(LocalPackManifest manifest, LocalPack pack) {
             pack.Name = manifest.Name;
-            var localCards = new ObservableCollection<LocalCard>();
+            var localCards = new ObservableCollection<EditableLocalCard>();
             foreach (var card in manifest.Cards) {
                 if (File.Exists(card.FilePath)) {
-                    var localCard = new LocalCard();
-                    card.CopyTo(localCard);
+                    var editableLocalCard = new EditableLocalCard();
+                    card.CopyTo(editableLocalCard);
 
-                    localCard.PropertyChanged += (s, e) => {
+                    editableLocalCard.PropertyChanged += (s, e) => {
                         WriteManifest();
                     };
 
-                    localCards.Add(localCard);
+                    localCards.Add(editableLocalCard);
                 }
             }
             pack.Cards = localCards;
@@ -152,13 +152,13 @@ namespace Emo.Pages.LocalImages {
             try {
                 var manifest = new LocalPackManifest {
                     Name = pack.Name,
-                    Cards = new List<Data.LocalCard>()
+                    Cards = new List<LocalCard>()
                 };
 
-                foreach (var card in pack.Cards) {
-                    var localManifestCard = new Data.LocalCard();
-                    card.CopyTo(localManifestCard);
-                    manifest.Cards.Add(localManifestCard);
+                foreach (var editableLocalCard in pack.Cards) {
+                    var localCard = new T();
+                    localCard.CopyFrom(editableLocalCard);
+                    manifest.Cards.Add(localCard);
                 }
 
                 File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));

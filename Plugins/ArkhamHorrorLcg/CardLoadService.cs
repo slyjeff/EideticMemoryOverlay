@@ -1,5 +1,6 @@
 ﻿using ArkhamHorrorLcg.ArkhamDb;
 using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.LocalCards;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,11 +10,11 @@ namespace ArkhamHorrorLcg {
     public class CardLoadService {
         private readonly LoadingStatusService _loadingStatusService;
         private readonly ArkhamDbService _arkhamDbService;
-        private readonly LocalCardsService _localCardsService;
+        private readonly ILocalCardsService<ArkhamLocalCard> _localCardsService;
         private readonly ICardImageService _cardImageService;
         private readonly ILoggingService _logger;
 
-        public CardLoadService(ArkhamDbService arkhamDbService, LocalCardsService localCardsService, ICardImageService cardImageService, AppData appData, LoadingStatusService loadingStatusService, ILoggingService loggingService) {
+        public CardLoadService(ArkhamDbService arkhamDbService, ILocalCardsService<ArkhamLocalCard> localCardsService, ICardImageService cardImageService, AppData appData, LoadingStatusService loadingStatusService, ILoggingService loggingService) {
             _arkhamDbService = arkhamDbService;
             _localCardsService = localCardsService;
             _cardImageService = cardImageService;
@@ -99,7 +100,7 @@ namespace ArkhamHorrorLcg {
             player.Sanity.Max = playerCard.Sanity;
 
             FixArkhamDbCardImageSource(playerCard);
-            var localCard = _localCardsService.GetCardById(arkhamDbDeck.Investigator_Code);
+            var localCard = _localCardsService.AllCards().FirstOrDefault(x => x.ArkhamDbId == arkhamDbDeck.Investigator_Code);
             if (localCard != null) {
                 player.ImageSource = localCard.FilePath;
             } else {
@@ -250,7 +251,7 @@ namespace ArkhamHorrorLcg {
             _logger.LogMessage($"Finished loading cards for player {player.ID}.");
         }
 
-        private IEnumerable<CardInfo> GetBondedCards(ArkhamDbCard arkhamDbCard, List<LocalCard> localCards) {
+        private IEnumerable<CardInfo> GetBondedCards(ArkhamDbCard arkhamDbCard, List<ArkhamLocalCard> localCards) {
             if (arkhamDbCard is ArkhamDbFullCard fullCard && fullCard.Bonded_Cards?.Any() == true) {
                 foreach (var bondedCardInfo in fullCard.Bonded_Cards) {
                     ArkhamDbCard bondedArkhamDbCard = _arkhamDbService.GetCard(bondedCardInfo.Code);

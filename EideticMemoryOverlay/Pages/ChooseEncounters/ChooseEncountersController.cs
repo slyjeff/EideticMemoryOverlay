@@ -1,4 +1,4 @@
-﻿using EideticMemoryOverlay.PluginApi;
+﻿using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Data;
 using Emo.Services;
 using PageController;
@@ -7,13 +7,13 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Emo.Pages.ChooseEncounters {
-    public class ChooseEncountersController : Controller<ChooseEncountersView, ChooseEncountersViewModel> {
+    public class ChooseEncountersController<T> : Controller<ChooseEncountersView, ChooseEncountersViewModel> where T : LocalCard {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
         private readonly IList<SelectableEncounterSet> _selectableEncounterSets = new List<SelectableEncounterSet>();
-        private readonly IList<SelectableLocalPackManifest> _selectableLocalPackManifests = new List<SelectableLocalPackManifest>();
+        private readonly IList<SelectableLocalPackManifest<T>> _selectableLocalPackManifests = new List<SelectableLocalPackManifest<T>>();
 
-        public ChooseEncountersController(AppData appData, LoggingService loggingService, LocalCardsService localCardsService) {
+        public ChooseEncountersController(AppData appData, LoggingService loggingService, ILocalCardsService<T> localCardsService) {
             _appData = appData;
             _logger = loggingService;
             foreach (var pack in appData.Configuration.Packs) {
@@ -37,7 +37,7 @@ namespace Emo.Pages.ChooseEncounters {
             var localCycle = new SelectableEncounterCycle();
             ViewModel.Cycles.Add(localCycle);
             foreach (var manifest in localCardsService.GetLocalPackManifests()) {
-                var selectableLocalPackManifest = new SelectableLocalPackManifest(manifest) {
+                var selectableLocalPackManifest = new SelectableLocalPackManifest<T>(manifest) {
                     IsSelected = _appData.Game.LocalPacks.Any(x => string.Equals(x, manifest.Name, StringComparison.InvariantCulture))
                 };
 

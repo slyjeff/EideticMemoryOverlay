@@ -1,4 +1,5 @@
 ﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Common.Services;
 using Emo.Common.Tcp;
 using Emo.Common.Utils;
@@ -34,6 +35,7 @@ namespace Emo {
                 x.For<ICrossAppEventBus>().Use(eventBus);
                 x.For<IBroadcastService>().Use<BroadcastService>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
+                x.For(typeof(ILocalCardsService<>)).Use(typeof(LocalCardsService<>));
                 x.For<AppData>().Use<AppData>().Singleton();
                 x.For<Configuration>().Use<Configuration>().Singleton();
                 x.For<IPlugInService>().Use<PlugInService>();

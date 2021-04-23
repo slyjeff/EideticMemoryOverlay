@@ -55,6 +55,7 @@
     <Compile Include="ArkhamLocalCard.cs" />
     <Compile Include="ArkhamCardInfoButton.cs" />
     <Compile Include="CardLoadService.cs" />
+    <Compile Include="ArkhamEditableLocalCard.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="ArkhamPlayer.cs" />
     <Compile Include="ArkhamImageUtils.cs" />
