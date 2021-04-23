@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace EideticMemoryOverlay.PluginApi.LocalCards {
     public interface ILocalCard {
@@ -8,7 +7,7 @@ namespace EideticMemoryOverlay.PluginApi.LocalCards {
         bool HasBack { get; set; }
     }
 
-    public abstract class LocalCard : ILocalCard {
+    public class LocalCard : ILocalCard {
         public string FilePath { get; set; }
         public string Name { get; set; }
         public bool HasBack { get; set; }

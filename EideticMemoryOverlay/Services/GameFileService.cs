@@ -65,16 +65,17 @@ namespace Emo.Services {
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
         private readonly IPlugInService _plugInService;
+        private readonly IControllerFactory _controllerFactory;
         private IList<ZoneButton> _zoneButtons;
 
-        public GameFileService(AppData appData, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService) {
+        public GameFileService(AppData appData, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IControllerFactory controllerFactory) {
             _appData = appData;
             _cardLoadService = cardLoadService;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
             _eventBus = eventBus;
             _plugInService = plugInService;
-
+            _controllerFactory = controllerFactory;
             eventBus.SubscribeToCardGroupButtonsChanged(CardGroupButtonsChangedHandler);
         }
 
@@ -137,6 +138,7 @@ namespace Emo.Services {
             }
 
             _appData.Game.InitializeFromPlugin(plugIn);
+            _controllerFactory.SetPlugIn(plugIn);
         }
 
         internal void Save(string fileName) {

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Emo.Pages.ChooseEncounters {
-    public class ChooseEncountersController<T> : Controller<ChooseEncountersView, ChooseEncountersViewModel> where T : LocalCard {
+    public class ChooseEncountersController<T> : Controller<ChooseEncountersView, ChooseEncountersViewModel>, IDisplayableView where T : LocalCard {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
         private readonly IList<SelectableEncounterSet> _selectableEncounterSets = new List<SelectableEncounterSet>();
@@ -53,7 +53,7 @@ namespace Emo.Pages.ChooseEncounters {
             return ViewModel.Cycles[pack.CyclePosition - 1];
         }
 
-        internal void ShowDialog() {
+        public void ShowView() {
             _logger.LogMessage("Showing encounter selection dialog.");
             View.ShowDialog();
         }

@@ -1,5 +1,7 @@
 ﻿using EideticMemoryOverlay.PluginApi.Buttons;
+using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Common.Enums;
+using System;
 
 namespace EideticMemoryOverlay.PluginApi {
     /// <summary>
@@ -10,6 +12,11 @@ namespace EideticMemoryOverlay.PluginApi {
         /// Displayed name of the plug in
         /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// Type type used for local cards
+        /// </summary>
+        Type LocalCardType { get; }
 
         /// <summary>
         /// Create a card info button using plugin specific logic
@@ -37,6 +44,11 @@ namespace EideticMemoryOverlay.PluginApi {
         /// Displayed name of the plug in
         /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        /// Type type used for local cards
+        /// </summary>
+        public virtual Type LocalCardType { get { return typeof(LocalCard); } }
 
         /// <summary>
         /// Create a card info button using plugin specific logic

@@ -196,17 +196,15 @@ namespace Emo.Pages.Main {
         [Command]
         public void LocalImages() {
             _logger.LogMessage("Main window: manage local images clicked.");
-            var controller = _controllerFactory.CreateController<LocalImagesController>();
+            var controller = _controllerFactory.CreateLocalCardsController(typeof(LocalImagesController<>));
             controller.ShowView();
-            //reload
-
         }
 
         [Command]
         public void SetEncounterSets() {
             _logger.LogMessage("Main window: set encounter sets clicked.");
-            var chooseEncounters = _controllerFactory.CreateController<ChooseEncountersController>();
-            chooseEncounters.ShowDialog();
+            var chooseEncounters = _controllerFactory.CreateLocalCardsController(typeof(ChooseEncountersController<>));
+            chooseEncounters.ShowView();
         }
 
         [Command]

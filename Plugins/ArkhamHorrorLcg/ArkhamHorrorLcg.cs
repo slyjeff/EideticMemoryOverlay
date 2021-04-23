@@ -1,6 +1,7 @@
 ﻿using EideticMemoryOverlay.PluginApi;
 using EideticMemoryOverlay.PluginApi.Buttons;
 using Emo.Common.Enums;
+using System;
 using System.Reflection;
 
 namespace ArkhamHorrorLcg {
@@ -16,5 +17,7 @@ namespace ArkhamHorrorLcg {
         public override CardInfoButton CreateCardInfoButton(CardInfo cardInfo, CardGroupId cardGroupId) {
             return new ArkhamCardInfoButton (cardInfo as ArkhamCardInfo, cardGroupId);
         }
+
+        public override Type LocalCardType { get { return typeof(ArkhamLocalCard); } }
     }
 }

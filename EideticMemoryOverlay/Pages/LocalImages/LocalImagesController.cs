@@ -13,7 +13,7 @@ using System.IO;
 using System.Linq;
 
 namespace Emo.Pages.LocalImages {
-    public class LocalImagesController<T> : Controller<LocalImagesView, LocalImagesViewModel> where T : LocalCard, new() {
+    public class LocalImagesController<T> : Controller<LocalImagesView, LocalImagesViewModel>, IDisplayableView where T : LocalCard, new() {
         private readonly AppData _appData;
         private readonly LoggingService _logger;
 
@@ -30,7 +30,7 @@ namespace Emo.Pages.LocalImages {
             };
         }
 
-        internal void ShowView() {
+        public void ShowView() {
             View.ShowDialog();
         }
 
