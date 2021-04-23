@@ -2,6 +2,8 @@
 using System.Windows.Media;
 
 namespace EideticMemoryOverlay.PluginApi {
+    public enum CardInfoSort { Alphabetical, Natural }
+
     /// <summary>
     /// All information about a card, including images from either arkham db or local stored
     /// </summary>
@@ -24,6 +26,8 @@ namespace EideticMemoryOverlay.PluginApi {
         public string ImageSource { get; set; }
         public ImageSource Image { get; set; }
         public ImageSource ButtonImage { get; set; }
+
+        public virtual CardInfoSort SortBy { get { return CardInfoSort.Alphabetical; } }
 
         private byte[] _buttonImageAsBytes;
         public byte[] ButtonImageAsBytes {

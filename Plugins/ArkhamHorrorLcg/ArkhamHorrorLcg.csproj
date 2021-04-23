@@ -51,10 +51,15 @@
     <Compile Include="ArkhamHorrorLcg.cs" />
     <Compile Include="ArkhamCardInfo.cs" />
     <Compile Include="ArkhamLocalCard.cs" />
+    <Compile Include="ArkhamCardInfoButton.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\EideticMemoryOverlay.Common\EideticMemoryOverlay.Common.csproj">
+      <Project>{434089c6-fa67-438d-8704-dab3e626eb10}</Project>
+      <Name>EideticMemoryOverlay.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\EideticMemoryOverlay.PluginApi\EideticMemoryOverlay.PluginApi.csproj">
       <Project>{2e8cfd71-810f-4587-a298-7069ddf14cd0}</Project>
       <Name>EideticMemoryOverlay.PluginApi</Name>

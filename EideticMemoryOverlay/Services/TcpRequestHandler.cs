@@ -1,5 +1,4 @@
 ﻿using EideticMemoryOverlay.PluginApi;
-using Emo.CardButtons;
 using Emo.Common.Enums;
 using Emo.Common.Events;
 using Emo.Common.Services;

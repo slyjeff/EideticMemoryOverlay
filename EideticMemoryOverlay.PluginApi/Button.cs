@@ -1,17 +1,17 @@
 ﻿using Emo.Common.Utils;
 using Emo.Utils;
-using PageController;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows.Media;
 
-namespace Emo.CardButtons {
+namespace EideticMemoryOverlay.PluginApi {
     public interface IButton {
         string Text { get; }
         bool IsToggled { get; }
-        IList<ButtonOption> Options { get; } 
+        IList<ButtonOption> Options { get; }
     }
 
-    public abstract class Button : ViewModel, IButton {
+    public abstract class Button : INotifyPropertyChanged, IButton {
         public Button() {
             Options = new List<ButtonOption>();
         }
@@ -21,7 +21,7 @@ namespace Emo.CardButtons {
             get => _text;
             set {
                 _text = value;
-                NotifyPropertyChanged(nameof(Text));
+                PropertyChanged?.Invoke(nameof(Text), null);
             }
         }
 
@@ -30,11 +30,14 @@ namespace Emo.CardButtons {
         public virtual ImageSource ButtonImage { get { return ImageUtils.CreateSolidColorImage(Colors.DarkGray); } }
 
         private bool _isToggled;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public bool IsToggled {
             get => _isToggled;
             set {
                 _isToggled = value;
-                NotifyPropertyChanged(nameof(BorderBrush));
+                PropertyChanged?.Invoke(nameof(BorderBrush), null);
             }
         }
 

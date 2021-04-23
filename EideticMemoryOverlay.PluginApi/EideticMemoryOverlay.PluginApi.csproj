@@ -42,12 +42,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Button.cs" />
+    <Compile Include="CardImageButton.cs" />
     <Compile Include="CardInfo.cs" />
+    <Compile Include="CardInfoButton.cs" />
     <Compile Include="IHasImageButton.cs" />
     <Compile Include="ILoggingService.cs" />
     <Compile Include="LocalCard.cs" />
     <Compile Include="PlugIn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EideticMemoryOverlay.Common\EideticMemoryOverlay.Common.csproj">
+      <Project>{434089c6-fa67-438d-8704-dab3e626eb10}</Project>
+      <Name>EideticMemoryOverlay.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

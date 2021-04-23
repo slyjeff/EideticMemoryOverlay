@@ -126,13 +126,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CardButtons\CardImageButton.cs" />
     <Compile Include="CardButtons\CardButton.cs" />
-    <Compile Include="CardButtons\CardInfoButton.cs" />
     <Compile Include="CardButtons\ShowCardZoneButton.cs" />
     <Compile Include="Data\AppData.cs" />
     <Compile Include="CardButtons\ClearButton.cs" />
-    <Compile Include="CardButtons\Button.cs" />
     <Compile Include="Data\CardZone.cs" />
     <Compile Include="Data\ICard.cs" />
     <Compile Include="Data\CardGroup.cs" />
@@ -203,7 +200,6 @@
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils\ColorToBrushConverter.cs" />
-    <Compile Include="Utils\ImageUtils.cs" />
     <Page Include="Pages\ChooseEncounters\ChooseEncountersView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

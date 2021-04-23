@@ -20,19 +20,26 @@ namespace Emo.Data {
             _eventBus = eventBus;
             _logger = logger;
 
-            PluginName = "Arkham Horror: The Card Game";
-            Players = new List<Player> { new Player(CardGroupId.Player1), new Player(CardGroupId.Player2), new Player(CardGroupId.Player3), new Player(CardGroupId.Player4) };
-            EncounterSets = new List<EncounterSet>();
-            LocalPacks = new List<string>();
-            ScenarioCards = new CardGroup(CardGroupId.Scenario);
-            ScenarioCards.AddCardZone(new CardZone("Act/Agenda Bar", CardZoneLocation.Top));
-            LocationCards = new CardGroup(CardGroupId.Locations);
-            EncounterDeckCards = new CardGroup(CardGroupId.EncounterDeck);
-
+            Players = new List<Player>();
             _eventBus.SubscribeToButtonClickRequest(ButtonClickRequestHandler);
         }
 
-        public string PluginName { get; set; }
+        /// <summary>
+        /// Setup the game using plugin specific logic
+        /// </summary>
+        /// <param name="plugIn">The plugin to use</param>
+        public void InitializeFromPlugin(IPlugIn plugIn) {
+            PlugInName = plugIn.GetType().Assembly.GetName().Name;
+            Players = new List<Player> { new Player(CardGroupId.Player1, plugIn), new Player(CardGroupId.Player2, plugIn), new Player(CardGroupId.Player3, plugIn), new Player(CardGroupId.Player4, plugIn) };
+            EncounterSets = new List<EncounterSet>();
+            LocalPacks = new List<string>();
+            ScenarioCards = new CardGroup(CardGroupId.Scenario, plugIn);
+            ScenarioCards.AddCardZone(new CardZone("Act/Agenda Bar", CardZoneLocation.Top));
+            LocationCards = new CardGroup(CardGroupId.Locations, plugIn);
+            EncounterDeckCards = new CardGroup(CardGroupId.EncounterDeck, plugIn);
+        }
+
+        public string PlugInName { get; set; }
 
         public string FileName { get; set; }
 
@@ -66,13 +73,13 @@ namespace Emo.Data {
 
         public IList<string> LocalPacks { get; set; }
 
-        public CardGroup ScenarioCards { get; }
+        public CardGroup ScenarioCards { get; private set; }
 
-        public CardGroup LocationCards { get; }
+        public CardGroup LocationCards { get; private set; }
 
-        public CardGroup EncounterDeckCards { get; }
+        public CardGroup EncounterDeckCards { get; private set; }
 
-        public IList<Player> Players { get; }
+        public IList<Player> Players { get; protected set; }
 
         public event Action PlayersChanged;
 

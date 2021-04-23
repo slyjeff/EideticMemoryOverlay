@@ -34,6 +34,7 @@ namespace Emo {
                 x.For<ICrossAppEventBus>().Use(eventBus);
                 x.For<IBroadcastService>().Use<BroadcastService>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
+                x.For<ICardInfoButtonFactory>().Use<CardInfoButtonFactory>().Singleton();
                 x.For<AppData>().Use<AppData>().Singleton();
                 x.For<Configuration>().Use<Configuration>().Singleton();
                 x.For<IPlugInService>().Use<PlugInService>();

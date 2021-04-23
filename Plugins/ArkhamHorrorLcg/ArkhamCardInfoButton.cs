@@ -2,9 +2,9 @@
 using Emo.Common.Enums;
 using Emo.Common.Utils;
 
-namespace Emo.CardButtons {
-    public class CardInfoButton : CardImageButton {
-        public CardInfoButton(CardInfo cardInfo, CardGroupId cardGroupId) : base(cardInfo, false) {
+namespace ArkhamHorrorLcg {
+    internal class ArkhamCardInfoButton : CardInfoButton {
+        internal ArkhamCardInfoButton(ArkhamCardInfo cardInfo, CardGroupId cardGroupId) : base(cardInfo) {
             if (cardInfo.IsPlayerCard) {
                 Options.Add(new ButtonOption(ButtonOptionOperation.Add, cardGroupId, zoneIndex: 0));
             }

@@ -12,13 +12,13 @@ namespace Emo.Services {
         /// </summary>
         /// <param name="pluginName">assembbly name of the plugin</param>
         /// <returns>plugin with game specific logic for the overlay</returns>
-        IPlugIn GetPluginByName(string pluginName);
+        IPlugIn GetPlugInByName(string pluginName);
 
         /// <summary>
         /// Load all available plugins
         /// </summary>
         /// <returns>list of plugins with game specific logic for the overlay</returns>
-        IList<IPlugIn> LoadPlugins(); 
+        IList<IPlugIn> LoadPlugIns(); 
     }
 
     public class PlugInService : IPlugInService {
@@ -35,7 +35,7 @@ namespace Emo.Services {
         /// </summary>
         /// <param name="pluginName">Name of the plugin</param>
         /// <returns>plugin with game specific logic for the overlayy</returns>
-        public IPlugIn GetPluginByName(string pluginName) {
+        public IPlugIn GetPlugInByName(string pluginName) {
             try {
                 var pluginPath = _pluginDirectory + "\\" + (string.IsNullOrEmpty(pluginName) ? "EmoPlugIn.ArkhamHorrorLcg.dll" : pluginName);
                 return LoadPluginAssembly(pluginPath);
@@ -49,7 +49,7 @@ namespace Emo.Services {
         /// Load all available plugins
         /// </summary>
         /// <returns>list of plugins with game specific logic for the overlay</returns>
-        public IList<IPlugIn> LoadPlugins() {
+        public IList<IPlugIn> LoadPlugIns() {
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var pluginAssemblies = Directory.GetFiles(directory, "EmoPlugin*.dll");
             var plugins = new List<IPlugIn>();

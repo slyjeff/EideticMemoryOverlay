@@ -43,6 +43,9 @@ namespace ArkhamHorrorLcg {
 
         public override bool IsHorizontal { get { return Type == CardType.Act || Type == CardType.Agenda; } }
 
+        //don't sort scenario cards- easier to find when acts/agendas are in order
+        public override CardInfoSort SortBy { get { return Type == CardType.Scenario ? CardInfoSort.Natural : CardInfoSort.Alphabetical; } }
+
         internal string NameWithoutXp { get; }
         internal int Xp { get; }
         internal Faction Faction { get; set; }

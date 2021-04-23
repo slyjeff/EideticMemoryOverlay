@@ -1,4 +1,4 @@
-﻿using Emo.CardButtons;
+﻿using EideticMemoryOverlay.PluginApi;
 using Emo.Common.Enums;
 using Emo.Common.Events;
 using Emo.Common.Services;
@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Emo.Services {
     public interface IGame {
-        string PluginName { get; set; }
+        string PlugInName { get; set; }
         string Name { get; set; }
         string Scenario { get; set; }
         string SnapshotDirectory { get; set; }
@@ -48,7 +48,7 @@ namespace Emo.Services {
             ZoneButtons = new List<ZoneButton>();
         }
 
-        public string PluginName { get; set; }
+        public string PlugInName { get; set; }
         public string Name { get; set; }
         public string Scenario { get; set; }
         public string SnapshotDirectory { get; set; }
@@ -85,19 +85,14 @@ namespace Emo.Services {
 
             _logger.LogMessage($"Loading game from file {fileName}.");
             if (!File.Exists(fileName)) {
-                _appData.Game.PluginName = "EmoPlugIn.ArkhamHorrorLcg.dll";
+                LoadPlugIn(null);
                 return;
             } 
 
             try {
                 _eventBus.PublishClearAllCardsRequest();
                 var gameFile = JsonConvert.DeserializeObject<GameFile>(File.ReadAllText(fileName));
-                var plugin = _plugInService.GetPluginByName(gameFile.PluginName);
-                if (plugin == default) {
-                    _logger.LogMessage($"Plugin {gameFile.PluginName} not found.");
-                    return;
-                }
-                gameFile.PluginName = plugin.GetType().Assembly.GetName().Name;
+                LoadPlugIn(gameFile.PlugInName);
 
                 _zoneButtons = gameFile.ZoneButtons;
 
@@ -128,6 +123,20 @@ namespace Emo.Services {
                 // if there's an error, we don't care- just use the existing game
                 _logger.LogException(ex, $"Error reading game file: {fileName}.");
             }
+        }
+
+        private void LoadPlugIn(string plugInName) {
+            if (string.IsNullOrEmpty(plugInName)) {
+                plugInName = "EmoPlugIn.ArkhamHorrorLcg.dll";
+            }
+
+            var plugIn = _plugInService.GetPlugInByName(plugInName);
+            if (plugIn == default) {
+                _logger.LogMessage($"PlugIn {plugInName} not found.");
+                return;
+            }
+
+            _appData.Game.InitializeFromPlugin(plugIn);
         }
 
         internal void Save(string fileName) {
@@ -214,7 +223,7 @@ namespace Emo.Services {
 
     public static class GameFileExtensions {
         public static void CopyTo(this IGame fromGame, IGame toGame) {
-            toGame.PluginName = fromGame.PluginName;
+            toGame.PlugInName = fromGame.PlugInName;
             toGame.Name = fromGame.Name;
             toGame.Scenario = fromGame.Scenario;
             toGame.SnapshotDirectory = fromGame.SnapshotDirectory;

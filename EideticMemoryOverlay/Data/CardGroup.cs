@@ -4,6 +4,7 @@ using Emo.Common.Enums;
 using Emo.Common.Services;
 using Emo.Common.Utils;
 using Emo.Events;
+using Emo.Services;
 using PageController;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,10 +28,12 @@ namespace Emo.Data {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private string _playerName = string.Empty;
         private readonly IList<CardZone> _cardZones = new List<CardZone>();
+        private readonly IPlugIn _plugIn;
 
-        public CardGroup(CardGroupId id) {
+        public CardGroup(CardGroupId id, IPlugIn plugIn) {
             Type = id.GetSelectableType();
             Id = id;
+            _plugIn = plugIn;
             CardButtons = new List<IButton>();
             _cardZones = new List<CardZone>();
 
@@ -186,8 +189,8 @@ namespace Emo.Data {
             var clearButton = new ClearButton();
 
             var playerButtons = new List<IButton> { clearButton };
-
-            var cardInfoButtons = SortCards(cards).Select(x => new CardInfoButton(x, Id)).ToList();
+            
+            var cardInfoButtons = SortCards(cards).Select(x => _plugIn.CreateCardInfoButton(x, Id)).ToList();
             playerButtons.AddRange(cardInfoButtons);
             CardButtons = playerButtons;
             NotifyPropertyChanged(nameof(CardButtons));
@@ -252,24 +255,11 @@ namespace Emo.Data {
             }
 
             //todo: change sorting in card group to be enumartion based rather than looking at the first card
-            //don't sort scenario cards- easier to find when acts/agendas are in order
-            if (firstCard.Type == CardType.Scenario) {
+            if (firstCard.SortBy == CardInfoSort.Natural) {
                 return cards;
             }
 
             var sortedCards = cards.OrderBy(x => x.Name.Replace("\"", "")).ToList();
-            if (firstCard.Type == CardType.Location) {
-                //for location cards, we want the backs before the front in the list
-                for (var index = 0; index < sortedCards.Count(); index++) {
-                    var card = sortedCards[index];
-                    var flipSideCardIndex = sortedCards.IndexOf(card.FlipSideCard);
-                    if (flipSideCardIndex > index) {
-                        sortedCards.RemoveAt(flipSideCardIndex);
-                        sortedCards.Insert(index, card.FlipSideCard);
-                    }
-                }
-            }
-
             return sortedCards;
         }
 

@@ -1,7 +1,6 @@
-﻿using EideticMemoryOverlay.PluginApi;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 
-namespace Emo.CardButtons {
+namespace EideticMemoryOverlay.PluginApi {
     public abstract class CardImageButton : Button {
         public CardImageButton(CardInfo cardInfo, bool isToggled) {
             CardInfo = cardInfo;

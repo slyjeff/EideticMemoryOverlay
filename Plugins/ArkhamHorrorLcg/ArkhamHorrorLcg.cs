@@ -1,4 +1,5 @@
 ﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Common.Enums;
 
 namespace ArkhamHorrorLcg {
     public class ArkhamHorrorLcg : PlugIn {
@@ -6,6 +7,10 @@ namespace ArkhamHorrorLcg {
         }
 
         public override void SetUp() {
+        }
+
+        public override CardInfoButton CreateCardInfoButton(CardInfo cardInfo, CardGroupId cardGroupId) {
+            return new ArkhamCardInfoButton (cardInfo as ArkhamCardInfo, cardGroupId);
         }
     }
 }

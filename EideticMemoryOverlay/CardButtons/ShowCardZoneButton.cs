@@ -1,4 +1,5 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Data;
 
 namespace Emo.CardButtons {
     public class ShowCardZoneButton : Button {

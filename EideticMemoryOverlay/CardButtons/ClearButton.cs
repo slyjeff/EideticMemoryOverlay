@@ -1,4 +1,6 @@
-﻿namespace Emo.CardButtons {
+﻿using EideticMemoryOverlay.PluginApi;
+
+namespace Emo.CardButtons {
     public class ClearButton : Button {
         public ClearButton() {
             Text = "Clear Cards";

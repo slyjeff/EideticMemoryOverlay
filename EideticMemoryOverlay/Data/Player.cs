@@ -18,8 +18,8 @@ namespace Emo.Data {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private bool _isStatTrackingVisible = false;
 
-        public Player(CardGroupId deck) {
-            CardGroup = new CardGroup(deck);
+        public Player(CardGroupId deck, IPlugIn plugIn) {
+            CardGroup = new CardGroup(deck, plugIn);
             CardGroup.AddCardZone(new CardZone("Hand", CardZoneLocation.Bottom));
             CardGroup.AddCardZone(new CardZone("Threat Area", CardZoneLocation.Bottom));
             CardGroup.AddCardZone(new CardZone("Tableau", CardZoneLocation.Bottom));
