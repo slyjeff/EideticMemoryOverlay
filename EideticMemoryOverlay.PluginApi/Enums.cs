@@ -1,6 +1,6 @@
 ﻿using Emo.Common.Enums;
 
-namespace Emo {
+namespace EideticMemoryOverlay.PluginApi {
     public enum CardGroupType {
         Player,
         Scenario,

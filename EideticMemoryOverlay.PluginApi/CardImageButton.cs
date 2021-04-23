@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using EideticMemoryOverlay.PluginApi.Buttons;
+using System.Windows.Media;
 
 namespace EideticMemoryOverlay.PluginApi {
     public abstract class CardImageButton : Button {

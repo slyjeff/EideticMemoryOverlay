@@ -1,16 +1,13 @@
-﻿using EideticMemoryOverlay.PluginApi;
-using Emo.CardButtons;
+﻿using EideticMemoryOverlay.PluginApi.Buttons;
 using Emo.Common.Enums;
 using Emo.Common.Services;
 using Emo.Common.Utils;
 using Emo.Events;
-using Emo.Services;
-using PageController;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace Emo.Data {
+namespace EideticMemoryOverlay.PluginApi {
     public interface ICardGroup {
         CardGroupId Id { get; }
         CardGroupType Type { get; }
@@ -24,11 +21,13 @@ namespace Emo.Data {
     /// A logical grouping of cards that contains a pool (cards avaiable for use by this card group) and (optionally) CardZone(s) that
     /// represent physical locations of instances of cards in the real world
     /// </summary>
-    public class CardGroup : ViewModel, ICardGroup, INotifyPropertyChanged {
+    public class CardGroup : ICardGroup, INotifyPropertyChanged {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private string _playerName = string.Empty;
         private readonly IList<CardZone> _cardZones = new List<CardZone>();
         private readonly IPlugIn _plugIn;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public CardGroup(CardGroupId id, IPlugIn plugIn) {
             Type = id.GetSelectableType();
@@ -44,9 +43,9 @@ namespace Emo.Data {
 
         public CardGroupId Id { get; }
 
-        public string Name { 
+        public string Name {
             get {
-                switch(Type) {
+                switch (Type) {
                     case CardGroupType.Scenario:
                         return "Act/Agenda/Scenario Reference";
                     case CardGroupType.Location:
@@ -69,7 +68,7 @@ namespace Emo.Data {
         public string CardZoneName { get { return _cardZones.Any() ? _cardZones[0].Name : ""; } }
 
         public List<IButton> CardButtons { get; set; }
-        
+
         private byte[] _buttonImageAsBytes { get; set; }
         /// <summary>
         /// Image associated with this card group
@@ -115,7 +114,7 @@ namespace Emo.Data {
 
         public IList<CardZone> CardZones { get { return _cardZones; } }
 
-        public bool Loading { get; internal set; }
+        public bool Loading { get; set; }
         public IEnumerable<CardInfo> CardPool { get => CardButtons.OfType<CardInfoButton>().Select(x => x.CardInfo); }
 
         /// <summary>
@@ -163,7 +162,7 @@ namespace Emo.Data {
         /// <returns>The button identified by the parameters- default if not found</returns>
         internal IButton GetButton(ButtonMode buttonMode, int zoneIndex, int index) {
             if (buttonMode == ButtonMode.Pool) {
-                return (index < CardButtons.Count) ? CardButtons[index] : default(Button);
+                return index < CardButtons.Count ? CardButtons[index] : default(Button);
             }
 
             var cardZone = GetCardZone(zoneIndex);
@@ -182,18 +181,19 @@ namespace Emo.Data {
             foreach (var cardZone in _cardZones) {
                 cardZone.ClearButtons();
             }
-            NotifyPropertyChanged(nameof(CardButtons));
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CardButtons)));
         }
 
-        internal void LoadCards(IEnumerable<CardInfo> cards) {
+        public void LoadCards(IEnumerable<CardInfo> cards) {
             var clearButton = new ClearButton();
 
             var playerButtons = new List<IButton> { clearButton };
-            
+
             var cardInfoButtons = SortCards(cards).Select(x => _plugIn.CreateCardInfoButton(x, Id)).ToList();
             playerButtons.AddRange(cardInfoButtons);
             CardButtons = playerButtons;
-            NotifyPropertyChanged(nameof(CardButtons));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CardButtons)));
 
             RegisterButtonImageLoadCallbacks();
             _eventBus.PublishCardGroupButtonsChanged(Id, GetButtonInfo());

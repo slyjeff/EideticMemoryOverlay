@@ -1,18 +1,17 @@
-﻿using Emo.Data;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Emo.Services {
+namespace EideticMemoryOverlay.PluginApi {
     public class LocalCardsService {
         private static IList<LocalPackManifest> _cachedManifests = null;
 
         private readonly AppData _appData;
-        private readonly LoggingService _logger;
+        private readonly ILoggingService _logger;
 
-        public LocalCardsService(LoggingService logger, AppData appData) {
+        public LocalCardsService(ILoggingService logger, AppData appData) {
             _appData = appData;
             _logger = logger;
         }
@@ -55,7 +54,7 @@ namespace Emo.Services {
             var manifests = new List<LocalPackManifest>();
 
             if (!Directory.Exists(_appData.Configuration.LocalImagesDirectory)) {
-                return manifests;   
+                return manifests;
             }
 
             _logger.LogMessage("Loading local pack manifests");
@@ -74,7 +73,7 @@ namespace Emo.Services {
             return manifests;
         }
 
-        internal LocalCard GetCardById(string ArkhamDbId) {
+        public LocalCard GetCardById(string ArkhamDbId) {
             if (string.IsNullOrEmpty(ArkhamDbId)) {
                 return null;
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -26,14 +27,13 @@ namespace Emo.Utils {
             return bitmapSource;
         }
 
-        //public static ImageSource CropImage (this ImageSource imageSource, CardType cardType) {
-        //    if (imageSource == null) {
-        //        return null;
-        //    }
+        public static ImageSource CropImage(this ImageSource imageSource, Point startingPoint) {
+            if (imageSource == null) {
+                return null;
+            }
 
-        //    var startingPoint = GetCropStartingPoint(cardType);
-        //    return new CroppedBitmap(imageSource as BitmapImage, new Int32Rect(Convert.ToInt32(startingPoint.X), Convert.ToInt32(startingPoint.Y), 220, 220));
-        //}
+            return new CroppedBitmap(imageSource as BitmapImage, new Int32Rect(Convert.ToInt32(startingPoint.X), Convert.ToInt32(startingPoint.Y), 220, 220));
+        }
 
         //public static ImageSource CropBaseStatLine(this ImageSource imageSource) {
         //    if (imageSource == null) {

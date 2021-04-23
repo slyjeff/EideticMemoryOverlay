@@ -1,7 +1,7 @@
 ﻿using Emo.Common.Services;
 using System;
 
-namespace Emo.Events {
+namespace EideticMemoryOverlay.PluginApi {
     public class StatTrackingVisibilityChangedEvent : IEvent {
         public StatTrackingVisibilityChangedEvent(bool isVisible) {
             IsVisible = isVisible;

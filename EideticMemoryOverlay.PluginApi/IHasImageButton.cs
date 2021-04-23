@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using System.Windows;
+using System.Windows.Media;
 
 namespace EideticMemoryOverlay.PluginApi {
     public interface IHasImageButton {
@@ -8,5 +9,6 @@ namespace EideticMemoryOverlay.PluginApi {
         ImageSource Image { get; set; }
         ImageSource ButtonImage { get; set; }
         byte[] ButtonImageAsBytes { get; set; }
+        Point GetCropStartingPoint();
     }
 }

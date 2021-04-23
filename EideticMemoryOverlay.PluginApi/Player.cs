@@ -1,7 +1,5 @@
 ﻿using Emo.Common.Enums;
-using PageController;
 using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -9,37 +7,28 @@ using System.Windows.Media.Imaging;
 using Emo.Common.Services;
 using Emo.Common.Utils;
 using Emo.Common.Events;
-using Emo.Events;
-using Emo.Utils;
-using EideticMemoryOverlay.PluginApi;
+using System.ComponentModel;
 
-namespace Emo.Data {
-    public class Player : ViewModel, IHasImageButton {
+namespace EideticMemoryOverlay.PluginApi {
+    public class Player : INotifyPropertyChanged, IHasImageButton {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private bool _isStatTrackingVisible = false;
 
         public Player(CardGroupId deck, IPlugIn plugIn) {
             CardGroup = new CardGroup(deck, plugIn);
-            CardGroup.AddCardZone(new CardZone("Hand", CardZoneLocation.Bottom));
-            CardGroup.AddCardZone(new CardZone("Threat Area", CardZoneLocation.Bottom));
-            CardGroup.AddCardZone(new CardZone("Tableau", CardZoneLocation.Bottom));
-
-            Health = new Stat(StatType.Health, deck);
-            Sanity = new Stat(StatType.Sanity, deck);
-            Resources = new Stat(StatType.Resources, deck);
-            Clues = new Stat(StatType.Clues, deck);
-
-            Faction = Faction.Other;
-
-            Resources.Value = 5;
 
             _eventBus.SubscribeToStatTrackingVisibilityChangedEvent(e => {
                 _isStatTrackingVisible = e.IsVisible;
-                NotifyPropertyChanged(nameof(StatTrackingVisibility));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatTrackingVisibility)));
             });
         }
 
-        public int ID { 
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void NotifyPropertyChanged(string property) {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
+
+        public int ID {
             get {
                 switch (CardGroup.Id) {
                     case CardGroupId.Player1:
@@ -56,21 +45,17 @@ namespace Emo.Data {
             }
         }
 
-        public string DeckId { get; set; }
-
         public CardGroup CardGroup { get; }
 
         public string Name { get { return CardGroup.Name; } }
 
         string IHasImageButton.ImageId { get { return Name; } }
 
-        CardType IHasImageButton.ImageCardType { get { return CardType.Investigator; } }
-
         public string ImageSource { get; set; }
 
         private ImageSource _image;
-        public ImageSource Image { 
-            get => _image; 
+        public ImageSource Image {
+            get => _image;
             set {
                 _image = value;
                 NotifyPropertyChanged(nameof(Image));
@@ -88,64 +73,38 @@ namespace Emo.Data {
             }
         }
 
-        public ImageSource BaseStateLineImage { get; private set; }
-        public ImageSource FullInvestigatorImage { get; private set; }
-
-        private void LoadOverlayImages() {
-            BaseStateLineImage = ImageUtils.CropBaseStatLine(_image);
-            NotifyPropertyChanged(nameof(BaseStateLineImage));
-
-            FullInvestigatorImage = ImageUtils.CropFullInvestigator(_image);
-            NotifyPropertyChanged(nameof(FullInvestigatorImage));
+        protected virtual void LoadOverlayImages() {
         }
 
         private byte[] _buttonImageAsBytes;
+
         public byte[] ButtonImageAsBytes {
             get => _buttonImageAsBytes;
             set {
                 _buttonImageAsBytes = value;
                 CardGroup.ButtonImageAsBytes = value;
-                NotifyPropertyChanged(nameof(ButtonImageAsBytes));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonImageAsBytes)));
             }
         }
-
-        public string InvestigatorCode { get; set; }
-
-        public IDictionary<string, int> Slots { get; set; }
 
         public Visibility LoadedVisiblity { get { return string.IsNullOrEmpty(CardGroup.Name) ? Visibility.Hidden : Visibility.Visible; } }
 
-        public void OnPlayerChanged() {
+        public virtual void OnPlayerChanged() {
             NotifyPropertyChanged(nameof(LoadedVisiblity));
             NotifyPropertyChanged(nameof(Name));
-            NotifyPropertyChanged(nameof(PlayerNameBrush));
             NotifyPropertyChanged(nameof(StatTrackingVisibility));
+
             CardGroup.PublishCardGroupChanged();
         }
 
-        public Stat Health { get; }
-        public Stat Sanity { get; }
-        public Stat Resources { get; }
-        public Stat Clues { get; }
-        
-        public Visibility StatTrackingVisibility { get { return string.IsNullOrEmpty(CardGroup.Name) || !_isStatTrackingVisible ? Visibility.Collapsed : Visibility.Visible; } }
-        public Brush PlayerNameBrush {
-            get {
-                switch (Faction) {
-                    case Faction.Guardian: return new SolidColorBrush(Colors.DodgerBlue);
-                    case Faction.Seeker: return new SolidColorBrush(Colors.DarkGoldenrod);
-                    case Faction.Mystic: return new SolidColorBrush(Colors.MediumPurple);
-                    case Faction.Rogue: return new SolidColorBrush(Colors.MediumSpringGreen);
-                    case Faction.Survivor: return new SolidColorBrush(Colors.Red);
-                    default: return new SolidColorBrush(Colors.Black);
-                }
-            }
+        public virtual Point GetCropStartingPoint() {
+            return new Point(0, 0);
         }
 
-        public Faction Faction { get; set; }
+        public Visibility StatTrackingVisibility { get { return string.IsNullOrEmpty(CardGroup.Name) || !_isStatTrackingVisible ? Visibility.Collapsed : Visibility.Visible; } }
     }
 
-    public class Stat : ViewModel {
+    public class Stat : INotifyPropertyChanged {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private readonly StatType _statType;
         private readonly CardGroupId _deck;
@@ -158,6 +117,12 @@ namespace Emo.Data {
             Increase = new UpdateStateCommand(this, true);
             Decrease = new UpdateStateCommand(this, false);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void NotifyPropertyChanged(string property) {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
+
 
         private string GetImageFileName(StatType statType) {
             switch (statType) {
@@ -177,7 +142,8 @@ namespace Emo.Data {
         public ImageSource Image { get; }
 
         private int _value;
-        public int Value { 
+
+        public int Value {
             get => _value;
             set {
                 _value = value;
@@ -228,7 +194,7 @@ namespace Emo.Data {
 
             if (_stat.Value > 0) {
                 _stat.Value--;
-            } 
+            }
         }
     }
 }

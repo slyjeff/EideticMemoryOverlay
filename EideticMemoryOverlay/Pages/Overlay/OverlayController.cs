@@ -18,6 +18,7 @@ using Emo.Common.Enums;
 using Emo.Events;
 using Emo.Common.Utils;
 using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Buttons;
 
 namespace Emo.Pages.Overlay {
     public class OverlayController : Controller<OverlayView, OverlayViewModel> {

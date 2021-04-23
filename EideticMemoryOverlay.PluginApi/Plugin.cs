@@ -1,4 +1,5 @@
-﻿using Emo.Common.Enums;
+﻿using EideticMemoryOverlay.PluginApi.Buttons;
+using Emo.Common.Enums;
 
 namespace EideticMemoryOverlay.PluginApi {
     /// <summary>

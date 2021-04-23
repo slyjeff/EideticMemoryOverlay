@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Media;
 
 namespace EideticMemoryOverlay.PluginApi {
@@ -43,5 +44,9 @@ namespace EideticMemoryOverlay.PluginApi {
         public CardInfo FlipSideCard { get; set; }
 
         public event Action ButtonImageLoaded;
+
+        public virtual Point GetCropStartingPoint() {
+            return new Point(0, 0);
+        }
     }
 }

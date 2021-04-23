@@ -1,4 +1,5 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Data;
 using Emo.Services;
 using Emo.Utils;
 using Microsoft.WindowsAPICodePack.Dialogs;

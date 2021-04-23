@@ -1,6 +1,4 @@
-﻿using EideticMemoryOverlay.PluginApi;
-
-namespace Emo.Data {
+﻿namespace EideticMemoryOverlay.PluginApi {
     public interface ICard {
         CardInfo CardInfo { get; }
     }

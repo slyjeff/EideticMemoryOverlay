@@ -1,4 +1,5 @@
 ﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Buttons;
 using Emo.Common.Enums;
 
 namespace ArkhamHorrorLcg {

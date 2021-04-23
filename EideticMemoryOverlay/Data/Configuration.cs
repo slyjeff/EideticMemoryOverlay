@@ -1,6 +1,6 @@
-﻿using Emo.Common.Services;
+﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Common.Services;
 using Emo.Common.Utils;
-using Emo.Events;
 using Emo.Services;
 using PageController;
 using System;

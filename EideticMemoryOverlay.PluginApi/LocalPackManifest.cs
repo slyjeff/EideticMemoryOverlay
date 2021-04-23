@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 
-namespace Emo.Data {
+namespace EideticMemoryOverlay.PluginApi {
     public class LocalPackManifest {
         public LocalPackManifest() {
-            Cards = new List<LocalCard>();   
+            Cards = new List<LocalCard>();
         }
 
         public string Name { get; set; }

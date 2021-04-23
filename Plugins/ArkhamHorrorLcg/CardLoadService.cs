@@ -1,22 +1,19 @@
-﻿using EideticMemoryOverlay.PluginApi;
-using Emo.Data;
+﻿using ArkhamHorrorLcg.ArkhamDb;
+using EideticMemoryOverlay.PluginApi;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
-using System.Windows.Threading;
 
-namespace Emo.Services {
+namespace ArkhamHorrorLcg {
     public class CardLoadService {
-        private readonly AppData _appData;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly ArkhamDbService _arkhamDbService;
         private readonly LocalCardsService _localCardsService;
-        private readonly CardImageService _cardImageService;
-        private readonly LoggingService _logger;
+        private readonly ICardImageService _cardImageService;
+        private readonly ILoggingService _logger;
 
-        public CardLoadService(ArkhamDbService arkhamDbService, LocalCardsService localCardsService, CardImageService cardImageService, AppData appData, LoadingStatusService loadingStatusService, LoggingService loggingService) {
+        public CardLoadService(ArkhamDbService arkhamDbService, LocalCardsService localCardsService, ICardImageService cardImageService, AppData appData, LoadingStatusService loadingStatusService, ILoggingService loggingService) {
             _arkhamDbService = arkhamDbService;
             _localCardsService = localCardsService;
             _cardImageService = cardImageService;
@@ -81,7 +78,7 @@ namespace Emo.Services {
             _appData.Game.EncounterSetsChanged += LoadAllEncounterCards;
         }
 
-        public void LoadPlayer(Player player) {
+        public void LoadPlayer(ArkhamPlayer player) {
             if (string.IsNullOrEmpty(player.DeckId)) {
                 _logger.LogWarning($"{player.ID} has no deck ID.");
                 return;
@@ -208,7 +205,7 @@ namespace Emo.Services {
             worker.RunWorkerAsync();
         }
 
-        public void LoadPlayerCards(Player player) {
+        public void LoadPlayerCards(ArkhamPlayer player) {
             if (player.Slots == null) {
                 _logger.LogWarning($"{player.ID} has no cards in deck.");
                 return;
@@ -229,7 +226,7 @@ namespace Emo.Services {
                         // Override card image with local card if possible
                         FindCardImageSource(arkhamDbCard, localCards);
 
-                        var card = new CardInfo(arkhamDbCard, slot.Value, true);
+                        var card = new ArkhamCardInfo(arkhamDbCard, slot.Value, true);
 
                         _cardImageService.LoadImage(card);
 
@@ -237,7 +234,7 @@ namespace Emo.Services {
 
                         // Look for bonded cards if present
                         cards.AddRange(GetBondedCards(arkhamDbCard, localCards));
-                        
+
                     } else {
                         _logger.LogError($"Could not find player {player.ID} card: {slot.Key}");
                     }
@@ -262,7 +259,7 @@ namespace Emo.Services {
                         // Override card image with local card if possible
                         FindCardImageSource(bondedArkhamDbCard, localCards);
 
-                        var bondedCard = new CardInfo(bondedArkhamDbCard, bondedCardInfo.Count, isPlayerCard: true, isBonded: true);
+                        var bondedCard = new ArkhamCardInfo(bondedArkhamDbCard, bondedCardInfo.Count, isPlayerCard: true, isBonded: true);
                         _cardImageService.LoadImage(bondedCard);
                         yield return bondedCard;
                     } else {
@@ -272,7 +269,7 @@ namespace Emo.Services {
             }
         }
 
-        private List<CardInfo> GetEncounterCards() {
+        private List<ArkhamCardInfo> GetEncounterCards() {
             var packsToLoad = new List<Pack>();
             foreach (var pack in _appData.Configuration.Packs) {
                 foreach (var encounterSet in pack.EncounterSets) {
@@ -285,7 +282,7 @@ namespace Emo.Services {
 
             var allLocalCards = _localCardsService.LoadLocalCards();
 
-            var cards = new List<CardInfo>();
+            var cards = new List<ArkhamCardInfo>();
             foreach (var pack in packsToLoad) {
                 var arkhamDbCards = _arkhamDbService.GetCardsInPack(pack.Code);
 
@@ -297,11 +294,11 @@ namespace Emo.Services {
                     // Look for corresponding local card and grab its image. Remove it from the list to avoid duplicates
                     FindCardImageSource(arkhamDbCard, allLocalCards, removeLocalCard: true);
 
-                    var newCard = new CardInfo(arkhamDbCard, 1, isPlayerCard: false);
+                    var newCard = new ArkhamCardInfo(arkhamDbCard, 1, isPlayerCard: false);
                     _cardImageService.LoadImage(newCard);
                     cards.Add(newCard);
                     if (!string.IsNullOrEmpty(arkhamDbCard.BackImageSrc)) {
-                        var newCardBack = new CardInfo(arkhamDbCard, 1, isPlayerCard: false, cardBack: true);
+                        var newCardBack = new ArkhamCardInfo(arkhamDbCard, 1, isPlayerCard: false, cardBack: true);
                         _cardImageService.LoadImage(newCardBack);
                         newCard.FlipSideCard = newCardBack;
                         newCardBack.FlipSideCard = newCard;
@@ -312,12 +309,12 @@ namespace Emo.Services {
 
             var localCards = _localCardsService.LoadLocalCardsFromPacks(_appData.Game.LocalPacks);
             foreach (var localCard in localCards) {
-                var newLocalCard = new CardInfo(localCard, false);
+                var newLocalCard = new ArkhamCardInfo(localCard, false);
                 _cardImageService.LoadImage(newLocalCard);
                 cards.Add(newLocalCard);
 
                 if (localCard.HasBack) {
-                    var newLocalCardBack = new CardInfo(localCard, true);
+                    var newLocalCardBack = new ArkhamCardInfo(localCard, true);
                     _cardImageService.LoadImage(newLocalCardBack);
                     cards.Add(newLocalCardBack);
                 }
@@ -326,7 +323,7 @@ namespace Emo.Services {
             return cards;
         }
 
-        private static void FindCardImageSource(ArkhamDbCard arkhamDbCard, List<LocalCard> localCards, bool removeLocalCard = false) {
+        private static void FindCardImageSource(ArkhamDbCard arkhamDbCard, List<ArkhamLocalCard> localCards, bool removeLocalCard = false) {
             FixArkhamDbCardImageSource(arkhamDbCard);
 
             var localCard = localCards.FirstOrDefault(c => c.ArkhamDbId == arkhamDbCard.Code);

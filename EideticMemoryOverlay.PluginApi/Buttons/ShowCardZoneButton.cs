@@ -1,9 +1,6 @@
-﻿using EideticMemoryOverlay.PluginApi;
-using Emo.Data;
-
-namespace Emo.CardButtons {
+﻿namespace EideticMemoryOverlay.PluginApi.Buttons {
     public class ShowCardZoneButton : Button {
-        public ShowCardZoneButton(CardZone cardZone)  {
+        public ShowCardZoneButton(CardZone cardZone) {
             Text = $"Show {cardZone.Name}";
             CardZone = cardZone;
         }

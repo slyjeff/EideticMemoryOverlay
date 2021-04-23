@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Media;
 
-namespace EideticMemoryOverlay.PluginApi {
+namespace EideticMemoryOverlay.PluginApi.Buttons {
     public interface IButton {
         string Text { get; }
         bool IsToggled { get; }

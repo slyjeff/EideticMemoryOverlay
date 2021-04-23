@@ -1,5 +1,5 @@
 ﻿using EideticMemoryOverlay.PluginApi;
-using Emo.CardButtons;
+using EideticMemoryOverlay.PluginApi.Buttons;
 using Emo.Common.Enums;
 using Emo.Common.Services;
 using Emo.Common.Utils;
@@ -262,9 +262,6 @@ namespace Emo.Data {
             var options = new List<ButtonOption>();
 
             options.Add(new ButtonOption(ButtonOptionOperation.Remove));
-            if (!cardInfo.IsPlayerCard) {
-                return options;
-            }
 
             var cardZones = cardGroup.CardZones;
             foreach (var cardZone in cardZones) {

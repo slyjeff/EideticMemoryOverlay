@@ -1,23 +1,25 @@
-﻿using EideticMemoryOverlay.PluginApi;
-using Emo.CardButtons;
+﻿using EideticMemoryOverlay.PluginApi.Buttons;
 using Emo.Common.Enums;
 using Emo.Common.Services;
 using Emo.Common.Utils;
 using Emo.Events;
-using PageController;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 
-namespace Emo.Data {
+namespace EideticMemoryOverlay.PluginApi {
     public enum CardZoneLocation { Top, Bottom }
 
     /// <summary>
     /// Represents a physical location (hand, act/agenda bar) and contains a list of instances of cards
     /// </summary>
-    public class CardZone : ViewModel {
+    public class CardZone : INotifyPropertyChanged {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public CardZone(string name, CardZoneLocation location) {
             Name = name;
             Buttons = new ObservableCollection<IButton> {
@@ -36,7 +38,7 @@ namespace Emo.Data {
             var showZoneButton = Buttons[0];
             Buttons.Clear();
             Buttons.Add(showZoneButton);
-            NotifyPropertyChanged(nameof(IsVisible));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsVisible)));
         }
 
         public Visibility IsVisible { get { return Buttons.Count > 1 ? Visibility.Visible : Visibility.Collapsed; } }
@@ -44,7 +46,7 @@ namespace Emo.Data {
         /// <summary>
         /// Whether or not this card zone is curently being displayed on the overlay
         /// </summary>
-        public bool IsDisplayedOnOverlay { 
+        public bool IsDisplayedOnOverlay {
             get { return Buttons[0].IsToggled; }
             set {
                 var button = (ShowCardZoneButton)Buttons[0];
@@ -66,7 +68,7 @@ namespace Emo.Data {
                 ReplaceButton(button, buttonToReplace, options);
             }
             AddButton(button, options);
-            NotifyPropertyChanged(nameof(IsVisible));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsVisible)));
         }
 
         /// <summary>
@@ -93,19 +95,14 @@ namespace Emo.Data {
         /// <param name="button">Button that intiated this create- contains card info and toggle state</param>
         /// <param name="options">Options this button should offer on a right click</param>
         private void AddButton(CardImageButton button, IEnumerable<ButtonOption> options) {
-            //if there's an act and this is an agenda, always add it to the left
             var index = Buttons.Count;
-            if (button.CardInfo.Type == CardType.Agenda && CardButtons.Any(x => x.CardInfo.Type == CardType.Act)) {
-                index = Buttons.IndexOf(CardButtons.First(x => x.CardInfo.Type == CardType.Act));
-            } else {
-                var buttonToInsertBefore = CardButtons.FirstOrDefault(x => string.Compare(x.CardInfo.Name.Replace("\"", ""), button.CardInfo.Name.Replace("\"", "")) >= 0);
-                if (buttonToInsertBefore != default(CardButton)) {
-                    index = Buttons.IndexOf(buttonToInsertBefore);
-                }
+            var buttonToInsertBefore = CardButtons.FirstOrDefault(x => string.Compare(x.CardInfo.Name.Replace("\"", ""), button.CardInfo.Name.Replace("\"", "")) >= 0);
+            if (buttonToInsertBefore != default(CardButton)) {
+                index = Buttons.IndexOf(buttonToInsertBefore);
             }
 
             var newButton = new CardButton(button);
-            
+
             foreach (var option in options) {
                 newButton.Options.Add(option);
             }
@@ -126,7 +123,7 @@ namespace Emo.Data {
 
             Buttons.Remove(button);
             PublishButtonRemoved(indexOfRemovedCard);
-            NotifyPropertyChanged(nameof(IsVisible));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsVisible)));
         }
 
         private void PublishButtonInfoChanged(CardButton button, ChangeAction action) {

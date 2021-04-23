@@ -126,30 +126,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CardButtons\CardButton.cs" />
-    <Compile Include="CardButtons\ShowCardZoneButton.cs" />
     <Compile Include="Data\AppData.cs" />
-    <Compile Include="CardButtons\ClearButton.cs" />
-    <Compile Include="Data\CardZone.cs" />
-    <Compile Include="Data\ICard.cs" />
-    <Compile Include="Data\CardGroup.cs" />
-    <Compile Include="Data\Player.cs" />
-    <Compile Include="Enums.cs" />
     <Compile Include="Events\ClearAllCardsForCardGroupRequest.cs" />
     <Compile Include="Events\ToggleCardZoneVisibilityRequest.cs" />
     <Compile Include="Events\ToggleCardInfoVisibilityRequest.cs" />
-    <Compile Include="Events\StatTrackingVisibilityChangedEvent.cs" />
     <Compile Include="Pages\LocalImages\LocalImagesController.cs" />
     <Compile Include="Pages\LocalImages\LocalImagesView.xaml.cs">
       <DependentUpon>LocalImagesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\LocalImages\LocalImagesViewModel.cs" />
-    <Compile Include="Data\LocalPackManifest.cs" />
     <Compile Include="Pages\Overlay\CardZoneManager.cs" />
     <Compile Include="Pages\Overlay\OverlayCardExtensions.cs" />
     <Compile Include="Services\CardImageService.cs" />
     <Compile Include="Services\PlugInService.cs" />
-    <Compile Include="Services\LocalCardsService.cs" />
     <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Pages\SelectCards\RightClickOptionCommand.cs" />
     <Compile Include="Services\UiEventBus.cs" />
@@ -187,7 +176,6 @@
       <DependentUpon>SelectCardsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\SelectCards\SelectCardsViewModel.cs" />
-    <Compile Include="Services\CardLoadService.cs" />
     <Compile Include="Services\ConfigurationService.cs" />
     <Compile Include="Services\ControllerFactory.cs" />
     <Compile Include="Services\GameFileService.cs" />

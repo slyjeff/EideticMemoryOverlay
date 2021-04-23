@@ -1,4 +1,4 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
 using PageController;
 
 namespace Emo.Pages.SelectCards {
