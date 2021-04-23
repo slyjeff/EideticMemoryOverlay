@@ -145,7 +145,7 @@ namespace EideticMemoryOverlay.PluginApi {
         /// </summary>
         /// <param name="context">Information to find the button</param>
         /// <returns>The button identified by the context- default if not found</returns>
-        internal IButton GetButton(IButtonContext context) {
+        public IButton GetButton(IButtonContext context) {
             if (context.CardGroupId != Id) {
                 return default(Button);
             }
@@ -176,7 +176,7 @@ namespace EideticMemoryOverlay.PluginApi {
         /// <summary>
         /// Remove all CardInfos from the pool and all card zones
         /// </summary>
-        internal void ClearCards() {
+        public void ClearCards() {
             CardButtons.Clear();
             foreach (var cardZone in _cardZones) {
                 cardZone.ClearButtons();
@@ -243,11 +243,12 @@ namespace EideticMemoryOverlay.PluginApi {
         /// Look through all card zones to find this button and remove it
         /// </summary>
         /// <param name="button">The button to remove</param>
-        internal void RemoveCard(CardButton button) {
+        public void RemoveCard(CardButton button) {
             foreach (var zone in _cardZones) {
                 zone.RemoveButton(button);
             }
         }
+
         private IEnumerable<CardInfo> SortCards(IEnumerable<CardInfo> cards) {
             var firstCard = cards.FirstOrDefault();
             if (firstCard == null) {
