@@ -18,7 +18,6 @@ namespace Emo.Data {
             OverlayWidth = 1228;
             OverlayHeight = 720;
             CardHeight = 300;
-            Packs = new List<Pack>();
         }
 
         private string _lastSavedFileName;
@@ -140,17 +139,6 @@ namespace Emo.Data {
             }
         }
 
-        public IList<Pack> Packs { get; set; }
-
-        public IList<EncounterSet> EncounterSets {
-            get {
-                return (from pack in Packs
-                        orderby pack.CyclePosition, pack.Position
-                        from encounterSet in pack.EncounterSets
-                        select encounterSet).ToList();
-            }
-        }
-
         private Point _scenarioCardsPosition = new Point(0, 0);
         public Point ScenarioCardsPosition {
             get => _scenarioCardsPosition;
@@ -257,46 +245,5 @@ namespace Emo.Data {
         public void OnConfigurationChange() {
             ConfigurationChanged?.Invoke();
         }
-    }
-
-    public class Pack {
-        public Pack() {
-            EncounterSets = new List<EncounterSet>();
-        }
-
-        public Pack(Pack pack) {
-            Code = pack.Code;
-            Name = pack.Name;
-            CyclePosition = pack.CyclePosition;
-            Position = pack.Position;
-
-            EncounterSets = new List<EncounterSet>();
-            foreach (var encounterSet in pack.EncounterSets) {
-                EncounterSets.Add(new EncounterSet(encounterSet));
-            }
-        }
-
-        public string Code { get; set; }
-
-        public string Name { get; set; }
-
-        public int CyclePosition { get; set; }
-
-        public int Position { get; set; }
-
-        public IList<EncounterSet> EncounterSets { get; set; }
-    }
-
-    public class EncounterSet {
-        public EncounterSet() {
-        }
-
-        public EncounterSet(EncounterSet encounterSet) {
-            Name = encounterSet.Name;
-            Code = encounterSet.Code;
-        }
-
-        public string Name { get; set; }
-        public string Code { get; set; }
     }
 }

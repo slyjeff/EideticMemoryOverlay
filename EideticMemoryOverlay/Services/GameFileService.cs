@@ -58,7 +58,7 @@ namespace Emo.Services {
         public IList<ZoneButton> ZoneButtons { get; set; }
     }
 
-    public class GameFileService {
+    internal class GameFileService {
         private readonly AppData _appData;
         private readonly CardLoadService _cardLoadService;
         private readonly LoadingStatusService _loadingStatusService;
@@ -68,7 +68,7 @@ namespace Emo.Services {
         private readonly IControllerFactory _controllerFactory;
         private IList<ZoneButton> _zoneButtons;
 
-        public GameFileService(AppData appData, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IControllerFactory controllerFactory) {
+        internal GameFileService(AppData appData, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IControllerFactory controllerFactory) {
             _appData = appData;
             _cardLoadService = cardLoadService;
             _loadingStatusService = loadingStatusService;

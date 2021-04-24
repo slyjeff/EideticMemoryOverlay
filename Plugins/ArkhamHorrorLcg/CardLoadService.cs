@@ -7,71 +7,20 @@ using System.ComponentModel;
 using System.Linq;
 
 namespace ArkhamHorrorLcg {
-    public class CardLoadService {
+    internal class CardLoadService {
         private readonly LoadingStatusService _loadingStatusService;
-        private readonly ArkhamDbService _arkhamDbService;
+        private readonly IArkhamDbService _arkhamDbService;
         private readonly ILocalCardsService<ArkhamLocalCard> _localCardsService;
         private readonly ICardImageService _cardImageService;
         private readonly ILoggingService _logger;
 
-        public CardLoadService(ArkhamDbService arkhamDbService, ILocalCardsService<ArkhamLocalCard> localCardsService, ICardImageService cardImageService, AppData appData, LoadingStatusService loadingStatusService, ILoggingService loggingService) {
+        public CardLoadService(IArkhamDbService arkhamDbService, ILocalCardsService<ArkhamLocalCard> localCardsService, ICardImageService cardImageService, AppData appData, LoadingStatusService loadingStatusService, ILoggingService loggingService) {
             _arkhamDbService = arkhamDbService;
             _localCardsService = localCardsService;
             _cardImageService = cardImageService;
             _appData = appData;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
-        }
-
-        public void FindMissingEncounterSets(Configuration configuration) {
-            _logger.LogMessage("Looking for encounter sets.");
-
-            var setsAdded = false;
-            var packs = _arkhamDbService.GetAllPacks();
-
-            foreach (var pack in packs) {
-                if (!configuration.Packs.Any(x => x.Code == pack.Code)) {
-                    if (AddPackToConfiguration(configuration, pack)) {
-                        setsAdded = true;
-                    }
-                }
-            }
-
-            _logger.LogMessage($"Found new encounter sets: {setsAdded}.");
-
-            if (setsAdded) {
-                configuration.OnConfigurationChange();
-            }
-        }
-
-        private bool AddPackToConfiguration(Configuration configuration, ArkhamDbPack arkhamDbPack) {
-            var cards = _arkhamDbService.GetCardsInPack(arkhamDbPack.Code);
-            var encounterSets = new List<EncounterSet>();
-            foreach (var card in cards) {
-                if (string.IsNullOrEmpty(card.Encounter_Code) || encounterSets.Any(x => x.Code == card.Encounter_Code)) {
-                    continue;
-                }
-
-                encounterSets.Add(new EncounterSet { Code = card.Encounter_Code, Name = card.Encounter_Name });
-            }
-
-            if (!encounterSets.Any()) {
-                return false;
-            }
-
-            var newPack = new Pack {
-                Code = arkhamDbPack.Code,
-                Name = arkhamDbPack.Name,
-                CyclePosition = arkhamDbPack.Cycle_Position,
-                Position = arkhamDbPack.Position,
-                EncounterSets = encounterSets
-            };
-
-            configuration.Packs.Add(newPack);
-
-            _logger.LogMessage($"Added pack {newPack.Name} to encounter sets.");
-
-            return true;
         }
 
         public void RegisterEvents() {

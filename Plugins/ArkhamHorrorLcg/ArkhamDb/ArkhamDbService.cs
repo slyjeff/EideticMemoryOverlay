@@ -7,7 +7,14 @@ using System.Linq;
 using System.Net;
 
 namespace ArkhamHorrorLcg.ArkhamDb {
-    public class ArkhamDbService {
+    internal interface IArkhamDbService {
+        IList<ArkhamDbPack> GetAllPacks();
+        IList<ArkhamDbCard> GetCardsInPack(string packCode);
+        ArkhamDbDeck GetPlayerDeck(string deckId);
+        ArkhamDbCard GetCard(string cardCode);
+    }
+
+    internal class ArkhamDbService : IArkhamDbService {
         private readonly ILoggingService _logger;
 
         public ArkhamDbService(ILoggingService loggingService) {
@@ -47,7 +54,7 @@ namespace ArkhamHorrorLcg.ArkhamDb {
             return LocalCardCache.Instance.GetCard(cardCode) ?? GetCardFromArkhamDb(cardCode);
         }
 
-        internal IList<ArkhamDbPack> GetAllPacks() {
+        public IList<ArkhamDbPack> GetAllPacks() {
             var packsUrl = @"https://arkhamdb.com/api/public/packs/";
             HttpWebRequest cardRequest = (HttpWebRequest)WebRequest.Create(packsUrl);
 

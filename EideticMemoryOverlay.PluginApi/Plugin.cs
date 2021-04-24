@@ -1,6 +1,7 @@
 ﻿using EideticMemoryOverlay.PluginApi.Buttons;
 using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Common.Enums;
+using StructureMap;
 using System;
 
 namespace EideticMemoryOverlay.PluginApi {
@@ -12,6 +13,12 @@ namespace EideticMemoryOverlay.PluginApi {
         /// Displayed name of the plug in
         /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// Do any initialization the plugin requires
+        /// </summary>
+        /// <param name="Container">Structure Map container for dependency injection</param>
+        void SetUp(IContainer container);
 
         /// <summary>
         /// Type type used for local cards
@@ -36,9 +43,10 @@ namespace EideticMemoryOverlay.PluginApi {
         }
 
         /// <summary>
-        /// initialize the plugin
+        /// Do any initialization the plugin requires
         /// </summary>
-        public abstract void SetUp();
+        /// <param name="Container">Structure Map container for dependency injection</param>
+        public abstract void SetUp(IContainer container);
 
         /// <summary>
         /// Displayed name of the plug in

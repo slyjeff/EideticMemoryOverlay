@@ -1,4 +1,5 @@
 ﻿using EideticMemoryOverlay.PluginApi;
+using StructureMap;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,11 +23,15 @@ namespace Emo.Services {
     }
 
     public class PlugInService : IPlugInService {
-        private readonly LoggingService _logger;
+        private readonly IDictionary<string, IPlugIn> _plugInCache = new Dictionary<string, IPlugIn>();
+
+        private readonly ILoggingService _logger;
+        private readonly IContainer _container;
         private readonly string _pluginDirectory;
 
-        public PlugInService(LoggingService logger) {
+        public PlugInService(ILoggingService logger, IContainer container) {
             _logger = logger;
+            _container = container;
             _pluginDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
@@ -68,6 +73,11 @@ namespace Emo.Services {
         }
 
         private IPlugIn LoadPluginAssembly(string filename) {
+            if (_plugInCache.ContainsKey(filename)) {
+                _logger.LogMessage($"loading plugin {filename} from cache");
+                return _plugInCache[filename];
+            }
+
             var assembly = Assembly.LoadFile(filename);
             if (assembly == default) {
                 _logger.LogError($"Error loading plugin assembly {filename}");
@@ -80,7 +90,12 @@ namespace Emo.Services {
                 return default;
             }
 
-            return (IPlugIn)Activator.CreateInstance(pluginType);
+            var plugIn = (IPlugIn)Activator.CreateInstance(pluginType);
+            plugIn.SetUp(_container);
+
+            _plugInCache[filename] = plugIn;
+
+            return plugIn;
         }
     }
 }
