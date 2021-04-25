@@ -60,7 +60,6 @@ namespace Emo.Services {
 
     internal class GameFileService {
         private readonly AppData _appData;
-        private readonly CardLoadService _cardLoadService;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
@@ -68,9 +67,8 @@ namespace Emo.Services {
         private readonly IControllerFactory _controllerFactory;
         private IList<ZoneButton> _zoneButtons;
 
-        internal GameFileService(AppData appData, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IControllerFactory controllerFactory) {
+        internal GameFileService(AppData appData, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IControllerFactory controllerFactory) {
             _appData = appData;
-            _cardLoadService = cardLoadService;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
             _eventBus = eventBus;
@@ -93,7 +91,7 @@ namespace Emo.Services {
             try {
                 _eventBus.PublishClearAllCardsRequest();
                 var gameFile = JsonConvert.DeserializeObject<GameFile>(File.ReadAllText(fileName));
-                LoadPlugIn(gameFile.PlugInName);
+                var plugIn = LoadPlugIn(gameFile.PlugInName);
 
                 _zoneButtons = gameFile.ZoneButtons;
 
@@ -109,7 +107,7 @@ namespace Emo.Services {
                     if (!string.IsNullOrEmpty(game.Players[index].DeckId)) {
                         try {
                             _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.LoadingCards);
-                            _cardLoadService.LoadPlayer(game.Players[index]);
+                            plugIn.LoadPlayer(game.Players[index]);
                         } catch (Exception ex) {
                             _logger.LogException(ex, $"Error loading player {game.Players[index].ID}.");
                             _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.Error);
@@ -126,7 +124,7 @@ namespace Emo.Services {
             }
         }
 
-        private void LoadPlugIn(string plugInName) {
+        private IPlugIn LoadPlugIn(string plugInName) {
             if (string.IsNullOrEmpty(plugInName)) {
                 plugInName = "EmoPlugIn.ArkhamHorrorLcg.dll";
             }
@@ -134,11 +132,13 @@ namespace Emo.Services {
             var plugIn = _plugInService.GetPlugInByName(plugInName);
             if (plugIn == default) {
                 _logger.LogMessage($"PlugIn {plugInName} not found.");
-                return;
+                return null;
             }
 
             _appData.Game.InitializeFromPlugin(plugIn);
             _controllerFactory.SetPlugIn(plugIn);
+
+            return plugIn;
         }
 
         internal void Save(string fileName) {

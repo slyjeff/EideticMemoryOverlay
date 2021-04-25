@@ -58,6 +58,7 @@
     <Compile Include="Buttons\CardInfoButton.cs" />
     <Compile Include="CardZone.cs" />
     <Compile Include="Buttons\ClearButton.cs" />
+    <Compile Include="EncounterSet.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="ICard.cs" />
     <Compile Include="ICardImageService.cs" />

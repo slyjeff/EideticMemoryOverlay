@@ -1,7 +1,8 @@
 ﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Common.Enums;
 using StructureMap;
 
-namespace ArkhamHorrorLcg {
+namespace MarvelChampionsLcg {
     public class MarvelChampionsLcg : PlugIn {
         public MarvelChampionsLcg() : base("Marvel Champions") {
         }
@@ -9,5 +10,11 @@ namespace ArkhamHorrorLcg {
         public override void SetUp(IContainer container) {
         }
 
+        public override Player CreatePlayer(CardGroupId playerId) {
+            return new MarvelPlayer(playerId, this);
+        }
+
+        public override void LoadPlayer(Player player) {
+        }
     }
 }

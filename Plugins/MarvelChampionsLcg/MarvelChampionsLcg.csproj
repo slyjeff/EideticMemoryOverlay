@@ -44,10 +44,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MarvelPlayer.cs" />
     <Compile Include="MarvelChampionsLcg.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\EideticMemoryOverlay.Common\EideticMemoryOverlay.Common.csproj">
+      <Project>{434089C6-FA67-438D-8704-DAB3E626EB10}</Project>
+      <Name>EideticMemoryOverlay.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\EideticMemoryOverlay.PluginApi\EideticMemoryOverlay.PluginApi.csproj">
       <Project>{2e8cfd71-810f-4587-a298-7069ddf14cd0}</Project>
       <Name>EideticMemoryOverlay.PluginApi</Name>

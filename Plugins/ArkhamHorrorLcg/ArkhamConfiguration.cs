@@ -83,16 +83,4 @@ namespace ArkhamHorrorLcg {
         public IList<EncounterSet> EncounterSets { get; set; }
     }
 
-    public class EncounterSet {
-        public EncounterSet() {
-        }
-
-        public EncounterSet(EncounterSet encounterSet) {
-            Name = encounterSet.Name;
-            Code = encounterSet.Code;
-        }
-
-        public string Name { get; set; }
-        public string Code { get; set; }
-    }
 }

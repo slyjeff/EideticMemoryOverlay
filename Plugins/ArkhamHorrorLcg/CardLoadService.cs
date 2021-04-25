@@ -7,7 +7,11 @@ using System.ComponentModel;
 using System.Linq;
 
 namespace ArkhamHorrorLcg {
-    internal class CardLoadService {
+    internal interface ICardLoadService {
+        void LoadPlayer(ArkhamPlayer player);
+    }
+
+    internal class CardLoadService : ICardLoadService {
         private readonly LoadingStatusService _loadingStatusService;
         private readonly IArkhamDbService _arkhamDbService;
         private readonly ILocalCardsService<ArkhamLocalCard> _localCardsService;

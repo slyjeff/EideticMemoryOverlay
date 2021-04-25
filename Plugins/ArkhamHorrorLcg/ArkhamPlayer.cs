@@ -21,8 +21,6 @@ namespace ArkhamHorrorLcg {
             Resources.Value = 5;
         }
 
-        public string DeckId { get; set; }
-
         public IDictionary<string, int> Slots { get; set; }
 
         public ImageSource BaseStateLineImage { get; private set; }

@@ -10,7 +10,7 @@ using Emo.Common.Events;
 using System.ComponentModel;
 
 namespace EideticMemoryOverlay.PluginApi {
-    public class Player : INotifyPropertyChanged, IHasImageButton {
+    public abstract class Player : INotifyPropertyChanged, IHasImageButton {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private bool _isStatTrackingVisible = false;
 
@@ -44,6 +44,7 @@ namespace EideticMemoryOverlay.PluginApi {
                 }
             }
         }
+        public string DeckId { get; set; }
 
         public CardGroup CardGroup { get; }
 

@@ -26,12 +26,25 @@ namespace EideticMemoryOverlay.PluginApi {
         Type LocalCardType { get; }
 
         /// <summary>
+        /// Create a player using the plugin, containing any plugin necessary logci
+        /// </summary>
+        /// <param name="playerId">Unique ID to identify the player</param>
+        /// <returns>A player created by the plugin</returns>
+        Player CreatePlayer(CardGroupId playerId);
+
+        /// <summary>
         /// Create a card info button using plugin specific logic
         /// </summary>
         /// <param name="cardInfo">card info that this button represents</param>
         /// <param name="cardGroupId">card group that this buttton belongs to- used by plug ins to determine contextual logic for right click options</param>
         /// <returns>Card info button with options determined by the plugin</returns>
         CardInfoButton CreateCardInfoButton(CardInfo cardInfo, CardGroupId cardGroupId);
+        
+        /// <summary>
+        /// Load information about a player
+        /// </summary>
+        /// <param name="player">the player to load</param>
+        void LoadPlayer(Player player);
     }
     
     /// <summary>
@@ -67,5 +80,18 @@ namespace EideticMemoryOverlay.PluginApi {
         public virtual CardInfoButton CreateCardInfoButton(CardInfo cardInfo, CardGroupId cardGroupId) {
             return new CardInfoButton(cardInfo);
         }
+
+        /// <summary>
+        /// Create a player using the plugin, containing any plugin necessary logci
+        /// </summary>
+        /// <param name="playerId">Unique ID to identify the player</param>
+        /// <returns>A player created by the plugin</returns>
+        public abstract Player CreatePlayer(CardGroupId playerId);
+
+        /// <summary>
+        /// Load information about a player
+        /// </summary>
+        /// <param name="player">the player to load</param>
+        public abstract void LoadPlayer(Player player);
     }
 }

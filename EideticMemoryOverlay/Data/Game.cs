@@ -30,7 +30,7 @@ namespace Emo.Data {
         /// <param name="plugIn">The plugin to use</param>
         public void InitializeFromPlugin(IPlugIn plugIn) {
             PlugInName = plugIn.GetType().Assembly.GetName().Name;
-            Players = new List<Player> { new Player(CardGroupId.Player1, plugIn), new Player(CardGroupId.Player2, plugIn), new Player(CardGroupId.Player3, plugIn), new Player(CardGroupId.Player4, plugIn) };
+            Players = new List<Player> { plugIn.CreatePlayer(CardGroupId.Player1), plugIn.CreatePlayer(CardGroupId.Player2), plugIn.CreatePlayer(CardGroupId.Player3), plugIn.CreatePlayer(CardGroupId.Player4) };
             EncounterSets = new List<EncounterSet>();
             LocalPacks = new List<string>();
             ScenarioCards = new CardGroup(CardGroupId.Scenario, plugIn);
