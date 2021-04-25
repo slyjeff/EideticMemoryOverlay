@@ -60,8 +60,10 @@
     <Compile Include="Buttons\ClearButton.cs" />
     <Compile Include="EncounterSet.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="IAppData.cs" />
     <Compile Include="ICard.cs" />
     <Compile Include="ICardImageService.cs" />
+    <Compile Include="IGameData.cs" />
     <Compile Include="IHasImageButton.cs" />
     <Compile Include="ILoggingService.cs" />
     <Compile Include="LoadingStatusService.cs" />

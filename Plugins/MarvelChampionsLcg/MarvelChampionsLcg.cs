@@ -7,6 +7,8 @@ namespace MarvelChampionsLcg {
         public MarvelChampionsLcg() : base("Marvel Champions") {
         }
 
+        public override string LocalImagesDirectory { get; set; }
+
         public override void SetUp(IContainer container) {
         }
 

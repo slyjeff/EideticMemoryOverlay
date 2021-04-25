@@ -14,11 +14,11 @@ namespace EideticMemoryOverlay.PluginApi {
 
         private object syncObject = new object();
 
-        private AppData _appData;
+        private IAppData _appData;
 
         private Tuple<int, Status> _lastStatus;
 
-        public LoadingStatusService(AppData appData) {
+        public LoadingStatusService(IAppData appData) {
             _appData = appData;
         }
 

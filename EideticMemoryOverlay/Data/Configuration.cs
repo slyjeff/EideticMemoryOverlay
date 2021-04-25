@@ -1,11 +1,8 @@
 ﻿using EideticMemoryOverlay.PluginApi;
 using Emo.Common.Services;
-using Emo.Common.Utils;
 using Emo.Services;
 using PageController;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
@@ -227,16 +224,6 @@ namespace Emo.Data {
             set {
                 _autoSnapshotFilePath = value;
                 NotifyPropertyChanged(nameof(AutoSnapshotFilePath));
-                OnConfigurationChange();
-            }
-        }
-
-        private string _localImagesDirectory;
-        public string LocalImagesDirectory {
-            get => _localImagesDirectory;
-            set {
-                _localImagesDirectory = value;
-                NotifyPropertyChanged(nameof(LocalImagesDirectory));
                 OnConfigurationChange();
             }
         }

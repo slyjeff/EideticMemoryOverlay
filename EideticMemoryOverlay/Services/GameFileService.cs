@@ -5,6 +5,7 @@ using Emo.Common.Services;
 using Emo.Data;
 using Emo.Events;
 using Newtonsoft.Json;
+using StructureMap;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -64,16 +65,16 @@ namespace Emo.Services {
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
         private readonly IPlugInService _plugInService;
-        private readonly IControllerFactory _controllerFactory;
+        private readonly IContainer _container;
         private IList<ZoneButton> _zoneButtons;
 
-        internal GameFileService(AppData appData, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IControllerFactory controllerFactory) {
+        internal GameFileService(AppData appData, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IContainer container) {
             _appData = appData;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
             _eventBus = eventBus;
             _plugInService = plugInService;
-            _controllerFactory = controllerFactory;
+            _container = container;
             eventBus.SubscribeToCardGroupButtonsChanged(CardGroupButtonsChangedHandler);
         }
 
@@ -95,7 +96,10 @@ namespace Emo.Services {
 
                 _zoneButtons = gameFile.ZoneButtons;
 
-                var game = _appData.Game;
+                var game = _appData.Game as Game;
+                if (game == default) {
+                    return;
+                }
                 game.ClearAllCardsLists();
 
                 gameFile.CopyTo(game);
@@ -135,8 +139,11 @@ namespace Emo.Services {
                 return null;
             }
 
+            _container.Configure(x => {
+                x.For<IPlugIn>().ClearAll().Use<PlugIn>().Singleton();
+            });
+
             _appData.Game.InitializeFromPlugin(plugIn);
-            _controllerFactory.SetPlugIn(plugIn);
 
             return plugIn;
         }
@@ -144,7 +151,12 @@ namespace Emo.Services {
         internal void Save(string fileName) {
             _logger.LogMessage($"Saving game file: {fileName}.");
             var gameFile = new GameFile();
-            _appData.Game.CopyTo(gameFile);
+            var game = _appData.Game as IGame;
+            if (game == default) {
+                return;
+            }
+
+            game.CopyTo(gameFile);
 
             foreach (var player in _appData.Game.Players) {
                 gameFile.DeckIds.Add(player.DeckId);

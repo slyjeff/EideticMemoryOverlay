@@ -37,16 +37,14 @@ namespace Emo {
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
                 x.For(typeof(ILocalCardsService<>)).Use(typeof(LocalCardsService<>));
                 x.For<AppData>().Use<AppData>().Singleton();
+                x.For<IAppData>().Use<AppData>();
                 x.For<Configuration>().Use<Configuration>().Singleton();
                 x.For<IPlugInService>().Use<PlugInService>();
-                x.For<Game>().Use<Game>().Singleton();
+                x.For<IGameData>().Use<Game>().Singleton();
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
             });
            
             _loggingService = container.GetInstance<LoggingService>();
-
-            var cardLoadService = container.GetInstance<CardLoadService>();
-            cardLoadService.RegisterEvents();
 
             var configurationService = container.GetInstance<ConfigurationService>();
             configurationService.Load();

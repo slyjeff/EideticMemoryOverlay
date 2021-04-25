@@ -1,13 +1,14 @@
-﻿using PageController;
+﻿using EideticMemoryOverlay.PluginApi;
+using PageController;
 
 namespace Emo.Data {
-    public class AppData : ViewModel {
-        public AppData(Configuration configuration, Game game) {
+    public class AppData : ViewModel, IAppData {
+        public AppData(Configuration configuration, IGameData game) {
             Configuration = configuration;
             Game = game;
         }
 
-        public Game Game { get; }
+        public IGameData Game { get; }
 
         public Configuration Configuration { get; }
 

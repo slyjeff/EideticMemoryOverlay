@@ -12,7 +12,7 @@ using System.Linq;
 using System.Windows;
 
 namespace Emo.Data {
-    public class Game : ViewModel, IGame {
+    public class Game : ViewModel, IGame, IGameData {
         private readonly IEventBus _eventBus;
         private readonly LoggingService _logger;
 
@@ -96,7 +96,7 @@ namespace Emo.Data {
             } 
         }
 
-        internal void ClearAllCardsLists() {
+        public void ClearAllCardsLists() {
             foreach (var selectableCards in AllCardGroups) {
                 selectableCards.ClearCards();
             }
@@ -107,7 +107,7 @@ namespace Emo.Data {
             NotifyPropertyChanged(nameof(Players));
         }
 
-        internal bool IsEncounterSetSelected(string code) {
+        public bool IsEncounterSetSelected(string code) {
             return EncounterSets.Any(x => x.Code == code);
         }
 

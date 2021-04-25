@@ -16,11 +16,11 @@ namespace EideticMemoryOverlay.PluginApi.LocalCards {
     public class LocalCardsService<T> : ILocalCardsService<T> where T : LocalCard {
         private static IList<LocalPackManifest<T>> _cachedManifests = null;
 
-        private readonly AppData _appData;
+        private readonly IPlugIn _plugIn;
         private readonly ILoggingService _logger;
 
-        public LocalCardsService(ILoggingService logger, AppData appData) {
-            _appData = appData;
+        public LocalCardsService(ILoggingService logger, IPlugIn plugIn) {
+            _plugIn = plugIn;
             _logger = logger;
         }
 
@@ -56,13 +56,13 @@ namespace EideticMemoryOverlay.PluginApi.LocalCards {
 
             var manifests = new List<LocalPackManifest<T>>();
 
-            if (!Directory.Exists(_appData.Configuration.LocalImagesDirectory)) {
+            if (!Directory.Exists(_plugIn.LocalImagesDirectory)) {
                 return manifests;
             }
 
             _logger.LogMessage("Loading local pack manifests");
             try {
-                foreach (var directory in Directory.GetDirectories(_appData.Configuration.LocalImagesDirectory)) {
+                foreach (var directory in Directory.GetDirectories(_plugIn.LocalImagesDirectory)) {
                     var manifestPath = directory + "\\Manifest.json";
                     if (File.Exists(manifestPath)) {
                         manifests.Add(JsonConvert.DeserializeObject<LocalPackManifest<T>>(File.ReadAllText(manifestPath)));

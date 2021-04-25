@@ -10,6 +10,7 @@ namespace ArkhamHorrorLcg {
     public class ArkhamHorrorLcg : PlugIn {
         public static string PlugInName = Assembly.GetExecutingAssembly().GetName().Name;
         private IContainer _container;
+        private IArkhamConfiguration _configuration;
 
         public ArkhamHorrorLcg() : base ("Arkham Horror: The Card Game") {
         }
@@ -23,6 +24,8 @@ namespace ArkhamHorrorLcg {
                 x.For<ICardLoadService>().Use<CardLoadService>();
                 x.For<IPackLoader>().Use<PackLoader>();
             });
+
+            _configuration = container.GetInstance<IArkhamConfiguration>();
 
             var packLoader = container.GetInstance<IPackLoader>();
             packLoader.FindMissingEncounterSets();
@@ -47,5 +50,15 @@ namespace ArkhamHorrorLcg {
         }
 
         public override Type LocalCardType { get { return typeof(ArkhamLocalCard); } }
+
+        public override string LocalImagesDirectory {
+            get {
+                return _configuration.LocalImagesDirectory;
+            }
+            set {
+                _configuration.LocalImagesDirectory = value;
+                _configuration.Save();
+            }
+        }
     }
 }

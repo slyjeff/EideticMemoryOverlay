@@ -4,6 +4,8 @@ using StructureMap;
 
 namespace Gloomhaven {
     public class Gloomhaven : PlugIn {
+        public override string LocalImagesDirectory { get; set; }
+
         public Gloomhaven() : base("Gloomhaven") {
         }
 

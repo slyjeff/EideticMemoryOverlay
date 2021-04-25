@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace ArkhamHorrorLcg {
     internal interface ICardLoadService {
@@ -16,20 +18,23 @@ namespace ArkhamHorrorLcg {
         private readonly IArkhamDbService _arkhamDbService;
         private readonly ILocalCardsService<ArkhamLocalCard> _localCardsService;
         private readonly ICardImageService _cardImageService;
+        private readonly IGameData _game;
         private readonly ILoggingService _logger;
+        private readonly IArkhamConfiguration _arkhamConfiguration;
 
-        public CardLoadService(IArkhamDbService arkhamDbService, ILocalCardsService<ArkhamLocalCard> localCardsService, ICardImageService cardImageService, AppData appData, LoadingStatusService loadingStatusService, ILoggingService loggingService) {
+        public CardLoadService(IArkhamDbService arkhamDbService, ILocalCardsService<ArkhamLocalCard> localCardsService, ICardImageService cardImageService, IGameData game, LoadingStatusService loadingStatusService, ILoggingService loggingService, IArkhamConfiguration arkhamConfiguration) {
             _arkhamDbService = arkhamDbService;
             _localCardsService = localCardsService;
             _cardImageService = cardImageService;
-            _appData = appData;
+            _game = game;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
+            _arkhamConfiguration = arkhamConfiguration;
         }
 
         public void RegisterEvents() {
-            _appData.Game.PlayersChanged += LoadAllPlayerCards;
-            _appData.Game.EncounterSetsChanged += LoadAllEncounterCards;
+            _game.PlayersChanged += LoadAllPlayerCards;
+            _game.EncounterSetsChanged += LoadAllEncounterCards;
         }
 
         public void LoadPlayer(ArkhamPlayer player) {
@@ -76,16 +81,21 @@ namespace ArkhamHorrorLcg {
         private void LoadAllPlayerCards() {
             var worker = new BackgroundWorker();
             worker.DoWork += (x, y) => {
-                foreach (var player in _appData.Game.Players) {
-                    if (!string.IsNullOrEmpty(player.DeckId)) {
-                        _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingCards);
-                        try {
-                            LoadPlayerCards(player);
+                foreach (var player in _game.Players) {
+                    var arkhamPlayer = player as ArkhamPlayer;
+                    if (arkhamPlayer == default) {
+                        continue;
+                    }
 
-                            _loadingStatusService.ReportPlayerStatus(player.ID, Status.Finished);
+                    if (!string.IsNullOrEmpty(arkhamPlayer.DeckId)) {
+                        _loadingStatusService.ReportPlayerStatus(arkhamPlayer.ID, Status.LoadingCards);
+                        try {
+                            LoadPlayerCards(arkhamPlayer);
+
+                            _loadingStatusService.ReportPlayerStatus(arkhamPlayer.ID, Status.Finished);
                         } catch (Exception ex) {
-                            _logger.LogException(ex, $"Error loading player cards for player {player.ID}");
-                            _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
+                            _logger.LogException(ex, $"Error loading player cards for player {arkhamPlayer.ID}");
+                            _loadingStatusService.ReportPlayerStatus(arkhamPlayer.ID, Status.Error);
                         }
                     }
                 }
@@ -99,9 +109,9 @@ namespace ArkhamHorrorLcg {
                 _loadingStatusService.ReportEncounterCardsStatus(Status.LoadingCards);
                 _logger.LogMessage("Loading encounter cards.");
                 try {
-                    _appData.Game.ScenarioCards.Loading = true;
-                    _appData.Game.LocationCards.Loading = true;
-                    _appData.Game.EncounterDeckCards.Loading = true;
+                    _game.ScenarioCards.Loading = true;
+                    _game.LocationCards.Loading = true;
+                    _game.EncounterDeckCards.Loading = true;
 
                     var cards = GetEncounterCards();
 
@@ -141,17 +151,17 @@ namespace ArkhamHorrorLcg {
                     _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
 
                     Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                        _appData.Game.ScenarioCards.LoadCards(scenarioCards);
-                        _appData.Game.LocationCards.LoadCards(locations);
-                        _appData.Game.EncounterDeckCards.LoadCards(treacheries);
+                        _game.ScenarioCards.LoadCards(scenarioCards);
+                        _game.LocationCards.LoadCards(locations);
+                        _game.EncounterDeckCards.LoadCards(treacheries);
                     }));
                 } catch (Exception ex) {
                     _logger.LogException(ex, "Error loading encounter cards.");
                     _loadingStatusService.ReportEncounterCardsStatus(Status.Error);
                 } finally {
-                    _appData.Game.ScenarioCards.Loading = false;
-                    _appData.Game.LocationCards.Loading = false;
-                    _appData.Game.EncounterDeckCards.Loading = false;
+                    _game.ScenarioCards.Loading = false;
+                    _game.LocationCards.Loading = false;
+                    _game.EncounterDeckCards.Loading = false;
                 }
                 _logger.LogMessage($"Finished loading encounter cards.");
 
@@ -225,9 +235,9 @@ namespace ArkhamHorrorLcg {
 
         private List<ArkhamCardInfo> GetEncounterCards() {
             var packsToLoad = new List<Pack>();
-            foreach (var pack in _appData.Configuration.Packs) {
+            foreach (var pack in _arkhamConfiguration.Packs) {
                 foreach (var encounterSet in pack.EncounterSets) {
-                    if (_appData.Game.IsEncounterSetSelected(encounterSet.Code)) {
+                    if (_game.IsEncounterSetSelected(encounterSet.Code)) {
                         packsToLoad.Add(pack);
                         break;
                     }
@@ -241,7 +251,7 @@ namespace ArkhamHorrorLcg {
                 var arkhamDbCards = _arkhamDbService.GetCardsInPack(pack.Code);
 
                 foreach (var arkhamDbCard in arkhamDbCards) {
-                    if (!_appData.Game.IsEncounterSetSelected(arkhamDbCard.Encounter_Code)) {
+                    if (!_game.IsEncounterSetSelected(arkhamDbCard.Encounter_Code)) {
                         continue;
                     }
 
@@ -261,7 +271,7 @@ namespace ArkhamHorrorLcg {
                 }
             }
 
-            var localCards = _localCardsService.LoadLocalCardsFromPacks(_appData.Game.LocalPacks);
+            var localCards = _localCardsService.LoadLocalCardsFromPacks(_game.LocalPacks);
             foreach (var localCard in localCards) {
                 var newLocalCard = new ArkhamCardInfo(localCard, false);
                 _cardImageService.LoadImage(newLocalCard);

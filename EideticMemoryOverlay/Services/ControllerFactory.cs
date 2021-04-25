@@ -10,12 +10,6 @@ namespace Emo.Services {
 
     internal interface IControllerFactory {
         /// <summary>
-        /// set the plugin to use when resolving plugin sepecific logic
-        /// </summary>
-        /// <param name="plugIn">selected plugin for the current game</param>
-        void SetPlugIn(IPlugIn plugIn);
-
-        /// <summary>
         /// Create a controller
         /// </summary>
         /// <typeparam name="T">Type of the controller to create</typeparam>
@@ -31,18 +25,9 @@ namespace Emo.Services {
     }
 
     internal class ControllerFactory : IControllerFactory {
-        private IPlugIn _plugIn;
         private readonly Container _container;
         public ControllerFactory(Container container) {
             _container = container;
-        }
-
-        /// <summary>
-        /// set the plugin to use when resolving plugin sepecific logic
-        /// </summary>
-        /// <param name="plugIn">selected plugin for the current game</param>
-        public void SetPlugIn(IPlugIn plugIn) {
-            _plugIn = plugIn;
         }
 
         public T CreateController<T>() where T : Controller {
@@ -55,11 +40,12 @@ namespace Emo.Services {
         /// <param name="type">Type of the controller to create</param>
         /// <returns>Instance of the controller</returns>
         public IDisplayableView CreateLocalCardsController(Type type) {
-            if (_plugIn == default) {
+            var plugIn = _container.GetInstance<IPlugIn>();
+            if (plugIn == default) {
                 return default;
             }
 
-            var genericType = type.MakeGenericType(_plugIn.LocalCardType);
+            var genericType = type.MakeGenericType(plugIn.LocalCardType);
             return _container.GetInstance(genericType) as IDisplayableView;
         }
     }

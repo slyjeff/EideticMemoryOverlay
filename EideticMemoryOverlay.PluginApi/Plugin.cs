@@ -24,6 +24,11 @@ namespace EideticMemoryOverlay.PluginApi {
         /// Type type used for local cards
         /// </summary>
         Type LocalCardType { get; }
+        
+        /// <summary>
+        /// Directory where local images are stores for this plug in
+        /// </summary>
+        string LocalImagesDirectory { get; set; }
 
         /// <summary>
         /// Create a player using the plugin, containing any plugin necessary logci
@@ -93,5 +98,11 @@ namespace EideticMemoryOverlay.PluginApi {
         /// </summary>
         /// <param name="player">the player to load</param>
         public abstract void LoadPlayer(Player player);
+
+        /// <summary>
+        /// Directory where local images are stores for this plug in
+        /// </summary>
+        public abstract string LocalImagesDirectory { get; set; }
+
     }
 }
