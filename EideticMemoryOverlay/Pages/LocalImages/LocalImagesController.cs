@@ -1,4 +1,5 @@
-﻿using EideticMemoryOverlay.PluginApi.LocalCards;
+﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Data;
 using Emo.Services;
 using Emo.Utils;
@@ -14,19 +15,19 @@ using System.Linq;
 
 namespace Emo.Pages.LocalImages {
     public class LocalImagesController<T> : Controller<LocalImagesView, LocalImagesViewModel>, IDisplayableView where T : LocalCard, new() {
-        private readonly AppData _appData;
+        private readonly IPlugIn _plugIn;
         private readonly LoggingService _logger;
 
-        public LocalImagesController(AppData appData, LoggingService logger, ILocalCardsService<T> localCardsService) {
-            _appData = appData;
+        public LocalImagesController(IPlugIn plugIn, Configuration configuration, IGameData game, LoggingService logger, ILocalCardsService<T> localCardsService) {
+            _plugIn = plugIn;
             _logger = logger;
-            ViewModel.Configuration = appData.Configuration;
+            ViewModel.Configuration = configuration;
 
             LoadPacks();
 
             View.Closed += (s, e) => {
                 localCardsService.InvalidateManifestCache();
-                appData.Game.OnEncounterSetsChanged();
+                game.OnEncounterSetsChanged();
             };
         }
 
@@ -35,15 +36,15 @@ namespace Emo.Pages.LocalImages {
         }
 
         private void LoadPacks() {
-            if (!Directory.Exists(_appData.Configuration.LocalImagesDirectory)) {
-                _logger.LogMessage($"Directory '{_appData.Configuration.LocalImagesDirectory}' not found.");
+            if (!Directory.Exists(_plugIn.LocalImagesDirectory)) {
+                _logger.LogMessage($"Directory '{_plugIn.LocalImagesDirectory}' not found.");
                 return;
             }
 
             var packs = new List<LocalPack>();
             try {
-                _logger.LogMessage($"Loading packs from {_appData.Configuration.LocalImagesDirectory}.");
-                foreach (var directory in Directory.GetDirectories(_appData.Configuration.LocalImagesDirectory)) {
+                _logger.LogMessage($"Loading packs from {_plugIn.LocalImagesDirectory}.");
+                foreach (var directory in Directory.GetDirectories(_plugIn.LocalImagesDirectory)) {
                     packs.Add(LoadPack(directory));                    
                 }
                 ViewModel.Packs = packs;
@@ -188,13 +189,13 @@ namespace Emo.Pages.LocalImages {
         public void SelectDirectory() {
             _logger.LogMessage("LocalImages window: select local images directory clicked.");
             var dialog = new CommonOpenFileDialog {
-                InitialDirectory = _appData.Configuration.LocalImagesDirectory,
+                InitialDirectory = _plugIn.LocalImagesDirectory,
                 IsFolderPicker = true
             };
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
                 _logger.LogMessage($"LocalImages: new directory: {dialog.FileName}.");
-                _appData.Configuration.LocalImagesDirectory = dialog.FileName;
+                _plugIn.LocalImagesDirectory = dialog.FileName;
                 LoadPacks();
             }
             View.Activate();

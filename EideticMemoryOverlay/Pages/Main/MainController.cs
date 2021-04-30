@@ -200,7 +200,7 @@ namespace Emo.Pages.Main {
             var dialog = new CommonOpenFileDialog {
                 InitialDirectory = ViewModel.Game.SnapshotDirectory,
                 IsFolderPicker = true
-            };
+            };Exc
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
                 _logger.LogMessage($"Main window: new snapshot directory: {dialog.FileName}.");

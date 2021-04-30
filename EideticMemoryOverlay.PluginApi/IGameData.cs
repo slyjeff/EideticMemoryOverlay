@@ -5,6 +5,8 @@ using System.Collections.Generic;
 namespace EideticMemoryOverlay.PluginApi {
     public interface IGameData {
         string FileName { get; set; }
+        
+        string SnapshotDirectory { get; set; }
 
         event Action PlayersChanged;
 
