@@ -3,6 +3,7 @@ using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Common.Enums;
 using StructureMap;
 using System;
+using System.Collections.Generic;
 
 namespace EideticMemoryOverlay.PluginApi {
     /// <summary>
@@ -24,7 +25,13 @@ namespace EideticMemoryOverlay.PluginApi {
         /// Type type used for local cards
         /// </summary>
         Type LocalCardType { get; }
-        
+
+        /// <summary>
+        /// List of packs (that container selectable encounter sets) that can be used for this plug in
+        /// </summary>
+        IList<Pack> Packs { get; }
+
+
         /// <summary>
         /// Directory where local images are stores for this plug in
         /// </summary>
@@ -75,6 +82,11 @@ namespace EideticMemoryOverlay.PluginApi {
         /// Type type used for local cards
         /// </summary>
         public virtual Type LocalCardType { get { return typeof(LocalCard); } }
+
+        /// <summary>
+        /// List of packs (that container selectable encounter sets) that can be used for this plug in
+        /// </summary>
+        public virtual IList<Pack> Packs { get { return new List<Pack>(); } }
 
         /// <summary>
         /// Create a card info button using plugin specific logic

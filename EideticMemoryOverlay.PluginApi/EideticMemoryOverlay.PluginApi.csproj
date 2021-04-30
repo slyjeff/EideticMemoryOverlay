@@ -71,6 +71,7 @@
     <Compile Include="LocalCards\LocalCard.cs" />
     <Compile Include="LocalCards\LocalCardsService.cs" />
     <Compile Include="LocalCards\LocalPackManifest.cs" />
+    <Compile Include="Pack.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlugIn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

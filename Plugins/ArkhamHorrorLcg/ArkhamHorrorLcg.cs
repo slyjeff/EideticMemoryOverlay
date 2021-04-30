@@ -4,6 +4,7 @@ using EideticMemoryOverlay.PluginApi.Buttons;
 using Emo.Common.Enums;
 using StructureMap;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace ArkhamHorrorLcg {
@@ -30,6 +31,8 @@ namespace ArkhamHorrorLcg {
             var packLoader = container.GetInstance<IPackLoader>();
             packLoader.FindMissingEncounterSets();
         }
+
+        public override IList<Pack> Packs { get { return _configuration.Packs; } }
 
         public override CardInfoButton CreateCardInfoButton(CardInfo cardInfo, CardGroupId cardGroupId) {
             return new ArkhamCardInfoButton (cardInfo as ArkhamCardInfo, cardGroupId);

@@ -18,12 +18,14 @@ namespace EideticMemoryOverlay.PluginApi {
 
         bool IsEncounterSetSelected(string code);
 
-        IList<string> LocalPacks { get; }
+        IList<string> LocalPacks { get; set; }
+        IList<EncounterSet> EncounterSets { get; set; }
 
         IList<CardGroup> AllCardGroups { get; }
 
         void ClearAllCardsLists();
 
+        void OnEncounterSetsChanged();
 
         /// <summary>
         /// Setup the game using plugin specific logic
