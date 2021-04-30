@@ -160,7 +160,7 @@ namespace EideticMemoryOverlay.PluginApi {
         /// <param name="zoneIndex">index of zone the button- does not apply for pool</param>
         /// <param name="index">index of the button</param>
         /// <returns>The button identified by the parameters- default if not found</returns>
-        internal IButton GetButton(ButtonMode buttonMode, int zoneIndex, int index) {
+        public IButton GetButton(ButtonMode buttonMode, int zoneIndex, int index) {
             if (buttonMode == ButtonMode.Pool) {
                 return index < CardButtons.Count ? CardButtons[index] : default(Button);
             }
