@@ -12,10 +12,11 @@ namespace EideticMemoryOverlay.PluginApi {
         public CardInfo() {
         }
 
-        public CardInfo(string name, string code, int count, bool cardBack, string imageSrc) {
+        public CardInfo(string name, string code, bool isPlayerCard, int count, bool cardBack, string imageSrc) {
             Name = cardBack ? name + " (Back)" : name;
             Code = code;
             ImageId = cardBack ? code + " (Back)" : code;
+            IsPlayerCard = isPlayerCard;
             Count = count;
             ImageSource = imageSrc;
         }
@@ -23,6 +24,8 @@ namespace EideticMemoryOverlay.PluginApi {
         public string Name { get; }
         public string Code { get; }
         public string ImageId { get; }
+        public bool IsPlayerCard { get; }
+
         public int Count { get; set; }
         public string ImageSource { get; set; }
         public ImageSource Image { get; set; }

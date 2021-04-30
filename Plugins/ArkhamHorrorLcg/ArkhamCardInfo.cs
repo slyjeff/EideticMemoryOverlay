@@ -14,12 +14,11 @@ namespace ArkhamHorrorLcg {
         }
 
         internal ArkhamCardInfo(ArkhamDbCard arkhamDbCard, int count, bool isPlayerCard, bool cardBack = false, bool isBonded = false) 
-            : base(FormatNameWithXp(arkhamDbCard), arkhamDbCard.Code, count, cardBack, cardBack ? arkhamDbCard.BackImageSrc : arkhamDbCard.ImageSrc) {
+            : base(FormatNameWithXp(arkhamDbCard), arkhamDbCard.Code, isPlayerCard, count, cardBack, cardBack ? arkhamDbCard.BackImageSrc : arkhamDbCard.ImageSrc) {
             NameWithoutXp = arkhamDbCard.Name;
             Xp = arkhamDbCard.Xp == null ? 0 : int.Parse(arkhamDbCard.Xp);
             Faction = GetFaction(arkhamDbCard.Faction_Name);
             Type = GetCardType(arkhamDbCard.Type_Code);
-            IsPlayerCard = isPlayerCard;
             IsBonded = isBonded;
             IsHidden = !string.IsNullOrEmpty(arkhamDbCard.Text) && arkhamDbCard.Text.Contains(" Hidden.");
         }
@@ -29,12 +28,11 @@ namespace ArkhamHorrorLcg {
         }
 
         internal ArkhamCardInfo(ArkhamLocalCard localCard, bool cardBack)
-            : base(localCard.Name, GetLocalCardCode(localCard), 1, cardBack, cardBack ? localCard.BackFilePath : localCard.FilePath) {
+            : base(localCard.Name, GetLocalCardCode(localCard), false, 1, cardBack, cardBack ? localCard.BackFilePath : localCard.FilePath) {
             NameWithoutXp = localCard.Name;
             Xp = 0;
             Faction = Faction.Other;
             Type = (CardType)Enum.Parse(typeof(CardType), localCard.CardType);
-            IsPlayerCard = false;
             IsBonded = false;
             IsHidden = false;
         }
@@ -84,8 +82,6 @@ namespace ArkhamHorrorLcg {
         internal CardType Type { get; }
 
         internal CardType ImageCardType { get { return Type; } }
-
-        internal bool IsPlayerCard { get; private set; }
 
         private CardType GetCardType(string typeCode) {
             if (Enum.TryParse(typeCode, ignoreCase: true, out CardType type)) {
