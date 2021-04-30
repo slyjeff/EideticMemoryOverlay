@@ -143,11 +143,15 @@ namespace Emo.Services {
             var plugIn = _plugInService.GetPlugInByName(plugInName);
             if (plugIn == default) {
                 _logger.LogMessage($"PlugIn {plugInName} not found.");
+                plugIn = _plugInService.GetPlugInByName("EmoPlugIn.ArkhamHorrorLcg.dll");
+            }
+
+            if (plugIn == default) {
                 return null;
             }
 
             _container.Configure(x => {
-                x.For<IPlugIn>().ClearAll().Use<PlugIn>().Singleton();
+                x.For<IPlugIn>().ClearAll().Use(plugIn).Singleton();
             });
 
             _appData.Game.InitializeFromPlugin(plugIn);
