@@ -127,6 +127,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Data\AppData.cs" />
+    <Compile Include="Data\CardGroup.cs" />
     <Compile Include="Events\ClearAllCardsForCardGroupRequest.cs" />
     <Compile Include="Events\ToggleCardZoneVisibilityRequest.cs" />
     <Compile Include="Events\ToggleCardInfoVisibilityRequest.cs" />

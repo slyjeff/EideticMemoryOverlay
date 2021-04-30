@@ -3,7 +3,7 @@ using Emo.Common.Enums;
 
 namespace MarvelChampionsLcg {
     internal class MarvelPlayer : Player {
-        public MarvelPlayer(CardGroupId deck, IPlugIn plugIn) : base(deck, plugIn) {
+        public MarvelPlayer(ICardGroup cardGroup) : base(cardGroup) {
         }
     }
 }

@@ -37,12 +37,12 @@ namespace EideticMemoryOverlay.PluginApi {
         /// </summary>
         string LocalImagesDirectory { get; set; }
 
-        /// <summary>
-        /// Create a player using the plugin, containing any plugin necessary logci
+        // <summary>
+        /// Create a player using the plugin, containing any plugin necessary logic
         /// </summary>
-        /// <param name="playerId">Unique ID to identify the player</param>
+        /// <param name="cardGroup">card group for the player</param>
         /// <returns>A player created by the plugin</returns>
-        Player CreatePlayer(CardGroupId playerId);
+        Player CreatePlayer(ICardGroup cardGroup);
 
         /// <summary>
         /// Create a card info button using plugin specific logic
@@ -105,11 +105,11 @@ namespace EideticMemoryOverlay.PluginApi {
         }
 
         /// <summary>
-        /// Create a player using the plugin, containing any plugin necessary logci
+        /// Create a player using the plugin, containing any plugin necessary logic
         /// </summary>
-        /// <param name="playerId">Unique ID to identify the player</param>
+        /// <param name="cardGroup">card group for the player</param>
         /// <returns>A player created by the plugin</returns>
-        public abstract Player CreatePlayer(CardGroupId playerId);
+        public abstract Player CreatePlayer(ICardGroup cardGroup);
 
         /// <summary>
         /// Load information about a player

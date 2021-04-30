@@ -14,18 +14,18 @@ namespace EideticMemoryOverlay.PluginApi {
 
         IList<Player> Players { get; }
 
-        CardGroup ScenarioCards { get; }
+        ICardGroup ScenarioCards { get; }
 
-        CardGroup LocationCards { get; }
+        ICardGroup LocationCards { get; }
 
-        CardGroup EncounterDeckCards { get; }
+        ICardGroup EncounterDeckCards { get; }
 
         bool IsEncounterSetSelected(string code);
 
         IList<string> LocalPacks { get; set; }
         IList<EncounterSet> EncounterSets { get; set; }
 
-        IList<CardGroup> AllCardGroups { get; }
+        IList<ICardGroup> AllCardGroups { get; }
 
         void ClearAllCardsLists();
 
@@ -50,6 +50,6 @@ namespace EideticMemoryOverlay.PluginApi {
         /// </summary>
         /// <param name="cardGroupId">Unique ID for a group</param>
         /// <returns>The group matching the passed in ID</returns>
-        CardGroup GetCardGroup(CardGroupId cardGroupId);
+        ICardGroup GetCardGroup(CardGroupId cardGroupId);
     }
 }

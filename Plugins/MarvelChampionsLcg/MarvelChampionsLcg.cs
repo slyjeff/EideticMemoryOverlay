@@ -12,8 +12,8 @@ namespace MarvelChampionsLcg {
         public override void SetUp(IContainer container) {
         }
 
-        public override Player CreatePlayer(CardGroupId playerId) {
-            return new MarvelPlayer(playerId, this);
+        public override Player CreatePlayer(ICardGroup cardGroup) {
+            return new MarvelPlayer(cardGroup);
         }
 
         public override void LoadPlayer(Player player) {

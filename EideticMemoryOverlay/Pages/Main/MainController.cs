@@ -200,7 +200,7 @@ namespace Emo.Pages.Main {
             var dialog = new CommonOpenFileDialog {
                 InitialDirectory = ViewModel.Game.SnapshotDirectory,
                 IsFolderPicker = true
-            };Exc
+            };
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
                 _logger.LogMessage($"Main window: new snapshot directory: {dialog.FileName}.");
@@ -261,7 +261,7 @@ namespace Emo.Pages.Main {
         }
 
         [Command]
-        public void PlayerSelected(CardGroup cardGroup) {
+        public void PlayerSelected(ICardGroup cardGroup) {
             _logger.LogMessage($"Main window: player selected: {cardGroup.Name}.");
             var startingPositionProperty = string.Empty;
             if (ViewModel.Game.Players[0].CardGroup == cardGroup) { startingPositionProperty = nameof(Configuration.Player1Position); }

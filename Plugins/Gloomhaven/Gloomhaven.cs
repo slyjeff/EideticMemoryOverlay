@@ -12,8 +12,8 @@ namespace Gloomhaven {
         public override void SetUp(IContainer container) {
         }
 
-        public override Player CreatePlayer(CardGroupId playerId) {
-            return new GloomhavenPlayer(playerId, this);
+        public override Player CreatePlayer(ICardGroup cardGroup) {
+            return new GloomhavenPlayer(cardGroup);
         }
 
         public override void LoadPlayer(Player player) {

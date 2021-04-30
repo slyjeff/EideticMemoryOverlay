@@ -329,8 +329,8 @@ namespace Emo.Pages.Overlay {
         #endregion
 
         #region ShowDeckList
-        private CardGroup _currentDisplayedDeckList = null;
-        private void ShowDeckList(CardGroup cardGroup) {
+        private ICardGroup _currentDisplayedDeckList = null;
+        private void ShowDeckList(ICardGroup cardGroup) {
             _logger.LogMessage("Showing deck list in overlay.");
 
             //it's already displayed- just hide it
@@ -497,7 +497,7 @@ namespace Emo.Pages.Overlay {
             return ViewModel.EncounterCardInfos;
         }
 
-        private CardGroup GetCardGroupFromId(CardGroupId id) {
+        private ICardGroup GetCardGroupFromId(CardGroupId id) {
             switch (id) {
                 case CardGroupId.Player1:
                     return _appData.Game.Players[0].CardGroup;

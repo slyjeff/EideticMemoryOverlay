@@ -6,15 +6,15 @@ using System.Collections.Generic;
 
 namespace ArkhamHorrorLcg {
     public class ArkhamPlayer : Player {
-        public ArkhamPlayer(CardGroupId deck, IPlugIn plugIn) : base(deck, plugIn) {
+        public ArkhamPlayer(ICardGroup cardGroup) : base(cardGroup) {
             CardGroup.AddCardZone(new CardZone("Hand", CardZoneLocation.Bottom));
             CardGroup.AddCardZone(new CardZone("Threat Area", CardZoneLocation.Bottom));
             CardGroup.AddCardZone(new CardZone("Tableau", CardZoneLocation.Bottom));
 
-            Health = new Stat(StatType.Health, deck);
-            Sanity = new Stat(StatType.Sanity, deck);
-            Resources = new Stat(StatType.Resources, deck);
-            Clues = new Stat(StatType.Clues, deck);
+            Health = new Stat(StatType.Health, cardGroup.Id);
+            Sanity = new Stat(StatType.Sanity, cardGroup.Id);
+            Resources = new Stat(StatType.Resources, cardGroup.Id);
+            Clues = new Stat(StatType.Clues, cardGroup.Id);
 
             Faction = Faction.Other;
 

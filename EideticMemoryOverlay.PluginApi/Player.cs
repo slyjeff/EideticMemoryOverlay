@@ -14,8 +14,8 @@ namespace EideticMemoryOverlay.PluginApi {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private bool _isStatTrackingVisible = false;
 
-        public Player(CardGroupId deck, IPlugIn plugIn) {
-            CardGroup = new CardGroup(deck, plugIn);
+        public Player(ICardGroup cardGroup) {
+            CardGroup = cardGroup;
 
             _eventBus.SubscribeToStatTrackingVisibilityChangedEvent(e => {
                 _isStatTrackingVisible = e.IsVisible;
@@ -46,7 +46,7 @@ namespace EideticMemoryOverlay.PluginApi {
         }
         public string DeckId { get; set; }
 
-        public CardGroup CardGroup { get; }
+        public ICardGroup CardGroup { get; }
 
         public string Name { get { return CardGroup.Name; } }
 

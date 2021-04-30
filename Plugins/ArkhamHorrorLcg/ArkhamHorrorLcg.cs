@@ -38,8 +38,8 @@ namespace ArkhamHorrorLcg {
             return new ArkhamCardInfoButton (cardInfo as ArkhamCardInfo, cardGroupId);
         }
 
-        public override Player CreatePlayer(CardGroupId playerId) {
-            return new ArkhamPlayer(playerId, this);
+        public override Player CreatePlayer(ICardGroup cardGroup) {
+            return new ArkhamPlayer(cardGroup);
         }
 
         public override void LoadPlayer(Player player) {

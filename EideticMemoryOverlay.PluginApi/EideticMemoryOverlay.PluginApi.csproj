@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="Buttons\Button.cs" />
     <Compile Include="Buttons\CardButton.cs" />
-    <Compile Include="CardGroup.cs" />
+    <Compile Include="ICardGroup.cs" />
     <Compile Include="CardImageButton.cs" />
     <Compile Include="CardInfo.cs" />
     <Compile Include="Buttons\CardInfoButton.cs" />

@@ -1,4 +1,5 @@
-﻿using EideticMemoryOverlay.PluginApi.Buttons;
+﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Buttons;
 using Emo.Common.Enums;
 using Emo.Common.Services;
 using Emo.Common.Utils;
@@ -7,21 +8,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace EideticMemoryOverlay.PluginApi {
-    public interface ICardGroup {
-        CardGroupId Id { get; }
-        CardGroupType Type { get; }
-        string Name { get; }
-        List<IButton> CardButtons { get; }
-        IList<CardZone> CardZones { get; }
-        bool Loading { get; }
-    }
-
+namespace Emo.Data {
     /// <summary>
     /// A logical grouping of cards that contains a pool (cards avaiable for use by this card group) and (optionally) CardZone(s) that
     /// represent physical locations of instances of cards in the real world
     /// </summary>
-    public class CardGroup : ICardGroup, INotifyPropertyChanged {
+    internal class CardGroup : ICardGroup, INotifyPropertyChanged {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
         private string _playerName = string.Empty;
         private readonly IList<CardZone> _cardZones = new List<CardZone>();
@@ -185,6 +177,10 @@ namespace EideticMemoryOverlay.PluginApi {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CardButtons)));
         }
 
+        /// <summary>
+        /// Replace the cards in this group with a new set of cards
+        /// </summary>
+        /// <param name="cards">new cards to use</param>
         public void LoadCards(IEnumerable<CardInfo> cards) {
             var clearButton = new ClearButton();
 
@@ -281,4 +277,5 @@ namespace EideticMemoryOverlay.PluginApi {
             }
         }
     }
+
 }

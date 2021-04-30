@@ -43,6 +43,7 @@ namespace Emo {
                 x.For<IGameData>().Use<Game>().Singleton();
                 x.For<IGameFileService>().Use<GameFileService>().Singleton();
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
+                x.For<ICardGroup>().Use<CardGroup>();
             });
            
             _loggingService = container.GetInstance<LoggingService>();

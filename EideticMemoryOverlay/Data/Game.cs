@@ -30,7 +30,11 @@ namespace Emo.Data {
         /// <param name="plugIn">The plugin to use</param>
         public void InitializeFromPlugin(IPlugIn plugIn) {
             PlugInName = plugIn.GetType().Assembly.GetName().Name;
-            Players = new List<Player> { plugIn.CreatePlayer(CardGroupId.Player1), plugIn.CreatePlayer(CardGroupId.Player2), plugIn.CreatePlayer(CardGroupId.Player3), plugIn.CreatePlayer(CardGroupId.Player4) };
+            Players = new List<Player> { 
+                plugIn.CreatePlayer(new CardGroup(CardGroupId.Player1, plugIn)), 
+                plugIn.CreatePlayer(new CardGroup(CardGroupId.Player2, plugIn)),
+                plugIn.CreatePlayer(new CardGroup(CardGroupId.Player3, plugIn)), 
+                plugIn.CreatePlayer(new CardGroup(CardGroupId.Player4, plugIn))};
             EncounterSets = new List<EncounterSet>();
             LocalPacks = new List<string>();
             ScenarioCards = new CardGroup(CardGroupId.Scenario, plugIn);
@@ -73,11 +77,11 @@ namespace Emo.Data {
 
         public IList<string> LocalPacks { get; set; }
 
-        public CardGroup ScenarioCards { get; private set; }
+        public ICardGroup ScenarioCards { get; private set; }
 
-        public CardGroup LocationCards { get; private set; }
+        public ICardGroup LocationCards { get; private set; }
 
-        public CardGroup EncounterDeckCards { get; private set; }
+        public ICardGroup EncounterDeckCards { get; private set; }
 
         public IList<Player> Players { get; protected set; }
 
@@ -111,9 +115,9 @@ namespace Emo.Data {
             return EncounterSets.Any(x => x.Code == code);
         }
 
-        public IList<CardGroup> AllCardGroups {
+        public IList<ICardGroup> AllCardGroups {
             get {
-                var allCardGroups = new List<CardGroup> {
+                var allCardGroups = new List<ICardGroup> {
                     ScenarioCards,
                     LocationCards,
                     EncounterDeckCards
@@ -131,7 +135,7 @@ namespace Emo.Data {
         /// </summary>
         /// <param name="cardGroupId">Unique ID for a group</param>
         /// <returns>The group matching the passed in ID</returns>
-        public CardGroup GetCardGroup(CardGroupId cardGroupId) {
+        public ICardGroup GetCardGroup(CardGroupId cardGroupId) {
             switch (cardGroupId) {
                 case CardGroupId.Player1:
                     return Players[0].CardGroup;
@@ -199,7 +203,7 @@ namespace Emo.Data {
         /// </summary>
         /// <param name="cardGroup">The Card Group this card was clicked in</param>
         /// <param name="button">The button clicked</param>
-        private void HandleButtonLeftClick(CardGroup cardGroup, IButton button) {
+        private void HandleButtonLeftClick(ICardGroup cardGroup, IButton button) {
             if (button is CardImageButton cardImageButton) {
                 _logger.LogMessage($"Requesting toggle for {cardImageButton.CardInfo.Name} visibility");
                 _eventBus.PublishToggleCardInfoVisibilityRequest(cardImageButton.CardInfo);
@@ -225,7 +229,7 @@ namespace Emo.Data {
         /// <param name="cardGroup">The Card Group this card was clicked in</param>
         /// <param name="button">The button clicked</param>
         /// <param name="buttonOption">Option the user selected from a right click menu, if applicable</param>
-        private void HandleButtonRightClick(CardGroup cardGroup, CardImageButton button, ButtonOption buttonOption) {
+        private void HandleButtonRightClick(ICardGroup cardGroup, CardImageButton button, ButtonOption buttonOption) {
             //button should always be set- if it's not, we have an issue
             if (button == null) {
                 _logger.LogError($"Right Button Click for {cardGroup.Name} was not a button with an image");
@@ -258,7 +262,7 @@ namespace Emo.Data {
         /// <param name="destinationCardZone">Card Zone that contains the button</param>
         /// <param name="cardInfo">Information bout the card for this button</param>
         /// <returns>Options to assign to a right click button</returns>
-        private IEnumerable<ButtonOption> CreateButtonOptions(CardGroup cardGroup, CardZone destinationCardZone, CardInfo cardInfo) {
+        private IEnumerable<ButtonOption> CreateButtonOptions(ICardGroup cardGroup, CardZone destinationCardZone, CardInfo cardInfo) {
             var options = new List<ButtonOption>();
 
             options.Add(new ButtonOption(ButtonOptionOperation.Remove));
