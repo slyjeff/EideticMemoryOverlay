@@ -170,9 +170,8 @@ namespace Emo.Services {
             var cardImageButton = cardButton as CardImageButton;
 
             var cardInfoReponse = (cardButton == null)
-                ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
+                ? new CardInfoResponse { Name = "" }
                 : new CardInfoResponse {
-                    CardButtonType = GetCardType(cardImageButton?.CardInfo),
                     Name = cardButton.Text.Replace("Right Click", "Long Press"),
                     IsToggled = cardButton.IsToggled,
                     Code = cardImageButton?.CardInfo.ImageId,
@@ -232,35 +231,6 @@ namespace Emo.Services {
                     return player.Clues;
                 default:
                     return player.Health;
-            }
-        }
-
-        private static CardButtonType GetCardType(CardInfo card) {
-            if (card == null) {
-                return CardButtonType.Action;
-            }
-
-            switch (card.Type) {
-                case CardType.Scenario:
-                    return CardButtonType.Scenario;
-                case CardType.Agenda:
-                    return CardButtonType.Agenda;
-                case CardType.Act:
-                    return CardButtonType.Act;
-                case CardType.Location:
-                    return CardButtonType.Location;
-                case CardType.Enemy:
-                    return CardButtonType.Enemy;
-                case CardType.Treachery:
-                    return CardButtonType.Treachery;
-                case CardType.Asset:
-                    return CardButtonType.Asset;
-                case CardType.Event:
-                    return CardButtonType.Event;
-                case CardType.Skill:
-                    return CardButtonType.Skill;
-                default:
-                    return CardButtonType.Unknown;
             }
         }
 

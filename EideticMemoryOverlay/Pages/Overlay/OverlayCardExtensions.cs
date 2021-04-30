@@ -7,13 +7,7 @@ namespace Emo.Pages.Overlay {
         public static void AddOverlayCard(this IList<OverlayCardViewModel> cards, OverlayCardViewModel cardViewModel) {
             var insertIndex = cards.Count;
 
-            if (cardViewModel.CardInfo.Type == CardType.Agenda) {
-                //add this directly to the left of the first act
-                var firstAct = cards.FirstOrDefault(x => x.CardInfo.Type == CardType.Act);
-                if (firstAct != null) {
-                    insertIndex = cards.IndexOf(firstAct);
-                }
-            }
+            //todo: a place where we can add hooks to determine the order things are inserted- originally implemented to sort Arkham Agendas before acts.
 
             cards.Insert(insertIndex, cardViewModel);
         }
