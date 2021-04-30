@@ -73,7 +73,7 @@ namespace Emo.Services {
         private readonly IContainer _container;
         private IList<ZoneButton> _zoneButtons;
 
-        internal GameFileService(AppData appData, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IContainer container) {
+        public GameFileService(AppData appData, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IContainer container) {
             _appData = appData;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
