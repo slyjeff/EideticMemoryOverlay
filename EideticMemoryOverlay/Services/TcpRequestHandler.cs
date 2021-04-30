@@ -159,10 +159,9 @@ namespace Emo.Services {
         private void SendAllStats() {
             var game = _appData.Game;
             foreach (var player in game.Players) {
-                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Health, player.Health.Value);
-                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Sanity, player.Sanity.Value);
-                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Resources, player.Resources.Value);
-                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Clues, player.Clues.Value);
+                foreach (var stat in player.Stats) {
+                    _eventBus.PublishStatUpdated(player.CardGroup.Id, stat.StatType, stat.Value);
+                }
             }
         }
 
@@ -220,18 +219,13 @@ namespace Emo.Services {
         }
 
         private Stat GetStat(Player player, StatType statType) {
-            switch (statType) {
-                case StatType.Health:
-                    return player.Health;
-                case StatType.Sanity:
-                    return player.Sanity;
-                case StatType.Resources:
-                    return player.Resources;
-                case StatType.Clues:
-                    return player.Clues;
-                default:
-                    return player.Health;
+            foreach (var stat in player.Stats) {
+                if (stat.StatType == statType) {
+                    return stat;
+                }
             }
+
+            return default;
         }
 
         private void Send(Socket socket, string data) {

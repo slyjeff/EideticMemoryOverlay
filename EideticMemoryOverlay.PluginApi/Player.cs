@@ -8,6 +8,7 @@ using Emo.Common.Services;
 using Emo.Common.Utils;
 using Emo.Common.Events;
 using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace EideticMemoryOverlay.PluginApi {
     public abstract class Player : INotifyPropertyChanged, IHasImageButton {
@@ -16,6 +17,8 @@ namespace EideticMemoryOverlay.PluginApi {
 
         public Player(ICardGroup cardGroup) {
             CardGroup = cardGroup;
+
+            Stats = new List<Stat>();
 
             _eventBus.SubscribeToStatTrackingVisibilityChangedEvent(e => {
                 _isStatTrackingVisible = e.IsVisible;
@@ -51,6 +54,14 @@ namespace EideticMemoryOverlay.PluginApi {
         public string Name { get { return CardGroup.Name; } }
 
         string IHasImageButton.ImageId { get { return Name; } }
+
+        public IList<Stat> Stats { get; }
+
+        protected Stat CreateStat(StatType statType) {
+            var stat = new Stat(statType, CardGroup.Id);
+            Stats.Add(stat);
+            return stat;
+        }
 
         public string ImageSource { get; set; }
 
@@ -107,11 +118,10 @@ namespace EideticMemoryOverlay.PluginApi {
 
     public class Stat : INotifyPropertyChanged {
         private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
-        private readonly StatType _statType;
         private readonly CardGroupId _deck;
 
         public Stat(StatType statType, CardGroupId deck) {
-            _statType = statType;
+            StatType = statType;
             _deck = deck;
             var fileName = AppDomain.CurrentDomain.BaseDirectory + "Images\\" + GetImageFileName(statType);
             Image = new BitmapImage(new Uri(fileName));
@@ -142,6 +152,8 @@ namespace EideticMemoryOverlay.PluginApi {
 
         public ImageSource Image { get; }
 
+        public StatType StatType { get; }
+
         private int _value;
 
         public int Value {
@@ -169,7 +181,7 @@ namespace EideticMemoryOverlay.PluginApi {
         private void ValueChanged() {
             NotifyPropertyChanged(nameof(Value));
             NotifyPropertyChanged(nameof(DisplayValue));
-            _eventBus.PublishStatUpdated(_deck, _statType, _value);
+            _eventBus.PublishStatUpdated(_deck, StatType, _value);
         }
     }
 
