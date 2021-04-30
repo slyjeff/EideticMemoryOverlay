@@ -48,5 +48,9 @@ namespace EideticMemoryOverlay.PluginApi {
         public virtual Point GetCropStartingPoint() {
             return new Point(0, 0);
         }
+
+        public virtual string DeckListName { get { return Name; } }
+
+        public virtual Brush DeckListColor { get { return new SolidColorBrush(Colors.Black); } }
     }
 }

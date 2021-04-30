@@ -37,48 +37,4 @@ namespace Emo.Pages.Overlay {
             }
         }
     }
-
-    public class DeckListItem {
-        private CardInfo _card;
-        private string _name;
-
-        public DeckListItem(CardInfo card) {
-            _card = card;
-        }
-
-        public DeckListItem(string name) {
-            _name = name;
-        }
-
-        public string Name { 
-            get {
-                if(!string.IsNullOrEmpty(_name)) {
-                    return _name;
-                }
-                var name = _card.NameWithoutXp;
-                for (var x = 0; x < _card.Xp; x++) {
-                    name += "•";
-                }
-
-                return _card.Count + "x " + name; 
-            } 
-        }
-
-        public Brush Foreground { 
-            get {
-                if (_card == null) {
-                    return new SolidColorBrush(Colors.Black);
-                }
-
-                switch (_card.Faction) {
-                    case Faction.Guardian: return new SolidColorBrush(Colors.DarkBlue);
-                    case Faction.Seeker: return new SolidColorBrush(Colors.DarkGoldenrod);
-                    case Faction.Mystic: return new SolidColorBrush(Colors.Purple);
-                    case Faction.Rogue: return new SolidColorBrush(Colors.DarkGreen);
-                    case Faction.Survivor: return new SolidColorBrush(Colors.DarkRed);
-                    default: return new SolidColorBrush(Colors.Black);
-                }
-            } 
-        }
-    }
 }

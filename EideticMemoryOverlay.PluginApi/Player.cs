@@ -9,6 +9,8 @@ using Emo.Common.Utils;
 using Emo.Common.Events;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Linq;
+using EideticMemoryOverlay.PluginApi.Buttons;
 
 namespace EideticMemoryOverlay.PluginApi {
     public abstract class Player : INotifyPropertyChanged, IHasImageButton {
@@ -72,6 +74,7 @@ namespace EideticMemoryOverlay.PluginApi {
                 _image = value;
                 NotifyPropertyChanged(nameof(Image));
             }
+
         }
         private ImageSource _buttonImage;
         public ImageSource ButtonImage {
@@ -83,6 +86,18 @@ namespace EideticMemoryOverlay.PluginApi {
                 //the button image is set when the source image is loaded- but we need some other images for the overlay.
                 LoadOverlayImages();
             }
+        }
+
+        public virtual IList<DeckListItem> GetDeckList() {
+            var cards = from cardButton in CardGroup.CardButtons.OfType<CardInfoButton>()
+                        select cardButton.CardInfo;
+
+            var deckList = new List<DeckListItem>();
+            foreach (var card in cards) {
+                deckList.Add(new DeckListItem(card));
+            }
+
+            return deckList;
         }
 
         protected virtual void LoadOverlayImages() {

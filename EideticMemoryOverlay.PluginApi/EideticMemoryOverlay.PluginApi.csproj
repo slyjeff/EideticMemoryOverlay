@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Buttons\Button.cs" />
     <Compile Include="Buttons\CardButton.cs" />
+    <Compile Include="DeckListItem.cs" />
     <Compile Include="ICardGroup.cs" />
     <Compile Include="CardImageButton.cs" />
     <Compile Include="CardInfo.cs" />

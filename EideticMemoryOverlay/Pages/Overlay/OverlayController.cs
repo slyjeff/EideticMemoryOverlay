@@ -300,7 +300,7 @@ namespace Emo.Pages.Overlay {
         }
 
         private void ShowDeckListRequestHandler(ShowDeckListRequest request) {
-            ShowDeckList(GetCardGroupFromId(request.CardGroupId));
+            ShowDeckList(GetPlayerFromId(request.CardGroupId));
         }
 
         internal void ToggleCardInfoVisibilityRequestHandler(ToggleCardInfoVisibilityRequest request) {
@@ -329,35 +329,24 @@ namespace Emo.Pages.Overlay {
         #endregion
 
         #region ShowDeckList
-        private ICardGroup _currentDisplayedDeckList = null;
-        private void ShowDeckList(ICardGroup cardGroup) {
+        private Player _currentDisplayedDeckList = null;
+        private void ShowDeckList(Player player) {
+            if (player == default) {
+                return;
+            }
+
             _logger.LogMessage("Showing deck list in overlay.");
 
             //it's already displayed- just hide it
-            if (_currentDisplayedDeckList == cardGroup) {
+            if (_currentDisplayedDeckList == player) {
                 ClearDeckList();
                 return;
             }
 
-            var cards = from cardButton in cardGroup.CardButtons.OfType<CardInfoButton>()
-                        select cardButton.CardInfo;
+            ViewModel.DeckList = player.GetDeckList();
 
-            var deckList = new List<DeckListItem>();
-            foreach (var card in cards.Where(c => !c.IsBonded)) {
-                deckList.Add(new DeckListItem(card));
-            }
+            _currentDisplayedDeckList = player;
 
-            var bondedCards = cards.Where(c => c.IsBonded);
-            if (bondedCards.Any()) {
-                deckList.Add(new DeckListItem("Bonded Cards:"));
-
-                foreach (var card in bondedCards) {
-                    deckList.Add(new DeckListItem(card));
-                }
-            }
-
-            _currentDisplayedDeckList = cardGroup;
-            ViewModel.DeckList = deckList;
             ViewModel.ShowDeckList = true;
         }
 
@@ -497,22 +486,16 @@ namespace Emo.Pages.Overlay {
             return ViewModel.EncounterCardInfos;
         }
 
-        private ICardGroup GetCardGroupFromId(CardGroupId id) {
+        private Player GetPlayerFromId(CardGroupId id) {
             switch (id) {
                 case CardGroupId.Player1:
-                    return _appData.Game.Players[0].CardGroup;
+                    return _appData.Game.Players[0];
                 case CardGroupId.Player2:
-                    return _appData.Game.Players[1].CardGroup;
+                    return _appData.Game.Players[1];
                 case CardGroupId.Player3:
-                    return _appData.Game.Players[2].CardGroup;
+                    return _appData.Game.Players[2];
                 case CardGroupId.Player4:
-                    return _appData.Game.Players[3].CardGroup;
-                case CardGroupId.Scenario:
-                    return _appData.Game.ScenarioCards;
-                case CardGroupId.Locations:
-                    return _appData.Game.LocationCards;
-                case CardGroupId.EncounterDeck:
-                    return _appData.Game.EncounterDeckCards;
+                    return _appData.Game.Players[3];
                 default:
                     return null;
             }

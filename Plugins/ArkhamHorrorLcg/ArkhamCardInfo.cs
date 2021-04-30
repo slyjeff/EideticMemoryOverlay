@@ -3,6 +3,7 @@ using EideticMemoryOverlay.PluginApi;
 using System;
 using System.IO;
 using System.Windows;
+using System.Windows.Media;
 
 namespace ArkhamHorrorLcg {
     /// <summary>
@@ -100,6 +101,30 @@ namespace ArkhamHorrorLcg {
             } else {
                 return Faction.Other;
             }
+        }
+
+        public override string DeckListName {
+            get {
+                var name = NameWithoutXp;
+                for (var x = 0; x < Xp; x++) {
+                    name += "•";
+                }
+
+                return Count + "x " + name;
+            }
+        }
+
+        public override Brush DeckListColor { 
+            get {
+                switch (Faction) {
+                    case Faction.Guardian: return new SolidColorBrush(Colors.DarkBlue);
+                    case Faction.Seeker: return new SolidColorBrush(Colors.DarkGoldenrod);
+                    case Faction.Mystic: return new SolidColorBrush(Colors.Purple);
+                    case Faction.Rogue: return new SolidColorBrush(Colors.DarkGreen);
+                    case Faction.Survivor: return new SolidColorBrush(Colors.DarkRed);
+                    default: return new SolidColorBrush(Colors.Black);
+                }
+            } 
         }
     }
 }
