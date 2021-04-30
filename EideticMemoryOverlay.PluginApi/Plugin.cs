@@ -57,6 +57,12 @@ namespace EideticMemoryOverlay.PluginApi {
         /// </summary>
         /// <param name="player">the player to load</param>
         void LoadPlayer(Player player);
+
+        /// <summary>
+        /// Load the cards for a player
+        /// </summary>
+        /// <param name="player"></param>
+        void LoadPlayerCards(Player player);
     }
     
     /// <summary>
@@ -110,6 +116,12 @@ namespace EideticMemoryOverlay.PluginApi {
         /// </summary>
         /// <param name="player">the player to load</param>
         public abstract void LoadPlayer(Player player);
+
+        /// <summary>
+        /// Load the cards for a player
+        /// </summary>
+        /// <param name="player"></param>
+        public abstract void LoadPlayerCards(Player player);
 
         /// <summary>
         /// Directory where local images are stores for this plug in

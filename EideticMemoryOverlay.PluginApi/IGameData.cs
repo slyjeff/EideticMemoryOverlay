@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 namespace EideticMemoryOverlay.PluginApi {
     public interface IGameData {
+        string FileName { get; set; }
+
         event Action PlayersChanged;
 
         event Action EncounterSetsChanged;

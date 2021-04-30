@@ -52,6 +52,16 @@ namespace ArkhamHorrorLcg {
             cardLoadService.LoadPlayer(arkhamPlayer);
         }
 
+        public override void LoadPlayerCards(Player player) {
+            var arkhamPlayer = player as ArkhamPlayer;
+            if (arkhamPlayer == default) {
+                return;
+            }
+
+            var cardLoadService = _container.GetInstance<ICardLoadService>();
+            cardLoadService.LoadPlayerCards(arkhamPlayer);
+        }
+
         public override Type LocalCardType { get { return typeof(ArkhamLocalCard); } }
 
         public override string LocalImagesDirectory {

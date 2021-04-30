@@ -1,4 +1,5 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Data;
 using Emo.Services;
 using PageController;
 
@@ -6,7 +7,7 @@ namespace Emo.Pages.Main {
     public class MainViewModel : ViewModel {
         public virtual AppData AppData { get; set; }
 
-        public virtual Game Game { get { return AppData.Game;  } }
+        public virtual IGameData Game { get { return AppData.Game;  } }
 
         public virtual Configuration Configuration { get { return AppData.Configuration; } }
 

@@ -4,11 +4,11 @@ using StructureMap;
 using System;
 
 namespace Emo.Services {
-    internal interface IDisplayableView {
+    public interface IDisplayableView {
         void ShowView();
     } 
 
-    internal interface IControllerFactory {
+    public interface IControllerFactory {
         /// <summary>
         /// Create a controller
         /// </summary>

@@ -11,6 +11,7 @@ using System.Windows.Threading;
 namespace ArkhamHorrorLcg {
     internal interface ICardLoadService {
         void LoadPlayer(ArkhamPlayer player);
+        void LoadPlayerCards(ArkhamPlayer player);
     }
 
     internal class CardLoadService : ICardLoadService {

@@ -18,5 +18,8 @@ namespace MarvelChampionsLcg {
 
         public override void LoadPlayer(Player player) {
         }
+
+        public override void LoadPlayerCards(Player player) {
+        }
     }
 }

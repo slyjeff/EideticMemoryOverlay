@@ -59,7 +59,12 @@ namespace Emo.Services {
         public IList<ZoneButton> ZoneButtons { get; set; }
     }
 
-    internal class GameFileService {
+    public interface IGameFileService {
+        IPlugIn Load(string fileName = "");
+        void Save(string fileName);
+    }
+
+    internal class GameFileService : IGameFileService {
         private readonly AppData _appData;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
@@ -78,15 +83,14 @@ namespace Emo.Services {
             eventBus.SubscribeToCardGroupButtonsChanged(CardGroupButtonsChangedHandler);
         }
 
-        internal void Load(string fileName = "") {
+        public IPlugIn Load(string fileName = "") {
             if (string.IsNullOrEmpty(fileName)) {
                 fileName = _appData.Configuration.LastSavedFileName;
             }
 
             _logger.LogMessage($"Loading game from file {fileName}.");
             if (!File.Exists(fileName)) {
-                LoadPlugIn(null);
-                return;
+                return LoadPlugIn(null);
             } 
 
             try {
@@ -98,7 +102,7 @@ namespace Emo.Services {
 
                 var game = _appData.Game as Game;
                 if (game == default) {
-                    return;
+                    return plugIn;
                 }
                 game.ClearAllCardsLists();
 
@@ -122,9 +126,12 @@ namespace Emo.Services {
                 game.OnPlayersChanged();
                 _appData.OnGameChanged();
                 _logger.LogMessage($"Finished reading game file: {fileName}.");
+
+                return plugIn;
             } catch (Exception ex) {
                 // if there's an error, we don't care- just use the existing game
                 _logger.LogException(ex, $"Error reading game file: {fileName}.");
+                return LoadPlugIn(null);
             }
         }
 
@@ -148,7 +155,7 @@ namespace Emo.Services {
             return plugIn;
         }
 
-        internal void Save(string fileName) {
+        public void Save(string fileName) {
             _logger.LogMessage($"Saving game file: {fileName}.");
             var gameFile = new GameFile();
             var game = _appData.Game as IGame;

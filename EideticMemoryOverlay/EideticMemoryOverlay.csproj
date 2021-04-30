@@ -182,7 +182,6 @@
     <Compile Include="Services\StructureMapDependencyResolver.cs" />
     <Compile Include="Services\TcpRequestHandler.cs" />
     <Compile Include="Data\Configuration.cs" />
-    <Compile Include="Design\SelectableCards.cs" />
     <Compile Include="Pages\Main\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>

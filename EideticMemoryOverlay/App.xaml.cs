@@ -41,6 +41,7 @@ namespace Emo {
                 x.For<Configuration>().Use<Configuration>().Singleton();
                 x.For<IPlugInService>().Use<PlugInService>();
                 x.For<IGameData>().Use<Game>().Singleton();
+                x.For<IGameFileService>().Use<GameFileService>().Singleton();
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
             });
            
@@ -49,7 +50,7 @@ namespace Emo {
             var configurationService = container.GetInstance<ConfigurationService>();
             configurationService.Load();
 
-            var gameFileService = container.GetInstance<GameFileService>();
+            var gameFileService = container.GetInstance<IGameFileService>();
             gameFileService.Load();
 
             var receiveSocketService = container.GetInstance<ReceiveSocketService>();

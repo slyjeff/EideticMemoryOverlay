@@ -22,26 +22,24 @@ using System.Windows.Threading;
 namespace Emo.Pages.Main {
     public class MainController : Controller<MainView, MainViewModel> {
         private OverlayController _overlayController;
-        private readonly CardLoadService _cardLoadService;
         private readonly IList<SelectCardsController> _selectCardsControllers = new List<SelectCardsController>();
 
-        private readonly GameFileService _gameFileService;
+        private readonly IGameFileService _gameFileService;
         private readonly IControllerFactory _controllerFactory;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
+        private IPlugIn _plugIn;
 
-        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
+        public MainController(AppData appData, IGameFileService gameFileService, IPlugIn plugIn, IControllerFactory controllerFactory, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
             ViewModel.AppData = appData;
 
             _gameFileService = gameFileService;
+            _plugIn = plugIn;
             _controllerFactory = controllerFactory;
-            _cardLoadService = cardLoadService;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
             _eventBus = eventBus;
-
-            LoadEncounterSets();
 
             View.Closed += (s, e) => {
                 _logger.LogMessage("Closing main window.");
@@ -51,17 +49,6 @@ namespace Emo.Pages.Main {
                     _overlayController.Close();
                 }
             };
-        }
-
-        private void LoadEncounterSets() {
-            var worker = new BackgroundWorker();
-            worker.DoWork += (x, y) => {
-                _logger.LogMessage("Main window loading encounter sets.");
-                _loadingStatusService.ReportEncounterCardsStatus(Status.LoadingDeck);
-                _cardLoadService.FindMissingEncounterSets(ViewModel.AppData.Configuration);
-                _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
-            };
-            worker.RunWorkerAsync();
         }
 
         private void ClearPlayerCardsWindows() {
@@ -188,7 +175,7 @@ namespace Emo.Pages.Main {
 
             if (dialog.ShowDialog() == true) {
                 _logger.LogMessage($"Main window: loading game from {dialog.FileName}.");
-                _gameFileService.Load(dialog.FileName);
+                _plugIn = _gameFileService.Load(dialog.FileName);
                 ClearPlayerCardsWindows();
             }
         }
@@ -246,7 +233,7 @@ namespace Emo.Pages.Main {
                 try {
                     _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingDeck);
                     var originalName = player.Name;
-                    _cardLoadService.LoadPlayer(player);
+                    _plugIn.LoadPlayer(player);
 
                     //if this is a new character, clear all cards from card zones
                     if (originalName != player.Name) {
@@ -257,7 +244,7 @@ namespace Emo.Pages.Main {
                     worker.DoWork += (x, y) => {
                         _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingCards);
                         try {
-                            _cardLoadService.LoadPlayerCards(player);
+                            _plugIn.LoadPlayerCards(player);
                             _loadingStatusService.ReportPlayerStatus(player.ID, Status.Finished);
                         }
                         catch {
