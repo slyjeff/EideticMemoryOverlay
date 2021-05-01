@@ -35,12 +35,15 @@ namespace Emo.Data {
                 plugIn.CreatePlayer(new CardGroup(CardGroupId.Player2, plugIn)),
                 plugIn.CreatePlayer(new CardGroup(CardGroupId.Player3, plugIn)), 
                 plugIn.CreatePlayer(new CardGroup(CardGroupId.Player4, plugIn))};
+
             EncounterSets = new List<EncounterSet>();
             LocalPacks = new List<string>();
             ScenarioCards = new CardGroup(CardGroupId.Scenario, plugIn);
             ScenarioCards.AddCardZone(new CardZone("Act/Agenda Bar", CardZoneLocation.Top));
             LocationCards = new CardGroup(CardGroupId.Locations, plugIn);
             EncounterDeckCards = new CardGroup(CardGroupId.EncounterDeck, plugIn);
+
+            NotifyPropertyChanged(nameof(Players));
         }
 
         public string PlugInName { get; set; }
