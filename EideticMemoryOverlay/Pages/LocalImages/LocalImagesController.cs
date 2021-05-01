@@ -18,7 +18,7 @@ namespace Emo.Pages.LocalImages {
         private readonly IPlugIn _plugIn;
         private readonly LoggingService _logger;
 
-        public LocalImagesController(IPlugIn plugIn, Configuration configuration, LoggingService logger, ILocalCardsService<T> localCardsService) {
+        public LocalImagesController(IPlugIn plugIn, LoggingService logger, ILocalCardsService<T> localCardsService) {
             _plugIn = plugIn;
             _logger = logger;
             ViewModel.LocalImagesDirectory = _plugIn.LocalImagesDirectory;
