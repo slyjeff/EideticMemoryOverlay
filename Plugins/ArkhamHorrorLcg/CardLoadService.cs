@@ -38,6 +38,7 @@ namespace ArkhamHorrorLcg {
         public void LoadPlayer(ArkhamPlayer player) {
             if (string.IsNullOrEmpty(player.DeckId)) {
                 _logger.LogWarning($"{player.ID} has no deck ID.");
+                player.Clear();
                 return;
             }
 

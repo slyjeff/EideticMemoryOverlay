@@ -60,8 +60,10 @@ namespace Emo.Data {
         }
 
         private void OnTrackPlayerStatsChanged() {
-            _eventBus.PublishStatTrackingVisibilityChangedEvent(TrackHealthAndSanity || TrackResources || TrackClues);
+            ShowStats = TrackHealthAndSanity || TrackResources || TrackClues;
+            NotifyPropertyChanged(nameof(ShowStats));
         }
+        public bool ShowStats { get; private set; }
 
 
         private bool _seperateStatSnapshots;

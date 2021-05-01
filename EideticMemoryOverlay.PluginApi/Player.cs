@@ -14,18 +14,10 @@ using EideticMemoryOverlay.PluginApi.Buttons;
 
 namespace EideticMemoryOverlay.PluginApi {
     public abstract class Player : INotifyPropertyChanged, IHasImageButton {
-        private readonly IEventBus _eventBus = ServiceLocator.GetService<IEventBus>();
-        private bool _isStatTrackingVisible = false;
-
         public Player(ICardGroup cardGroup) {
             CardGroup = cardGroup;
 
             Stats = new List<Stat>();
-
-            _eventBus.SubscribeToStatTrackingVisibilityChangedEvent(e => {
-                _isStatTrackingVisible = e.IsVisible;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatTrackingVisibility)));
-            });
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -54,6 +46,13 @@ namespace EideticMemoryOverlay.PluginApi {
         public ICardGroup CardGroup { get; }
 
         public string Name { get { return CardGroup.Name; } }
+
+        public void Clear() {
+            CardGroup.ClearCards();
+            CardGroup.Name = string.Empty;
+            Image = default;
+            OnPlayerChanged();
+        }
 
         string IHasImageButton.ImageId { get { return Name; } }
 
@@ -119,7 +118,6 @@ namespace EideticMemoryOverlay.PluginApi {
         public virtual void OnPlayerChanged() {
             NotifyPropertyChanged(nameof(LoadedVisiblity));
             NotifyPropertyChanged(nameof(Name));
-            NotifyPropertyChanged(nameof(StatTrackingVisibility));
 
             CardGroup.PublishCardGroupChanged();
         }
@@ -127,8 +125,6 @@ namespace EideticMemoryOverlay.PluginApi {
         public virtual Point GetCropStartingPoint() {
             return new Point(0, 0);
         }
-
-        public Visibility StatTrackingVisibility { get { return string.IsNullOrEmpty(CardGroup.Name) || !_isStatTrackingVisible ? Visibility.Collapsed : Visibility.Visible; } }
     }
 
     public class Stat : INotifyPropertyChanged {

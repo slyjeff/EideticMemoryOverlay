@@ -229,34 +229,37 @@ namespace Emo.Pages.Main {
         [Command]
         public void Refresh(Player player) {
             _logger.LogMessage($"Main window: refresh player {player.ID} cards clicked.");
-            if (!string.IsNullOrEmpty(player.DeckId)) {
-                try {
-                    _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingDeck);
-                    var originalName = player.Name;
-                    _plugIn.LoadPlayer(player);
+            if (string.IsNullOrEmpty(player.DeckId)) {
+                player.Clear();
+                return;
+            }
 
-                    //if this is a new character, clear all cards from card zones
-                    if (originalName != player.Name) {
-                        player.CardGroup.ClearCards();
+            try {
+                _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingDeck);
+                var originalName = player.Name;
+                _plugIn.LoadPlayer(player);
+
+                //if this is a new character, clear all cards from card zones
+                if (originalName != player.Name) {
+                    player.CardGroup.ClearCards();
+                }
+
+                var worker = new BackgroundWorker();
+                worker.DoWork += (x, y) => {
+                    _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingCards);
+                    try {
+                        _plugIn.LoadPlayerCards(player);
+                        _loadingStatusService.ReportPlayerStatus(player.ID, Status.Finished);
                     }
-
-                    var worker = new BackgroundWorker();
-                    worker.DoWork += (x, y) => {
-                        _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingCards);
-                        try {
-                            _plugIn.LoadPlayerCards(player);
-                            _loadingStatusService.ReportPlayerStatus(player.ID, Status.Finished);
-                        }
-                        catch {
-                            _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
-                        }
-                    };
-                    worker.RunWorkerAsync();
-                }
-                catch (Exception ex) {
-                    _logger.LogException(ex, $"Main window: error refreshing player {player.ID} cards.");
-                    _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
-                }
+                    catch {
+                        _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
+                    }
+                };
+                worker.RunWorkerAsync();
+            }
+            catch (Exception ex) {
+                _logger.LogException(ex, $"Main window: error refreshing player {player.ID} cards.");
+                _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
             }
         }
 
