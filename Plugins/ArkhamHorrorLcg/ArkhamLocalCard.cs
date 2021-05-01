@@ -2,8 +2,8 @@
 
 namespace ArkhamHorrorLcg {
     class ArkhamLocalCard : LocalCard {
-        internal string CardType { get; set; }
-        internal string ArkhamDbId { get; set; }
+        public string CardType { get; set; }
+        public string ArkhamDbId { get; set; }
 
         public override void CopyTo(EditableLocalCard editableLocalCard) {
             base.CopyTo(editableLocalCard);

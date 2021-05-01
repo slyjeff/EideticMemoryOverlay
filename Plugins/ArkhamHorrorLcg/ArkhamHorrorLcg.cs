@@ -1,6 +1,7 @@
 ﻿using ArkhamHorrorLcg.ArkhamDb;
 using EideticMemoryOverlay.PluginApi;
 using EideticMemoryOverlay.PluginApi.Buttons;
+using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Common.Enums;
 using StructureMap;
 using System;
@@ -73,6 +74,10 @@ namespace ArkhamHorrorLcg {
         }
 
         public override Type LocalCardType { get { return typeof(ArkhamLocalCard); } }
+
+        public override EditableLocalCard CreateEditableLocalCard() {
+            return new ArkhamEditableLocalCard();
+        }
 
         public override string LocalImagesDirectory {
             get {

@@ -27,10 +27,15 @@ namespace EideticMemoryOverlay.PluginApi {
         Type LocalCardType { get; }
 
         /// <summary>
+        /// create a new instance of an editable local card, containing all properties defined by the plugin
+        /// </summary>
+        /// <returns>editable local card that contains all properties defined by the plugin</returns>
+        EditableLocalCard CreateEditableLocalCard();
+
+        /// <summary>
         /// List of packs (that container selectable encounter sets) that can be used for this plug in
         /// </summary>
         IList<Pack> Packs { get; }
-
 
         /// <summary>
         /// Directory where local images are stores for this plug in
@@ -98,6 +103,14 @@ namespace EideticMemoryOverlay.PluginApi {
         /// Type type used for local cards
         /// </summary>
         public virtual Type LocalCardType { get { return typeof(LocalCard); } }
+
+        /// <summary>
+        /// create a new instance of an editable local card, containing all properties defined by the plugin
+        /// </summary>
+        /// <returns>editable local card that contains all properties defined by the plugin</returns>
+        public virtual EditableLocalCard CreateEditableLocalCard() {
+            return new EditableLocalCard();
+        }
 
         /// <summary>
         /// List of packs (that container selectable encounter sets) that can be used for this plug in

@@ -1,12 +1,8 @@
-﻿using EideticMemoryOverlay.PluginApi;
-using EideticMemoryOverlay.PluginApi.LocalCards;
-using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi.LocalCards;
 using PageController;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows;
-using System.Windows.Media;
 
 namespace Emo.Pages.LocalImages {
     public class LocalImagesViewModel : ViewModel {
@@ -15,9 +11,10 @@ namespace Emo.Pages.LocalImages {
             CardTypes = new List<string> { "Asset", "Event", "Skill", "Scenario", "Agenda", "Act", "Enemy", "Treachery", "Location", "Investigator" };
         }
 
-        public virtual Configuration Configuration { get; set; }
+        public virtual string LocalImagesDirectory { get; set; }
 
         public virtual IList<LocalPack> Packs { get; set; }
+        public virtual bool AnyPacks { get; set; }
 
         private LocalPack _selectedPack;
         public virtual LocalPack SelectedPack {

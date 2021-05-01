@@ -18,12 +18,13 @@
     <DockPanel LastChildFill="true">
         <StackPanel Orientation="Horizontal" Margin="5, 0, 0, 10" DockPanel.Dock="Top">
             <TextBlock Text="Local Images Directory:" Margin="0, 4, 0, 0" />
-            <TextBlock Margin="5,4,0,0"  Text="{Binding Configuration.LocalImagesDirectory}" />
+            <TextBlock Margin="5,4,0,0"  Text="{Binding LocalImagesDirectory}" />
             <Button Margin="10, 0, 0, 0" Command="{Binding SelectDirectory}">Choose Directory</Button>
         </StackPanel>
         <ListView ItemsSource="{Binding Packs}" 
                   DockPanel.Dock="Left"
                   Margin="5, 0, 0, 5"
+                  Visibility="{Binding AnyPacks, Converter={StaticResource BoolToVisibility}}"
                   SelectedItem="{Binding SelectedPack, Mode=OneWayToSource}">
             <ListView.ItemTemplate>
                 <DataTemplate>

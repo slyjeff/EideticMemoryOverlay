@@ -21,7 +21,7 @@ namespace Emo.Pages.LocalImages {
         public LocalImagesController(IPlugIn plugIn, Configuration configuration, LoggingService logger, ILocalCardsService<T> localCardsService) {
             _plugIn = plugIn;
             _logger = logger;
-            ViewModel.Configuration = configuration;
+            ViewModel.LocalImagesDirectory = _plugIn.LocalImagesDirectory;
 
             LoadPacks();
 
@@ -48,6 +48,7 @@ namespace Emo.Pages.LocalImages {
                     packs.Add(LoadPack(directory));                    
                 }
                 ViewModel.Packs = packs;
+                ViewModel.AnyPacks = packs.Any();
             } catch (Exception e) {
                 _logger.LogException(e, "Error loading packs");
             }
@@ -60,7 +61,7 @@ namespace Emo.Pages.LocalImages {
             if (File.Exists(manifestPath)) {
                 try {
                     _logger.LogMessage($"Loading pack manifest {manifestPath}.");
-                    var manifest = JsonConvert.DeserializeObject<LocalPackManifest>(File.ReadAllText(manifestPath));
+                    var manifest = JsonConvert.DeserializeObject<LocalPackManifest<T>>(File.ReadAllText(manifestPath));
                     ReadManifest(manifest, pack);
 
                     pack.PropertyChanged += (s, e) => {
@@ -123,12 +124,12 @@ namespace Emo.Pages.LocalImages {
             }
         }
 
-        internal void ReadManifest(LocalPackManifest manifest, LocalPack pack) {
+        internal void ReadManifest(LocalPackManifest<T> manifest, LocalPack pack) {
             pack.Name = manifest.Name;
             var localCards = new ObservableCollection<EditableLocalCard>();
             foreach (var card in manifest.Cards) {
                 if (File.Exists(card.FilePath)) {
-                    var editableLocalCard = new EditableLocalCard();
+                    var editableLocalCard = _plugIn.CreateEditableLocalCard();
                     card.CopyTo(editableLocalCard);
 
                     editableLocalCard.PropertyChanged += (s, e) => {
@@ -196,6 +197,7 @@ namespace Emo.Pages.LocalImages {
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
                 _logger.LogMessage($"LocalImages: new directory: {dialog.FileName}.");
                 _plugIn.LocalImagesDirectory = dialog.FileName;
+                ViewModel.LocalImagesDirectory = _plugIn.LocalImagesDirectory;
                 LoadPacks();
             }
             View.Activate();
