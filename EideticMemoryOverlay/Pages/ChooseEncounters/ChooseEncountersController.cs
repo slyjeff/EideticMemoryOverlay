@@ -10,12 +10,14 @@ using System.Linq;
 namespace Emo.Pages.ChooseEncounters {
     public class ChooseEncountersController<T> : Controller<ChooseEncountersView, ChooseEncountersViewModel>, IDisplayableView where T : LocalCard {
         private readonly IGameData _gameData;
+        private readonly IPlugIn _plugIn;
         private readonly LoggingService _logger;
         private readonly IList<SelectableEncounterSet> _selectableEncounterSets = new List<SelectableEncounterSet>();
         private readonly IList<SelectableLocalPackManifest<T>> _selectableLocalPackManifests = new List<SelectableLocalPackManifest<T>>();
 
         public ChooseEncountersController(IGameData gameData, IPlugIn plugIn, LoggingService loggingService, ILocalCardsService<T> localCardsService) {
             _gameData = gameData;
+            _plugIn = plugIn;
             _logger = loggingService;
             foreach (var pack in plugIn.Packs) {
                 var cycle = GetCyle(pack);
@@ -78,7 +80,7 @@ namespace Emo.Pages.ChooseEncounters {
                 }
             }
             _gameData.LocalPacks = localPacks;
-            _gameData.OnEncounterSetsChanged();
+            _plugIn.LoadEncounterCards();
 
             View.Close();
         }

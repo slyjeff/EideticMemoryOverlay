@@ -37,7 +37,7 @@ namespace EideticMemoryOverlay.PluginApi.Buttons {
             get => _isToggled;
             set {
                 _isToggled = value;
-                PropertyChanged?.Invoke(nameof(BorderBrush), null);
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BorderBrush)));
             }
         }
 

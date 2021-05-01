@@ -87,13 +87,6 @@ namespace Emo.Data {
 
         public event Action PlayersChanged;
 
-        public event Action EncounterSetsChanged;
-        public void OnEncounterSetsChanged() {
-            EncounterSetsChanged?.Invoke();
-            NotifyPropertyChanged(nameof(EncounterSets));
-            NotifyPropertyChanged(nameof(EncounterCardOptionsVisibility));
-        }
-
         public Visibility EncounterCardOptionsVisibility { 
             get {
                 return EncounterSets.Any() ? Visibility.Visible : Visibility.Collapsed;
@@ -104,11 +97,6 @@ namespace Emo.Data {
             foreach (var selectableCards in AllCardGroups) {
                 selectableCards.ClearCards();
             }
-        }
-
-        public void OnPlayersChanged() {
-            PlayersChanged?.Invoke();
-            NotifyPropertyChanged(nameof(Players));
         }
 
         public bool IsEncounterSetSelected(string code) {

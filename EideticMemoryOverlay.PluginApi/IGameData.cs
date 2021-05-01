@@ -8,10 +8,6 @@ namespace EideticMemoryOverlay.PluginApi {
         
         string SnapshotDirectory { get; set; }
 
-        event Action PlayersChanged;
-
-        event Action EncounterSetsChanged;
-
         IList<Player> Players { get; }
 
         ICardGroup ScenarioCards { get; }
@@ -28,8 +24,6 @@ namespace EideticMemoryOverlay.PluginApi {
         IList<ICardGroup> AllCardGroups { get; }
 
         void ClearAllCardsLists();
-
-        void OnEncounterSetsChanged();
 
         /// <summary>
         /// Setup the game using plugin specific logic

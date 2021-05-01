@@ -108,7 +108,6 @@ namespace Emo.Services {
 
                 gameFile.CopyTo(game);
                 game.FileName = fileName;
-                game.OnEncounterSetsChanged();
 
                 for (var index = 0; index < gameFile.DeckIds.Count && index < game.Players.Count; index++) {
                     game.Players[index].DeckId = gameFile.DeckIds[index];
@@ -123,7 +122,8 @@ namespace Emo.Services {
                     }
                 }
 
-                game.OnPlayersChanged();
+                plugIn.LoadEncounterCards();
+                plugIn.LoadAllPlayerCards();
                 _appData.OnGameChanged();
                 _logger.LogMessage($"Finished reading game file: {fileName}.");
 

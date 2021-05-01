@@ -63,8 +63,18 @@ namespace EideticMemoryOverlay.PluginApi {
         /// </summary>
         /// <param name="player"></param>
         void LoadPlayerCards(Player player);
+
+        /// <summary>
+        /// Load cards for all players
+        /// </summary>
+        void LoadAllPlayerCards();
+
+        /// <summary>
+        /// Load all encounter cards
+        /// </summary>
+        void LoadEncounterCards();
     }
-    
+
     /// <summary>
     /// Plugins must inherit from this class to provide an entry point to the application
     /// </summary>
@@ -122,6 +132,16 @@ namespace EideticMemoryOverlay.PluginApi {
         /// </summary>
         /// <param name="player"></param>
         public abstract void LoadPlayerCards(Player player);
+
+        /// <summary>
+        /// Load cards for all players
+        /// </summary>
+        public abstract void LoadAllPlayerCards();
+
+        /// <summary>
+        /// Load all encounter cards
+        /// </summary>
+        public abstract void LoadEncounterCards();
 
         /// <summary>
         /// Directory where local images are stores for this plug in

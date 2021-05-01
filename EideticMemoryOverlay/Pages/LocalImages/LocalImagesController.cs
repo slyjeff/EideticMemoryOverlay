@@ -18,7 +18,7 @@ namespace Emo.Pages.LocalImages {
         private readonly IPlugIn _plugIn;
         private readonly LoggingService _logger;
 
-        public LocalImagesController(IPlugIn plugIn, Configuration configuration, IGameData game, LoggingService logger, ILocalCardsService<T> localCardsService) {
+        public LocalImagesController(IPlugIn plugIn, Configuration configuration, LoggingService logger, ILocalCardsService<T> localCardsService) {
             _plugIn = plugIn;
             _logger = logger;
             ViewModel.Configuration = configuration;
@@ -27,7 +27,7 @@ namespace Emo.Pages.LocalImages {
 
             View.Closed += (s, e) => {
                 localCardsService.InvalidateManifestCache();
-                game.OnEncounterSetsChanged();
+                plugIn.LoadEncounterCards();
             };
         }
 

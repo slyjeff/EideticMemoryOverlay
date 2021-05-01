@@ -12,6 +12,8 @@ namespace ArkhamHorrorLcg {
     internal interface ICardLoadService {
         void LoadPlayer(ArkhamPlayer player);
         void LoadPlayerCards(ArkhamPlayer player);
+        void LoadAllPlayerCards();
+        void LoadAllEncounterCards();
     }
 
     internal class CardLoadService : ICardLoadService {
@@ -31,11 +33,6 @@ namespace ArkhamHorrorLcg {
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
             _arkhamConfiguration = arkhamConfiguration;
-        }
-
-        public void RegisterEvents() {
-            _game.PlayersChanged += LoadAllPlayerCards;
-            _game.EncounterSetsChanged += LoadAllEncounterCards;
         }
 
         public void LoadPlayer(ArkhamPlayer player) {
@@ -79,7 +76,7 @@ namespace ArkhamHorrorLcg {
             player.OnPlayerChanged();
         }
 
-        private void LoadAllPlayerCards() {
+        public void LoadAllPlayerCards() {
             var worker = new BackgroundWorker();
             worker.DoWork += (x, y) => {
                 foreach (var player in _game.Players) {
@@ -104,7 +101,7 @@ namespace ArkhamHorrorLcg {
             worker.RunWorkerAsync();
         }
 
-        private void LoadAllEncounterCards() {
+        public void LoadAllEncounterCards() {
             var worker = new BackgroundWorker();
             worker.DoWork += (x, y) => {
                 _loadingStatusService.ReportEncounterCardsStatus(Status.LoadingCards);

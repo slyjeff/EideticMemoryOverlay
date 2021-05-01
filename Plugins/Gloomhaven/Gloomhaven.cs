@@ -21,5 +21,11 @@ namespace Gloomhaven {
 
         public override void LoadPlayerCards(Player player) {
         }
+
+        public override void LoadAllPlayerCards() {
+        }
+
+        public override void LoadEncounterCards() {
+        }
     }
 }
