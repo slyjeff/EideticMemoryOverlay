@@ -16,7 +16,7 @@ namespace Emo.Services {
         string Name { get; set; }
         string Scenario { get; set; }
         string SnapshotDirectory { get; set; }
-        IList<EncounterSet> EncounterSets { get; }
+        IList<EncounterSet> EncounterSets { get; set; }
         IList<string> LocalPacks { get; }
     }
 
@@ -252,10 +252,12 @@ namespace Emo.Services {
             toGame.Scenario = fromGame.Scenario;
             toGame.SnapshotDirectory = fromGame.SnapshotDirectory;
 
-            toGame.EncounterSets.Clear();
+            var encounterSets = new List<EncounterSet>();
+            encounterSets.Clear();
             foreach (var encounterSet in fromGame.EncounterSets) {
-                toGame.EncounterSets.Add(new EncounterSet(encounterSet));
+                encounterSets.Add(new EncounterSet(encounterSet));
             }
+            toGame.EncounterSets = encounterSets;
 
             toGame.LocalPacks.Clear();
             foreach (var localPack in fromGame.LocalPacks) {

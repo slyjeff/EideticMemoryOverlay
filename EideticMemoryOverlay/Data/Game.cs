@@ -23,7 +23,6 @@ namespace Emo.Data {
             _logger = logger;
             _plugIn = plugIn;
             Players = new List<Player>();
-            EncounterSets = new List<EncounterSet>();
             _eventBus.SubscribeToButtonClickRequest(ButtonClickRequestHandler);
         }
 
@@ -78,7 +77,15 @@ namespace Emo.Data {
             }
         }
 
-        public IList<EncounterSet> EncounterSets { get; set;  }
+        private IList<EncounterSet> _encounterSets = new List<EncounterSet>();
+        public IList<EncounterSet> EncounterSets {
+            get => _encounterSets;
+            set {
+                _encounterSets = value;
+                NotifyPropertyChanged(nameof(EncounterSets));
+                NotifyPropertyChanged(nameof(EncounterCardOptionsVisibility));
+            }
+        }
 
         public IList<string> LocalPacks { get; set; }
 
