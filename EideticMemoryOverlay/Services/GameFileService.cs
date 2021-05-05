@@ -127,6 +127,8 @@ namespace Emo.Services {
                 _appData.OnGameChanged();
                 _logger.LogMessage($"Finished reading game file: {fileName}.");
 
+                _appData.Configuration.LastSavedFileName = fileName;
+
                 return;
             } catch (Exception ex) {
                 // if there's an error, we don't care- just use the existing game
