@@ -20,8 +20,6 @@ namespace Emo.Data {
         private readonly IList<CardZone> _cardZones = new List<CardZone>();
         private readonly IPlugIn _plugIn;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public CardGroup(CardGroupId id, IPlugIn plugIn) {
             Type = id.GetSelectableType();
             Id = id;
@@ -30,6 +28,11 @@ namespace Emo.Data {
             _cardZones = new List<CardZone>();
 
             _eventBus.SubscribeToCardInfoVisibilityChanged(CardInfoVisibilityChangedHandler);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void NotifyPropertyChanged(string property) {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
 
         public CardGroupType Type { get; }
@@ -60,7 +63,15 @@ namespace Emo.Data {
 
         public string CardZoneName { get { return _cardZones.Any() ? _cardZones[0].Name : ""; } }
 
-        public List<IButton> CardButtons { get; set; }
+
+        private List<IButton> _cardButtons = new List<IButton>();
+        public List<IButton> CardButtons { 
+            get => _cardButtons; 
+            set {
+                _cardButtons = value;
+                NotifyPropertyChanged(nameof(CardButtons));
+            }
+        }
 
         private byte[] _buttonImageAsBytes { get; set; }
         /// <summary>
@@ -175,7 +186,7 @@ namespace Emo.Data {
                 cardZone.ClearButtons();
             }
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CardButtons)));
+            NotifyPropertyChanged(nameof(CardButtons));
         }
 
         /// <summary>
@@ -190,7 +201,6 @@ namespace Emo.Data {
             var cardInfoButtons = SortCards(cards).Select(x => _plugIn.CreateCardInfoButton(x, Id)).ToList();
             playerButtons.AddRange(cardInfoButtons);
             CardButtons = playerButtons;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CardButtons)));
 
             RegisterButtonImageLoadCallbacks();
             _eventBus.PublishCardGroupButtonsChanged(Id, GetButtonInfo());

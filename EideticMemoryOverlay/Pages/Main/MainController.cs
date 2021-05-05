@@ -124,6 +124,7 @@ namespace Emo.Pages.Main {
 
             timer.Start();
         }
+
         private void MainWindowActivated(object sender, EventArgs e) {
             foreach (var selectCardsWindow in _selectCardsControllers) {
                 selectCardsWindow.Show();

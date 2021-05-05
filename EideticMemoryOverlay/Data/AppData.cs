@@ -21,9 +21,5 @@ namespace Emo.Data {
                 NotifyPropertyChanged(nameof(Status));
             }
         }
-
-        public void OnGameChanged() {
-            NotifyPropertyChanged(nameof(Game));
-        }
     }
 }

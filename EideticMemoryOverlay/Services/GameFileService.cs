@@ -7,8 +7,11 @@ using Emo.Events;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace Emo.Services {
     public interface IGame {
@@ -90,8 +93,8 @@ namespace Emo.Services {
             _logger.LogMessage($"Loading game from file {fileName}.");
             if (!File.Exists(fileName)) {
                 LoadPlugIn(null);
-                return; 
-            } 
+                return;
+            }
 
             try {
                 _eventBus.PublishClearAllCardsRequest();
@@ -109,22 +112,10 @@ namespace Emo.Services {
                 gameFile.CopyTo(game);
                 game.FileName = fileName;
 
-                for (var index = 0; index < gameFile.DeckIds.Count && index < game.Players.Count; index++) {
-                    game.Players[index].DeckId = gameFile.DeckIds[index];
-                    if (!string.IsNullOrEmpty(game.Players[index].DeckId)) {
-                        try {
-                            _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.LoadingCards);
-                            _plugInWrapper.LoadPlayer(game.Players[index]);
-                        } catch (Exception ex) {
-                            _logger.LogException(ex, $"Error loading player {game.Players[index].ID}.");
-                            _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.Error);
-                        }
-                    }
-                }
+                LoadAllPlayers(gameFile);
+                LoadEncounterCards();
+                LoadPlayerCards();
 
-                _plugInWrapper.LoadEncounterCards();
-                _plugInWrapper.LoadAllPlayerCards();
-                _appData.OnGameChanged();
                 _logger.LogMessage($"Finished reading game file: {fileName}.");
 
                 _appData.Configuration.LastSavedFileName = fileName;
@@ -136,6 +127,39 @@ namespace Emo.Services {
                 LoadPlugIn(null);
                 return;
             }
+        }
+
+        private void LoadAllPlayers(GameFile gameFile) {
+            var game = _appData.Game as Game;
+
+            for (var index = 0; index < gameFile.DeckIds.Count && index < game.Players.Count; index++) {
+                game.Players[index].DeckId = gameFile.DeckIds[index];
+                if (!string.IsNullOrEmpty(game.Players[index].DeckId)) {
+                    try {
+                        _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.LoadingCards);
+                        _plugInWrapper.LoadPlayer(game.Players[index]);
+                    } catch (Exception ex) {
+                        _logger.LogException(ex, $"Error loading player {game.Players[index].ID}.");
+                        _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.Error);
+                    }
+                }
+            }
+        }
+
+        private void LoadEncounterCards() {
+            var worker = new BackgroundWorker();
+            worker.DoWork += (x, y) => {
+                _plugInWrapper.LoadEncounterCards();
+            };
+            worker.RunWorkerAsync();
+        }
+
+        private void LoadPlayerCards() {
+            var worker = new BackgroundWorker();
+            worker.DoWork += (x, y) => {
+                _plugInWrapper.LoadAllPlayerCards();
+            };
+            worker.RunWorkerAsync();
         }
 
         private void LoadPlugIn(string plugInName) {

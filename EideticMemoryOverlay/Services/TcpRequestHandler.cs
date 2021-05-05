@@ -143,6 +143,10 @@ namespace Emo.Services {
             var cardGroupInfoList = new List<CardGroupInfo>();
             var buttonInfoList = new List<ButtonInfo>();
             foreach (var cardGroup in _appData.Game.AllCardGroups) {
+                if (cardGroup == default) {
+                    continue;
+                }
+
                 cardGroupInfoList.Add(new CardGroupInfo {
                     CardGroupId = cardGroup.Id,
                     Name = cardGroup.Name,

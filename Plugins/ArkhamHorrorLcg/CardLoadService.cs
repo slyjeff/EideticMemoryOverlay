@@ -79,94 +79,83 @@ namespace ArkhamHorrorLcg {
         }
 
         public void LoadAllPlayerCards() {
-            var worker = new BackgroundWorker();
-            worker.DoWork += (x, y) => {
-                foreach (var player in _game.Players) {
-                    var arkhamPlayer = player as ArkhamPlayer;
-                    if (arkhamPlayer == default) {
-                        continue;
-                    }
+            foreach (var player in _game.Players) {
+                var arkhamPlayer = player as ArkhamPlayer;
+                if (arkhamPlayer == default) {
+                    continue;
+                }
 
-                    if (!string.IsNullOrEmpty(arkhamPlayer.DeckId)) {
-                        _loadingStatusService.ReportPlayerStatus(arkhamPlayer.ID, Status.LoadingCards);
-                        try {
-                            LoadPlayerCards(arkhamPlayer);
+                if (!string.IsNullOrEmpty(arkhamPlayer.DeckId)) {
+                    _loadingStatusService.ReportPlayerStatus(arkhamPlayer.ID, Status.LoadingCards);
+                    try {
+                        LoadPlayerCards(arkhamPlayer);
 
-                            _loadingStatusService.ReportPlayerStatus(arkhamPlayer.ID, Status.Finished);
-                        } catch (Exception ex) {
-                            _logger.LogException(ex, $"Error loading player cards for player {arkhamPlayer.ID}");
-                            _loadingStatusService.ReportPlayerStatus(arkhamPlayer.ID, Status.Error);
-                        }
+                        _loadingStatusService.ReportPlayerStatus(arkhamPlayer.ID, Status.Finished);
+                    } catch (Exception ex) {
+                        _logger.LogException(ex, $"Error loading player cards for player {arkhamPlayer.ID}");
+                        _loadingStatusService.ReportPlayerStatus(arkhamPlayer.ID, Status.Error);
                     }
                 }
-            };
-            worker.RunWorkerAsync();
+            }
         }
 
         public void LoadAllEncounterCards() {
-            var worker = new BackgroundWorker();
-            worker.DoWork += (x, y) => {
-                _loadingStatusService.ReportEncounterCardsStatus(Status.LoadingCards);
-                _logger.LogMessage("Loading encounter cards.");
-                try {
-                    _game.ScenarioCards.Loading = true;
-                    _game.LocationCards.Loading = true;
-                    _game.EncounterDeckCards.Loading = true;
+            _loadingStatusService.ReportEncounterCardsStatus(Status.LoadingCards);
+            _logger.LogMessage("Loading encounter cards.");
+            try {
+                _game.ScenarioCards.Loading = true;
+                _game.LocationCards.Loading = true;
+                _game.EncounterDeckCards.Loading = true;
 
-                    var cards = GetEncounterCards();
+                var cards = GetEncounterCards();
 
-                    var scenarioCards = new List<CardInfo>();
-                    var agendas = new List<CardInfo>();
-                    var acts = new List<CardInfo>();
-                    var locations = new List<CardInfo>();
-                    var treacheries = new List<CardInfo>();
-                    var enemies = new List<CardInfo>();
+                var scenarioCards = new List<CardInfo>();
+                var agendas = new List<CardInfo>();
+                var acts = new List<CardInfo>();
+                var locations = new List<CardInfo>();
+                var treacheries = new List<CardInfo>();
+                var enemies = new List<CardInfo>();
 
-                    foreach (var card in cards) {
-                        switch (card.Type) {
-                            case CardType.Scenario:
-                                scenarioCards.Add(card);
-                                break;
-                            case CardType.Agenda:
-                                agendas.Add(card);
-                                break;
-                            case CardType.Act:
-                                acts.Add(card);
-                                break;
-                            case CardType.Location:
-                                locations.Add(card);
-                                break;
-                            case CardType.Treachery:
-                            case CardType.Enemy:
-                                treacheries.Add(card);
-                                break;
-                            default:
-                                break;
-                        }
+                foreach (var card in cards) {
+                    switch (card.Type) {
+                        case CardType.Scenario:
+                            scenarioCards.Add(card);
+                            break;
+                        case CardType.Agenda:
+                            agendas.Add(card);
+                            break;
+                        case CardType.Act:
+                            acts.Add(card);
+                            break;
+                        case CardType.Location:
+                            locations.Add(card);
+                            break;
+                        case CardType.Treachery:
+                        case CardType.Enemy:
+                            treacheries.Add(card);
+                            break;
+                        default:
+                            break;
                     }
-
-                    scenarioCards.AddRange(agendas);
-                    scenarioCards.AddRange(acts);
-
-                    _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
-
-                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                        _game.ScenarioCards.LoadCards(scenarioCards);
-                        _game.LocationCards.LoadCards(locations);
-                        _game.EncounterDeckCards.LoadCards(treacheries);
-                    }));
-                } catch (Exception ex) {
-                    _logger.LogException(ex, "Error loading encounter cards.");
-                    _loadingStatusService.ReportEncounterCardsStatus(Status.Error);
-                } finally {
-                    _game.ScenarioCards.Loading = false;
-                    _game.LocationCards.Loading = false;
-                    _game.EncounterDeckCards.Loading = false;
                 }
-                _logger.LogMessage($"Finished loading encounter cards.");
 
-            };
-            worker.RunWorkerAsync();
+                scenarioCards.AddRange(agendas);
+                scenarioCards.AddRange(acts);
+
+                _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
+
+                _game.ScenarioCards.LoadCards(scenarioCards);
+                _game.LocationCards.LoadCards(locations);
+                _game.EncounterDeckCards.LoadCards(treacheries);
+            } catch (Exception ex) {
+                _logger.LogException(ex, "Error loading encounter cards.");
+                _loadingStatusService.ReportEncounterCardsStatus(Status.Error);
+            } finally {
+                _game.ScenarioCards.Loading = false;
+                _game.LocationCards.Loading = false;
+                _game.EncounterDeckCards.Loading = false;
+            }
+            _logger.LogMessage($"Finished loading encounter cards.");
         }
 
         public void LoadPlayerCards(ArkhamPlayer player) {
@@ -203,9 +192,7 @@ namespace ArkhamHorrorLcg {
                         _logger.LogError($"Could not find player {player.ID} card: {slot.Key}");
                     }
                 }
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() => {
-                    player.CardGroup.LoadCards(cards);
-                }));
+                player.CardGroup.LoadCards(cards);
             } catch (Exception ex) {
                 _logger.LogException(ex, $"Error loading cards for player {player.ID}.");
             } finally {
