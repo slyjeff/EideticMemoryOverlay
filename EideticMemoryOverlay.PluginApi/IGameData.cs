@@ -28,8 +28,7 @@ namespace EideticMemoryOverlay.PluginApi {
         /// <summary>
         /// Setup the game using plugin specific logic
         /// </summary>
-        /// <param name="plugIn">The plugin to use</param>
-        void InitializeFromPlugin(IPlugIn plugIn);
+        void InitializeFromPlugin();
 
         /// <summary>
         /// Add a card (create a button) to a zone

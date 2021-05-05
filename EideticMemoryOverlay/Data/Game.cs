@@ -15,11 +15,12 @@ namespace Emo.Data {
     public class Game : ViewModel, IGame, IGameData {
         private readonly IEventBus _eventBus;
         private readonly LoggingService _logger;
+        private readonly IPlugIn _plugIn;
 
-        public Game(IEventBus eventBus, LoggingService logger) {
+        public Game(IEventBus eventBus, LoggingService logger, IPlugIn plugIn) {
             _eventBus = eventBus;
             _logger = logger;
-
+            _plugIn = plugIn;
             Players = new List<Player>();
             _eventBus.SubscribeToButtonClickRequest(ButtonClickRequestHandler);
         }
@@ -27,21 +28,20 @@ namespace Emo.Data {
         /// <summary>
         /// Setup the game using plugin specific logic
         /// </summary>
-        /// <param name="plugIn">The plugin to use</param>
-        public void InitializeFromPlugin(IPlugIn plugIn) {
-            PlugInName = plugIn.GetType().Assembly.GetName().Name;
-            Players = new List<Player> { 
-                plugIn.CreatePlayer(new CardGroup(CardGroupId.Player1, plugIn)), 
-                plugIn.CreatePlayer(new CardGroup(CardGroupId.Player2, plugIn)),
-                plugIn.CreatePlayer(new CardGroup(CardGroupId.Player3, plugIn)), 
-                plugIn.CreatePlayer(new CardGroup(CardGroupId.Player4, plugIn))};
+        public void InitializeFromPlugin() {
+            PlugInName = _plugIn.GetType().Assembly.GetName().Name;
+            Players = new List<Player> {
+                _plugIn.CreatePlayer(new CardGroup(CardGroupId.Player1, _plugIn)),
+                _plugIn.CreatePlayer(new CardGroup(CardGroupId.Player2, _plugIn)),
+                _plugIn.CreatePlayer(new CardGroup(CardGroupId.Player3, _plugIn)),
+                _plugIn.CreatePlayer(new CardGroup(CardGroupId.Player4, _plugIn))};
 
             EncounterSets = new List<EncounterSet>();
             LocalPacks = new List<string>();
-            ScenarioCards = new CardGroup(CardGroupId.Scenario, plugIn);
+            ScenarioCards = new CardGroup(CardGroupId.Scenario, _plugIn);
             ScenarioCards.AddCardZone(new CardZone("Act/Agenda Bar", CardZoneLocation.Top));
-            LocationCards = new CardGroup(CardGroupId.Locations, plugIn);
-            EncounterDeckCards = new CardGroup(CardGroupId.EncounterDeck, plugIn);
+            LocationCards = new CardGroup(CardGroupId.Locations, _plugIn);
+            EncounterDeckCards = new CardGroup(CardGroupId.EncounterDeck, _plugIn);
 
             NotifyPropertyChanged(nameof(Players));
         }

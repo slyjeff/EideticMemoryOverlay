@@ -13,17 +13,17 @@ namespace Emo.Services {
         /// </summary>
         /// <param name="pluginName">assembbly name of the plugin</param>
         /// <returns>plugin with game specific logic for the overlay</returns>
-        IPlugIn GetPlugInByName(string pluginName);
+        PlugIn GetPlugInByName(string pluginName);
 
         /// <summary>
         /// Load all available plugins
         /// </summary>
         /// <returns>list of plugins with game specific logic for the overlay</returns>
-        IList<IPlugIn> LoadPlugIns(); 
+        IList<PlugIn> LoadPlugIns(); 
     }
 
     public class PlugInService : IPlugInService {
-        private readonly IDictionary<string, IPlugIn> _plugInCache = new Dictionary<string, IPlugIn>();
+        private readonly IDictionary<string, PlugIn> _plugInCache = new Dictionary<string, PlugIn>();
 
         private readonly ILoggingService _logger;
         private readonly IContainer _container;
@@ -40,7 +40,7 @@ namespace Emo.Services {
         /// </summary>
         /// <param name="pluginName">Name of the plugin</param>
         /// <returns>plugin with game specific logic for the overlayy</returns>
-        public IPlugIn GetPlugInByName(string pluginName) {
+        public PlugIn GetPlugInByName(string pluginName) {
             try {
                 var pluginPath = _pluginDirectory + "\\" + (string.IsNullOrEmpty(pluginName) ? "EmoPlugIn.ArkhamHorrorLcg.dll" : pluginName);
                 return LoadPluginAssembly(pluginPath);
@@ -54,10 +54,10 @@ namespace Emo.Services {
         /// Load all available plugins
         /// </summary>
         /// <returns>list of plugins with game specific logic for the overlay</returns>
-        public IList<IPlugIn> LoadPlugIns() {
+        public IList<PlugIn> LoadPlugIns() {
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var pluginAssemblies = Directory.GetFiles(directory, "EmoPlugin*.dll");
-            var plugins = new List<IPlugIn>();
+            var plugins = new List<PlugIn>();
             foreach (var assemblyName in pluginAssemblies) {
                 try {
                     var plugin = LoadPluginAssembly(assemblyName);
@@ -72,7 +72,7 @@ namespace Emo.Services {
             return plugins;
         }
 
-        private IPlugIn LoadPluginAssembly(string filename) {
+        private PlugIn LoadPluginAssembly(string filename) {
             if (_plugInCache.ContainsKey(filename)) {
                 _logger.LogMessage($"loading plugin {filename} from cache");
                 return _plugInCache[filename];
@@ -84,13 +84,13 @@ namespace Emo.Services {
                 return default;
             }
 
-            var pluginType = assembly.GetTypes().Where(x => typeof(IPlugIn).IsAssignableFrom(x)).FirstOrDefault();
+            var pluginType = assembly.GetTypes().Where(x => typeof(PlugIn).IsAssignableFrom(x)).FirstOrDefault();
             if (pluginType == default) {
                 _logger.LogError($"Error loading plugin assembly {filename}");
                 return default;
             }
 
-            var plugIn = (IPlugIn)Activator.CreateInstance(pluginType);
+            var plugIn = (PlugIn)Activator.CreateInstance(pluginType);
             plugIn.SetUp(_container);
 
             _plugInCache[filename] = plugIn;

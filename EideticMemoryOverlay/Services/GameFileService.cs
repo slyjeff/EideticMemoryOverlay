@@ -5,7 +5,6 @@ using Emo.Common.Services;
 using Emo.Data;
 using Emo.Events;
 using Newtonsoft.Json;
-using StructureMap;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -60,7 +59,7 @@ namespace Emo.Services {
     }
 
     public interface IGameFileService {
-        IPlugIn Load(string fileName = "");
+        void Load(string fileName = "");
         void Save(string fileName);
     }
 
@@ -70,39 +69,40 @@ namespace Emo.Services {
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
         private readonly IPlugInService _plugInService;
-        private readonly IContainer _container;
+        private readonly PlugInWrapper _plugInWrapper;
         private IList<ZoneButton> _zoneButtons;
 
-        public GameFileService(AppData appData, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IContainer container) {
+        public GameFileService(AppData appData, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IPlugIn plugIn) {
             _appData = appData;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
             _eventBus = eventBus;
             _plugInService = plugInService;
-            _container = container;
+            _plugInWrapper = (PlugInWrapper)plugIn;
             eventBus.SubscribeToCardGroupButtonsChanged(CardGroupButtonsChangedHandler);
         }
 
-        public IPlugIn Load(string fileName = "") {
+        public void Load(string fileName = "") {
             if (string.IsNullOrEmpty(fileName)) {
                 fileName = _appData.Configuration.LastSavedFileName;
             }
 
             _logger.LogMessage($"Loading game from file {fileName}.");
             if (!File.Exists(fileName)) {
-                return LoadPlugIn(null);
+                LoadPlugIn(null);
+                return; 
             } 
 
             try {
                 _eventBus.PublishClearAllCardsRequest();
                 var gameFile = JsonConvert.DeserializeObject<GameFile>(File.ReadAllText(fileName));
-                var plugIn = LoadPlugIn(gameFile.PlugInName);
+                LoadPlugIn(gameFile.PlugInName);
 
                 _zoneButtons = gameFile.ZoneButtons;
 
                 var game = _appData.Game as Game;
                 if (game == default) {
-                    return plugIn;
+                    return;
                 }
                 game.ClearAllCardsLists();
 
@@ -114,7 +114,7 @@ namespace Emo.Services {
                     if (!string.IsNullOrEmpty(game.Players[index].DeckId)) {
                         try {
                             _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.LoadingCards);
-                            plugIn.LoadPlayer(game.Players[index]);
+                            _plugInWrapper.LoadPlayer(game.Players[index]);
                         } catch (Exception ex) {
                             _logger.LogException(ex, $"Error loading player {game.Players[index].ID}.");
                             _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.Error);
@@ -122,20 +122,21 @@ namespace Emo.Services {
                     }
                 }
 
-                plugIn.LoadEncounterCards();
-                plugIn.LoadAllPlayerCards();
+                _plugInWrapper.LoadEncounterCards();
+                _plugInWrapper.LoadAllPlayerCards();
                 _appData.OnGameChanged();
                 _logger.LogMessage($"Finished reading game file: {fileName}.");
 
-                return plugIn;
+                return;
             } catch (Exception ex) {
                 // if there's an error, we don't care- just use the existing game
                 _logger.LogException(ex, $"Error reading game file: {fileName}.");
-                return LoadPlugIn(null);
+                LoadPlugIn(null);
+                return;
             }
         }
 
-        private IPlugIn LoadPlugIn(string plugInName) {
+        private void LoadPlugIn(string plugInName) {
             if (string.IsNullOrEmpty(plugInName)) {
                 plugInName = "EmoPlugIn.ArkhamHorrorLcg.dll";
             }
@@ -146,17 +147,13 @@ namespace Emo.Services {
                 plugIn = _plugInService.GetPlugInByName("EmoPlugIn.ArkhamHorrorLcg.dll");
             }
 
+            _plugInWrapper.SetPlugIn(plugIn);
+
             if (plugIn == default) {
-                return null;
+                return;
             }
 
-            _container.Configure(x => {
-                x.For<IPlugIn>().ClearAll().Use(plugIn).Singleton();
-            });
-
-            _appData.Game.InitializeFromPlugin(plugIn);
-
-            return plugIn;
+            _appData.Game.InitializeFromPlugin();
         }
 
         public void Save(string fileName) {

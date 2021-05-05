@@ -83,7 +83,7 @@ namespace EideticMemoryOverlay.PluginApi {
     /// <summary>
     /// Plugins must inherit from this class to provide an entry point to the application
     /// </summary>
-    public abstract class PlugIn : IPlugIn {
+    public abstract class PlugIn {
         protected PlugIn(string name) {
             Name = name;
         }

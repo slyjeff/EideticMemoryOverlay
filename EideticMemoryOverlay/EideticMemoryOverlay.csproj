@@ -142,6 +142,7 @@
     <Compile Include="Services\PlugInService.cs" />
     <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Pages\SelectCards\RightClickOptionCommand.cs" />
+    <Compile Include="Services\PlugInWrapper.cs" />
     <Compile Include="Services\UiEventBus.cs" />
     <Compile Include="Services\BroadcastService.cs" />
     <Compile Include="Utils\BoolToVisibilityCollapsedConverter.cs" />

@@ -29,7 +29,7 @@ namespace Emo.Pages.Main {
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
-        private IPlugIn _plugIn;
+        private readonly IPlugIn _plugIn;
 
         public MainController(AppData appData, IGameFileService gameFileService, IPlugIn plugIn, IControllerFactory controllerFactory, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
             ViewModel.AppData = appData;
@@ -175,7 +175,7 @@ namespace Emo.Pages.Main {
 
             if (dialog.ShowDialog() == true) {
                 _logger.LogMessage($"Main window: loading game from {dialog.FileName}.");
-                _plugIn = _gameFileService.Load(dialog.FileName);
+                _gameFileService.Load(dialog.FileName);
                 ClearPlayerCardsWindows();
             }
         }
