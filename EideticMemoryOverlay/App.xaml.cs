@@ -37,8 +37,7 @@ namespace Emo {
                 x.For<IBroadcastService>().Use<BroadcastService>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
                 x.For(typeof(ILocalCardsService<>)).Use(typeof(LocalCardsService<>));
-                x.For<AppData>().Use<AppData>().Singleton();
-                x.For<IAppData>().Use<AppData>();
+                x.For<IAppData>().Use<AppData>().Singleton();
                 x.For<Configuration>().Use<Configuration>().Singleton();
                 x.For<IPlugIn>().Use<PlugInWrapper>().Singleton();
                 x.For<IPlugInService>().Use<PlugInService>().Singleton();
@@ -47,20 +46,24 @@ namespace Emo {
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
                 x.For<ICardGroup>().Use<CardGroup>();
             });
-           
+
+            var appData = container.GetInstance<AppData>();
+            container.Configure(x => x.For<AppData>().Use(appData));
+            container.Configure(x => x.For<IAppData>().Use(appData));
+
             _loggingService = container.GetInstance<LoggingService>();
 
             var configurationService = container.GetInstance<ConfigurationService>();
             configurationService.Load();
+
+            var controller = container.GetInstance<MainController>();
+            controller.View.Show();
 
             var gameFileService = container.GetInstance<IGameFileService>();
             gameFileService.Load();
 
             var receiveSocketService = container.GetInstance<ReceiveSocketService>();
             receiveSocketService.StartListening(TcpInfo.EmoPort);
-
-            var controller = container.GetInstance<MainController>();
-            controller.View.Show();
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e) {

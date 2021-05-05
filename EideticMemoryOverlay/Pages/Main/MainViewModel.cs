@@ -1,7 +1,6 @@
 ﻿using EideticMemoryOverlay.PluginApi;
 using EideticMemoryOverlay.PluginApi.Interfaces;
 using Emo.Data;
-using Emo.Services;
 using PageController;
 
 namespace Emo.Pages.Main {

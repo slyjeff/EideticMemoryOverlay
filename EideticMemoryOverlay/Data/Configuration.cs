@@ -1,6 +1,4 @@
-﻿using EideticMemoryOverlay.PluginApi;
-using Emo.Common.Services;
-using Emo.Services;
+﻿using Emo.Services;
 using PageController;
 using System;
 using System.Windows;
@@ -8,10 +6,7 @@ using System.Windows.Media;
 
 namespace Emo.Data {
     public class Configuration : ViewModel, IConfiguration {
-        private readonly IEventBus _eventBus;
-
-        public Configuration(IEventBus eventBus) {
-            _eventBus = eventBus;
+        public Configuration() {
             OverlayWidth = 1228;
             OverlayHeight = 720;
             CardHeight = 300;

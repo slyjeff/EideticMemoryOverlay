@@ -23,6 +23,7 @@ namespace Emo.Data {
             _logger = logger;
             _plugIn = plugIn;
             Players = new List<Player>();
+            EncounterSets = new List<EncounterSet>();
             _eventBus.SubscribeToButtonClickRequest(ButtonClickRequestHandler);
         }
 
