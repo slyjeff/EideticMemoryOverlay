@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EideticMemoryOverlay.PluginApi.Interfaces;
+using System;
 using System.Text;
 
 namespace EideticMemoryOverlay.PluginApi {

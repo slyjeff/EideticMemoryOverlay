@@ -1,5 +1,6 @@
 ﻿using ArkhamHorrorLcg.ArkhamDb;
 using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 

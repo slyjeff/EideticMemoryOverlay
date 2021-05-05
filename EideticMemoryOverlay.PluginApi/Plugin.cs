@@ -1,4 +1,5 @@
 ﻿using EideticMemoryOverlay.PluginApi.Buttons;
+using EideticMemoryOverlay.PluginApi.Interfaces;
 using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Common.Enums;
 using StructureMap;

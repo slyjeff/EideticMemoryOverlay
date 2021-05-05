@@ -1,5 +1,6 @@
 ﻿using ArkhamHorrorLcg.ArkhamDb;
 using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Interfaces;
 using EideticMemoryOverlay.PluginApi.LocalCards;
 using System;
 using System.Collections.Generic;

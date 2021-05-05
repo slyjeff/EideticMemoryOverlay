@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 
-namespace EideticMemoryOverlay.PluginApi {
+namespace EideticMemoryOverlay.PluginApi.Interfaces {
     public interface IHasImageButton {
         string Name { get; }
         string ImageId { get; }

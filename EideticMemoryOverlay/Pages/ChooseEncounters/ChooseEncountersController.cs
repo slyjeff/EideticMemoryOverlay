@@ -1,4 +1,5 @@
 ﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Interfaces;
 using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Data;
 using Emo.Services;

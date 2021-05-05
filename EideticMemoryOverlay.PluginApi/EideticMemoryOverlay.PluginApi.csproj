@@ -53,7 +53,7 @@
     <Compile Include="Buttons\Button.cs" />
     <Compile Include="Buttons\CardButton.cs" />
     <Compile Include="DeckListItem.cs" />
-    <Compile Include="ICardGroup.cs" />
+    <Compile Include="Interfaces\ICardGroup.cs" />
     <Compile Include="CardImageButton.cs" />
     <Compile Include="CardInfo.cs" />
     <Compile Include="Buttons\CardInfoButton.cs" />
@@ -61,12 +61,12 @@
     <Compile Include="Buttons\ClearButton.cs" />
     <Compile Include="EncounterSet.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="IAppData.cs" />
-    <Compile Include="ICard.cs" />
-    <Compile Include="ICardImageService.cs" />
-    <Compile Include="IGameData.cs" />
-    <Compile Include="IHasImageButton.cs" />
-    <Compile Include="ILoggingService.cs" />
+    <Compile Include="Interfaces\IAppData.cs" />
+    <Compile Include="Interfaces\ICard.cs" />
+    <Compile Include="Interfaces\ICardImageService.cs" />
+    <Compile Include="Interfaces\IGameData.cs" />
+    <Compile Include="Interfaces\IHasImageButton.cs" />
+    <Compile Include="Interfaces\ILoggingService.cs" />
     <Compile Include="LoadingStatusService.cs" />
     <Compile Include="LocalCards\EditableLocalCard.cs" />
     <Compile Include="LocalCards\LocalCard.cs" />

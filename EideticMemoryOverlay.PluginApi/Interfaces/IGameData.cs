@@ -1,11 +1,10 @@
 ﻿using Emo.Common.Enums;
-using System;
 using System.Collections.Generic;
 
-namespace EideticMemoryOverlay.PluginApi {
+namespace EideticMemoryOverlay.PluginApi.Interfaces {
     public interface IGameData {
         string FileName { get; set; }
-        
+
         string SnapshotDirectory { get; set; }
 
         IList<Player> Players { get; }

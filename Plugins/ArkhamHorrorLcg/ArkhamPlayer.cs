@@ -5,6 +5,7 @@ using System.Windows;
 using System.Collections.Generic;
 using System.Linq;
 using EideticMemoryOverlay.PluginApi.Buttons;
+using EideticMemoryOverlay.PluginApi.Interfaces;
 
 namespace ArkhamHorrorLcg {
     public class ArkhamPlayer : Player {

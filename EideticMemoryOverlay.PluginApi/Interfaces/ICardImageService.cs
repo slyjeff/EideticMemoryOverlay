@@ -1,4 +1,4 @@
-﻿namespace EideticMemoryOverlay.PluginApi {
+﻿namespace EideticMemoryOverlay.PluginApi.Interfaces {
     /// <summary>
     /// provide ability to load images for buttons
     /// </summary>

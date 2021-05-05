@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using EideticMemoryOverlay.PluginApi.Buttons;
+using EideticMemoryOverlay.PluginApi.Interfaces;
 
 namespace EideticMemoryOverlay.PluginApi {
     public abstract class Player : INotifyPropertyChanged, IHasImageButton {

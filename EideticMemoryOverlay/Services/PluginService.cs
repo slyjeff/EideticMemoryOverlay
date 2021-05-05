@@ -1,4 +1,5 @@
 ﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Interfaces;
 using StructureMap;
 using System;
 using System.Collections.Generic;

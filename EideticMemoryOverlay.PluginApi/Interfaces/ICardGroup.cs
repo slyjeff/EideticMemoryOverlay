@@ -1,13 +1,9 @@
 ﻿using EideticMemoryOverlay.PluginApi.Buttons;
 using Emo.Common.Enums;
-using Emo.Common.Services;
 using Emo.Common.Utils;
-using Emo.Events;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 
-namespace EideticMemoryOverlay.PluginApi {
+namespace EideticMemoryOverlay.PluginApi.Interfaces {
     public interface ICardGroup {
         CardGroupId Id { get; }
         CardGroupType Type { get; }

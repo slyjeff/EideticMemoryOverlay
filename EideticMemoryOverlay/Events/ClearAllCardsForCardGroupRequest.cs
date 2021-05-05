@@ -1,4 +1,4 @@
-﻿using EideticMemoryOverlay.PluginApi;
+﻿using EideticMemoryOverlay.PluginApi.Interfaces;
 using Emo.Common.Services;
 using System;
 

@@ -1,4 +1,4 @@
-﻿using EideticMemoryOverlay.PluginApi;
+﻿using EideticMemoryOverlay.PluginApi.Interfaces;
 using PageController;
 
 namespace Emo.Data {
