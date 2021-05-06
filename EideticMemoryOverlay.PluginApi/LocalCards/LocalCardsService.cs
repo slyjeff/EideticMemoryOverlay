@@ -66,7 +66,11 @@ namespace EideticMemoryOverlay.PluginApi.LocalCards {
                 foreach (var directory in Directory.GetDirectories(_plugIn.LocalImagesDirectory)) {
                     var manifestPath = directory + "\\Manifest.json";
                     if (File.Exists(manifestPath)) {
-                        manifests.Add(JsonConvert.DeserializeObject<LocalPackManifest<T>>(File.ReadAllText(manifestPath)));
+                        var manifest = JsonConvert.DeserializeObject<LocalPackManifest<T>>(File.ReadAllText(manifestPath));
+                        foreach (var card in manifest.Cards) {
+                            card.FilePath = Path.GetDirectoryName(manifestPath) + "\\" + card.FileName;
+                        }
+                        manifests.Add(manifest);
                     }
                 }
                 _cachedManifests = manifests;

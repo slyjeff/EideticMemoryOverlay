@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Newtonsoft.Json;
+using System.IO;
 
 namespace EideticMemoryOverlay.PluginApi.LocalCards {
     public interface ILocalCard {
@@ -8,7 +9,9 @@ namespace EideticMemoryOverlay.PluginApi.LocalCards {
     }
 
     public class LocalCard : ILocalCard {
+        [JsonIgnore]
         public string FilePath { get; set; }
+        public string FileName { get; set; }
         public string Name { get; set; }
         public bool HasBack { get; set; }
 
@@ -25,7 +28,7 @@ namespace EideticMemoryOverlay.PluginApi.LocalCards {
         }
 
         public virtual void CopyFrom(EditableLocalCard editableLocalCard) {
-            FilePath = editableLocalCard.FilePath;
+            FileName =  Path.GetFileName(editableLocalCard.FilePath);
             Name = editableLocalCard.Name;
             HasBack = editableLocalCard.HasBack;
         }

@@ -62,6 +62,9 @@ namespace Emo.Pages.LocalImages {
                 try {
                     _logger.LogMessage($"Loading pack manifest {manifestPath}.");
                     var manifest = JsonConvert.DeserializeObject<LocalPackManifest<T>>(File.ReadAllText(manifestPath));
+                    foreach (var card in manifest.Cards) {
+                        card.FilePath = Path.GetDirectoryName(manifestPath) + "\\" + card.FileName;
+                    }
                     ReadManifest(manifest, pack);
 
                     pack.PropertyChanged += (s, e) => {
@@ -92,7 +95,7 @@ namespace Emo.Pages.LocalImages {
             try {
                 var card = pack.Cards.FirstOrDefault(x => string.Equals(x.FilePath, filePath, StringComparison.InvariantCulture));
                 if (card == null) {
-                    card = new EditableLocalCard { FilePath = filePath } ;
+                    card = new EditableLocalCard { FilePath = filePath };
                     card.PropertyChanged += (s, e) => {
                         WriteManifest();
                     };
