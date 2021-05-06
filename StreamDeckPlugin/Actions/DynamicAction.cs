@@ -83,7 +83,7 @@ namespace StreamDeckPlugin.Actions {
             var delayUpdateTimer = new Timer(50);
             delayUpdateTimer.Elapsed += (s, e) => {
                 delayUpdateTimer.Enabled = false;
-                _initializing = true;
+                _initializing = false;
                 UpdateButtonToNewDynamicAction();
             };
             delayUpdateTimer.Enabled = true;
