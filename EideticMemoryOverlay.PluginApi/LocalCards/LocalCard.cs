@@ -15,6 +15,7 @@ namespace EideticMemoryOverlay.PluginApi.LocalCards {
         public string Name { get; set; }
         public bool HasBack { get; set; }
 
+        [JsonIgnore]
         public string BackFilePath {
             get {
                 return Path.GetDirectoryName(FilePath) + "\\" + Path.GetFileNameWithoutExtension(FilePath) + "-back" + Path.GetExtension(FilePath);
