@@ -8,6 +8,7 @@ using StructureMap;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Windows.Controls;
 
 namespace ArkhamHorrorLcg {
     public class ArkhamHorrorLcg : PlugIn {
@@ -88,6 +89,10 @@ namespace ArkhamHorrorLcg {
                 _configuration.LocalImagesDirectory = value;
                 _configuration.Save();
             }
+        }
+
+        public override ILocalCardEditor CreateLocalCardEditor() {
+            return new ArkhamLocalCardEditor();
         }
     }
 }

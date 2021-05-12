@@ -37,32 +37,12 @@
             <TextBox Margin="5,0,10,0" Text="{Binding SelectedPack.Name, Mode=TwoWay}" />
         </DockPanel>
         <DockPanel LastChildFill="true"  Visibility="{Binding IsPackSelected, Converter={StaticResource BoolToVisibility}}">
-            <Grid DockPanel.Dock="Right" Visibility="{Binding SelectedPack.IsCardSelected, Converter={StaticResource BoolToVisibility}}" Margin="5, 10, 5, 5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Card Name:" Margin="0, 0, 10, 10"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Margin="5,0,5,10" Text="{Binding SelectedPack.SelectedCard.Name, Mode=TwoWay}" />
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Card Type:" Margin="0, 0, 10, 0"/>
-                <ComboBox Grid.Row="1" Grid.Column="1"  Margin="5,0,5,0" ItemsSource="{Binding CardTypes}" SelectedItem="{Binding SelectedPack.SelectedCard.CardType, Mode=TwoWay}" />
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="ArkahmDB ID:" Margin="0, 10, 10, 10"/>
-                <TextBox Grid.Row="2" Grid.Column="1" Margin="5,10,5,10" Text="{Binding SelectedPack.SelectedCard.ArkhamDbId, Mode=TwoWay}" />
-                <Image 
-                    Grid.Row="3" 
-                    Grid.Column="0" 
-                    Grid.ColumnSpan="2" 
-                    MaxHeight="400" 
-                    MaxWidth="400" 
-                    Source="{Binding SelectedPack.SelectedCard.Image}" />
-            </Grid>
+            <ContentControl
+                x:Name="CustomEditor"
+                DockPanel.Dock="Right" 
+                Visibility="{Binding SelectedPack.IsCardSelected, Converter={StaticResource BoolToVisibility}}" 
+                Margin="5, 10, 5, 5">
+            </ContentControl>
             <ListView ItemsSource="{Binding SelectedPack.Cards}"
                         Margin="10, 10, 5, 5"
                         SelectedItem="{Binding SelectedPack.SelectedCard, Mode=TwoWay}">

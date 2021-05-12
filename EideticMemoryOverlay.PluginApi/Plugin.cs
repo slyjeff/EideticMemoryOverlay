@@ -5,6 +5,7 @@ using Emo.Common.Enums;
 using StructureMap;
 using System;
 using System.Collections.Generic;
+using System.Windows.Controls;
 
 namespace EideticMemoryOverlay.PluginApi {
     /// <summary>
@@ -26,6 +27,12 @@ namespace EideticMemoryOverlay.PluginApi {
         /// Type type used for local cards
         /// </summary>
         Type LocalCardType { get; }
+
+        /// <summary>
+        /// Create an editor for cards using custom plugin logic
+        /// </summary>
+        /// <returns>User control to show on local card page</returns>
+        ILocalCardEditor CreateLocalCardEditor();
 
         /// <summary>
         /// create a new instance of an editable local card, containing all properties defined by the plugin
@@ -162,5 +169,10 @@ namespace EideticMemoryOverlay.PluginApi {
         /// </summary>
         public abstract string LocalImagesDirectory { get; set; }
 
+        /// <summary>
+        /// Create an editor for cards using custom plugin logic
+        /// </summary>
+        /// <returns>User control to show on local card page</returns>
+        public abstract ILocalCardEditor CreateLocalCardEditor();
     }
 }

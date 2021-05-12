@@ -1,7 +1,8 @@
 ﻿using EideticMemoryOverlay.PluginApi;
 using EideticMemoryOverlay.PluginApi.Interfaces;
-using Emo.Common.Enums;
+using EideticMemoryOverlay.PluginApi.LocalCards;
 using StructureMap;
+using System.Windows.Controls;
 
 namespace MarvelChampionsLcg {
     public class MarvelChampionsLcg : PlugIn {
@@ -27,6 +28,10 @@ namespace MarvelChampionsLcg {
         }
 
         public override void LoadEncounterCards() {
+        }
+
+        public override ILocalCardEditor CreateLocalCardEditor() {
+            return default;
         }
     }
 }

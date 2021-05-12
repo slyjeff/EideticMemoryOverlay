@@ -1,4 +1,5 @@
 ﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Interfaces;
 using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Data;
 using Emo.Services;
@@ -17,6 +18,7 @@ namespace Emo.Pages.LocalImages {
     public class LocalImagesController<T> : Controller<LocalImagesView, LocalImagesViewModel>, IDisplayableView where T : LocalCard, new() {
         private readonly IPlugIn _plugIn;
         private readonly LoggingService _logger;
+        private readonly ILocalCardEditor _localCardEditor;
 
         public LocalImagesController(IPlugIn plugIn, LoggingService logger, ILocalCardsService<T> localCardsService) {
             _plugIn = plugIn;
@@ -24,6 +26,9 @@ namespace Emo.Pages.LocalImages {
             ViewModel.LocalImagesDirectory = _plugIn.LocalImagesDirectory;
 
             LoadPacks();
+
+            _localCardEditor = _plugIn.CreateLocalCardEditor();
+            View.CustomEditor.Content = _localCardEditor;
 
             View.Closed += (s, e) => {
                 localCardsService.InvalidateManifestCache();
@@ -56,6 +61,12 @@ namespace Emo.Pages.LocalImages {
 
         private LocalPack LoadPack(string directory) {
             var pack = new LocalPack(directory);
+            pack.PropertyChanged += (s, e) => {
+                if (e.PropertyName == nameof(LocalPack.SelectedCard)) {
+                    _localCardEditor.SetCard(pack.SelectedCard);
+                    return;
+                }
+            };
 
             var manifestPath = directory + "\\Manifest.json";
             if (File.Exists(manifestPath)) {
@@ -95,7 +106,9 @@ namespace Emo.Pages.LocalImages {
             try {
                 var card = pack.Cards.FirstOrDefault(x => string.Equals(x.FilePath, filePath, StringComparison.InvariantCulture));
                 if (card == null) {
-                    card = new EditableLocalCard { FilePath = filePath };
+                    card = _plugIn.CreateEditableLocalCard();
+                       
+                    card.FilePath = filePath;
                     card.PropertyChanged += (s, e) => {
                         WriteManifest();
                     };

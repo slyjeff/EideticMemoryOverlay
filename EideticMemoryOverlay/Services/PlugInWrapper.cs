@@ -92,5 +92,13 @@ namespace Emo.Services {
 
             _plugIn.LoadPlayerCards(player);
         }
+
+        public ILocalCardEditor CreateLocalCardEditor() {
+            if (_plugIn == default) {
+                return default;
+            }
+
+            return _plugIn.CreateLocalCardEditor();
+        }
     }
 }
