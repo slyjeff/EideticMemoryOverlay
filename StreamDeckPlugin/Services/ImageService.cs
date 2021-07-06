@@ -90,6 +90,10 @@ namespace StreamDeckPlugin.Services {
         /// <param name="imageId">ID of the image to store</param>
         /// <param name="bytes">Content of the image</param>
         public void UpdateButtonImage(string imageId, byte[] bytes) {
+            if (bytes == null) {
+                return;
+            }
+
             _imageCache[imageId] = bytes;
             _eventBus.PublishImageLoadedEvent(imageId);
         }
@@ -112,7 +116,17 @@ namespace StreamDeckPlugin.Services {
         /// <returns>A string formatted for sending images to the StreamDeck device</returns>
         /// <remards>Will note the 'toggled' state of the dynamic action info, and draw a gold border if it is toggled</remards>
         public string GetImage(IDynamicActionInfo dynamicAction) {
-            var imageBytes = dynamicAction.ImageId != null && _imageCache.ContainsKey(dynamicAction.ImageId) ? _imageCache[dynamicAction.ImageId] : null;
+            var imageBytes = (byte[])null;
+            if (dynamicAction.IsImageAvailable) {
+                if (!_imageCache.ContainsKey(dynamicAction.ImageId)) {
+                    //if an image is available, and it isn't in our cache- request it
+                    _eventBus.PublishGetButtonImageRequest(dynamicAction.CardGroupId, dynamicAction.ButtonMode, dynamicAction.ZoneIndex, dynamicAction.Index);
+                } 
+                
+                if (_imageCache.ContainsKey(dynamicAction.ImageId)) { 
+                    imageBytes = _imageCache[dynamicAction.ImageId];
+                }
+            }
 
             return ImageUtils.CreateStreamdeckImage(imageBytes, dynamicAction.IsToggled);
         }

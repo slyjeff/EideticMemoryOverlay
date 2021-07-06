@@ -225,7 +225,7 @@ namespace Emo.Data {
                 Name = button.Text,
                 Code = cardImageButton == null ? string.Empty : cardImageButton.CardInfo.Code,
                 IsToggled = button.IsToggled,
-                ImageAvailable = cardImageButton != null && cardImageButton.CardInfo.ButtonImageAsBytes != null,
+                ImageAvailable = cardImageButton != null,
                 ButtonOptions = button.Options
             };
         }

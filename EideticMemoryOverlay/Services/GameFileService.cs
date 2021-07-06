@@ -134,7 +134,9 @@ namespace Emo.Services {
 
             for (var index = 0; index < gameFile.DeckIds.Count && index < game.Players.Count; index++) {
                 game.Players[index].DeckId = gameFile.DeckIds[index];
-                if (!string.IsNullOrEmpty(game.Players[index].DeckId)) {
+                if (string.IsNullOrEmpty(game.Players[index].DeckId)) {
+                    game.Players[index].Clear();
+                } else { 
                     try {
                         _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.LoadingCards);
                         _plugInWrapper.LoadPlayer(game.Players[index]);

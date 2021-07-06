@@ -69,6 +69,7 @@ namespace StreamDeckPlugin.Actions {
         private void UpdateImage() {
             var cardGroupInfo = _cardGroupStore.GetCardGroupInfo(CardGroupId);
             if (cardGroupInfo == default(ICardGroupInfo)) {
+                SetImageAsync(null);
                 return;
             }
 
