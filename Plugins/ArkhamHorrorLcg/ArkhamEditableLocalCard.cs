@@ -1,4 +1,6 @@
-﻿namespace EideticMemoryOverlay.PluginApi.LocalCards {
+﻿using EideticMemoryOverlay.PluginApi.LocalCards;
+
+namespace ArkhamHorrorLcg {
     public class ArkhamEditableLocalCard : EditableLocalCard {
         private string _cardType;
         public virtual string CardType {

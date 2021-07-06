@@ -1,7 +1,9 @@
 ﻿using EideticMemoryOverlay.PluginApi;
 using EideticMemoryOverlay.PluginApi.Interfaces;
+using EideticMemoryOverlay.PluginApi.LocalCards;
 using Emo.Common.Enums;
 using StructureMap;
+using System.Windows.Controls;
 
 namespace Gloomhaven {
     public class Gloomhaven : PlugIn {
@@ -27,6 +29,10 @@ namespace Gloomhaven {
         }
 
         public override void LoadEncounterCards() {
+        }
+
+        public override ILocalCardEditor CreateLocalCardEditor() {
+            return default;
         }
     }
 }

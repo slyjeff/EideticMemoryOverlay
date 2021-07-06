@@ -21,7 +21,6 @@ namespace EideticMemoryOverlay.PluginApi.LocalCards {
 
         public string Name { get; set; }
         public string PlugInName { get; set; }
-
         public IList<T> Cards { get; set; }
     }
 }

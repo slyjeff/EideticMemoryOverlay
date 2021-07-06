@@ -8,7 +8,6 @@ namespace Emo.Pages.LocalImages {
     public class LocalImagesViewModel : ViewModel {
         public LocalImagesViewModel() {
             Packs = new List<LocalPack>();
-            CardTypes = new List<string> { "Asset", "Event", "Skill", "Scenario", "Agenda", "Act", "Enemy", "Treachery", "Location", "Investigator" };
         }
 
         public virtual string LocalImagesDirectory { get; set; }
