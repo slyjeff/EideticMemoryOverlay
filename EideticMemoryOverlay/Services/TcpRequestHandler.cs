@@ -1,4 +1,5 @@
-﻿using Emo.CardButtons;
+﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Buttons;
 using Emo.Common.Enums;
 using Emo.Common.Events;
 using Emo.Common.Services;
@@ -142,6 +143,10 @@ namespace Emo.Services {
             var cardGroupInfoList = new List<CardGroupInfo>();
             var buttonInfoList = new List<ButtonInfo>();
             foreach (var cardGroup in _appData.Game.AllCardGroups) {
+                if (cardGroup == default) {
+                    continue;
+                }
+
                 cardGroupInfoList.Add(new CardGroupInfo {
                     CardGroupId = cardGroup.Id,
                     Name = cardGroup.Name,
@@ -158,10 +163,9 @@ namespace Emo.Services {
         private void SendAllStats() {
             var game = _appData.Game;
             foreach (var player in game.Players) {
-                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Health, player.Health.Value);
-                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Sanity, player.Sanity.Value);
-                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Resources, player.Resources.Value);
-                _eventBus.PublishStatUpdated(player.CardGroup.Id, StatType.Clues, player.Clues.Value);
+                foreach (var stat in player.Stats) {
+                    _eventBus.PublishStatUpdated(player.CardGroup.Id, stat.StatType, stat.Value);
+                }
             }
         }
 
@@ -169,9 +173,8 @@ namespace Emo.Services {
             var cardImageButton = cardButton as CardImageButton;
 
             var cardInfoReponse = (cardButton == null)
-                ? new CardInfoResponse { CardButtonType = CardButtonType.Unknown, Name = "" }
+                ? new CardInfoResponse { Name = "" }
                 : new CardInfoResponse {
-                    CardButtonType = GetCardType(cardImageButton?.CardInfo),
                     Name = cardButton.Text.Replace("Right Click", "Long Press"),
                     IsToggled = cardButton.IsToggled,
                     Code = cardImageButton?.CardInfo.ImageId,
@@ -220,47 +223,13 @@ namespace Emo.Services {
         }
 
         private Stat GetStat(Player player, StatType statType) {
-            switch (statType) {
-                case StatType.Health:
-                    return player.Health;
-                case StatType.Sanity:
-                    return player.Sanity;
-                case StatType.Resources:
-                    return player.Resources;
-                case StatType.Clues:
-                    return player.Clues;
-                default:
-                    return player.Health;
-            }
-        }
-
-        private static CardButtonType GetCardType(CardInfo card) {
-            if (card == null) {
-                return CardButtonType.Action;
+            foreach (var stat in player.Stats) {
+                if (stat.StatType == statType) {
+                    return stat;
+                }
             }
 
-            switch (card.Type) {
-                case CardType.Scenario:
-                    return CardButtonType.Scenario;
-                case CardType.Agenda:
-                    return CardButtonType.Agenda;
-                case CardType.Act:
-                    return CardButtonType.Act;
-                case CardType.Location:
-                    return CardButtonType.Location;
-                case CardType.Enemy:
-                    return CardButtonType.Enemy;
-                case CardType.Treachery:
-                    return CardButtonType.Treachery;
-                case CardType.Asset:
-                    return CardButtonType.Asset;
-                case CardType.Event:
-                    return CardButtonType.Event;
-                case CardType.Skill:
-                    return CardButtonType.Skill;
-                default:
-                    return CardButtonType.Unknown;
-            }
+            return default;
         }
 
         private void Send(Socket socket, string data) {

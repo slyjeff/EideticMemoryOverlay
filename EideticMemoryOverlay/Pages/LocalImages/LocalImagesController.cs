@@ -1,4 +1,6 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.LocalCards;
+using Emo.Data;
 using Emo.Services;
 using Emo.Utils;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -12,40 +14,41 @@ using System.IO;
 using System.Linq;
 
 namespace Emo.Pages.LocalImages {
-    public class LocalImagesController : Controller<LocalImagesView, LocalImagesViewModel> {
-        private readonly AppData _appData;
+    public class LocalImagesController<T> : Controller<LocalImagesView, LocalImagesViewModel>, IDisplayableView where T : LocalCard, new() {
+        private readonly IPlugIn _plugIn;
         private readonly LoggingService _logger;
 
-        public LocalImagesController(AppData appData, LoggingService logger, LocalCardsService localCardsService) {
-            _appData = appData;
+        public LocalImagesController(IPlugIn plugIn, LoggingService logger, ILocalCardsService<T> localCardsService) {
+            _plugIn = plugIn;
             _logger = logger;
-            ViewModel.Configuration = appData.Configuration;
+            ViewModel.LocalImagesDirectory = _plugIn.LocalImagesDirectory;
 
             LoadPacks();
 
             View.Closed += (s, e) => {
                 localCardsService.InvalidateManifestCache();
-                appData.Game.OnEncounterSetsChanged();
+                plugIn.LoadEncounterCards();
             };
         }
 
-        internal void ShowView() {
+        public void ShowView() {
             View.ShowDialog();
         }
 
         private void LoadPacks() {
-            if (!Directory.Exists(_appData.Configuration.LocalImagesDirectory)) {
-                _logger.LogMessage($"Directory '{_appData.Configuration.LocalImagesDirectory}' not found.");
+            if (!Directory.Exists(_plugIn.LocalImagesDirectory)) {
+                _logger.LogMessage($"Directory '{_plugIn.LocalImagesDirectory}' not found.");
                 return;
             }
 
             var packs = new List<LocalPack>();
             try {
-                _logger.LogMessage($"Loading packs from {_appData.Configuration.LocalImagesDirectory}.");
-                foreach (var directory in Directory.GetDirectories(_appData.Configuration.LocalImagesDirectory)) {
+                _logger.LogMessage($"Loading packs from {_plugIn.LocalImagesDirectory}.");
+                foreach (var directory in Directory.GetDirectories(_plugIn.LocalImagesDirectory)) {
                     packs.Add(LoadPack(directory));                    
                 }
                 ViewModel.Packs = packs;
+                ViewModel.AnyPacks = packs.Any();
             } catch (Exception e) {
                 _logger.LogException(e, "Error loading packs");
             }
@@ -58,7 +61,7 @@ namespace Emo.Pages.LocalImages {
             if (File.Exists(manifestPath)) {
                 try {
                     _logger.LogMessage($"Loading pack manifest {manifestPath}.");
-                    var manifest = JsonConvert.DeserializeObject<LocalPackManifest>(File.ReadAllText(manifestPath));
+                    var manifest = JsonConvert.DeserializeObject<LocalPackManifest<T>>(File.ReadAllText(manifestPath));
                     ReadManifest(manifest, pack);
 
                     pack.PropertyChanged += (s, e) => {
@@ -76,7 +79,7 @@ namespace Emo.Pages.LocalImages {
             return pack;
         }
 
-        private LocalCard LoadCard(LocalPack pack, string filePath) {
+        private EditableLocalCard LoadCard(LocalPack pack, string filePath) {
             if (string.Equals(Path.GetExtension(filePath), ".json", StringComparison.InvariantCulture)) {
                 return null;
             }
@@ -89,7 +92,7 @@ namespace Emo.Pages.LocalImages {
             try {
                 var card = pack.Cards.FirstOrDefault(x => string.Equals(x.FilePath, filePath, StringComparison.InvariantCulture));
                 if (card == null) {
-                    card = new LocalCard { FilePath = filePath } ;
+                    card = new EditableLocalCard { FilePath = filePath } ;
                     card.PropertyChanged += (s, e) => {
                         WriteManifest();
                     };
@@ -105,7 +108,7 @@ namespace Emo.Pages.LocalImages {
             }
         }
 
-        private void LoadCardImages(LocalCard card) {
+        private void LoadCardImages(EditableLocalCard card) {
             if (card.Image != null) {
                 return;
             }
@@ -121,19 +124,19 @@ namespace Emo.Pages.LocalImages {
             }
         }
 
-        internal void ReadManifest(LocalPackManifest manifest, LocalPack pack) {
+        internal void ReadManifest(LocalPackManifest<T> manifest, LocalPack pack) {
             pack.Name = manifest.Name;
-            var localCards = new ObservableCollection<LocalCard>();
+            var localCards = new ObservableCollection<EditableLocalCard>();
             foreach (var card in manifest.Cards) {
                 if (File.Exists(card.FilePath)) {
-                    var localCard = new LocalCard();
-                    card.CopyTo(localCard);
+                    var editableLocalCard = _plugIn.CreateEditableLocalCard();
+                    card.CopyTo(editableLocalCard);
 
-                    localCard.PropertyChanged += (s, e) => {
+                    editableLocalCard.PropertyChanged += (s, e) => {
                         WriteManifest();
                     };
 
-                    localCards.Add(localCard);
+                    localCards.Add(editableLocalCard);
                 }
             }
             pack.Cards = localCards;
@@ -151,13 +154,13 @@ namespace Emo.Pages.LocalImages {
             try {
                 var manifest = new LocalPackManifest {
                     Name = pack.Name,
-                    Cards = new List<LocalManifestCard>()
+                    Cards = new List<LocalCard>()
                 };
 
-                foreach (var card in pack.Cards) {
-                    var localManifestCard = new LocalManifestCard();
-                    card.CopyTo(localManifestCard);
-                    manifest.Cards.Add(localManifestCard);
+                foreach (var editableLocalCard in pack.Cards) {
+                    var localCard = new T();
+                    localCard.CopyFrom(editableLocalCard);
+                    manifest.Cards.Add(localCard);
                 }
 
                 File.WriteAllText(manifestPath, JsonConvert.SerializeObject(manifest));
@@ -187,13 +190,14 @@ namespace Emo.Pages.LocalImages {
         public void SelectDirectory() {
             _logger.LogMessage("LocalImages window: select local images directory clicked.");
             var dialog = new CommonOpenFileDialog {
-                InitialDirectory = _appData.Configuration.LocalImagesDirectory,
+                InitialDirectory = _plugIn.LocalImagesDirectory,
                 IsFolderPicker = true
             };
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
                 _logger.LogMessage($"LocalImages: new directory: {dialog.FileName}.");
-                _appData.Configuration.LocalImagesDirectory = dialog.FileName;
+                _plugIn.LocalImagesDirectory = dialog.FileName;
+                ViewModel.LocalImagesDirectory = _plugIn.LocalImagesDirectory;
                 LoadPacks();
             }
             View.Activate();

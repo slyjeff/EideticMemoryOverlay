@@ -1,10 +1,8 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi.LocalCards;
 using PageController;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows;
-using System.Windows.Media;
 
 namespace Emo.Pages.LocalImages {
     public class LocalImagesViewModel : ViewModel {
@@ -13,9 +11,10 @@ namespace Emo.Pages.LocalImages {
             CardTypes = new List<string> { "Asset", "Event", "Skill", "Scenario", "Agenda", "Act", "Enemy", "Treachery", "Location", "Investigator" };
         }
 
-        public virtual Configuration Configuration { get; set; }
+        public virtual string LocalImagesDirectory { get; set; }
 
         public virtual IList<LocalPack> Packs { get; set; }
+        public virtual bool AnyPacks { get; set; }
 
         private LocalPack _selectedPack;
         public virtual LocalPack SelectedPack {
@@ -36,7 +35,7 @@ namespace Emo.Pages.LocalImages {
         public LocalPack(string directory) {
             Directory = directory;
             Name = Path.GetFileName(directory);
-            Cards = new ObservableCollection<LocalCard>();
+            Cards = new ObservableCollection<EditableLocalCard>();
         }
 
         public virtual string Directory { get; }
@@ -50,8 +49,8 @@ namespace Emo.Pages.LocalImages {
             }
         }
 
-        private LocalCard _selectedCard;
-        public virtual LocalCard SelectedCard {
+        private EditableLocalCard _selectedCard;
+        public virtual EditableLocalCard SelectedCard {
             get => _selectedCard;
             set {
                 _selectedCard = value;
@@ -62,53 +61,6 @@ namespace Emo.Pages.LocalImages {
 
         public virtual bool IsCardSelected { get { return SelectedCard != null; } }
 
-        public virtual ObservableCollection<LocalCard> Cards { get; set; }
-    }
-
-    public class LocalCard : ViewModel, ILocalCard {
-        private string _filePath;
-        public virtual string FilePath {
-            get => _filePath; 
-            set {
-                _filePath = value;
-                if (string.IsNullOrEmpty(Name)) {
-                    Name = Path.GetFileNameWithoutExtension(_filePath);
-                }
-            }
-        }
-
-        private string _name;
-        public virtual string Name{
-            get => _name;
-            set {
-                _name = value;
-                NotifyPropertyChanged(nameof(Name));
-            }
-        }
-
-        private string _cardType;
-        public virtual string CardType {
-            get => _cardType;
-            set {
-                _cardType = value;
-                NotifyPropertyChanged(nameof(CardType));
-            }
-        }
-
-        private string _arkhamDbId;
-        public virtual string ArkhamDbId {
-            get => _arkhamDbId;
-            set {
-                _arkhamDbId = value;
-                NotifyPropertyChanged(nameof(ArkhamDbId));
-            }
-        }
-
-        public virtual bool HasBack { get; set; }
-
-        public virtual ImageSource Image { get; set; }
-        public virtual ImageSource FrontThumbnail { get; set; }
-        public virtual ImageSource BackThumbnail { get; set; }
-        public Rect ClipRect { get; set; }
+        public virtual ObservableCollection<EditableLocalCard> Cards { get; set; }
     }
 }

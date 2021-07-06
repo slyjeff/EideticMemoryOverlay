@@ -1,4 +1,7 @@
-﻿using Emo.Common.Services;
+﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Interfaces;
+using EideticMemoryOverlay.PluginApi.LocalCards;
+using Emo.Common.Services;
 using Emo.Common.Tcp;
 using Emo.Common.Utils;
 using Emo.Data;
@@ -28,33 +31,39 @@ namespace Emo {
             var eventBus = new UiEventBus();
             container.Configure(x => {
                 x.For<LoggingService>().Use<LoggingService>().Singleton();
+                x.For<ILoggingService>().Use<LoggingService>();
                 x.For<IEventBus>().Use(eventBus);
                 x.For<ICrossAppEventBus>().Use(eventBus);
                 x.For<IBroadcastService>().Use<BroadcastService>().Singleton();
                 x.For<IRequestHandler>().Use<TcpRequestHandler>();
-                x.For<AppData>().Use<AppData>().Singleton();
+                x.For(typeof(ILocalCardsService<>)).Use(typeof(LocalCardsService<>));
+                x.For<IAppData>().Use<AppData>().Singleton();
                 x.For<Configuration>().Use<Configuration>().Singleton();
-                x.For<Game>().Use<Game>().Singleton();
+                x.For<IPlugIn>().Use<PlugInWrapper>().Singleton();
+                x.For<IPlugInService>().Use<PlugInService>().Singleton();
+                x.For<IGameData>().Use<Game>().Singleton();
+                x.For<IGameFileService>().Use<GameFileService>().Singleton();
                 x.For<IControllerFactory>().Use(new ControllerFactory(container));
+                x.For<ICardGroup>().Use<CardGroup>();
             });
 
-           
-            _loggingService = container.GetInstance<LoggingService>();
+            var appData = container.GetInstance<AppData>();
+            container.Configure(x => x.For<AppData>().Use(appData));
+            container.Configure(x => x.For<IAppData>().Use(appData));
 
-            var cardLoadService = container.GetInstance<CardLoadService>();
-            cardLoadService.RegisterEvents();
+            _loggingService = container.GetInstance<LoggingService>();
 
             var configurationService = container.GetInstance<ConfigurationService>();
             configurationService.Load();
 
-            var gameFileService = container.GetInstance<GameFileService>();
+            var controller = container.GetInstance<MainController>();
+            controller.View.Show();
+
+            var gameFileService = container.GetInstance<IGameFileService>();
             gameFileService.Load();
 
             var receiveSocketService = container.GetInstance<ReceiveSocketService>();
             receiveSocketService.StartListening(TcpInfo.EmoPort);
-
-            var controller = container.GetInstance<MainController>();
-            controller.View.Show();
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e) {

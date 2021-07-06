@@ -1,4 +1,6 @@
-﻿using Emo.Common.Enums;
+﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Interfaces;
+using Emo.Common.Enums;
 using Emo.Common.Events;
 using Emo.Common.Services;
 using Emo.Data;
@@ -21,26 +23,24 @@ using System.Windows.Threading;
 namespace Emo.Pages.Main {
     public class MainController : Controller<MainView, MainViewModel> {
         private OverlayController _overlayController;
-        private readonly CardLoadService _cardLoadService;
         private readonly IList<SelectCardsController> _selectCardsControllers = new List<SelectCardsController>();
 
-        private readonly GameFileService _gameFileService;
+        private readonly IGameFileService _gameFileService;
         private readonly IControllerFactory _controllerFactory;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
+        private readonly IPlugIn _plugIn;
 
-        public MainController(AppData appData, GameFileService gameFileService, IControllerFactory controllerFactory, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
+        public MainController(AppData appData, IGameFileService gameFileService, IPlugIn plugIn, IControllerFactory controllerFactory, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
             ViewModel.AppData = appData;
 
             _gameFileService = gameFileService;
+            _plugIn = plugIn;
             _controllerFactory = controllerFactory;
-            _cardLoadService = cardLoadService;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
             _eventBus = eventBus;
-
-            LoadEncounterSets();
 
             View.Closed += (s, e) => {
                 _logger.LogMessage("Closing main window.");
@@ -50,17 +50,6 @@ namespace Emo.Pages.Main {
                     _overlayController.Close();
                 }
             };
-        }
-
-        private void LoadEncounterSets() {
-            var worker = new BackgroundWorker();
-            worker.DoWork += (x, y) => {
-                _logger.LogMessage("Main window loading encounter sets.");
-                _loadingStatusService.ReportEncounterCardsStatus(Status.LoadingDeck);
-                _cardLoadService.FindMissingEncounterSets(ViewModel.AppData.Configuration);
-                _loadingStatusService.ReportEncounterCardsStatus(Status.Finished);
-            };
-            worker.RunWorkerAsync();
         }
 
         private void ClearPlayerCardsWindows() {
@@ -135,6 +124,7 @@ namespace Emo.Pages.Main {
 
             timer.Start();
         }
+
         private void MainWindowActivated(object sender, EventArgs e) {
             foreach (var selectCardsWindow in _selectCardsControllers) {
                 selectCardsWindow.Show();
@@ -195,17 +185,15 @@ namespace Emo.Pages.Main {
         [Command]
         public void LocalImages() {
             _logger.LogMessage("Main window: manage local images clicked.");
-            var controller = _controllerFactory.CreateController<LocalImagesController>();
+            var controller = _controllerFactory.CreateLocalCardsController(typeof(LocalImagesController<>));
             controller.ShowView();
-            //reload
-
         }
 
         [Command]
         public void SetEncounterSets() {
             _logger.LogMessage("Main window: set encounter sets clicked.");
-            var chooseEncounters = _controllerFactory.CreateController<ChooseEncountersController>();
-            chooseEncounters.ShowDialog();
+            var chooseEncounters = _controllerFactory.CreateLocalCardsController(typeof(ChooseEncountersController<>));
+            chooseEncounters.ShowView();
         }
 
         [Command]
@@ -243,39 +231,42 @@ namespace Emo.Pages.Main {
         [Command]
         public void Refresh(Player player) {
             _logger.LogMessage($"Main window: refresh player {player.ID} cards clicked.");
-            if (!string.IsNullOrEmpty(player.DeckId)) {
-                try {
-                    _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingDeck);
-                    var originalName = player.Name;
-                    _cardLoadService.LoadPlayer(player);
+            if (string.IsNullOrEmpty(player.DeckId)) {
+                player.Clear();
+                return;
+            }
 
-                    //if this is a new character, clear all cards from card zones
-                    if (originalName != player.Name) {
-                        player.CardGroup.ClearCards();
+            try {
+                _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingDeck);
+                var originalName = player.Name;
+                _plugIn.LoadPlayer(player);
+
+                //if this is a new character, clear all cards from card zones
+                if (originalName != player.Name) {
+                    player.CardGroup.ClearCards();
+                }
+
+                var worker = new BackgroundWorker();
+                worker.DoWork += (x, y) => {
+                    _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingCards);
+                    try {
+                        _plugIn.LoadPlayerCards(player);
+                        _loadingStatusService.ReportPlayerStatus(player.ID, Status.Finished);
                     }
-
-                    var worker = new BackgroundWorker();
-                    worker.DoWork += (x, y) => {
-                        _loadingStatusService.ReportPlayerStatus(player.ID, Status.LoadingCards);
-                        try {
-                            _cardLoadService.LoadPlayerCards(player);
-                            _loadingStatusService.ReportPlayerStatus(player.ID, Status.Finished);
-                        }
-                        catch {
-                            _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
-                        }
-                    };
-                    worker.RunWorkerAsync();
-                }
-                catch (Exception ex) {
-                    _logger.LogException(ex, $"Main window: error refreshing player {player.ID} cards.");
-                    _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
-                }
+                    catch {
+                        _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
+                    }
+                };
+                worker.RunWorkerAsync();
+            }
+            catch (Exception ex) {
+                _logger.LogException(ex, $"Main window: error refreshing player {player.ID} cards.");
+                _loadingStatusService.ReportPlayerStatus(player.ID, Status.Error);
             }
         }
 
         [Command]
-        public void PlayerSelected(CardGroup cardGroup) {
+        public void PlayerSelected(ICardGroup cardGroup) {
             _logger.LogMessage($"Main window: player selected: {cardGroup.Name}.");
             var startingPositionProperty = string.Empty;
             if (ViewModel.Game.Players[0].CardGroup == cardGroup) { startingPositionProperty = nameof(Configuration.Player1Position); }

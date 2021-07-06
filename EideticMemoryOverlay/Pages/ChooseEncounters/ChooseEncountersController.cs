@@ -1,4 +1,7 @@
-﻿using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Interfaces;
+using EideticMemoryOverlay.PluginApi.LocalCards;
+using Emo.Data;
 using Emo.Services;
 using PageController;
 using System;
@@ -6,21 +9,23 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Emo.Pages.ChooseEncounters {
-    public class ChooseEncountersController : Controller<ChooseEncountersView, ChooseEncountersViewModel> {
-        private readonly AppData _appData;
+    public class ChooseEncountersController<T> : Controller<ChooseEncountersView, ChooseEncountersViewModel>, IDisplayableView where T : LocalCard {
+        private readonly IGameData _gameData;
+        private readonly IPlugIn _plugIn;
         private readonly LoggingService _logger;
         private readonly IList<SelectableEncounterSet> _selectableEncounterSets = new List<SelectableEncounterSet>();
-        private readonly IList<SelectableLocalPackManifest> _selectableLocalPackManifests = new List<SelectableLocalPackManifest>();
+        private readonly IList<SelectableLocalPackManifest<T>> _selectableLocalPackManifests = new List<SelectableLocalPackManifest<T>>();
 
-        public ChooseEncountersController(AppData appData, LoggingService loggingService, LocalCardsService localCardsService) {
-            _appData = appData;
+        public ChooseEncountersController(IGameData gameData, IPlugIn plugIn, LoggingService loggingService, ILocalCardsService<T> localCardsService) {
+            _gameData = gameData;
+            _plugIn = plugIn;
             _logger = loggingService;
-            foreach (var pack in appData.Configuration.Packs) {
+            foreach (var pack in plugIn.Packs) {
                 var cycle = GetCyle(pack);
 
                 foreach (var encounterSet in pack.EncounterSets) {
                     var selectableEncounterSet = new SelectableEncounterSet(encounterSet) {
-                        IsSelected = appData.Game.EncounterSets.Any(x => x.Code == encounterSet.Code)
+                        IsSelected = _gameData.EncounterSets.Any(x => x.Code == encounterSet.Code)
                     };
 
                     cycle.EncounterSets.Add(selectableEncounterSet);
@@ -36,8 +41,8 @@ namespace Emo.Pages.ChooseEncounters {
             var localCycle = new SelectableEncounterCycle();
             ViewModel.Cycles.Add(localCycle);
             foreach (var manifest in localCardsService.GetLocalPackManifests()) {
-                var selectableLocalPackManifest = new SelectableLocalPackManifest(manifest) {
-                    IsSelected = _appData.Game.LocalPacks.Any(x => string.Equals(x, manifest.Name, StringComparison.InvariantCulture))
+                var selectableLocalPackManifest = new SelectableLocalPackManifest<T>(manifest) {
+                    IsSelected = _gameData.LocalPacks.Any(x => string.Equals(x, manifest.Name, StringComparison.InvariantCulture))
                 };
 
                 _selectableLocalPackManifests.Add(selectableLocalPackManifest);
@@ -52,7 +57,7 @@ namespace Emo.Pages.ChooseEncounters {
             return ViewModel.Cycles[pack.CyclePosition - 1];
         }
 
-        internal void ShowDialog() {
+        public void ShowView() {
             _logger.LogMessage("Showing encounter selection dialog.");
             View.ShowDialog();
         }
@@ -67,7 +72,7 @@ namespace Emo.Pages.ChooseEncounters {
                     encounterSets.Add(encounterSet.EncounterSet);
                 }
             }
-            _appData.Game.EncounterSets = encounterSets;
+            _gameData.EncounterSets = encounterSets;
 
             var localPacks = new List<string>();
             foreach (var localPackManifest in _selectableLocalPackManifests) {
@@ -75,8 +80,8 @@ namespace Emo.Pages.ChooseEncounters {
                     localPacks.Add(localPackManifest.Manifest.Name);
                 }
             }
-            _appData.Game.LocalPacks = localPacks;
-            _appData.Game.OnEncounterSetsChanged();
+            _gameData.LocalPacks = localPacks;
+            _plugIn.LoadEncounterCards();
 
             View.Close();
         }

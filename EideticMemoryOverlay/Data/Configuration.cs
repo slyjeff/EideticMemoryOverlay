@@ -1,24 +1,15 @@
-﻿using Emo.Common.Services;
-using Emo.Common.Utils;
-using Emo.Events;
-using Emo.Services;
+﻿using Emo.Services;
 using PageController;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
 namespace Emo.Data {
     public class Configuration : ViewModel, IConfiguration {
-        private readonly IEventBus _eventBus;
-
-        public Configuration(IEventBus eventBus) {
-            _eventBus = eventBus;
+        public Configuration() {
             OverlayWidth = 1228;
             OverlayHeight = 720;
             CardHeight = 300;
-            Packs = new List<Pack>();
         }
 
         private string _lastSavedFileName;
@@ -64,8 +55,10 @@ namespace Emo.Data {
         }
 
         private void OnTrackPlayerStatsChanged() {
-            _eventBus.PublishStatTrackingVisibilityChangedEvent(TrackHealthAndSanity || TrackResources || TrackClues);
+            ShowStats = TrackHealthAndSanity || TrackResources || TrackClues;
+            NotifyPropertyChanged(nameof(ShowStats));
         }
+        public bool ShowStats { get; private set; }
 
 
         private bool _seperateStatSnapshots;
@@ -137,17 +130,6 @@ namespace Emo.Data {
 
                 NotifyPropertyChanged(nameof(BottomCardZoneHeight));
                 OnConfigurationChange();
-            }
-        }
-
-        public IList<Pack> Packs { get; set; }
-
-        public IList<EncounterSet> EncounterSets {
-            get {
-                return (from pack in Packs
-                        orderby pack.CyclePosition, pack.Position
-                        from encounterSet in pack.EncounterSets
-                        select encounterSet).ToList();
             }
         }
 
@@ -243,60 +225,9 @@ namespace Emo.Data {
             }
         }
 
-        private string _localImagesDirectory;
-        public string LocalImagesDirectory {
-            get => _localImagesDirectory;
-            set {
-                _localImagesDirectory = value;
-                NotifyPropertyChanged(nameof(LocalImagesDirectory));
-                OnConfigurationChange();
-            }
-        }
-
         public event Action ConfigurationChanged;
         public void OnConfigurationChange() {
             ConfigurationChanged?.Invoke();
         }
-    }
-
-    public class Pack {
-        public Pack() {
-            EncounterSets = new List<EncounterSet>();
-        }
-
-        public Pack(Pack pack) {
-            Code = pack.Code;
-            Name = pack.Name;
-            CyclePosition = pack.CyclePosition;
-            Position = pack.Position;
-
-            EncounterSets = new List<EncounterSet>();
-            foreach (var encounterSet in pack.EncounterSets) {
-                EncounterSets.Add(new EncounterSet(encounterSet));
-            }
-        }
-
-        public string Code { get; set; }
-
-        public string Name { get; set; }
-
-        public int CyclePosition { get; set; }
-
-        public int Position { get; set; }
-
-        public IList<EncounterSet> EncounterSets { get; set; }
-    }
-
-    public class EncounterSet {
-        public EncounterSet() {
-        }
-
-        public EncounterSet(EncounterSet encounterSet) {
-            Name = encounterSet.Name;
-            Code = encounterSet.Code;
-        }
-
-        public string Name { get; set; }
-        public string Code { get; set; }
     }
 }

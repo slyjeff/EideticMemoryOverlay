@@ -1,18 +1,18 @@
-﻿using Emo.Common.Services;
-using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi.Interfaces;
+using Emo.Common.Services;
 using System;
 
 namespace Emo.Events {
     public class ClearAllCardsForCardGroupRequest : IEvent {
-        public ClearAllCardsForCardGroupRequest(CardGroup cardGroup) {
+        public ClearAllCardsForCardGroupRequest(ICardGroup cardGroup) {
             CardGroup = cardGroup;
         }
 
-        public CardGroup CardGroup { get; }
+        public ICardGroup CardGroup { get; }
     }
 
     public static class ClearAllCardsForCardGroupRequestExtensions {
-        public static void PublishClearAllCardsForCardGroupRequest(this IEventBus eventBus, CardGroup cardGroup) {
+        public static void PublishClearAllCardsForCardGroupRequest(this IEventBus eventBus, ICardGroup cardGroup) {
             eventBus.Publish(new ClearAllCardsForCardGroupRequest(cardGroup));
         }
 

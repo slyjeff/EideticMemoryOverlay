@@ -1,4 +1,4 @@
-﻿using Emo.CardButtons;
+﻿using EideticMemoryOverlay.PluginApi;
 using Emo.Common.Enums;
 using Emo.Common.Events;
 using Emo.Common.Services;
@@ -7,15 +7,19 @@ using Emo.Events;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace Emo.Services {
     public interface IGame {
+        string PlugInName { get; set; }
         string Name { get; set; }
         string Scenario { get; set; }
         string SnapshotDirectory { get; set; }
-        IList<EncounterSet> EncounterSets { get; }
+        IList<EncounterSet> EncounterSets { get; set; }
         IList<string> LocalPacks { get; }
     }
 
@@ -47,6 +51,7 @@ namespace Emo.Services {
             ZoneButtons = new List<ZoneButton>();
         }
 
+        public string PlugInName { get; set; }
         public string Name { get; set; }
         public string Scenario { get; set; }
         public string SnapshotDirectory { get; set; }
@@ -56,70 +61,136 @@ namespace Emo.Services {
         public IList<ZoneButton> ZoneButtons { get; set; }
     }
 
-    public class GameFileService {
+    public interface IGameFileService {
+        void Load(string fileName = "");
+        void Save(string fileName);
+    }
+
+    internal class GameFileService : IGameFileService {
         private readonly AppData _appData;
-        private readonly CardLoadService _cardLoadService;
         private readonly LoadingStatusService _loadingStatusService;
         private readonly LoggingService _logger;
         private readonly IEventBus _eventBus;
+        private readonly IPlugInService _plugInService;
+        private readonly PlugInWrapper _plugInWrapper;
         private IList<ZoneButton> _zoneButtons;
 
-        public GameFileService(AppData appData, CardLoadService cardLoadService, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus) {
+        public GameFileService(AppData appData, LoadingStatusService loadingStatusService, LoggingService loggingService, IEventBus eventBus, IPlugInService plugInService, IPlugIn plugIn) {
             _appData = appData;
-            _cardLoadService = cardLoadService;
             _loadingStatusService = loadingStatusService;
             _logger = loggingService;
             _eventBus = eventBus;
-
+            _plugInService = plugInService;
+            _plugInWrapper = (PlugInWrapper)plugIn;
             eventBus.SubscribeToCardGroupButtonsChanged(CardGroupButtonsChangedHandler);
         }
 
-        internal void Load(string fileName = "") {
+        public void Load(string fileName = "") {
             if (string.IsNullOrEmpty(fileName)) {
                 fileName = _appData.Configuration.LastSavedFileName;
             }
 
             _logger.LogMessage($"Loading game from file {fileName}.");
-            if (File.Exists(fileName)) {
-                try {
-                    _eventBus.PublishClearAllCardsRequest();
-                    var gameFile = JsonConvert.DeserializeObject<GameFile>(File.ReadAllText(fileName));
-                    _zoneButtons = gameFile.ZoneButtons;
+            if (!File.Exists(fileName)) {
+                LoadPlugIn(null);
+                return;
+            }
 
-                    var game = _appData.Game;
-                    game.ClearAllCardsLists();
+            try {
+                _eventBus.PublishClearAllCardsRequest();
+                var gameFile = JsonConvert.DeserializeObject<GameFile>(File.ReadAllText(fileName));
+                LoadPlugIn(gameFile.PlugInName);
 
-                    gameFile.CopyTo(game);
-                    game.FileName = fileName;
-                    game.OnEncounterSetsChanged();
+                _zoneButtons = gameFile.ZoneButtons;
 
-                    for (var index = 0; index < gameFile.DeckIds.Count && index < game.Players.Count; index++) {
-                        game.Players[index].DeckId = gameFile.DeckIds[index];
-                        if (!string.IsNullOrEmpty(game.Players[index].DeckId)) {
-                            try {
-                                _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.LoadingCards);
-                                _cardLoadService.LoadPlayer(game.Players[index]);
-                            } catch (Exception ex) {
-                                _logger.LogException(ex, $"Error loading player {game.Players[index].ID}.");
-                                _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.Error);
-                            }
-                        }
+                var game = _appData.Game as Game;
+                if (game == default) {
+                    return;
+                }
+                game.ClearAllCardsLists();
+
+                gameFile.CopyTo(game);
+                game.FileName = fileName;
+
+                LoadAllPlayers(gameFile);
+                LoadEncounterCards();
+                LoadPlayerCards();
+
+                _logger.LogMessage($"Finished reading game file: {fileName}.");
+
+                _appData.Configuration.LastSavedFileName = fileName;
+
+                return;
+            } catch (Exception ex) {
+                // if there's an error, we don't care- just use the existing game
+                _logger.LogException(ex, $"Error reading game file: {fileName}.");
+                LoadPlugIn(null);
+                return;
+            }
+        }
+
+        private void LoadAllPlayers(GameFile gameFile) {
+            var game = _appData.Game as Game;
+
+            for (var index = 0; index < gameFile.DeckIds.Count && index < game.Players.Count; index++) {
+                game.Players[index].DeckId = gameFile.DeckIds[index];
+                if (!string.IsNullOrEmpty(game.Players[index].DeckId)) {
+                    try {
+                        _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.LoadingCards);
+                        _plugInWrapper.LoadPlayer(game.Players[index]);
+                    } catch (Exception ex) {
+                        _logger.LogException(ex, $"Error loading player {game.Players[index].ID}.");
+                        _loadingStatusService.ReportPlayerStatus(game.Players[index].ID, Status.Error);
                     }
-
-                    game.OnPlayersChanged();
-                    _appData.OnGameChanged();
-                    _logger.LogMessage($"Finished reading game file: {fileName}.");
-                } catch (Exception ex) {
-                    // if there's an error, we don't care- just use the existing game
-                    _logger.LogException(ex, $"Error reading game file: {fileName}.");
                 }
             }
         }
 
-        internal void Save(string fileName) {
+        private void LoadEncounterCards() {
+            var worker = new BackgroundWorker();
+            worker.DoWork += (x, y) => {
+                _plugInWrapper.LoadEncounterCards();
+            };
+            worker.RunWorkerAsync();
+        }
+
+        private void LoadPlayerCards() {
+            var worker = new BackgroundWorker();
+            worker.DoWork += (x, y) => {
+                _plugInWrapper.LoadAllPlayerCards();
+            };
+            worker.RunWorkerAsync();
+        }
+
+        private void LoadPlugIn(string plugInName) {
+            if (string.IsNullOrEmpty(plugInName)) {
+                plugInName = "EmoPlugIn.ArkhamHorrorLcg.dll";
+            }
+
+            var plugIn = _plugInService.GetPlugInByName(plugInName);
+            if (plugIn == default) {
+                _logger.LogMessage($"PlugIn {plugInName} not found.");
+                plugIn = _plugInService.GetPlugInByName("EmoPlugIn.ArkhamHorrorLcg.dll");
+            }
+
+            _plugInWrapper.SetPlugIn(plugIn);
+
+            if (plugIn == default) {
+                return;
+            }
+
+            _appData.Game.InitializeFromPlugin();
+        }
+
+        public void Save(string fileName) {
             _logger.LogMessage($"Saving game file: {fileName}.");
             var gameFile = new GameFile();
-            _appData.Game.CopyTo(gameFile);
+            var game = _appData.Game as IGame;
+            if (game == default) {
+                return;
+            }
+
+            game.CopyTo(gameFile);
 
             foreach (var player in _appData.Game.Players) {
                 gameFile.DeckIds.Add(player.DeckId);
@@ -200,14 +271,17 @@ namespace Emo.Services {
 
     public static class GameFileExtensions {
         public static void CopyTo(this IGame fromGame, IGame toGame) {
+            toGame.PlugInName = fromGame.PlugInName;
             toGame.Name = fromGame.Name;
             toGame.Scenario = fromGame.Scenario;
             toGame.SnapshotDirectory = fromGame.SnapshotDirectory;
 
-            toGame.EncounterSets.Clear();
+            var encounterSets = new List<EncounterSet>();
+            encounterSets.Clear();
             foreach (var encounterSet in fromGame.EncounterSets) {
-                toGame.EncounterSets.Add(new EncounterSet(encounterSet));
+                encounterSets.Add(new EncounterSet(encounterSet));
             }
+            toGame.EncounterSets = encounterSets;
 
             toGame.LocalPacks.Clear();
             foreach (var localPack in fromGame.LocalPacks) {

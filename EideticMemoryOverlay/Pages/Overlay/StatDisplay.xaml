@@ -17,23 +17,6 @@
     <Border.Resources>
         <FontFamily x:Key="ArkhamHorrorFont">/Fonts/#AH LCG</FontFamily>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
-        <Style x:Key="StatText" TargetType="{x:Type utils:OutlinedTextBlock}">
-            <Setter Property="FontSize" Value="{Binding DataContext.StatFontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
-            <Setter Property="Text" Value="{Binding Name}" />
-            <Setter Property="Fill" Value="{Binding PlayerNameBrush}" />
-            <Setter Property="StrokeThickness" Value="4"/>
-            <Setter Property="Stroke" Value="Black"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect
-                        ShadowDepth="3"
-                        Direction="330"
-                        Color="Black"
-                        Opacity="0.3"
-                        BlurRadius="4"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <Style x:Key="TrackValueImage" TargetType="{x:Type Image}">
             <Setter Property="Width" Value="{Binding DataContext.StatImageSize, RelativeSource={RelativeSource AncestorType=Window}}" />

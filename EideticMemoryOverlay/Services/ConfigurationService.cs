@@ -1,7 +1,6 @@
 ﻿using Emo.Data;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
@@ -29,15 +28,9 @@ namespace Emo.Services {
         Point OverlayPosition { get; set; }
         bool UseAutoSnapshot { get; set; }
         string AutoSnapshotFilePath { get; set; }
-        string LocalImagesDirectory { get; set; }
-        IList<Pack> Packs { get; }
     }
 
     public class ConfigurationFile : IConfiguration {
-        public ConfigurationFile() {
-            Packs = new List<Pack>();
-        }
-
         public string LastSavedFileName { get; set; }
         public bool TrackHealthAndSanity { get; set; }
         public bool TrackResources { get; set; }
@@ -50,7 +43,6 @@ namespace Emo.Services {
         public int TopCardZoneHeight { get; set; }
         public int BottomCardZoneHeight { get; set; }
         public bool UseActAgendaBar { get; set; }
-        public IList<Pack> Packs { get; set; }
         public Point ScenarioCardsPosition { get; set; }
         public Point LocationsPosition { get; set; }
         public Point EncounterCardsPosition { get; set; }
@@ -61,7 +53,6 @@ namespace Emo.Services {
         public Point OverlayPosition { get; set; }
         public bool UseAutoSnapshot { get; set; }
         public string AutoSnapshotFilePath { get; set; }
-        public string LocalImagesDirectory { get; set; }
     }
 
     public class ConfigurationService {
@@ -137,11 +128,6 @@ namespace Emo.Services {
             toConfiguration.OverlayPosition = fromConfiguration.OverlayPosition;
             toConfiguration.UseAutoSnapshot = fromConfiguration.UseAutoSnapshot;
             toConfiguration.AutoSnapshotFilePath= fromConfiguration.AutoSnapshotFilePath;
-            toConfiguration.LocalImagesDirectory = fromConfiguration.LocalImagesDirectory;
-            toConfiguration.Packs.Clear();
-            foreach (var pack in fromConfiguration.Packs) {
-                toConfiguration.Packs.Add(new Pack(pack));
-            }
         }
     }
 }

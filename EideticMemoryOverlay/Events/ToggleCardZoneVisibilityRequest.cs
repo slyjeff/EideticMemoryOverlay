@@ -1,5 +1,5 @@
-﻿using Emo.Common.Services;
-using Emo.Data;
+﻿using EideticMemoryOverlay.PluginApi;
+using Emo.Common.Services;
 using System;
 
 namespace Emo.Events {

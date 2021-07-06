@@ -34,6 +34,7 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="StructureMap, Version=4.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\StructureMap.4.7.1\lib\net45\StructureMap.dll</HintPath>
     </Reference>
@@ -46,6 +47,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events\CardGroupButtonsChanged.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="Utils\ButtonInfo.cs" />
     <Compile Include="Utils\ButtonOption.cs" />
     <Compile Include="Utils\EnumUtils.cs" />
+    <Compile Include="Utils\ImageUtils.cs" />
     <Compile Include="Utils\ServiceLocator.cs" />
     <Compile Include="Tcp\AoTcpRequest.cs" />
     <Compile Include="Tcp\Requests\EventBusRequest.cs" />

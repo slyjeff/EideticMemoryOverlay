@@ -40,14 +40,14 @@
                    LastChildFill="false"
                    Visibility="{Binding ShowDeckList, Converter={StaticResource BoolToVisibilityCollapsed}}"
                    x:Name="Stats">
-            <DockPanel DockPanel.Dock="Top" LastChildFill="false" Margin="0, -5, 0, 0">
-                <overlay:StatDisplay DockPanel.Dock="Left"  DataContext="{Binding AppData.Game.Players[0]}" />
-                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}" />
+            <DockPanel DockPanel.Dock="Top" LastChildFill="false" Margin="0, -5, 0, 0" Visibility="{Binding AppData.Configuration.ShowStats, Converter={StaticResource BoolToVisibility}}">
+                <overlay:StatDisplay DockPanel.Dock="Left"  DataContext="{Binding AppData.Game.Players[0]}" Visibility="{Binding LoadedVisiblity}" />
+                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[1]}" Visibility="{Binding LoadedVisiblity}" />
             </DockPanel>
 
-            <DockPanel DockPanel.Dock="Bottom"  LastChildFill="false"  Margin="0, -5, 0, 10">
-                <overlay:StatDisplay  DockPanel.Dock="Left" DataContext="{Binding AppData.Game.Players[2]}" />
-                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[3]}" />
+            <DockPanel DockPanel.Dock="Bottom"  LastChildFill="false"  Margin="0, -5, 0, 10" Visibility="{Binding AppData.Configuration.ShowStats, Converter={StaticResource BoolToVisibility}}">
+                <overlay:StatDisplay DockPanel.Dock="Left" DataContext="{Binding AppData.Game.Players[2]}" Visibility="{Binding LoadedVisiblity}" />
+                <overlay:StatDisplay DockPanel.Dock="Right" DataContext="{Binding AppData.Game.Players[3]}" Visibility="{Binding LoadedVisiblity}" />
             </DockPanel>
         </DockPanel>
 

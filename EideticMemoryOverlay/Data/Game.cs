@@ -1,4 +1,6 @@
-﻿using Emo.CardButtons;
+﻿using EideticMemoryOverlay.PluginApi;
+using EideticMemoryOverlay.PluginApi.Buttons;
+using EideticMemoryOverlay.PluginApi.Interfaces;
 using Emo.Common.Enums;
 using Emo.Common.Services;
 using Emo.Common.Utils;
@@ -11,24 +13,41 @@ using System.Linq;
 using System.Windows;
 
 namespace Emo.Data {
-    public class Game : ViewModel, IGame {
+    public class Game : ViewModel, IGame, IGameData {
         private readonly IEventBus _eventBus;
         private readonly LoggingService _logger;
+        private readonly IPlugIn _plugIn;
 
-        public Game(IEventBus eventBus, LoggingService logger) {
+        public Game(IEventBus eventBus, LoggingService logger, IPlugIn plugIn) {
             _eventBus = eventBus;
-            _logger = logger; 
-
-            Players = new List<Player> { new Player(CardGroupId.Player1), new Player(CardGroupId.Player2), new Player(CardGroupId.Player3), new Player(CardGroupId.Player4) };
-            EncounterSets = new List<EncounterSet>();
-            LocalPacks = new List<string>();
-            ScenarioCards = new CardGroup(CardGroupId.Scenario);
-            ScenarioCards.AddCardZone(new CardZone("Act/Agenda Bar", CardZoneLocation.Top));
-            LocationCards = new CardGroup(CardGroupId.Locations);
-            EncounterDeckCards = new CardGroup(CardGroupId.EncounterDeck);
-
+            _logger = logger;
+            _plugIn = plugIn;
+            Players = new List<Player>();
             _eventBus.SubscribeToButtonClickRequest(ButtonClickRequestHandler);
         }
+
+        /// <summary>
+        /// Setup the game using plugin specific logic
+        /// </summary>
+        public void InitializeFromPlugin() {
+            PlugInName = _plugIn.GetType().Assembly.GetName().Name;
+            Players = new List<Player> {
+                _plugIn.CreatePlayer(new CardGroup(CardGroupId.Player1, _plugIn)),
+                _plugIn.CreatePlayer(new CardGroup(CardGroupId.Player2, _plugIn)),
+                _plugIn.CreatePlayer(new CardGroup(CardGroupId.Player3, _plugIn)),
+                _plugIn.CreatePlayer(new CardGroup(CardGroupId.Player4, _plugIn))};
+
+            EncounterSets = new List<EncounterSet>();
+            LocalPacks = new List<string>();
+            ScenarioCards = new CardGroup(CardGroupId.Scenario, _plugIn);
+            ScenarioCards.AddCardZone(new CardZone("Act/Agenda Bar", CardZoneLocation.Top));
+            LocationCards = new CardGroup(CardGroupId.Locations, _plugIn);
+            EncounterDeckCards = new CardGroup(CardGroupId.EncounterDeck, _plugIn);
+
+            NotifyPropertyChanged(nameof(Players));
+        }
+
+        public string PlugInName { get; set; }
 
         public string FileName { get; set; }
 
@@ -58,26 +77,27 @@ namespace Emo.Data {
             }
         }
 
-        public IList<EncounterSet> EncounterSets { get; set;  }
+        private IList<EncounterSet> _encounterSets = new List<EncounterSet>();
+        public IList<EncounterSet> EncounterSets {
+            get => _encounterSets;
+            set {
+                _encounterSets = value;
+                NotifyPropertyChanged(nameof(EncounterSets));
+                NotifyPropertyChanged(nameof(EncounterCardOptionsVisibility));
+            }
+        }
 
         public IList<string> LocalPacks { get; set; }
 
-        public CardGroup ScenarioCards { get; }
+        public ICardGroup ScenarioCards { get; private set; }
 
-        public CardGroup LocationCards { get; }
+        public ICardGroup LocationCards { get; private set; }
 
-        public CardGroup EncounterDeckCards { get; }
+        public ICardGroup EncounterDeckCards { get; private set; }
 
-        public IList<Player> Players { get; }
+        public IList<Player> Players { get; protected set; }
 
         public event Action PlayersChanged;
-
-        public event Action EncounterSetsChanged;
-        public void OnEncounterSetsChanged() {
-            EncounterSetsChanged?.Invoke();
-            NotifyPropertyChanged(nameof(EncounterSets));
-            NotifyPropertyChanged(nameof(EncounterCardOptionsVisibility));
-        }
 
         public Visibility EncounterCardOptionsVisibility { 
             get {
@@ -85,24 +105,19 @@ namespace Emo.Data {
             } 
         }
 
-        internal void ClearAllCardsLists() {
+        public void ClearAllCardsLists() {
             foreach (var selectableCards in AllCardGroups) {
                 selectableCards.ClearCards();
             }
         }
 
-        public void OnPlayersChanged() {
-            PlayersChanged?.Invoke();
-            NotifyPropertyChanged(nameof(Players));
-        }
-
-        internal bool IsEncounterSetSelected(string code) {
+        public bool IsEncounterSetSelected(string code) {
             return EncounterSets.Any(x => x.Code == code);
         }
 
-        public IList<CardGroup> AllCardGroups {
+        public IList<ICardGroup> AllCardGroups {
             get {
-                var allCardGroups = new List<CardGroup> {
+                var allCardGroups = new List<ICardGroup> {
                     ScenarioCards,
                     LocationCards,
                     EncounterDeckCards
@@ -120,7 +135,7 @@ namespace Emo.Data {
         /// </summary>
         /// <param name="cardGroupId">Unique ID for a group</param>
         /// <returns>The group matching the passed in ID</returns>
-        public CardGroup GetCardGroup(CardGroupId cardGroupId) {
+        public ICardGroup GetCardGroup(CardGroupId cardGroupId) {
             switch (cardGroupId) {
                 case CardGroupId.Player1:
                     return Players[0].CardGroup;
@@ -188,7 +203,7 @@ namespace Emo.Data {
         /// </summary>
         /// <param name="cardGroup">The Card Group this card was clicked in</param>
         /// <param name="button">The button clicked</param>
-        private void HandleButtonLeftClick(CardGroup cardGroup, IButton button) {
+        private void HandleButtonLeftClick(ICardGroup cardGroup, IButton button) {
             if (button is CardImageButton cardImageButton) {
                 _logger.LogMessage($"Requesting toggle for {cardImageButton.CardInfo.Name} visibility");
                 _eventBus.PublishToggleCardInfoVisibilityRequest(cardImageButton.CardInfo);
@@ -214,7 +229,7 @@ namespace Emo.Data {
         /// <param name="cardGroup">The Card Group this card was clicked in</param>
         /// <param name="button">The button clicked</param>
         /// <param name="buttonOption">Option the user selected from a right click menu, if applicable</param>
-        private void HandleButtonRightClick(CardGroup cardGroup, CardImageButton button, ButtonOption buttonOption) {
+        private void HandleButtonRightClick(ICardGroup cardGroup, CardImageButton button, ButtonOption buttonOption) {
             //button should always be set- if it's not, we have an issue
             if (button == null) {
                 _logger.LogError($"Right Button Click for {cardGroup.Name} was not a button with an image");
@@ -247,13 +262,10 @@ namespace Emo.Data {
         /// <param name="destinationCardZone">Card Zone that contains the button</param>
         /// <param name="cardInfo">Information bout the card for this button</param>
         /// <returns>Options to assign to a right click button</returns>
-        private IEnumerable<ButtonOption> CreateButtonOptions(CardGroup cardGroup, CardZone destinationCardZone, CardInfo cardInfo) {
+        private IEnumerable<ButtonOption> CreateButtonOptions(ICardGroup cardGroup, CardZone destinationCardZone, CardInfo cardInfo) {
             var options = new List<ButtonOption>();
 
             options.Add(new ButtonOption(ButtonOptionOperation.Remove));
-            if (!cardInfo.IsPlayerCard) {
-                return options;
-            }
 
             var cardZones = cardGroup.CardZones;
             foreach (var cardZone in cardZones) {

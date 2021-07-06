@@ -1,4 +1,4 @@
-﻿using Emo.CardButtons;
+﻿using EideticMemoryOverlay.PluginApi.Interfaces;
 using Emo.Utils;
 using System;
 using System.Runtime.Caching;
@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace Emo.Services {
-    public class CardImageService {
+    public class CardImageService : ICardImageService {
         private readonly LoggingService _logger;
 
         private readonly CardImageCache _cache = new CardImageCache();
@@ -68,7 +68,7 @@ namespace Emo.Services {
 
         private void CropImage(IHasImageButton hasImageButton) {
             try {
-                hasImageButton.ButtonImage = hasImageButton.Image.CropImage(hasImageButton.ImageCardType);
+                hasImageButton.ButtonImage = hasImageButton.Image.CropImage(hasImageButton.GetCropStartingPoint());
                 hasImageButton.ButtonImageAsBytes = hasImageButton.ButtonImage.AsBytes();
             } catch (Exception ex) {
                 _logger.LogException(ex, $"Error cropping image for button {hasImageButton.Name}");
